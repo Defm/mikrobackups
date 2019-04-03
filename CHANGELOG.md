@@ -1,4 +1,14 @@
-### Git Auto Save, Date: среда,  3 апреля 2019 г. 00:52:04 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.44.1.src,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: среда,  3 апреля 2019 г. 23:03:27 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.44.1.src,  Removed Files: (HEAD -> _autobranch)
+>Wed, 3 Apr 2019 23:03:27 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: среда,  3 апреля 2019 г. 00:52:04 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.44.1.src,  Removed Files: (mikrobackups/_autobranch)
 >Wed, 3 Apr 2019 00:52:04 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### One more test (mikrobackups/_autobranch)
+### One more test
 >Wed, 3 Apr 2019 00:48:56 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
