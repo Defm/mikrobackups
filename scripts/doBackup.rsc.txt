@@ -1,0 +1,140 @@
+:local sysname [/system identity get name];
+:local sysver [/system package get system version];
+
+:local saveUserDB false
+:local saveSysBackup true
+:local encryptSysBackup false
+:local saveRawExport true
+:local verboseRawExport false
+
+:local FTPEnable true
+:local FTPServer "minialx.home"
+:local FTPPort 21
+:local FTPUser "ftp"
+:local FTPPass ""
+
+#directories have to exist!
+:local FTPRoot "/pub/"
+:local FTPGitEnable true
+:local FTPRawGitName "/pub/git/rawconf_$sysname_$sysver.rsc"
+
+
+:local SMTPEnable true
+:local SMTPAddress "defm.kopcap@gmail.com"
+
+
+:local ts [/system clock get time]
+:set ts ([:pick $ts 0 2].[:pick $ts 3 5].[:pick $ts 6 8])
+:local ds [/system clock get date]
+:set ds ([:pick $ds 7 11].[:pick $ds 0 3].[:pick $ds 4 6])
+
+:local SMTPsysSubject ("$sysname Full Backup ($ds-$ts)")
+:local SMTPrawSubject ("$sysname Setup Script Backup ($ds-$ts)")
+
+:local SMTPBody ("$sysname full Backup file see in attachment.\nRouterOS version: $sysver\nTime and Date stamp: ($ds-$ts) ")
+
+:local DNSName ""
+
+:local DebugInfo do={
+ 
+ ## outputs $value using both :put and :log info
+ ## example $DebugInfo value="12345"
+ :put "DEBUG: $value"
+ :log info message="$value"
+
+}
+
+:do {
+  :local smtpserv [:resolve "$FTPServer"];
+} on-error={ $DebugInfo value="FTP server looks like to be unreachable" }
+  
+:do {
+    :set DNSName ("-".[/ip cloud get dns-name])
+}
+
+:local fname ("BACKUP-".[/system identity get name]."-".$ds."-".$ts)
+
+:if ($saveUserDB) do={
+  :do {
+  $DebugInfo value="User Manager DB Backup"
+  /tool user-manager database save name=($fname.".umb")
+  $DebugInfo value="Done"
+      } on-error={ $DebugInfo value="Error When User Manager DB Backup" }
+}
+
+:if ($saveSysBackup) do={
+  :if ($encryptSysBackup = true) do={ /system backup save name=($fname.".backup") }
+  :if ($encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=($fname.".backup") }
+  $DebugInfo value="System Backup Finished"
+}
+
+:if ($saveRawExport) do={
+  :if ($verboseRawExport = true) do={ /export verbose file=($fname.".rsc") }
+  :if ($verboseRawExport = false) do={ /export file=($fname.".rsc") }
+  :if ($FTPGitEnable ) do={
+     :if ($verboseRawExport = true) do={ /export terse hide-sensitive verbose file=($fname.".safe.rsc") }
+     :if ($verboseRawExport = false) do={ /export terse hide-sensitive  file=($fname.".safe.rsc") }
+  }
+  $DebugInfo value="Raw configuration script export Finished"
+}
+
+:delay 5s
+
+:local backupFileName ""
+
+:foreach backupFile in=[/file find] do={
+  :set backupFileName ([/file get $backupFile name])
+  :if ([:typeof [:find $backupFileName $fname]] != "nil") do={
+    :local rawfile ( $backupFileName ~".safe.rsc")
+    if ($FTPEnable) do={
+        :do {
+        :local state "Uploading $backupFileName to FTP ($FTPRoot$backupFileName)"
+        $DebugInfo value=$state
+        /tool fetch address=$FTPServer port=$FTPPort src-path=$backupFileName user=$FTPUser password=$FTPPass dst-path="$FTPRoot$backupFileName" mode=ftp upload=yes
+        $DebugInfo value="Done"
+            } on-error={ $DebugInfo value="Error When Uploading file to FTP" }
+    }
+    #special ftp upload for git purposes
+    if ($FTPEnable and $rawfile and $FTPGitEnable) do={
+        :do {
+        :local state "Uploading $backupFileName to FTP (RAW, $FTPRawGitName)"
+        $DebugInfo value=$state
+        /tool fetch address=$FTPServer port=$FTPPort src-path=$backupFileName user=$FTPUser password=$FTPPass dst-path="$FTPRawGitName" mode=ftp upload=yes
+        $DebugInfo value="Done"
+            } on-error={ $DebugInfo value="Error When Uploading file to FTP (RAW)" }
+    }
+    if ($SMTPEnable and !$rawfile) do={
+        :do {
+        :local state "Uploading $backupFileName to SMTP"
+        $DebugInfo value=$state
+        /tool e-mail send to=$SMTPAddress body=$SMTPBody subject=$SMTPsysSubject file=$backupFileName
+        $DebugInfo value="Done"
+            } on-error={ $DebugInfo value="Error When Uploading file to SMTP" }        
+    }
+    if ($SMTPEnable and $rawfile) do={
+        :do {
+        :local state "Uploading $backupFileName to SMTP (RAW)"
+        $DebugInfo value=$state
+        /tool e-mail send to=$SMTPAddress body=$SMTPBody subject=$SMTPrawSubject file=$backupFileName
+        $DebugInfo value="Done"
+            } on-error={ $DebugInfo value="Error When Uploading file to SMTP (RAW)" }        
+    }
+  }
+}
+
+:delay 5s
+
+:foreach backupFile in=[/file find] do={
+  :if ([:typeof [:find [/file get $backupFile name] "BACKUP-"]]!= "nil") do={
+    /file remove $backupFile
+  }
+}
+
+$DebugInfo value="Successfully removed Temporary Backup Files"
+$DebugInfo value="Automatic Backup Completed Successfully"
+
+#urlencoded cyrillic
+:local backupDone "%D0%92%D1%8B%D0%BF%D0%BE%D0%BB%D0%BD%D0%B5%D0%BD%D0%BE%20%D1%80%D0%B5%D0%B7%D0%B5%D1%80%D0%B2%D0%BD%D0%BE%D0%B5%20%D0%B0%D1%80%D1%85%D0%B8%D0%B2%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%BA%D0%BE%D0%BD%D1%84%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%86%D0%B8%D0%B8%20%D0%BC%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%D0%B0%20%28%D1%81%D0%BC.%20%D0%BF%D0%BE%D1%87%D1%82%D1%83%29";
+:global TelegramMessage "$backupDone";
+
+/system script run doTelegramNotify;

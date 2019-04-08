@@ -1,0 +1,103 @@
+# DHCP Lease to Simple Queues
+# 2014 Lonnie Mendez (lmendez@anvilcom.com)
+#
+# Mikrotik RouterOS v6.9
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doCreateTrafficAccountingQueues";
+ 
+/ip dhcp-server lease
+:foreach x in=[find] do={
+ 
+# grab variables for use below
+:local leaseaddr ([get $x address])
+:local leasemacaddr [get $x mac-address]
+:local leasehostname [get $x host-name]
+:local leasename [get $x comment]
+:local queuecomment
+ 
+:local leaseinqueue false
+ 
+/queue simple
+:foreach y in=[find] do={
+ 
+#grab variables for use below
+:local queuetargetaddr [get $y target]
+:set queuecomment [get $y comment]
+ 
+# Isolate information  from the comment field (MAC, Hostname)
+:local queuemac [:pick $queuecomment 4 21]
+:local queuehostname [:pick $queuecomment 22 [:len $queuecomment]]
+ 
+# If MAC from lease matches the queue MAC then refresh the queue item
+:if ($queuemac = $leasemacaddr) do={
+# build a comment field
+:set queuecomment ("dtq," . $leasemacaddr . "," . $leasehostname)
+ 
+set $y target=$leaseaddr comment=$queuecomment
+:if ($leasename != "") do= {
+set $y name=($leasename . " (" . $leasemacaddr . ")")
+} else= {
+:if ($leasehostname != "") do= {
+set $y name=($leasehostname . " (" . $leasemacaddr . ")")
+} else= {
+set $y name=$leasemacaddr
+}
+}
+:set leaseinqueue true
+} else= {
+# if ip exists for this lease but mac is different then update mac/hostname and reset counter
+:if ($queuetargetaddr = $leaseaddr) do={
+# build a comment field
+:set queuecomment ("dtq," . $leasemacaddr . "," . $leasehostname)
+ 
+set $y comment=$queuecomment
+reset-counters $y
+:if ($leasename != "") do= {
+set $y name=($leasename . " (" . $leasemacaddr . ")")
+} else= {
+:if ($leasehostname != "") do= {
+set $y name=($leasehostname . " (" . $leasemacaddr . ")")
+} else= {
+set $y name=$leasemacaddr
+}
+}
+:set leaseinqueue true
+}
+}
+}
+ 
+# There was not an existing entry so add one for this lease
+:if ($leaseinqueue = false) do={
+# build a comment field
+:set queuecomment ("dtq," . $leasemacaddr . "," . $leasehostname)
+# build command
+:local cmd "/queue simple add target=$leaseaddr max-limit=10M/10M comment=$queuecomment"
+:if ($leasename != "") do={ 
+:set cmd "$cmd name=\"$leasename ($leasemacaddr)\"" 
+} else= {
+:if ($leasehostname != "") do={
+:set cmd "$cmd name=\"$leasehostname ($leasemacaddr)\""
+} else= {
+:set cmd "$cmd name=\"$leasemacaddr\""
+}
+}
+ 
+:execute $cmd
+
+}
+}
+ 
+# Cleanup Routine - remove dynamic entries that no longer exist in the lease table
+/queue simple
+:foreach z in=[find] do={
+:local queuecomment [get $z comment]
+:local queue1stpart [:pick $queuecomment 0 3]
+:local queue2ndpart [:pick $queuecomment 4 21]
+:if ( $queue1stpart = "dtq") do={
+:if ( [/ip dhcp-server lease find mac-address=$queue2ndpart] = "") do={
+:log info ("DTQ: Removing stale entry for MAC Address - " . $queue2ndpart)
+remove $z
+}
+}
+}

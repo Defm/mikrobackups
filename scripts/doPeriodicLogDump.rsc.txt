@@ -1,0 +1,104 @@
+
+:global globalScriptBeforeRun;
+#$globalScriptBeforeRun "doPeriodicLogDump";
+
+# Script Name: Log-Parser
+# This script reads a specified log buffer.  At each log entry read,
+# the global variable 'logParseVar' is set to "<log entry time>,<log entry topics>,<log entry message>"
+# then a parser action script is run.  The parser action script reads the global variable, and performs specified actions.
+# The log buffer is then cleared, so only new entries are read each time this script gets executed.
+
+# Set this to a "memory" action log buffer
+:local logBuffer "ParseMemoryLog"
+
+# Set to name of parser script to run against each log entry in buffer
+:local logParserScript "doPeriodicLogParse"
+
+# Internal processing below....
+# -----------------------------------
+:global logParseVar ""
+
+:local loglastparsetime
+:local loglastparsemessage
+:local findindex
+:local property
+:local value
+:local logEntryTopics
+:local logEntryTime
+:local logEntryMessage
+:local curDate
+:local curMonth
+:local curDay
+:local curYear
+:local clearedbuf
+:local lines
+
+# Get current date settings
+:set $curDate [/system clock get date]
+:set $curMonth [:pick [:tostr $curDate] 0 3]
+:set $curDay [:pick [:tostr $curDate] 4 6]
+:set $curYear [:pick [:tostr $curDate] 7 11]
+
+:set $clearedbuf 0
+:foreach rule in=[/log print as-value where buffer=($logBuffer)] do={
+# Now all data is collected in memory..
+
+# Clear log buffer right away so new entries come in
+   :if ($clearedbuf = 0) do={
+      /system logging action {
+         :set $lines [get ($logBuffer) memory-lines]
+         set ($logBuffer) memory-lines 1
+         set ($logBuffer) memory-lines $lines
+      }
+      :set $clearedbuf 1
+   }
+# End clear log buffer
+
+   :set $logEntryTime ""
+   :set $logEntryTopics ""
+   :set $logEntryMessage ""
+
+# Get each log entry's properties
+   :local items {$rule}
+   :foreach item in=[$items] do={
+      :set $logEntryTime ($item->"time")
+      :set $logEntryTopics ($item->"topics")
+      :set $logEntryMessage ($item->"message")
+   }
+# end foreach item
+   }
+
+# Set $logEntryTime to full time format (mmm/dd/yyyy HH:MM:SS)
+   :set $findindex [:find [:tostr $logEntryTime] " "]
+# If no spaces are found, only time is given (HH:MM:SS), insert mmm/dd/yyyy
+   :if ([:len $findindex] = 0) do={
+      :set $logEntryTime ($curMonth . "/" . $curDay . "/" . $curYear . " " . \
+                                    [:tostr $logEntryTime])
+   }
+# Only (mmm/dd HH:MM:SS) is given, insert year
+   :if ($findindex = 6) do={
+      :set $logEntryTime ([:pick [:tostr $logEntryTime] 0 $findindex] . "/" . $curYear . \
+                                    [:pick [:tostr $logEntryTime] $findindex [:len [:tostr $logEntryTime]]])
+   }
+# Only (mmm HH:MM:SS) is given, insert day and year
+   :if ($findindex = 3) do={
+      :set $logEntryTime ([:pick [:tostr $logEntryTime] 0 $findindex] . "/" . $curDay . "/" . $curYear . \
+                                    [:pick [:tostr $logEntryTime] $findindex [:len [:tostr $logEntryTime]]])
+   }
+# End set $logEntryTime to full time format
+
+# Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry
+   :if ($logEntryTime = $loglastparsetime && $logEntryMessage = $loglastparsemessage) do={
+   } else={
+#   Set $logParseVar, then run parser script
+      :set $logParseVar {$logEntryTime ; $logEntryTopics; $logEntryMessage}
+      /system script run ($logParserScript)
+
+#   Update last parsed time, and last parsed message
+      :set $loglastparsetime $logEntryTime
+      :set $loglastparsemessage $logEntryMessage
+   }
+
+# end foreach rule
+}
+

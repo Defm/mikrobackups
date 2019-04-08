@@ -1,0 +1,19 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doTranstaleMAC2IP";
+
+#get IP and hostname by MAC address
+#
+{
+  :local arr {"00:CD:FE:EC:B5:52" ; "AC:61:EA:EA:CC:84"}; 
+  
+  foreach v in $arr do={
+    if ([len [/ip arp find where mac-address=$v]] >0) do= {
+      :put [/ip arp get [find where mac-address=$v] address]
+    }; 
+    if ([len [/ip dhcp-server lease find where active-mac-address=$v]] >0) do= {
+      :put [/ip dhcp-server lease get [find where active-mac-address=$v] host-name]
+    }
+  }
+}
+

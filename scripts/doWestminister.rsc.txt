@@ -1,0 +1,15 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doWestminister";
+
+#Westminister Sequence #1
+# E-660 D-588 C-528 G-396
+# EDCG
+:beep length=480ms frequency=660
+:delay 500ms
+:beep length=480ms frequency=588
+:delay 500ms
+:beep length=480ms frequency=528
+:delay 500ms
+:beep length=480ms frequency=396
+:delay 10000ms

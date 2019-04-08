@@ -1,0 +1,53 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doCoolConcole";
+
+:local content
+:local logcontenttemp ""
+:local logcontent ""
+:local counter
+:local v 0
+ 
+:set logcontenttemp "You are logged into: $[/system identity get name]"
+:set logcontent ("$logcontent" ."$logcontenttemp" ."\n")
+ 
+:set logcontenttemp "############### system health ###############"
+:set logcontent ("$logcontent" ."$logcontenttemp" ."\n")
+ 
+:set logcontenttemp "Uptime:  $[/system resource get uptime] d:h:m:s"
+:set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
+ 
+:set logcontenttemp "CPU: $[/system resource get cpu-load]%"
+:set logcontent ("$logcontent" ."$logcontenttemp" ."\n")
+ 
+:set logcontenttemp "RAM: $(([/system resource get total-memory]-[/system resource get free-memory])/1024)/$([/system resource get total-memory]/1024)M"
+:set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
+ 
+##
+#voltage and temp readout not available on x86, check for this before trying
+#to record otherwise script will halt unexpectedly
+##
+ 
+:if ([/system resource get architecture-name]="x86") do={
+  :set logcontenttemp "Voltage: NIL"
+  :set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
+  :set logcontenttemp "Temp: NIL"
+  :set logcontent ("$logcontent" ."$logcontenttemp" ."\n")
+} else={
+  :set logcontenttemp "Voltage: $[:pick [/system health get voltage] 0 2] v"
+  :set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
+  :set logcontenttemp "Temp: $[ /system health get temperature]c"
+  :set logcontent ("$logcontent" ."$logcontenttemp" ."\n")
+}
+ 
+:set logcontenttemp "############# user auth details #############"
+:set logcontent ("$logcontent" ."$logcontenttemp" ."\n")
+ 
+:foreach counter in=[/ip hotspot active find ] do={:set v ($v + 1)}
+:set logcontenttemp "Hotspot online: $v |"
+:set v 0
+:foreach counter in=[/ppp active find ] do={:set v ($v + 1)}
+:set logcontenttemp ("$logcontenttemp" . " PPP online: $v")
+:set logcontent ("$logcontent" ."$logcontenttemp" ."\n")
+ 
+/system note set note="$logcontent"
