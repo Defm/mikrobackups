@@ -1,4 +1,4 @@
-# apr/08/2019 23:10:10 by RouterOS 6.45beta27
+# apr/09/2019 02:26:00 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -285,9 +285,11 @@
 /ip firewall filter add action=add-src-to-address-list address-list="DNS Block" address-list-timeout=10h chain="DNS Amplification" comment="Add DNS Amplification to Blacklist" port=53 protocol=udp src-address-list="!DNS Allow"
 /ip firewall filter add action=drop chain="DNS Amplification" comment="Drop DNS Amplification" src-address-list="DNS Block"
 /ip firewall filter add action=return chain="DNS Amplification" comment="Return from DNS Amplification"
+/ip firewall filter add action=accept chain=input comment="Self fetch requests" log=yes log-prefix=WEB port=80 protocol=tcp
 /ip firewall filter add action=jump chain=input comment="Allow router services on the lan" in-interface="main infrastructure" jump-target=router-services-lan
 /ip firewall filter add action=accept chain=router-services-lan comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
-/ip firewall filter add action=accept chain=router-services-lan comment=SNMP dst-port=161 protocol=udp
+/ip firewall filter add action=accept chain=router-services-lan comment=SNMP port=161 protocol=udp
+/ip firewall filter add action=accept chain=router-services-lan comment=WEB port=80 protocol=tcp
 /ip firewall filter add action=return chain=router-services-lan comment="Return from router-services-lan Chain"
 /ip firewall filter add action=jump chain=input comment="Allow router services on the wan" in-interface=wan jump-target=router-services-wan
 /ip firewall filter add action=drop chain=router-services-wan comment="SSH (22/TCP)" dst-port=22 protocol=tcp
@@ -2305,6 +2307,129 @@
     \n:beep frequency=644 length=1000ms;\r\
     \n\r\
     \n}"
+/system script add dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n#directories have to exist!\r\
+    \n:local FTPRoot \"/pub/git/\"\r\
+    \n\r\
+    \n#This subdir will be created locally to put exported scripts in\r\
+    \n#and it must exist under \$FTPRoot to upload scripts to\r\
+    \n:local SubDir \"scripts/\"\r\
+    \n\r\
+    \n:local FTPEnable true\r\
+    \n:local FTPServer \"minialx.home\"\r\
+    \n:local FTPPort 21\r\
+    \n:local FTPUser \"ftp\"\r\
+    \n:local FTPPass \"\"\r\
+    \n\r\
+    \n:local DebugInfo do={\r\
+    \n\r\
+    \n :put \"DEBUG: \$value\"\r\
+    \n :log info message=\"\$value\"\r\
+    \n\r\
+    \n}\r\
+    \n\r\
+    \n:global GscriptId;\r\
+    \n\r\
+    \n:local continue true;\r\
+    \n\r\
+    \n:do {\r\
+    \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
+    \n} on-error={\r\
+    \n   \$DebugInfo value=\"FTP server looks like to be unreachable\";\r\
+    \n  :local continue false;    \r\
+    \n}\r\
+    \n\r\
+    \n:if (\$continue) do={\r\
+    \n  :do {\r\
+    \n    [/tool fetch dst-path=\"\$SubDir.FooFile\" url=\"http://127.0.0.1:80/mikrotik_logo.png\" keep-result=no];\r\
+    \n  } on-error={ \r\
+    \n    \$DebugInfo value=\"Error When Creating Local Scripts Directory\";\r\
+    \n    :local continue false;\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:if (\$continue) do={\r\
+    \n  :foreach scriptId in [/system script find] do={\r\
+    \n\r\
+    \n    :local scriptSource [/system script get \$scriptId source];\r\
+    \n    :local scriptName [/system script get \$scriptId name];\r\
+    \n    :local scriptSourceLength [:len \$scriptSource];\r\
+    \n    :local path \"\$SubDir\$scriptName.rsc.txt\";\r\
+    \n\r\
+    \n    :set \$GscriptId \$scriptId;\r\
+    \n\r\
+    \n    :if (\$scriptSourceLength >= 4096) do={\r\
+    \n      :local state \"Please keep care about '\$scriptName' consistency - its size over 4096 bytes\";\r\
+    \n      \$DebugInfo value=\$state;\r\
+    \n    }\r\
+    \n\r\
+    \n\r\
+    \n    :do {\r\
+    \n      /file print file=\$path where 1=0;\r\
+    \n      #filesystem delay\r\
+    \n      :delay 1s;\r\
+    \n      #/file set [find name=\"\$path\"] contents=\$scriptSource;\r\
+    \n      #/file set \$path contents=\$scriptSource;\r\
+    \n      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack\r\
+    \n      /execute script=\":global GscriptId; :put [/system script get \$GscriptId source];\" file=\$path;\r\
+    \n      :local state \"Exported '\$scriptName' to '\$path'\";\r\
+    \n      \$DebugInfo value=\$state;\r\
+    \n    } on-error={ \r\
+    \n      :local state \"Error When Exporting '\$scriptName' Script to '\$path'\";\r\
+    \n      \$DebugInfo value=\$state;\r\
+    \n      :local continue false;\r\
+    \n    }\r\
+    \n\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n:delay 5s\r\
+    \n\r\
+    \n:local backupFileName \"\"\r\
+    \n\r\
+    \n:if (\$continue) do={\r\
+    \n  :foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\r\
+    \n    :set backupFileName ([/file get \$backupFile name]);\r\
+    \n    :if ([:typeof [:find \$backupFileName \".rsc.txt\"]] != \"nil\") do={\r\
+    \n      :local rawfile ( \$backupFileName ~\".rsc.txt\");\r\
+    \n      #special ftp upload for git purposes\r\
+    \n      if (\$FTPEnable) do={\r\
+    \n        :local dst \"\$FTPRoot\$backupFileName\";\r\
+    \n        :do {\r\
+    \n          :local state \"Uploading \$backupFileName' to '\$dst'\";\r\
+    \n          \$DebugInfo value=\$state;\r\
+    \n          /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$backupFileName user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes;\r\
+    \n          \$DebugInfo value=\"Done\";\r\
+    \n        } on-error={ \r\
+    \n          :local state \"Error When Uploading '\$backupFileName' to '\$dst'\";\r\
+    \n          \$DebugInfo value=\$state; \r\
+    \n        }\r\
+    \n      }\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:delay 5s\r\
+    \n\r\
+    \n:foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\r\
+    \n  :if ([:typeof [:find \$backupFileName \".rsc.txt\"]] != \"nil\") do={\r\
+    \n    /file remove \$backupFile;\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n\$DebugInfo value=\"Successfully removed Temporary Script Files\";\r\
+    \n\$DebugInfo value=\"Automatic Script Export Completed\";\r\
+    \n\r\
+    \n#urlencoded cyrillic\r\
+    \n:local backupDone \"%D0%92%D1%8B%D0%BF%D0%BE%D0%BB%D0%BD%D0%B5%D0%BD%D0%BE%20%D1%80%D0%B5%D0%B7%D0%B5%D1%80%D0%B2%D0%BD%D0%BE%D0%B5%20%D0%B0%D1%80%D1%85%D0%B8%D0%B2%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%BA%D0%BE%D0%BD%D1%84%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%86%D0%B8%D0%B8%20%D0%BC%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%D0%B0%20%28%D1%81%D0%BC.%20%D0%BF%D0%BE%D1%87%D1%82%D1%83%29\";\r\
+    \n:global TelegramMessage \"\$backupDone\";\r\
+    \n\r\
+    \n/system script run doTelegramNotify;\r\
+    \n\r\
+    \n\r\
+    \n\r\
+    \n"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool mac-server set allowed-interface-list=none
