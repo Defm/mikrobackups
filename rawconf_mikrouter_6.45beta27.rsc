@@ -1,4 +1,4 @@
-# apr/08/2019 22:57:58 by RouterOS 6.45beta27
+# apr/08/2019 23:10:10 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -892,87 +892,6 @@
     \n:delay 500ms\r\
     \n:beep length=480ms frequency=396\r\
     \n:delay 10000ms"
-/system script add dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doRandomGen\";\r\
-    \n\r\
-    \n{\r\
-    \n:log info (\"Starting reserve password generator Script...\");\r\
-    \n\r\
-    \n# special password appendix - current month 3chars\r\
-    \n:local pfx [:pick [/system clock get date] 0 3 ];\r\
-    \n:local newPassword \"\";\r\
-    \n\r\
-    \n#call random.org\r\
-    \n/tool fetch url=\"https://www.random.org/strings/\?num=1&len=8&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new\" keep-result=yes dst-path=\"pass.txt\";\r\
-    \n\r\
-    \ndelay 3;\r\
-    \n\r\
-    \n:local newPassword [/file get pass.txt contents];\r\
-    \n:set newPassword [:pick [\$newPassword] 1 6 ];\r\
-    \n\r\
-    \n/file remove pass.txt;\r\
-    \n\r\
-    \n:log info (\"Randomized: '\$newPassword'\");\r\
-    \n\r\
-    \n# doing salt\r\
-    \n:set newPassword (\$pfx . \$newPassword);\r\
-    \n\r\
-    \n/user set [find name=reserved] password=\$newPassword\r\
-    \n\r\
-    \n# crop appendix\r\
-    \n:local halfPass [:pick [\$newPassword] 3 11 ];\r\
-    \n\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local sysver [/system package get system version];\r\
-    \n\r\
-    \n:local smtpserv [:resolve \"smtp.gmail.com\"];\r\
-    \n:local Eaccount \"defm.kopcap@gmail.com\";\r\
-    \n:local pass \"zgejdmvndvorrmsn\";\r\
-    \n\r\
-    \n:log info (\"Calculating external wan IP...\");\r\
-    \n\r\
-    \n:local extWANip \"\";\r\
-    \n\r\
-    \n:if ( [/ip firewall address-list find list~\"external-ip\" ] = \"\") do={\r\
-    \n        :put \"reserve password generator Script: cant fine ext wan ip address\"\r\
-    \n        :log warning \"reserve password generator Script: cant find ext wan ip address\"\r\
-    \n        } else={\r\
-    \n            :foreach j in=[/ip firewall address-list find list~\"external-ip\"] do={\r\
-    \n\t\t:set extWANip (\$extWANip  . [/ip firewall address-list get \$j address])\r\
-    \n            }\r\
-    \n        }\r\
-    \n\r\
-    \n:log info (\"External wan IP: '\$extWANip'\");\r\
-    \n\r\
-    \n:log info (\"Sending generated data via E-mail...\");\r\
-    \n\r\
-    \n:delay 2;\r\
-    \n\r\
-    \n/tool e-mail send from=\"<\$Eaccount>\" to=\$Eaccount server=\$smtpserv \\\r\
-    \nport=587 user=\$Eaccount password=\$pass start-tls=yes \\\r\
-    \nsubject=(\"\$sysname reserve password generator Script (\" . [/system clock get date] . \\\r\
-    \n\")\") body=(\"Device '\$sysname'\" . \"\\\r\
-    \n\" . \"\\nRouterOS version: '\$sysver'\" . \"\\\r\
-    \n\" . \"\\nTime and Date: \" . [/system clock get time] .  [/system clock get date] . \"\\\r\
-    \n\" . \"\\nadditional password: '***\$halfPass'\" . \"\\\r\
-    \n\" . \"\\nexternal ip '\$extWANip'\");\r\
-    \n\r\
-    \n:delay 5;\r\
-    \n\r\
-    \n:log info \"Email sent\";\r\
-    \n\r\
-    \n# some beeps to notice\r\
-    \n\r\
-    \n:beep frequency=784 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n:beep frequency=738 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n:beep frequency=684 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n:beep frequency=644 length=1000ms;\r\
-    \n\r\
-    \n}"
 /system script add dont-require-permissions=no name=doAdblock owner=reserved policy=read,write,policy source="## StopAD - Script for blocking advertisements, based on your defined hosts files\r\
     \n## For changing any parameters, please, use this link: https://stopad.cgood.ru/\r\
     \n##\r\
@@ -2306,6 +2225,86 @@
     \n:global TelegramMessage \"\$backupDone\";\r\
     \n\r\
     \n/system script run doTelegramNotify;"
+/system script add dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \"doRandomGen\";\r\
+    \n\r\
+    \n{\r\
+    \n:log info (\"Starting reserve password generator Script...\");\r\
+    \n\r\
+    \n# special password appendix - current month 3chars\r\
+    \n:local pfx [:pick [/system clock get date] 0 3 ];\r\
+    \n:local newPassword \"\";\r\
+    \n\r\
+    \n#call random.org\r\
+    \n/tool fetch url=\"https://www.random.org/strings/\?num=1&len=8&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new\" keep-result=yes dst-path=\"pass.txt\";\r\
+    \n\r\
+    \ndelay 3;\r\
+    \n\r\
+    \n:local newPassword [/file get pass.txt contents];\r\
+    \n:set newPassword [:pick [\$newPassword] 1 6 ];\r\
+    \n\r\
+    \n/file remove pass.txt;\r\
+    \n\r\
+    \n:log info (\"Randomized: '\$newPassword'\");\r\
+    \n\r\
+    \n# doing salt\r\
+    \n:set newPassword (\$pfx . \$newPassword);\r\
+    \n\r\
+    \n/user set [find name=reserved] password=\$newPassword\r\
+    \n\r\
+    \n# crop appendix\r\
+    \n:local halfPass [:pick [\$newPassword] 3 11 ];\r\
+    \n\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local sysver [/system package get system version];\r\
+    \n\r\
+    \n:local Eaccount \"defm.kopcap@gmail.com\";\r\
+    \n\r\
+    \n:log info (\"Calculating external wan IP...\");\r\
+    \n\r\
+    \n:local extWANip \"\";\r\
+    \n\r\
+    \n:if ( [/ip firewall address-list find list~\"external-ip\" ] = \"\") do={\r\
+    \n        :put \"reserve password generator Script: cant fine ext wan ip address\"\r\
+    \n        :log warning \"reserve password generator Script: cant find ext wan ip address\"\r\
+    \n        } else={\r\
+    \n            :foreach j in=[/ip firewall address-list find list~\"external-ip\"] do={\r\
+    \n\t\t:set extWANip (\$extWANip  . [/ip firewall address-list get \$j address])\r\
+    \n            }\r\
+    \n        }\r\
+    \n\r\
+    \n:log info (\"External wan IP: '\$extWANip'\");\r\
+    \n\r\
+    \n:log info (\"Sending generated data via E-mail...\");\r\
+    \n\r\
+    \n:delay 2;\r\
+    \n\r\
+    \n:local SMTPBody (\"Device '\$sysname'\" . \"\\\r\
+    \n\" . \"\\nRouterOS version: '\$sysver'\" . \"\\\r\
+    \n\" . \"\\nTime and Date: \" . [/system clock get time] .  [/system clock get date] . \"\\\r\
+    \n\" . \"\\nadditional password: '***\$halfPass'\" . \"\\\r\
+    \n\" . \"\\nexternal ip '\$extWANip'\")\r\
+    \n\r\
+    \n:local SMTPSubject (\"\$sysname reserve password generator Script (\" . [/system clock get date] . \")\")\r\
+    \n\r\
+    \n/tool e-mail send to=\$Eaccount body=\$SMTPBody subject=\$SMTPSubject;\r\
+    \n\r\
+    \n:delay 5;\r\
+    \n\r\
+    \n:log info \"Email sent\";\r\
+    \n\r\
+    \n# some beeps to notice\r\
+    \n\r\
+    \n:beep frequency=784 length=500ms;\r\
+    \n:delay 500ms;\r\
+    \n:beep frequency=738 length=500ms;\r\
+    \n:delay 500ms;\r\
+    \n:beep frequency=684 length=500ms;\r\
+    \n:delay 500ms;\r\
+    \n:beep frequency=644 length=1000ms;\r\
+    \n\r\
+    \n}"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool mac-server set allowed-interface-list=none
