@@ -1,4 +1,4 @@
-# apr/11/2019 23:04:31 by RouterOS 6.45beta27
+# apr/11/2019 23:19:38 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -2115,7 +2115,6 @@
     \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\
     \n\r\
     \n:local SMTPsysSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\
-    \n:local SMTPrawSubject (\"\$sysname Setup Script Backup (\$ds-\$ts)\")\r\
     \n\r\
     \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\
     \n\r\
@@ -2136,7 +2135,7 @@
     \n  :set continue false;\r\
     \n}\r\
     \n\r\
-    \n:local fname (\"BACKUP-\".[/system identity get name].\"-\".\$ds.\"-\".\$ts)\r\
+    \n:local fname (\"BACKUP-\$sysname-\$ds-\$ts\")\r\
     \n\r\
     \n:if (\$saveSysBackup and \$continue) do={\r\
     \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
@@ -2167,7 +2166,7 @@
     \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$backupFileName user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$backupFileName\" mode=ftp upload=yes\r\
     \n        \$DebugInfo value=\"Done\"\r\
     \n        } on-error={ \r\
-    \n          :set state \"Error When Uploading \$backupFileName to FTP (\$FTPRoot\$backupFileName)\"\r\
+    \n          :set state \"Error When \$state\"\r\
     \n          \$DebugInfo value=\$state;\r\
     \n          :set continue false;\r\
     \n       }\r\
@@ -2180,7 +2179,7 @@
     \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$backupFileName user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
     \n            \$DebugInfo value=\"Done\"\r\
     \n            } on-error={ \r\
-    \n              :set state \"Error When Uploading \$backupFileName to FTP (RAW, \$FTPRawGitName)\"\r\
+    \n              :set state \"Error When \$state\"\r\
     \n              \$DebugInfo value=\$state;\r\
     \n              :set continue false;\r\
     \n           }\r\
@@ -2194,7 +2193,7 @@
     \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPsysSubject file=\$backupFileName\r\
     \n        \$DebugInfo value=\"Done\"\r\
     \n        } on-error={ \r\
-    \n          :set state \"Error When Uploading \$backupFileName to SMTP\"\r\
+    \n          :set state \"Error When \$state\"\r\
     \n          \$DebugInfo value=\$state;\r\
     \n          :set continue false;\r\
     \n       }        \r\
@@ -2223,7 +2222,8 @@
     \n\r\
     \n:global TelegramMessage \"\$inf\";\r\
     \n\r\
-    \n/system script run doTelegramNotify;"
+    \n/system script run doTelegramNotify;\r\
+    \n"
 /system script add dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doRandomGen\";\r\
