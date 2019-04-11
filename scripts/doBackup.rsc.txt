@@ -27,7 +27,6 @@
 :set ds ([:pick $ds 7 11].[:pick $ds 0 3].[:pick $ds 4 6])
 
 :local SMTPsysSubject ("$sysname Full Backup ($ds-$ts)")
-:local SMTPrawSubject ("$sysname Setup Script Backup ($ds-$ts)")
 
 :local SMTPBody ("$sysname full Backup file see in attachment.\nRouterOS version: $sysver\nTime and Date stamp: ($ds-$ts) ")
 
@@ -48,7 +47,7 @@
   :set continue false;
 }
 
-:local fname ("BACKUP-".[/system identity get name]."-".$ds."-".$ts)
+:local fname ("BACKUP-$sysname-$ds-$ts")
 
 :if ($saveSysBackup and $continue) do={
   :if ($encryptSysBackup = true) do={ /system backup save name=($fname.".backup") }
@@ -79,7 +78,7 @@
         /tool fetch address=$FTPServer port=$FTPPort src-path=$backupFileName user=$FTPUser password=$FTPPass dst-path="$FTPRoot$backupFileName" mode=ftp upload=yes
         $DebugInfo value="Done"
         } on-error={ 
-          :set state "Error When Uploading $backupFileName to FTP ($FTPRoot$backupFileName)"
+          :set state "Error When $state"
           $DebugInfo value=$state;
           :set continue false;
        }
@@ -92,7 +91,7 @@
             /tool fetch address=$FTPServer port=$FTPPort src-path=$backupFileName user=$FTPUser password=$FTPPass dst-path="$FTPRawGitName" mode=ftp upload=yes
             $DebugInfo value="Done"
             } on-error={ 
-              :set state "Error When Uploading $backupFileName to FTP (RAW, $FTPRawGitName)"
+              :set state "Error When $state"
               $DebugInfo value=$state;
               :set continue false;
            }
@@ -106,7 +105,7 @@
         /tool e-mail send to=$SMTPAddress body=$SMTPBody subject=$SMTPsysSubject file=$backupFileName
         $DebugInfo value="Done"
         } on-error={ 
-          :set state "Error When Uploading $backupFileName to SMTP"
+          :set state "Error When $state"
           $DebugInfo value=$state;
           :set continue false;
        }        
@@ -136,3 +135,4 @@ $DebugInfo value=$inf
 :global TelegramMessage "$inf";
 
 /system script run doTelegramNotify;
+
