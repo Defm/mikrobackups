@@ -1,4 +1,4 @@
-# apr/09/2019 20:00:21 by RouterOS 6.45beta27
+# apr/11/2019 23:04:31 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -2086,15 +2086,14 @@
     \n}\r\
     \n}\r\
     \n}"
-/system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
-    \n:local sysver [/system package get system version];\r\
-    \n\r\
-    \n:local saveUserDB false\r\
+/system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name]\r\
+    \n:local sysver [/system package get system version]\r\
+    \n:local scriptname \"doBackup\"\r\
     \n:local saveSysBackup true\r\
     \n:local encryptSysBackup false\r\
     \n:local saveRawExport true\r\
     \n:local verboseRawExport false\r\
-    \n\r\
+    \n:local state \"\"\r\
     \n:local FTPEnable true\r\
     \n:local FTPServer \"minialx.home\"\r\
     \n:local FTPPort 21\r\
@@ -2105,7 +2104,6 @@
     \n:local FTPRoot \"/pub/\"\r\
     \n:local FTPGitEnable true\r\
     \n:local FTPRawGitName \"/pub/git/rawconf_\$sysname_\$sysver.rsc\"\r\
-    \n\r\
     \n\r\
     \n:local SMTPEnable true\r\
     \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\
@@ -2121,44 +2119,32 @@
     \n\r\
     \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\
     \n\r\
-    \n:local DNSName \"\"\r\
-    \n\r\
     \n:local DebugInfo do={\r\
-    \n \r\
-    \n ## outputs \$value using both :put and :log info\r\
-    \n ## example \$DebugInfo value=\"12345\"\r\
-    \n :put \"DEBUG: \$value\"\r\
-    \n :log info message=\"\$value\"\r\
+    \n\r\
+    \n  :put \"DEBUG: \$value\"\r\
+    \n  :log info message=\"\$value\"\r\
     \n\r\
     \n}\r\
     \n\r\
+    \n:local continue true;\r\
+    \n\r\
     \n:do {\r\
     \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
-    \n} on-error={ \$DebugInfo value=\"FTP server looks like to be unreachable\" }\r\
-    \n  \r\
-    \n:do {\r\
-    \n    :set DNSName (\"-\".[/ip cloud get dns-name])\r\
+    \n} on-error={ \r\
+    \n  :set state \"FTP server looks like to be unreachable\"\r\
+    \n  \$DebugInfo value=\$state;\r\
+    \n  :set continue false;\r\
     \n}\r\
     \n\r\
     \n:local fname (\"BACKUP-\".[/system identity get name].\"-\".\$ds.\"-\".\$ts)\r\
     \n\r\
-    \n:if (\$saveUserDB) do={\r\
-    \n  :do {\r\
-    \n  \$DebugInfo value=\"User Manager DB Backup\"\r\
-    \n  /tool user-manager database save name=(\$fname.\".umb\")\r\
-    \n  \$DebugInfo value=\"Done\"\r\
-    \n      } on-error={ \$DebugInfo value=\"Error When User Manager DB Backup\" }\r\
-    \n}\r\
-    \n\r\
-    \n:if (\$saveSysBackup) do={\r\
+    \n:if (\$saveSysBackup and \$continue) do={\r\
     \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
     \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\
     \n  \$DebugInfo value=\"System Backup Finished\"\r\
     \n}\r\
     \n\r\
-    \n:if (\$saveRawExport) do={\r\
-    \n  :if (\$verboseRawExport = true) do={ /export verbose file=(\$fname.\".rsc\") }\r\
-    \n  :if (\$verboseRawExport = false) do={ /export file=(\$fname.\".rsc\") }\r\
+    \n:if (\$saveRawExport and \$continue) do={\r\
     \n  :if (\$FTPGitEnable ) do={\r\
     \n     :if (\$verboseRawExport = true) do={ /export terse hide-sensitive verbose file=(\$fname.\".safe.rsc\") }\r\
     \n     :if (\$verboseRawExport = false) do={ /export terse hide-sensitive  file=(\$fname.\".safe.rsc\") }\r\
@@ -2172,40 +2158,46 @@
     \n\r\
     \n:foreach backupFile in=[/file find] do={\r\
     \n  :set backupFileName ([/file get \$backupFile name])\r\
-    \n  :if ([:typeof [:find \$backupFileName \$fname]] != \"nil\") do={\r\
+    \n  :if ([:typeof [:find \$backupFileName \$fname]] != \"nil\" and \$continue) do={\r\
     \n    :local rawfile ( \$backupFileName ~\".safe.rsc\")\r\
-    \n    if (\$FTPEnable) do={\r\
+    \n    if (\$FTPEnable and \$continue) do={\r\
     \n        :do {\r\
     \n        :local state \"Uploading \$backupFileName to FTP (\$FTPRoot\$backupFileName)\"\r\
     \n        \$DebugInfo value=\$state\r\
     \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$backupFileName user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$backupFileName\" mode=ftp upload=yes\r\
     \n        \$DebugInfo value=\"Done\"\r\
-    \n            } on-error={ \$DebugInfo value=\"Error When Uploading file to FTP\" }\r\
+    \n        } on-error={ \r\
+    \n          :set state \"Error When Uploading \$backupFileName to FTP (\$FTPRoot\$backupFileName)\"\r\
+    \n          \$DebugInfo value=\$state;\r\
+    \n          :set continue false;\r\
+    \n       }\r\
+    \n\r\
+    \n        #special ftp upload for git purposes\r\
+    \n        if (\$rawfile and \$FTPGitEnable and \$continue) do={\r\
+    \n            :do {\r\
+    \n            :local state \"Uploading \$backupFileName to FTP (RAW, \$FTPRawGitName)\"\r\
+    \n            \$DebugInfo value=\$state\r\
+    \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$backupFileName user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
+    \n            \$DebugInfo value=\"Done\"\r\
+    \n            } on-error={ \r\
+    \n              :set state \"Error When Uploading \$backupFileName to FTP (RAW, \$FTPRawGitName)\"\r\
+    \n              \$DebugInfo value=\$state;\r\
+    \n              :set continue false;\r\
+    \n           }\r\
+    \n        }\r\
+    \n\r\
     \n    }\r\
-    \n    #special ftp upload for git purposes\r\
-    \n    if (\$FTPEnable and \$rawfile and \$FTPGitEnable) do={\r\
-    \n        :do {\r\
-    \n        :local state \"Uploading \$backupFileName to FTP (RAW, \$FTPRawGitName)\"\r\
-    \n        \$DebugInfo value=\$state\r\
-    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$backupFileName user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
-    \n        \$DebugInfo value=\"Done\"\r\
-    \n            } on-error={ \$DebugInfo value=\"Error When Uploading file to FTP (RAW)\" }\r\
-    \n    }\r\
-    \n    if (\$SMTPEnable and !\$rawfile) do={\r\
+    \n    if (\$SMTPEnable and !\$rawfile and \$continue) do={\r\
     \n        :do {\r\
     \n        :local state \"Uploading \$backupFileName to SMTP\"\r\
     \n        \$DebugInfo value=\$state\r\
     \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPsysSubject file=\$backupFileName\r\
     \n        \$DebugInfo value=\"Done\"\r\
-    \n            } on-error={ \$DebugInfo value=\"Error When Uploading file to SMTP\" }        \r\
-    \n    }\r\
-    \n    if (\$SMTPEnable and \$rawfile) do={\r\
-    \n        :do {\r\
-    \n        :local state \"Uploading \$backupFileName to SMTP (RAW)\"\r\
-    \n        \$DebugInfo value=\$state\r\
-    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPrawSubject file=\$backupFileName\r\
-    \n        \$DebugInfo value=\"Done\"\r\
-    \n            } on-error={ \$DebugInfo value=\"Error When Uploading file to SMTP (RAW)\" }        \r\
+    \n        } on-error={ \r\
+    \n          :set state \"Error When Uploading \$backupFileName to SMTP\"\r\
+    \n          \$DebugInfo value=\$state;\r\
+    \n          :set continue false;\r\
+    \n       }        \r\
     \n    }\r\
     \n  }\r\
     \n}\r\
@@ -2218,12 +2210,18 @@
     \n  }\r\
     \n}\r\
     \n\r\
-    \n\$DebugInfo value=\"Successfully removed Temporary Backup Files\"\r\
-    \n\$DebugInfo value=\"Automatic Backup Completed Successfully\"\r\
+    \n:local inf \"\"\r\
+    \n:if (\$continue) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: Automatic Backup Completed Successfully\"  \r\
+    \n}\r\
     \n\r\
-    \n#urlencoded cyrillic\r\
-    \n:local backupDone \"%D0%92%D1%8B%D0%BF%D0%BE%D0%BB%D0%BD%D0%B5%D0%BD%D0%BE%20%D1%80%D0%B5%D0%B7%D0%B5%D1%80%D0%B2%D0%BD%D0%BE%D0%B5%20%D0%B0%D1%80%D1%85%D0%B8%D0%B2%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%BA%D0%BE%D0%BD%D1%84%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%86%D0%B8%D0%B8%20%D0%BC%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%D0%B0%20%28%D1%81%D0%BC.%20%D0%BF%D0%BE%D1%87%D1%82%D1%83%29\";\r\
-    \n:global TelegramMessage \"\$backupDone\";\r\
+    \n:if (!\$continue) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$DebugInfo value=\$inf\r\
+    \n\r\
+    \n:global TelegramMessage \"\$inf\";\r\
     \n\r\
     \n/system script run doTelegramNotify;"
 /system script add dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
