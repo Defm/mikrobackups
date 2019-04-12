@@ -1,4 +1,14 @@
-### Git Auto Save, Date: пятница, 12 апреля 2019 г. 16:21:31 (MSK), New Files:  Modified Files: scripts/doDumpTheScripts.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: пятница, 12 апреля 2019 г. 16:41:57 (MSK), New Files: test.rsc,  Modified Files:  Removed Files: (HEAD -> _autobranch)
+>Fri, 12 Apr 2019 16:41:57 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: пятница, 12 апреля 2019 г. 16:21:31 (MSK), New Files:  Modified Files: scripts/doDumpTheScripts.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
 >Fri, 12 Apr 2019 16:21:31 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Git Auto Save, Date: пятница, 12 апреля 2019 г. 16:02:15 (MSK), New Files:  Modified Files: scripts/doBackup.rsc.txt, scripts/doEnvironmentSetup.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: пятница, 12 апреля 2019 г. 16:02:15 (MSK), New Files:  Modified Files: scripts/doBackup.rsc.txt, scripts/doEnvironmentSetup.rsc.txt,  Removed Files:
 >Fri, 12 Apr 2019 16:02:15 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
