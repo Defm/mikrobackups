@@ -1,4 +1,4 @@
-# apr/12/2019 14:51:22 by RouterOS 6.45beta27
+# apr/12/2019 15:15:50 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -1923,17 +1923,28 @@
     \n  :put \"INFLUXDB: Service Failed!\";\r\
     \n\r\
     \n}"
-/system script add dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
+/system script add dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:global globalNoteMe;\r\
     \n\r\
+    \n:if (!any \$globalNoteMe) do={ \r\
+    \n  :global globalNoteMe do={\r\
+    \n\r\
+    \n  ## outputs \$value using both :put and :log info\r\
+    \n  ## example \$outputInfo value=\"12345\"\r\
+    \n  :put \"info: \$value\"\r\
+    \n  :log info \"\$value\"\r\
+    \n\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:global globalScriptBeforeRun;\r\
     \n\r\
     \n:if (!any \$globalScriptBeforeRun) do={ \r\
-    \n\r\
     \n  :global globalScriptBeforeRun do={\r\
     \n\r\
     \n    :if ([:len \$1] > 0) do={\r\
     \n\r\
     \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\r\
-    \n\r\
     \n      :local scriptname \"\$1\";\r\
     \n\r\
     \n      :local count [:len [/system script job find script=\$scriptname]];\r\
@@ -1941,47 +1952,47 @@
     \n      :if (\$count > 0) do={\r\
     \n\r\
     \n        :foreach counter in=[/system script job find script=\$scriptname] do={\r\
-    \n          \r\
-    \n           #But ignoring scripts started right NOW\r\
-    \n           :local thisScriptCallTime  [/system script job get \$counter started];\r\
     \n\r\
-    \n           :if (\$currentTime != \$thisScriptCallTime) do={\r\
-    \n \r\
-    \n            :log warning \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\r\
-    \n            :put \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\r\
-    \n        \r\
-    \n             /system script job remove \$counter;\r\
-    \n\r\
-    \n            }\r\
-    \n\r\
+    \n         #But ignoring scripts started right NOW\r\
+    \n         :local thisScriptCallTime  [/system script job get \$counter started];\r\
+    \n         :if (\$currentTime != \$thisScriptCallTime) do={\r\
+    \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            /system script job remove \$counter;\r\
+    \n          }\r\
     \n        }\r\
-    \n        \r\
     \n      }\r\
     \n\r\
-    \n      :log warning \"Starting script: \$scriptname\";\r\
-    \n      :put \"Starting script: \$scriptname\"\r\
-    \n    \r\
+    \n      :local state \"Starting script: \$scriptname\";\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
     \n    }\r\
-    \n    \r\
     \n  }\r\
-    \n\r\
     \n}\r\
     \n\r\
-    \n:global globalDebugInfo;\r\
+    \n:global globalTgMessage;\r\
     \n\r\
-    \n:if (!any \$globalDebugInfo) do={ \r\
+    \n:if (!any \$globalTgMessage) do={ \r\
+    \n  :global globalTgMessage do={\r\
     \n\r\
-    \n  :global globalDebugInfo do={\r\
+    \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\r\
+    \n    :local tGroupID \"-343674739\";\r\
+    \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\r\
     \n\r\
-    \n  ## outputs \$value using both :put and :log info\r\
-    \n  ## example \$outputInfo value=\"12345\"\r\
-    \n  :put \"info: \$value\"\r\
-    \n  :log info \"\$value\"\r\
+    \n    :local state (\"Sending telegram message... \$value\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    \r\
+    \n    :do {\r\
+    \n      /tool fetch http-method=post mode=https url=\"\$tURL\" http-data=\"text=\$value\" keep-result=no;\r\
+    \n    } on-error= {\r\
+    \n      :local state (\"Telegram notify error\");\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n    };\r\
     \n  }\r\
-    \n\r\
     \n}\r\
+    \n\r\
+    \n\r\
+    \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# DHCP Lease to Simple Queues\r\
     \n# 2014 Lonnie Mendez (lmendez@anvilcom.com)\r\
@@ -2214,9 +2225,8 @@
     \n\r\
     \n\$noteMe value=\$inf\r\
     \n\r\
-    \n:global TelegramMessage \"\$inf\";\r\
-    \n\r\
-    \n/system script run doTelegramNotify;\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
     \n"
 /system script add dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
     \n:global globalScriptBeforeRun;\r\
