@@ -1,4 +1,4 @@
-# apr/12/2019 19:35:33 by RouterOS 6.45beta27
+# apr/12/2019 21:24:47 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -1119,126 +1119,124 @@
     \n#/tool fetch url=\"\$finalURL\" mode=https keep-result=no\r\
     \n#\r\
     \n# end of script"
-/system script add dont-require-permissions=no name=doCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n# generates IPSEC certs\r\
+/system script add dont-require-permissions=yes name=doCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n# generates IPSEC certs: CA, server, code sign and clients\r\
     \n# i recommend to run it on server side\r\
     \n\r\
-    \n:global CN [/system identity get name]\r\
-    \n\r\
-    \n## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
-    \n## :global COUNTRY \"RU\"\r\
-    \n## :global STATE \"MSC\"\r\
-    \n## :global LOC \"Moscow\"\r\
-    \n## :global ORG \"IKEv2 Home\"\r\
-    \n## :global OU \"IKEv2 Mikrotik\"\r\
-    \n\r\
-    \n:global COUNTRY \"\"\r\
-    \n:global STATE \"\"\r\
-    \n:global LOC \"\"\r\
-    \n:global ORG \"\"\r\
-    \n:global OU \"\"\r\
-    \n\r\
-    \n:global KEYSIZE \"2048\"\r\
-    \n:global USERNAME \"mikrouter\"\r\
-    \n\r\
-    \n:global MaskedServerIP [/ip address get [find where interface=wan] address];\r\
-    \n:global ServerIP ( [:pick \"\$MaskedServerIP\" 0 [:find \"\$MaskedServerIP\" \"/\" -1]] ) ;\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \n\r\
-    \n:log info (\"CA certificates generation...\");\r\
-    \n:put \"CA certificates generation...\";\r\
-    \n\r\
-    \n## generate a CA certificate\r\
-    \n/certificate\r\
-    \nadd name=\"ca.myvpn.local\" common-name=\"ca@\$CN\" subject-alt-name=\"email:ca@myvpn.local\"  key-usage=crl-sign,key-cert-sign \\\r\
-    \ncountry=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" \\\r\
-    \norganization=\"\$ORG\" unit=\"\$OU\"   \\\r\
-    \n##  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
-    \n\r\
-    \n:put \"Signing...\";\r\
-    \n\r\
-    \nsign \"ca.myvpn.local\" ca-crl-host=\"\$ServerIP\" name=\"ca@\$CN\"\r\
-    \n\r\
-    \n:delay 6s\r\
-    \n\r\
-    \nset trusted=yes \"ca@\$CN\"\r\
-    \n\r\
-    \n:log info (\"SERVER certificates generation...\");\r\
-    \n:put \"SERVER certificates generation...\";\r\
-    \n\r\
-    \n## generate a server certificate\r\
-    \n/certificate\r\
-    \nadd name=\"server.myvpn.local\" common-name=\"\$ServerIP\" subject-alt-name=\"IP:\$ServerIP\" key-usage=tls-server \\\r\
-    \n  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" \\\r\
-    \n  organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
-    \n\r\
-    \n:put \"Signing...\";\r\
-    \n\r\
-    \nsign \"server.myvpn.local\" ca=\"ca@\$CN\" name=\"server@\$CN\"\r\
-    \n\r\
-    \n:delay 6s\r\
-    \n\r\
-    \nset trusted=yes \"server@\$CN\"\r\
-    \n\r\
-    \n:log info (\"CODE SIGN certificates generation...\");\r\
-    \n:put \"CODE SIGN certificates generation...\";\r\
-    \n\r\
-    \n## generate a code signing (apple IOS profiles) certificate\r\
-    \n/certificate\r\
-    \nadd name=\"sign.myvpn.local\" common-name=\"sign@\$CN\" subject-alt-name=\"email:sign@myvpn.local\" key-usage=code-sign,digital-signature \\\r\
-    \n  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" \\\r\
-    \n  organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
-    \n\r\
-    \n:put \"Signing...\";\r\
-    \n\r\
-    \nsign \"sign.myvpn.local\" ca=\"ca@\$CN\" name=\"sign@\$CN\"\r\
-    \n\r\
-    \n:delay 6s\r\
-    \n\r\
-    \nset trusted=yes \"sign@\$CN\"\r\
-    \n\r\
-    \n## export the CA, code sign certificate, and private key\r\
-    \n/certificate\r\
-    \nexport-certificate \"sign@\$CN\" export-passphrase=\"1234567890\" type=pkcs12\r\
-    \n\r\
-    \n\r\
+    \n#clients\r\
     \n:local IDs [:toarray \"mikrouter,alx.iphone.rw.2019,glo.iphone.rw.2019,alx.mbp.rw.2019\"];\r\
     \n\r\
-    \n:foreach USERNAME in=\$IDs do={\r\
+    \n:local sysname [/system identity get name]\r\
+    \n:local sysver [/system package get system version]\r\
+    \n:local scriptname \"doCertificatesIssuing\"\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
+    \n## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
+    \n## :local COUNTRY \"RU\"\r\
+    \n## :local STATE \"MSC\"\r\
+    \n## :local LOC \"Moscow\"\r\
+    \n## :local ORG \"IKEv2 Home\"\r\
+    \n## :local OU \"IKEv2 Mikrotik\"\r\
     \n\r\
-    \n:log info (\"CLIENT certificates generation...  \$USERNAME\");\r\
-    \n:put \"CLIENT certificates generation...  \$USERNAME\";\r\
+    \n:local COUNTRY \"\"\r\
+    \n:local STATE \"\"\r\
+    \n:local LOC \"\"\r\
+    \n:local ORG \"\"\r\
+    \n:local OU \"\"\r\
     \n\r\
-    \n## create a client certificate\r\
-    \n/certificate\r\
-    \nadd name=\"client.myvpn.local\" common-name=\"\$USERNAME@\$CN\" subject-alt-name=\"email:\$USERNAME@myvpn.local\" key-usage=tls-client \\\r\
-    \n  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" \\\r\
-    \n  organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n:local KEYSIZE \"2048\"\r\
+    \n:local USERNAME \"mikrouter\"\r\
     \n\r\
-    \n:put \"Signing...\";\r\
+    \n:local MaskedServerIP [/ip address get [find where interface=wan] address];\r\
+    \n:local ServerIP ( [:pick \"\$MaskedServerIP\" 0 [:find \"\$MaskedServerIP\" \"/\" -1]] ) ;\r\
     \n\r\
-    \nsign \"client.myvpn.local\" ca=\"ca@\$CN\" name=\"\$USERNAME@\$CN\"\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n  \r\
+    \n:do {\r\
     \n\r\
-    \n:delay 6s\r\
+    \n  :local state \"CA certificates generation...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \nset trusted=yes \"\$USERNAME@\$CN\"\r\
+    \n  ## generate a CA certificate\r\
+    \n  /certificate add name=\"ca.myvpn.local\" common-name=\"ca@\$sysname\" subject-alt-name=\"email:ca@myvpn.local\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"   \\\r\
+    \n  ##  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
     \n\r\
-    \n## export the CA, client certificate, and private key\r\
-    \n/certificate\r\
-    \nexport-certificate \"\$USERNAME@\$CN\" export-passphrase=\"1234567890\" type=pkcs12\r\
+    \n  :local state \"Signing...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n};\r\
+    \n  sign \"ca.myvpn.local\" ca-crl-host=\"\$ServerIP\" name=\"ca@\$sysname\"\r\
+    \n\r\
+    \n  :delay 6s\r\
+    \n\r\
+    \n  set trusted=yes \"ca@\$sysname\"\r\
+    \n\r\
+    \n  :local state \"SERVER certificates generation...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  ## generate a server certificate\r\
+    \n  /certificate add name=\"server.myvpn.local\" common-name=\"\$ServerIP\" subject-alt-name=\"IP:\$ServerIP\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
+    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n\r\
+    \n  :local state \"Signing...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  sign \"server.myvpn.local\" ca=\"ca@\$sysname\" name=\"server@\$sysname\"\r\
+    \n\r\
+    \n  :delay 6s\r\
+    \n\r\
+    \n  set trusted=yes \"server@\$sysname\"\r\
+    \n\r\
+    \n  :local state \"CODE SIGN certificates generation...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  ## generate a code signing (apple IOS profiles) certificate\r\
+    \n  /certificate add name=\"sign.myvpn.local\" common-name=\"sign@\$sysname\" subject-alt-name=\"email:sign@myvpn.local\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
+    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n\r\
+    \n  :local state \"Signing...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  sign \"sign.myvpn.local\" ca=\"ca@\$sysname\" name=\"sign@\$sysname\"\r\
+    \n\r\
+    \n  :delay 6s\r\
+    \n\r\
+    \n  set trusted=yes \"sign@\$sysname\"\r\
+    \n\r\
+    \n  ## export the CA, code sign certificate, and private key\r\
+    \n  /certificate export-certificate \"sign@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
+    \n\r\
+    \n  :foreach USERNAME in=\$IDs do={\r\
+    \n\r\
+    \n    :local state \"CLIENT certificates generation...  \$USERNAME\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    ## create a client certificate\r\
+    \n    /certificate add name=\"client.myvpn.local\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@myvpn.local\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
+    \n    ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n\r\
+    \n    :local state \"Signing...\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    sign \"client.myvpn.local\" ca=\"ca@\$sysname\" name=\"\$USERNAME@\$sysname\"\r\
+    \n\r\
+    \n    :delay 6s\r\
+    \n\r\
+    \n    set trusted=yes \"\$USERNAME@\$sysname\"\r\
+    \n\r\
+    \n    ## export the CA, client certificate, and private key\r\
+    \n    /certificate export-certificate \"\$USERNAME@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
+    \n\r\
+    \n  };\r\
     \n\r\
     \n} on-error={\r\
-    \n  :put \"Certificates generation script FAILED\";\r\
-    \n  :log warning \"Certificates generation script FAILED\";\r\
-    \n};"
+    \n\r\
+    \n  :local state \"Certificates generation script FAILED\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n};\r\
+    \n"
 /system script add dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doHeatFlag\";\r\
@@ -1492,43 +1490,78 @@
     \n:log error (\"Telegram notify error\");\r\
     \n:put \"Telegram notify error\";\r\
     \n};"
-/system script add dont-require-permissions=yes name=doNetwatchHostIsUp owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n\r\
+    \n\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doNetwatchHost\";\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doNetwatchHostIsUp\";\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
-    \n#NetWatch notifier OnUp\r\
+    \n#NetWatch notifier OnUp/OnDown\r\
     \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n:local state \"\";\r\
+    \n  \r\
     \n:global NetwatchHostName;\r\
     \n\r\
-    \n/log warning \"\$NetwatchHostName started...\"\r\
+    \n:local state \"Netwatch for \$NetwatchHostName started...\";\r\
+    \n\$globalNoteMe value=\$state;\r\
     \n\r\
     \n:do {\r\
     \n\r\
-    \nif ([system resource get uptime] > 00:01:00) do={\r\
+    \n  if ([system resource get uptime] > 00:01:00) do={\r\
     \n\r\
-    \n     :local connectionup \"%D0%A1%D0%B2%D1%8F%D0%B7%D1%8C%20%D0%B2%D0%BE%D1%81%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BB%D0%B5%D0%BD%D0%B0%3A%20\";\r\
+    \n   #additional manual check via ping\r\
+    \n   :local checkip [/ping \$NetwatchHostName count=10];\r\
     \n\r\
-    \n     :local checkip [/ping \$NetwatchHostName count=10];\r\
+    \n   :if (\$checkip = 10) do={\r\
     \n\r\
-    \n     :if (checkip = 10) do={\r\
+    \n     :local state \"\$NetwatchHostName is UP\";\r\
+    \n     \$globalNoteMe value=\$state;\r\
+    \n     #success when OnUp\r\
+    \n     :local itsOk true;\r\
     \n\r\
-    \n            /log error \"\$NetwatchHostName IS UP\";\r\
+    \n   } else {\r\
     \n\r\
-    \n            :global TelegramMessage \"\$connectionup\$NetwatchHostName\";\r\
-    \n\r\
-    \n            /system script run doTelegramNotify;\r\
-    \n\r\
-    \n            :delay 2\r\
-    \n\r\
-    \n       }\r\
+    \n    :local state \"\$NetwatchHostName is DOWN\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    #success when OnDown\r\
+    \n    :local itsOk true;\r\
+    \n    \r\
     \n   }\r\
+    \n } else {\r\
+    \n\r\
+    \n  :local state \"The system is just started, wait some time before using netwatch\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n  :local itsOk false;\r\
+    \n\r\
+    \n }\r\
     \n} on-error= {\r\
     \n\r\
-    \n:log info (\"Telegram notify error\");\r\
+    \n  :local state \"Netwatch for \$NetwatchHostName FAILED...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n  :local itsOk false;\r\
     \n\r\
-    \n:put \"Telegram notify error\";\r\
+    \n};\r\
     \n\r\
-    \n};"
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: netwatch \$state\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$noteMe value=\$inf\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n\r\
+    \n"
 /system script add dont-require-permissions=yes name=doDHCPLeaseTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doDHCPLeaseTrack\";\r\
@@ -2446,7 +2479,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHostIsDown, doNetwatchHostIsUp\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -2476,7 +2509,6 @@
     \n      #Please keep care about consistency if size over 4096 bytes\r\
     \n      :local answer ([ /tool fetch url=\"\$RequestUrl\$\$theScript.rsc.txt\" output=user as-value]);\r\
     \n      :set code ( \$answer->\"data\" );\r\
-    \n      :put \$code;\r\
     \n      \$globalNoteMe value=\"Done\";\r\
     \n\r\
     \n    } on-error= { \r\
@@ -2522,6 +2554,6 @@
 /tool mac-server set allowed-interface-list=none
 /tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
 /tool netwatch add comment="miniAlx status check" down-script=":global NetwatchHostName \"miniAlx\";\r\
-    \n/system script run doNetwatchHostIsDown;" host=192.168.99.180 up-script=":global NetwatchHostName \"miniAlx\";\r\
-    \n/system script run doNetwatchHostIsUp;"
+    \n/system script run doNetwatchHost;" host=192.168.99.180 up-script=":global NetwatchHostName \"miniAlx\";\r\
+    \n/system script run doNetwatchHost;"
 /tool sniffer set filter-interface=tunnel filter-operator-between-entries=and streaming-enabled=yes streaming-server=192.168.99.170

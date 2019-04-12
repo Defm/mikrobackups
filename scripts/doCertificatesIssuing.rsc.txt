@@ -1,120 +1,118 @@
 
-# generates IPSEC certs
+# generates IPSEC certs: CA, server, code sign and clients
 # i recommend to run it on server side
 
-:global CN [/system identity get name]
-
-## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields
-## :global COUNTRY "RU"
-## :global STATE "MSC"
-## :global LOC "Moscow"
-## :global ORG "IKEv2 Home"
-## :global OU "IKEv2 Mikrotik"
-
-:global COUNTRY ""
-:global STATE ""
-:global LOC ""
-:global ORG ""
-:global OU ""
-
-:global KEYSIZE "2048"
-:global USERNAME "mikrouter"
-
-:global MaskedServerIP [/ip address get [find where interface=wan] address];
-:global ServerIP ( [:pick "$MaskedServerIP" 0 [:find "$MaskedServerIP" "/" -1]] ) ;
-
-:do {
-
-
-:log info ("CA certificates generation...");
-:put "CA certificates generation...";
-
-## generate a CA certificate
-/certificate
-add name="ca.myvpn.local" common-name="ca@$CN" subject-alt-name="email:ca@myvpn.local"  key-usage=crl-sign,key-cert-sign \
-country="$COUNTRY" state="$STATE" locality="$LOC" \
-organization="$ORG" unit="$OU"   \
-##  key-size="$KEYSIZE" days-valid=3650 
-
-:put "Signing...";
-
-sign "ca.myvpn.local" ca-crl-host="$ServerIP" name="ca@$CN"
-
-:delay 6s
-
-set trusted=yes "ca@$CN"
-
-:log info ("SERVER certificates generation...");
-:put "SERVER certificates generation...";
-
-## generate a server certificate
-/certificate
-add name="server.myvpn.local" common-name="$ServerIP" subject-alt-name="IP:$ServerIP" key-usage=tls-server \
-  country="$COUNTRY" state="$STATE" locality="$LOC" \
-  organization="$ORG" unit="$OU"  \
-##  key-size="$KEYSIZE" days-valid=1095 
-
-:put "Signing...";
-
-sign "server.myvpn.local" ca="ca@$CN" name="server@$CN"
-
-:delay 6s
-
-set trusted=yes "server@$CN"
-
-:log info ("CODE SIGN certificates generation...");
-:put "CODE SIGN certificates generation...";
-
-## generate a code signing (apple IOS profiles) certificate
-/certificate
-add name="sign.myvpn.local" common-name="sign@$CN" subject-alt-name="email:sign@myvpn.local" key-usage=code-sign,digital-signature \
-  country="$COUNTRY" state="$STATE" locality="$LOC" \
-  organization="$ORG" unit="$OU"  \
-##  key-size="$KEYSIZE" days-valid=1095 
-
-:put "Signing...";
-
-sign "sign.myvpn.local" ca="ca@$CN" name="sign@$CN"
-
-:delay 6s
-
-set trusted=yes "sign@$CN"
-
-## export the CA, code sign certificate, and private key
-/certificate
-export-certificate "sign@$CN" export-passphrase="1234567890" type=pkcs12
-
-
+#clients
 :local IDs [:toarray "mikrouter,alx.iphone.rw.2019,glo.iphone.rw.2019,alx.mbp.rw.2019"];
 
-:foreach USERNAME in=$IDs do={
+:local sysname [/system identity get name]
+:local sysver [/system package get system version]
+:local scriptname "doCertificatesIssuing"
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun $scriptname;
 
+## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields
+## :local COUNTRY "RU"
+## :local STATE "MSC"
+## :local LOC "Moscow"
+## :local ORG "IKEv2 Home"
+## :local OU "IKEv2 Mikrotik"
 
-:log info ("CLIENT certificates generation...  $USERNAME");
-:put "CLIENT certificates generation...  $USERNAME";
+:local COUNTRY ""
+:local STATE ""
+:local LOC ""
+:local ORG ""
+:local OU ""
 
-## create a client certificate
-/certificate
-add name="client.myvpn.local" common-name="$USERNAME@$CN" subject-alt-name="email:$USERNAME@myvpn.local" key-usage=tls-client \
-  country="$COUNTRY" state="$STATE" locality="$LOC" \
-  organization="$ORG" unit="$OU"  \
-##  key-size="$KEYSIZE" days-valid=1095 
+:local KEYSIZE "2048"
+:local USERNAME "mikrouter"
 
-:put "Signing...";
+:local MaskedServerIP [/ip address get [find where interface=wan] address];
+:local ServerIP ( [:pick "$MaskedServerIP" 0 [:find "$MaskedServerIP" "/" -1]] ) ;
 
-sign "client.myvpn.local" ca="ca@$CN" name="$USERNAME@$CN"
+:global globalNoteMe;
+:local itsOk true;
+  
+:do {
 
-:delay 6s
+  :local state "CA certificates generation...";
+  $globalNoteMe value=$state;
 
-set trusted=yes "$USERNAME@$CN"
+  ## generate a CA certificate
+  /certificate add name="ca.myvpn.local" common-name="ca@$sysname" subject-alt-name="email:ca@myvpn.local"  key-usage=crl-sign,key-cert-sign country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"   \
+  ##  key-size="$KEYSIZE" days-valid=3650 
 
-## export the CA, client certificate, and private key
-/certificate
-export-certificate "$USERNAME@$CN" export-passphrase="1234567890" type=pkcs12
+  :local state "Signing...";
+  $globalNoteMe value=$state;
 
-};
+  sign "ca.myvpn.local" ca-crl-host="$ServerIP" name="ca@$sysname"
+
+  :delay 6s
+
+  set trusted=yes "ca@$sysname"
+
+  :local state "SERVER certificates generation...";
+  $globalNoteMe value=$state;
+
+  ## generate a server certificate
+  /certificate add name="server.myvpn.local" common-name="$ServerIP" subject-alt-name="IP:$ServerIP" key-usage=tls-server country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  \
+  ##  key-size="$KEYSIZE" days-valid=1095 
+
+  :local state "Signing...";
+  $globalNoteMe value=$state;
+
+  sign "server.myvpn.local" ca="ca@$sysname" name="server@$sysname"
+
+  :delay 6s
+
+  set trusted=yes "server@$sysname"
+
+  :local state "CODE SIGN certificates generation...";
+  $globalNoteMe value=$state;
+
+  ## generate a code signing (apple IOS profiles) certificate
+  /certificate add name="sign.myvpn.local" common-name="sign@$sysname" subject-alt-name="email:sign@myvpn.local" key-usage=code-sign,digital-signature country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  \
+  ##  key-size="$KEYSIZE" days-valid=1095 
+
+  :local state "Signing...";
+  $globalNoteMe value=$state;
+
+  sign "sign.myvpn.local" ca="ca@$sysname" name="sign@$sysname"
+
+  :delay 6s
+
+  set trusted=yes "sign@$sysname"
+
+  ## export the CA, code sign certificate, and private key
+  /certificate export-certificate "sign@$sysname" export-passphrase="1234567890" type=pkcs12
+
+  :foreach USERNAME in=$IDs do={
+
+    :local state "CLIENT certificates generation...  $USERNAME";
+    $globalNoteMe value=$state;
+
+    ## create a client certificate
+    /certificate add name="client.myvpn.local" common-name="$USERNAME@$sysname" subject-alt-name="email:$USERNAME@myvpn.local" key-usage=tls-client country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  \
+    ##  key-size="$KEYSIZE" days-valid=1095 
+
+    :local state "Signing...";
+    $globalNoteMe value=$state;
+
+    sign "client.myvpn.local" ca="ca@$sysname" name="$USERNAME@$sysname"
+
+    :delay 6s
+
+    set trusted=yes "$USERNAME@$sysname"
+
+    ## export the CA, client certificate, and private key
+    /certificate export-certificate "$USERNAME@$sysname" export-passphrase="1234567890" type=pkcs12
+
+  };
 
 } on-error={
-  :put "Certificates generation script FAILED";
-  :log warning "Certificates generation script FAILED";
+
+  :local state "Certificates generation script FAILED";
+  $globalNoteMe value=$state;
+
 };
+
