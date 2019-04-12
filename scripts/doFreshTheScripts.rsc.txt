@@ -1,0 +1,70 @@
+
+:local sysname [/system identity get name];
+:local scriptname "doFreshTheScripts";
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun $scriptname;
+
+:local GitHubUserName "Defm";
+:local GitHubRepoName "mikrobackups";
+:local GitHubAccessToken "ce73ea614f27f4caf391850da45a94564dddc7a7";
+:local RequestUrl "https://$GitHubAccessToken@raw.githubusercontent.com/$GitHubUserName/$GitHubRepoName/master/";
+
+:local UseUpdateList true;
+:local UpdateList [:toarray "doBackup,doEnvironmentSetup"];
+
+:global globalNoteMe;
+
+:local itsOk true;
+  
+:foreach scriptId in [/system script find] do={
+
+  :local code "";
+  :local theScript [/system script get $scriptId name];
+
+  :if ( $UseUpdateList ) do={
+    :if ( $theScript in $UpdateList ) do={
+    } else={
+      :local state "Script '$theScript' skipped due to setup";
+      $globalNoteMe value=$state;
+      :set itsOk false;
+    }
+  } else={
+  }
+
+  :if ( $itsOk ) do={
+    :do {
+      #Please keep care about consistency if size over 4096 bytes
+      :set code ([ / tool fetch "$RequestUrl$$theScript" output=user as-value]);
+    } on-error= { 
+      :local state "Error When Downloading Script '$theScript' From GitHub";
+      $globalNoteMe value=$state;
+      :set itsOk false;
+    }
+  }
+
+  :if ( $itsOk ) do={
+    :do {
+      /system script set $scriptId source=$code;
+    } on-error= { 
+      :local state "Error When Setting Script source for '$theScript'";
+      $globalNoteMe value=$state;
+      :set itsOk false;
+    }
+  }
+}
+
+:local inf ""
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: scripts refreshed Successfully"
+}
+
+:if (!$itsOk) do={
+  :set inf "Error When $scriptname on $sysname: $state"  
+}
+
+$noteMe value=$inf
+
+:global globalTgMessage;
+$globalTgMessage value=$inf;
+
+
