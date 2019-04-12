@@ -1,4 +1,4 @@
-# apr/12/2019 14:34:23 by RouterOS 6.45beta27
+# apr/12/2019 14:51:22 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -2086,7 +2086,10 @@
     \n}\r\
     \n}\r\
     \n}"
-/system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name]\r\
+/system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \"doBackup\";\r\
+    \n\r\
+    \n:local sysname [/system identity get name]\r\
     \n:local sysver [/system package get system version]\r\
     \n:local scriptname \"doBackup\"\r\
     \n:local saveSysBackup true\r\
