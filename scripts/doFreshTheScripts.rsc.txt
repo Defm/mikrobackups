@@ -7,34 +7,42 @@ $globalScriptBeforeRun $scriptname;
 :local GitHubUserName "Defm";
 :local GitHubRepoName "mikrobackups";
 :local GitHubAccessToken "ce73ea614f27f4caf391850da45a94564dddc7a7";
-:local RequestUrl "https://$GitHubAccessToken@raw.githubusercontent.com/$GitHubUserName/$GitHubRepoName/master/";
+:local RequestUrl "https://$GitHubAccessToken@raw.githubusercontent.com/$GitHubUserName/$GitHubRepoName/master/scripts/";
 
 :local UseUpdateList true;
-:local UpdateList [:toarray "doBackup,doEnvironmentSetup"];
+:local UpdateList [:toarray "doBackup, doEnvironmentSetup, doRandomGen"];
 
 :global globalNoteMe;
-
 :local itsOk true;
   
 :foreach scriptId in [/system script find] do={
 
   :local code "";
   :local theScript [/system script get $scriptId name];
+  :local skip false;
 
   :if ( $UseUpdateList ) do={
-    :if ( $theScript in $UpdateList ) do={
+    :if ( [:len [find key=$theScript in=$UpdateList ]] > 0 ) do={
     } else={
       :local state "Script '$theScript' skipped due to setup";
       $globalNoteMe value=$state;
-      :set itsOk false;
+      :set skip true;
     }
   } else={
   }
 
-  :if ( $itsOk ) do={
+  :if ( $itsOk and !$skip) do={
     :do {
+
+      :local state "/tool fetch url=$RequestUrl$$theScript.rsc.txt output=user as-value";
+      $globalNoteMe value=$state;
+ 
       #Please keep care about consistency if size over 4096 bytes
-      :set code ([ / tool fetch "$RequestUrl$$theScript" output=user as-value]);
+      :local answer ([ /tool fetch url="$RequestUrl$$theScript.rsc.txt" output=user as-value]);
+      :set code ( $answer->"data" );
+      :put $code;
+      $globalNoteMe value="Done";
+
     } on-error= { 
       :local state "Error When Downloading Script '$theScript' From GitHub";
       $globalNoteMe value=$state;
@@ -42,15 +50,20 @@ $globalScriptBeforeRun $scriptname;
     }
   }
 
-  :if ( $itsOk ) do={
+  :if ( $itsOk and !$skip) do={
     :do {
-      /system script set $scriptId source=$code;
+      :local state "Setting Up Script source for '$theScript'";
+      $globalNoteMe value=$state;
+      /system script set $theScript source="$code";
+      $globalNoteMe value="Done";
     } on-error= { 
-      :local state "Error When Setting Script source for '$theScript'";
+      :local state "Error When Setting Up Script source for '$theScript'";
       $globalNoteMe value=$state;
       :set itsOk false;
     }
   }
+
+  :delay 1s
 }
 
 :local inf ""
