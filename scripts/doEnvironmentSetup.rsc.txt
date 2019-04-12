@@ -1,14 +1,25 @@
+
+:global globalNoteMe;
+
+:if (!any $globalNoteMe) do={ 
+  :global globalNoteMe do={
+
+  ## outputs $value using both :put and :log info
+  ## example $outputInfo value="12345"
+  :put "info: $value"
+  :log info "$value"
+
+  }
+}
+
 :global globalScriptBeforeRun;
 
-
 :if (!any $globalScriptBeforeRun) do={ 
-
   :global globalScriptBeforeRun do={
 
     :if ([:len $1] > 0) do={
 
       :local currentTime ([/system clock get date] . " " . [/system clock get time]);
-
       :local scriptname "$1";
 
       :local count [:len [/system script job find script=$scriptname]];
@@ -16,45 +27,45 @@
       :if ($count > 0) do={
 
         :foreach counter in=[/system script job find script=$scriptname] do={
-          
-           #But ignoring scripts started right NOW
-           :local thisScriptCallTime  [/system script job get $counter started];
 
-           :if ($currentTime != $thisScriptCallTime) do={
- 
-            :log warning "$scriptname already Running at $thisScriptCallTime - killing old script before continuing";
-            :put "$scriptname already Running at $thisScriptCallTime - killing old script before continuing";
-        
-             /system script job remove $counter;
-
-            }
-
+         #But ignoring scripts started right NOW
+         :local thisScriptCallTime  [/system script job get $counter started];
+         :if ($currentTime != $thisScriptCallTime) do={
+           :local state "$scriptname already Running at $thisScriptCallTime - killing old script before continuing";
+            $globalNoteMe value=$state;
+            /system script job remove $counter;
+          }
         }
-        
       }
 
-      :log warning "Starting script: $scriptname";
-      :put "Starting script: $scriptname"
-    
+      :local state "Starting script: $scriptname";
+      $globalNoteMe value=$state;
+
     }
-    
   }
-
 }
 
-:global globalDebugInfo;
+:global globalTgMessage;
 
-:if (!any $globalDebugInfo) do={ 
+:if (!any $globalTgMessage) do={ 
+  :global globalTgMessage do={
 
-  :global globalDebugInfo do={
+    :local tToken "798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M";
+    :local tGroupID "-343674739";
+    :local tURL "https://api.telegram.org/bot$tToken/sendMessage\?chat_id=$tGroupID";
 
-  ## outputs $value using both :put and :log info
-  ## example $outputInfo value="12345"
-  :put "info: $value"
-  :log info "$value"
+    :local state ("Sending telegram message... $value");
+    $globalNoteMe value=$state;
 
-    
+    :do {
+      /tool fetch http-method=post mode=https url="$tURL" http-data="text=$value" keep-result=no;
+    } on-error= {
+      :local state ("Telegram notify error");
+      $globalNoteMe value=$state;
+    };
   }
-
 }
+
+
+
 

@@ -126,7 +126,6 @@ $globalScriptBeforeRun "doBackup";
 
 $noteMe value=$inf
 
-:global TelegramMessage "$inf";
-
-/system script run doTelegramNotify;
+:global globalTgMessage;
+$globalTgMessage value=$inf;
 
