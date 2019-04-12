@@ -1,0 +1,72 @@
+
+
+
+:local sysname [/system identity get name];
+:local scriptname "doNetwatchHost";
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun $scriptname;
+
+#NetWatch notifier OnUp/OnDown
+
+:global globalNoteMe;
+:local itsOk true;
+:local state "";
+  
+:global NetwatchHostName;
+
+:local state "Netwatch for $NetwatchHostName started...";
+$globalNoteMe value=$state;
+
+:do {
+
+  if ([system resource get uptime] > 00:01:00) do={
+
+   #additional manual check via ping
+   :local checkip [/ping $NetwatchHostName count=10];
+
+   :if ($checkip = 10) do={
+
+     :local state "$NetwatchHostName is UP";
+     $globalNoteMe value=$state;
+     #success when OnUp
+     :local itsOk true;
+
+   } else {
+
+    :local state "$NetwatchHostName is DOWN";
+    $globalNoteMe value=$state;
+    #success when OnDown
+    :local itsOk true;
+    
+   }
+ } else {
+
+  :local state "The system is just started, wait some time before using netwatch";
+  $globalNoteMe value=$state;
+  :local itsOk false;
+
+ }
+} on-error= {
+
+  :local state "Netwatch for $NetwatchHostName FAILED...";
+  $globalNoteMe value=$state;
+  :local itsOk false;
+
+};
+
+:local inf ""
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: netwatch $state"
+}
+
+:if (!$itsOk) do={
+  :set inf "Error When $scriptname on $sysname: $state"  
+}
+
+$noteMe value=$inf
+
+:global globalTgMessage;
+$globalTgMessage value=$inf;
+
+
+
