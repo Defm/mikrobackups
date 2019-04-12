@@ -6,131 +6,122 @@
 :local saveRawExport true
 :local verboseRawExport false
 :local state ""
-:local FTPEnable true
-:local FTPServer "minialx.home"
-:local FTPPort 21
-:local FTPUser "ftp"
-:local FTPPass ""
-
-#directories have to exist!
-:local FTPRoot "/pub/"
-:local FTPGitEnable true
-:local FTPRawGitName "/pub/git/rawconf_$sysname_$sysver.rsc"
-
-:local SMTPEnable true
-:local SMTPAddress "defm.kopcap@gmail.com"
-
 
 :local ts [/system clock get time]
 :set ts ([:pick $ts 0 2].[:pick $ts 3 5].[:pick $ts 6 8])
 :local ds [/system clock get date]
 :set ds ([:pick $ds 7 11].[:pick $ds 0 3].[:pick $ds 4 6])
 
-:local SMTPsysSubject ("$sysname Full Backup ($ds-$ts)")
+#directories have to exist!
+:local FTPEnable true
+:local FTPServer "minialx.home"
+:local FTPPort 21
+:local FTPUser "ftp"
+:local FTPPass ""
+:local FTPRoot "/pub/"
+:local FTPGitEnable true
+:local FTPRawGitName "/pub/git/rawconf_$sysname_$sysver.rsc"
 
+:local SMTPEnable true
+:local SMTPAddress "defm.kopcap@gmail.com"
+:local SMTPSubject ("$sysname Full Backup ($ds-$ts)")
 :local SMTPBody ("$sysname full Backup file see in attachment.\nRouterOS version: $sysver\nTime and Date stamp: ($ds-$ts) ")
 
-:local DebugInfo do={
-
+:local noteMe do={
   :put "DEBUG: $value"
   :log info message="$value"
-
 }
 
-:local continue true;
+:local itsOk true;
 
 :do {
   :local smtpserv [:resolve "$FTPServer"];
 } on-error={ 
   :set state "FTP server looks like to be unreachable"
-  $DebugInfo value=$state;
-  :set continue false;
+  $noteMe value=$state;
+  :set itsOk false;
 }
 
 :local fname ("BACKUP-$sysname-$ds-$ts")
 
-:if ($saveSysBackup and $continue) do={
+:if ($saveSysBackup and $itsOk) do={
   :if ($encryptSysBackup = true) do={ /system backup save name=($fname.".backup") }
   :if ($encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=($fname.".backup") }
-  $DebugInfo value="System Backup Finished"
+  $noteMe value="System Backup Finished"
 }
 
-:if ($saveRawExport and $continue) do={
+:if ($saveRawExport and $itsOk) do={
   :if ($FTPGitEnable ) do={
      :if ($verboseRawExport = true) do={ /export terse hide-sensitive verbose file=($fname.".safe.rsc") }
      :if ($verboseRawExport = false) do={ /export terse hide-sensitive  file=($fname.".safe.rsc") }
   }
-  $DebugInfo value="Raw configuration script export Finished"
+  $noteMe value="Raw configuration script export Finished"
 }
 
 :delay 5s
 
-:local backupFileName ""
+:local buFile ""
 
 :foreach backupFile in=[/file find] do={
-  :set backupFileName ([/file get $backupFile name])
-  :if ([:typeof [:find $backupFileName $fname]] != "nil" and $continue) do={
-    :local rawfile ( $backupFileName ~".safe.rsc")
-    if ($FTPEnable and $continue) do={
+  :set buFile ([/file get $backupFile name])
+  :if ([:typeof [:find $buFile $fname]] != "nil" and $itsOk) do={
+    :local itsSRC ( $buFile ~".safe.rsc")
+    if ($FTPEnable and $itsOk) do={
         :do {
-        :local state "Uploading $backupFileName to FTP ($FTPRoot$backupFileName)"
-        $DebugInfo value=$state
-        /tool fetch address=$FTPServer port=$FTPPort src-path=$backupFileName user=$FTPUser password=$FTPPass dst-path="$FTPRoot$backupFileName" mode=ftp upload=yes
-        $DebugInfo value="Done"
+        :local state "Uploading $buFile to FTP ($FTPRoot$buFile)"
+        $noteMe value=$state
+        /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRoot$buFile" mode=ftp upload=yes
+        $noteMe value="Done"
         } on-error={ 
           :set state "Error When $state"
-          $DebugInfo value=$state;
-          :set continue false;
+          $noteMe value=$state;
+          :set itsOk false;
        }
 
         #special ftp upload for git purposes
-        if ($rawfile and $FTPGitEnable and $continue) do={
+        if ($itsSRC and $FTPGitEnable and $itsOk) do={
             :do {
-            :local state "Uploading $backupFileName to FTP (RAW, $FTPRawGitName)"
-            $DebugInfo value=$state
-            /tool fetch address=$FTPServer port=$FTPPort src-path=$backupFileName user=$FTPUser password=$FTPPass dst-path="$FTPRawGitName" mode=ftp upload=yes
-            $DebugInfo value="Done"
+            :local state "Uploading $buFile to FTP (RAW, $FTPRawGitName)"
+            $noteMe value=$state
+            /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRawGitName" mode=ftp upload=yes
+            $noteMe value="Done"
             } on-error={ 
               :set state "Error When $state"
-              $DebugInfo value=$state;
-              :set continue false;
+              $noteMe value=$state;
+              :set itsOk false;
            }
         }
 
     }
-    if ($SMTPEnable and !$rawfile and $continue) do={
+    if ($SMTPEnable and !$itsSRC and $itsOk) do={
         :do {
-        :local state "Uploading $backupFileName to SMTP"
-        $DebugInfo value=$state
-        /tool e-mail send to=$SMTPAddress body=$SMTPBody subject=$SMTPsysSubject file=$backupFileName
-        $DebugInfo value="Done"
+        :local state "Uploading $buFile to SMTP"
+        $noteMe value=$state
+        /tool e-mail send to=$SMTPAddress body=$SMTPBody subject=$SMTPSubject file=$buFile
+        $noteMe value="Done"
         } on-error={ 
           :set state "Error When $state"
-          $DebugInfo value=$state;
-          :set continue false;
-       }        
+          $noteMe value=$state;
+          :set itsOk false;
+       }
     }
-  }
-}
 
-:delay 5s
+    :delay 1s;
+    /file remove $backupFile;
 
-:foreach backupFile in=[/file find] do={
-  :if ([:typeof [:find [/file get $backupFile name] "BACKUP-"]]!= "nil") do={
-    /file remove $backupFile
   }
 }
 
 :local inf ""
-:if ($continue) do={
-  :set inf "$scriptname on $sysname: Automatic Backup Completed Successfully"  
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: Automatic Backup Completed Successfully"
 }
 
-:if (!$continue) do={
+:if (!$itsOk) do={
   :set inf "Error When $scriptname on $sysname: $state"  
 }
 
-$DebugInfo value=$inf
+$noteMe value=$inf
 
 :global TelegramMessage "$inf";
 
