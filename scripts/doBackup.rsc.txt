@@ -1,3 +1,6 @@
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doBackup";
+
 :local sysname [/system identity get name]
 :local sysver [/system package get system version]
 :local scriptname "doBackup"
