@@ -1,4 +1,4 @@
-# apr/11/2019 23:19:38 by RouterOS 6.45beta27
+# apr/12/2019 14:34:23 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -2094,131 +2094,122 @@
     \n:local saveRawExport true\r\
     \n:local verboseRawExport false\r\
     \n:local state \"\"\r\
-    \n:local FTPEnable true\r\
-    \n:local FTPServer \"minialx.home\"\r\
-    \n:local FTPPort 21\r\
-    \n:local FTPUser \"ftp\"\r\
-    \n:local FTPPass \"\"\r\
-    \n\r\
-    \n#directories have to exist!\r\
-    \n:local FTPRoot \"/pub/\"\r\
-    \n:local FTPGitEnable true\r\
-    \n:local FTPRawGitName \"/pub/git/rawconf_\$sysname_\$sysver.rsc\"\r\
-    \n\r\
-    \n:local SMTPEnable true\r\
-    \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\
-    \n\r\
     \n\r\
     \n:local ts [/system clock get time]\r\
     \n:set ts ([:pick \$ts 0 2].[:pick \$ts 3 5].[:pick \$ts 6 8])\r\
     \n:local ds [/system clock get date]\r\
     \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\
     \n\r\
-    \n:local SMTPsysSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\
+    \n#directories have to exist!\r\
+    \n:local FTPEnable true\r\
+    \n:local FTPServer \"minialx.home\"\r\
+    \n:local FTPPort 21\r\
+    \n:local FTPUser \"ftp\"\r\
+    \n:local FTPPass \"\"\r\
+    \n:local FTPRoot \"/pub/\"\r\
+    \n:local FTPGitEnable true\r\
+    \n:local FTPRawGitName \"/pub/git/rawconf_\$sysname_\$sysver.rsc\"\r\
     \n\r\
+    \n:local SMTPEnable true\r\
+    \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\
+    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\
     \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\
     \n\r\
-    \n:local DebugInfo do={\r\
-    \n\r\
+    \n:local noteMe do={\r\
     \n  :put \"DEBUG: \$value\"\r\
     \n  :log info message=\"\$value\"\r\
-    \n\r\
     \n}\r\
     \n\r\
-    \n:local continue true;\r\
+    \n:local itsOk true;\r\
     \n\r\
     \n:do {\r\
     \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
     \n} on-error={ \r\
     \n  :set state \"FTP server looks like to be unreachable\"\r\
-    \n  \$DebugInfo value=\$state;\r\
-    \n  :set continue false;\r\
+    \n  \$noteMe value=\$state;\r\
+    \n  :set itsOk false;\r\
     \n}\r\
     \n\r\
     \n:local fname (\"BACKUP-\$sysname-\$ds-\$ts\")\r\
     \n\r\
-    \n:if (\$saveSysBackup and \$continue) do={\r\
+    \n:if (\$saveSysBackup and \$itsOk) do={\r\
     \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
     \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\
-    \n  \$DebugInfo value=\"System Backup Finished\"\r\
+    \n  \$noteMe value=\"System Backup Finished\"\r\
     \n}\r\
     \n\r\
-    \n:if (\$saveRawExport and \$continue) do={\r\
+    \n:if (\$saveRawExport and \$itsOk) do={\r\
     \n  :if (\$FTPGitEnable ) do={\r\
     \n     :if (\$verboseRawExport = true) do={ /export terse hide-sensitive verbose file=(\$fname.\".safe.rsc\") }\r\
     \n     :if (\$verboseRawExport = false) do={ /export terse hide-sensitive  file=(\$fname.\".safe.rsc\") }\r\
     \n  }\r\
-    \n  \$DebugInfo value=\"Raw configuration script export Finished\"\r\
+    \n  \$noteMe value=\"Raw configuration script export Finished\"\r\
     \n}\r\
     \n\r\
     \n:delay 5s\r\
     \n\r\
-    \n:local backupFileName \"\"\r\
+    \n:local buFile \"\"\r\
     \n\r\
     \n:foreach backupFile in=[/file find] do={\r\
-    \n  :set backupFileName ([/file get \$backupFile name])\r\
-    \n  :if ([:typeof [:find \$backupFileName \$fname]] != \"nil\" and \$continue) do={\r\
-    \n    :local rawfile ( \$backupFileName ~\".safe.rsc\")\r\
-    \n    if (\$FTPEnable and \$continue) do={\r\
+    \n  :set buFile ([/file get \$backupFile name])\r\
+    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\" and \$itsOk) do={\r\
+    \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\
+    \n    if (\$FTPEnable and \$itsOk) do={\r\
     \n        :do {\r\
-    \n        :local state \"Uploading \$backupFileName to FTP (\$FTPRoot\$backupFileName)\"\r\
-    \n        \$DebugInfo value=\$state\r\
-    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$backupFileName user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$backupFileName\" mode=ftp upload=yes\r\
-    \n        \$DebugInfo value=\"Done\"\r\
+    \n        :local state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\
+    \n        \$noteMe value=\$state\r\
+    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\
+    \n        \$noteMe value=\"Done\"\r\
     \n        } on-error={ \r\
     \n          :set state \"Error When \$state\"\r\
-    \n          \$DebugInfo value=\$state;\r\
-    \n          :set continue false;\r\
+    \n          \$noteMe value=\$state;\r\
+    \n          :set itsOk false;\r\
     \n       }\r\
     \n\r\
     \n        #special ftp upload for git purposes\r\
-    \n        if (\$rawfile and \$FTPGitEnable and \$continue) do={\r\
+    \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\
     \n            :do {\r\
-    \n            :local state \"Uploading \$backupFileName to FTP (RAW, \$FTPRawGitName)\"\r\
-    \n            \$DebugInfo value=\$state\r\
-    \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$backupFileName user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
-    \n            \$DebugInfo value=\"Done\"\r\
+    \n            :local state \"Uploading \$buFile to FTP (RAW, \$FTPRawGitName)\"\r\
+    \n            \$noteMe value=\$state\r\
+    \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
+    \n            \$noteMe value=\"Done\"\r\
     \n            } on-error={ \r\
     \n              :set state \"Error When \$state\"\r\
-    \n              \$DebugInfo value=\$state;\r\
-    \n              :set continue false;\r\
+    \n              \$noteMe value=\$state;\r\
+    \n              :set itsOk false;\r\
     \n           }\r\
     \n        }\r\
     \n\r\
     \n    }\r\
-    \n    if (\$SMTPEnable and !\$rawfile and \$continue) do={\r\
+    \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\
     \n        :do {\r\
-    \n        :local state \"Uploading \$backupFileName to SMTP\"\r\
-    \n        \$DebugInfo value=\$state\r\
-    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPsysSubject file=\$backupFileName\r\
-    \n        \$DebugInfo value=\"Done\"\r\
+    \n        :local state \"Uploading \$buFile to SMTP\"\r\
+    \n        \$noteMe value=\$state\r\
+    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile\r\
+    \n        \$noteMe value=\"Done\"\r\
     \n        } on-error={ \r\
     \n          :set state \"Error When \$state\"\r\
-    \n          \$DebugInfo value=\$state;\r\
-    \n          :set continue false;\r\
-    \n       }        \r\
+    \n          \$noteMe value=\$state;\r\
+    \n          :set itsOk false;\r\
+    \n       }\r\
     \n    }\r\
-    \n  }\r\
-    \n}\r\
     \n\r\
-    \n:delay 5s\r\
+    \n    :delay 1s;\r\
+    \n    /file remove \$backupFile;\r\
     \n\r\
-    \n:foreach backupFile in=[/file find] do={\r\
-    \n  :if ([:typeof [:find [/file get \$backupFile name] \"BACKUP-\"]]!= \"nil\") do={\r\
-    \n    /file remove \$backupFile\r\
     \n  }\r\
     \n}\r\
     \n\r\
     \n:local inf \"\"\r\
-    \n:if (\$continue) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: Automatic Backup Completed Successfully\"  \r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: Automatic Backup Completed Successfully\"\r\
     \n}\r\
     \n\r\
-    \n:if (!\$continue) do={\r\
+    \n:if (!\$itsOk) do={\r\
     \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
     \n}\r\
     \n\r\
-    \n\$DebugInfo value=\$inf\r\
+    \n\$noteMe value=\$inf\r\
     \n\r\
     \n:global TelegramMessage \"\$inf\";\r\
     \n\r\
