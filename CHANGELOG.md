@@ -1,4 +1,14 @@
-### Git Auto Save, Date: пятница, 12 апреля 2019 г. 19:46:29 (MSK), New Files:  Modified Files: scripts/doFreshTheScripts.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: пятница, 12 апреля 2019 г. 19:51:29 (MSK), New Files:  Modified Files: scripts/doFreshTheScripts.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+>Fri, 12 Apr 2019 19:51:29 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: пятница, 12 апреля 2019 г. 19:46:29 (MSK), New Files:  Modified Files: scripts/doFreshTheScripts.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
 >Fri, 12 Apr 2019 19:46:29 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Git Auto Save, Date: пятница, 12 апреля 2019 г. 19:37:47 (MSK), New Files:  Modified Files: scripts/doFreshTheScripts.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: пятница, 12 апреля 2019 г. 19:37:47 (MSK), New Files:  Modified Files: scripts/doFreshTheScripts.rsc.txt,  Removed Files:
 >Fri, 12 Apr 2019 19:37:47 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)

@@ -40,7 +40,6 @@ $globalScriptBeforeRun $scriptname;
       #Please keep care about consistency if size over 4096 bytes
       :local answer ([ /tool fetch url="$RequestUrl$$theScript.rsc.txt" output=user as-value]);
       :set code ( $answer->"data" );
-      :put $code;
       $globalNoteMe value="Done";
 
     } on-error= { 
