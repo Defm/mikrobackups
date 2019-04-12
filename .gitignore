@@ -1,0 +1,14 @@
+#ignore everything
+/*
+#but rsc in root directory
+!/*.rsc
+#dont ignore the 'scripts' dir on top-most level
+!/scripts/
+#but ignore everything inside
+/scripts/*
+#except *.rsc.txt files in it
+!/scripts/*.rsc.txt
+#etc
+!CHANGELOG.md
+!.gitignore
+!GitAutoCommit.sh
