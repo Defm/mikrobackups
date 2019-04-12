@@ -1,0 +1,126 @@
+
+:local sysname [/system identity get name];
+:local scriptname "doDumpTheScripts";
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun $scriptname;
+
+#directories have to exist!
+:local FTPRoot "/pub/git/"
+
+#This subdir will be created locally to put exported scripts in
+#and it must exist under $FTPRoot to upload scripts to
+:local SubDir "scripts/"
+
+:local FTPEnable true
+:local FTPServer "minialx.home"
+:local FTPPort 21
+:local FTPUser "ftp"
+:local FTPPass ""
+
+:global globalNoteMe;
+:local itsOk true;
+
+:global GscriptId;
+:local itsOk true;
+
+:do {
+  :local smtpserv [:resolve "$FTPServer"];
+} on-error={
+  :local state "FTP server looks like to be unreachable";
+   $globalNoteMe value=$state;
+  :local itsOk false;    
+}
+
+:if ($itsOk) do={
+  :do {
+    [/tool fetch dst-path="$SubDir.FooFile" url="http://127.0.0.1:80/mikrotik_logo.png" keep-result=no];
+  } on-error={ 
+    :local state "Error When Creating Local Scripts Directory";
+    $globalNoteMe value=$state;
+    :local itsOk false;
+  }
+}
+
+:if ($itsOk) do={
+  :foreach scriptId in [/system script find] do={
+
+    :local scriptSource [/system script get $scriptId source];
+    :local theScript [/system script get $scriptId name];
+    :local scriptSourceLength [:len $scriptSource];
+    :local path "$SubDir$theScript.rsc.txt";
+
+    :set $GscriptId $scriptId;
+
+    :if ($scriptSourceLength >= 4096) do={
+      :local state "Please keep care about '$theScript' consistency - its size over 4096 bytes";
+      $globalNoteMe value=$state;
+    }
+
+    :do {
+      /file print file=$path where 1=0;
+      #filesystem delay
+      :delay 1s;
+      #/file set [find name="$path"] contents=$scriptSource;
+      #/file set $path contents=$scriptSource;
+      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack
+      /execute script=":global GscriptId; :put [/system script get $GscriptId source];" file=$path;
+      :local state "Exported '$theScript' to '$path'";
+      $globalNoteMe value=$state;
+    } on-error={ 
+      :local state "Error When Exporting '$theScript' Script to '$path'";
+      $globalNoteMe value=$state;
+      :local itsOk false;
+    }
+  }
+}
+
+
+:delay 5s
+
+:local buFile ""
+
+:if ($itsOk) do={
+  :foreach backupFile in=[/file find where name~"^$SubDir"] do={
+    :set buFile ([/file get $backupFile name]);
+    :if ([:typeof [:find $buFile ".rsc.txt"]] != "nil") do={
+      :local rawfile ( $buFile ~".rsc.txt");
+      #special ftp upload for git purposes
+      if ($FTPEnable) do={
+        :local dst "$FTPRoot$buFile";
+        :do {
+          :local state "Uploading $buFile' to '$dst'";
+          $globalNoteMe value=$state;
+          /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path=$dst mode=ftp upload=yes;
+          $globalNoteMe value="Done";
+        } on-error={ 
+          :local state "Error When Uploading '$buFile' to '$dst'";
+          $globalNoteMe value=$state; 
+        }
+      }
+    }
+  }
+}
+
+:delay 5s
+
+:foreach backupFile in=[/file find where name~"^$SubDir"] do={
+  :if ([:typeof [:find $buFile ".rsc.txt"]] != "nil") do={
+    /file remove $backupFile;
+  }
+}
+
+:local inf ""
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: scripts dump done Successfully"
+}
+
+:if (!$itsOk) do={
+  :set inf "Error When $scriptname on $sysname: $state"  
+}
+
+$noteMe value=$inf
+
+:global globalTgMessage;
+$globalTgMessage value=$inf;
+
+

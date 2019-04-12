@@ -1,0 +1,80 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doRandomGen";
+
+{
+:log info ("Starting reserve password generator Script...");
+
+# special password appendix - current month 3chars
+:local pfx [:pick [/system clock get date] 0 3 ];
+:local newPassword "";
+
+#call random.org
+/tool fetch url="https://www.random.org/strings/?num=1&len=8&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new" keep-result=yes dst-path="pass.txt";
+
+delay 3;
+
+:local newPassword [/file get pass.txt contents];
+:set newPassword [:pick [$newPassword] 1 6 ];
+
+/file remove pass.txt;
+
+:log info ("Randomized: '$newPassword'");
+
+# doing salt
+:set newPassword ($pfx . $newPassword);
+
+/user set [find name=reserved] password=$newPassword
+
+# crop appendix
+:local halfPass [:pick [$newPassword] 3 11 ];
+
+:local sysname [/system identity get name];
+:local sysver [/system package get system version];
+
+:local Eaccount "defm.kopcap@gmail.com";
+
+:log info ("Calculating external wan IP...");
+
+:local extWANip "";
+
+:if ( [/ip firewall address-list find list~"external-ip" ] = "") do={
+        :put "reserve password generator Script: cant fine ext wan ip address"
+        :log warning "reserve password generator Script: cant find ext wan ip address"
+        } else={
+            :foreach j in=[/ip firewall address-list find list~"external-ip"] do={
+		:set extWANip ($extWANip  . [/ip firewall address-list get $j address])
+            }
+        }
+
+:log info ("External wan IP: '$extWANip'");
+
+:log info ("Sending generated data via E-mail...");
+
+:delay 2;
+
+:local SMTPBody ("Device '$sysname'" . "\
+" . "\nRouterOS version: '$sysver'" . "\
+" . "\nTime and Date: " . [/system clock get time] .  [/system clock get date] . "\
+" . "\nadditional password: '***$halfPass'" . "\
+" . "\nexternal ip '$extWANip'")
+
+:local SMTPSubject ("$sysname reserve password generator Script (" . [/system clock get date] . ")")
+
+/tool e-mail send to=$Eaccount body=$SMTPBody subject=$SMTPSubject;
+
+:delay 5;
+
+:log info "Email sent";
+
+# some beeps to notice
+
+:beep frequency=784 length=500ms;
+:delay 500ms;
+:beep frequency=738 length=500ms;
+:delay 500ms;
+:beep frequency=684 length=500ms;
+:delay 500ms;
+:beep frequency=644 length=1000ms;
+
+}

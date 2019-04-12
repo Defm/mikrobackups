@@ -1,0 +1,36 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doNetwatchHostIsDown";
+
+#NetWatch notifier OnDown
+
+:global NetwatchHostName;
+
+/log warning "$NetwatchHostName fail..."
+
+:do {
+
+if ([system resource get uptime] > 00:01:00) do={
+
+     :local connectionlost "%D0%A1%D0%B2%D1%8F%D0%B7%D1%8C%20%D0%BF%D0%BE%D1%82%D0%B5%D1%80%D1%8F%D0%BD%D0%B0%3A%20";
+
+     :local checkip [/ping $NetwatchHostName count=10];
+
+     :if (checkip < 7) do={
+
+            /log error "$NetwatchHostName IS DOWN";
+
+            :global TelegramMessage "$connectionlost$NetwatchHostName";
+
+            /system script run doTelegramNotify;
+
+            :delay 2
+       }
+   }
+} on-error= {
+
+:log info ("Telegram notify error");
+
+:put "Telegram notify error";
+
+};

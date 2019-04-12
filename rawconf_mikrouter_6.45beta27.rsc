@@ -1,4 +1,4 @@
-# apr/03/2019 23:01:45 by RouterOS 6.44.1
+# apr/12/2019 15:17:58 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -108,13 +108,10 @@
 /system logging action add disk-file-count=20 disk-file-name=flash/AuthDiskLog disk-lines-per-file=60000 name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
-#error exporting /tool user-manager customer
-#error exporting /tool user-manager profile
-#error exporting /tool user-manager profile limitation
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /certificate scep-server add days-valid=365 path=/scep/sign
-/certificate settings set crl-download=no crl-use=no
+/certificate settings set crl-download=no crl-store=system crl-use=no
 /interface bridge filter add action=drop chain=forward comment="drop all dhcp requests over bridge" dst-port=67 ip-protocol=udp mac-protocol=ip
 /interface bridge port add bridge="main infrastructure" interface="lan D (master)"
 /interface bridge port add bridge="main infrastructure" interface="wlan 2Ghz"
@@ -288,9 +285,11 @@
 /ip firewall filter add action=add-src-to-address-list address-list="DNS Block" address-list-timeout=10h chain="DNS Amplification" comment="Add DNS Amplification to Blacklist" port=53 protocol=udp src-address-list="!DNS Allow"
 /ip firewall filter add action=drop chain="DNS Amplification" comment="Drop DNS Amplification" src-address-list="DNS Block"
 /ip firewall filter add action=return chain="DNS Amplification" comment="Return from DNS Amplification"
+/ip firewall filter add action=accept chain=input comment="Self fetch requests" log=yes log-prefix=WEB port=80 protocol=tcp
 /ip firewall filter add action=jump chain=input comment="Allow router services on the lan" in-interface="main infrastructure" jump-target=router-services-lan
 /ip firewall filter add action=accept chain=router-services-lan comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
-/ip firewall filter add action=accept chain=router-services-lan comment=SNMP dst-port=161 protocol=udp
+/ip firewall filter add action=accept chain=router-services-lan comment=SNMP port=161 protocol=udp
+/ip firewall filter add action=accept chain=router-services-lan comment=WEB port=80 protocol=tcp
 /ip firewall filter add action=return chain=router-services-lan comment="Return from router-services-lan Chain"
 /ip firewall filter add action=jump chain=input comment="Allow router services on the wan" in-interface=wan jump-target=router-services-wan
 /ip firewall filter add action=drop chain=router-services-wan comment="SSH (22/TCP)" dst-port=22 protocol=tcp
@@ -530,7 +529,7 @@
 /ip firewall service-port set sctp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
 /ip ipsec identity add peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore
-/ip ipsec identity add auth-method=rsa-signature certificate=mikrouter@CHR peer=CHR-external policy-template-group=outside-ipsec-encryption remote-id=ignore
+/ip ipsec identity add auth-method=digital-signature certificate=mikrouter@CHR peer=CHR-external policy-template-group=outside-ipsec-encryption remote-id=ignore
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
 /ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/30 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" sa-dst-address=10.0.0.1 sa-src-address=10.0.0.2 src-address=192.168.99.0/24 tunnel=yes
@@ -588,8 +587,8 @@
 /system logging add action=ParseMemoryLog topics=wireless
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:26 d:h:m:s | CPU: 76%\
-    \nRAM: 34952/131072M | Voltage: 23 v | Temp: 50c\
+    \nUptime:  00:00:37 d:h:m:s | CPU: 40%\
+    \nRAM: 33448/131072M | Voltage: 23 v | Temp: 51c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -894,86 +893,6 @@
     \n:delay 500ms\r\
     \n:beep length=480ms frequency=396\r\
     \n:delay 10000ms"
-/system script add dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doRandomGen\";\r\
-    \n\r\
-    \n{\r\
-    \n:log info (\"Starting reserve password generator Script...\");\r\
-    \n\r\
-    \n# special password appendix - current month 3chars\r\
-    \n:local pfx [:pick [/system clock get date] 0 3 ];\r\
-    \n:local newPassword \"\";\r\
-    \n\r\
-    \n#call random.org\r\
-    \n/tool fetch url=\"https://www.random.org/strings/\?num=1&len=8&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new\" keep-result=yes dst-path=\"pass.txt\";\r\
-    \n\r\
-    \ndelay 3;\r\
-    \n\r\
-    \n:local newPassword [/file get pass.txt contents];\r\
-    \n:set newPassword [:pick [\$newPassword] 1 6 ];\r\
-    \n\r\
-    \n/file remove pass.txt;\r\
-    \n\r\
-    \n:log info (\"Randomized: '\$newPassword'\");\r\
-    \n\r\
-    \n# doing salt\r\
-    \n:set newPassword (\$pfx . \$newPassword);\r\
-    \n\r\
-    \n/user set [find name=reserved] password=\$newPassword\r\
-    \n\r\
-    \n# crop appendix\r\
-    \n:local halfPass [:pick [\$newPassword] 3 11 ];\r\
-    \n\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local sysver [/system package get system version];\r\
-    \n\r\
-    \n:local Eaccount \"defm.kopcap@gmail.com\";\r\
-    \n\r\
-    \n:log info (\"Calculating external wan IP...\");\r\
-    \n\r\
-    \n:local extWANip \"\";\r\
-    \n\r\
-    \n:if ( [/ip firewall address-list find list~\"external-ip\" ] = \"\") do={\r\
-    \n        :put \"reserve password generator Script: cant fine ext wan ip address\"\r\
-    \n        :log warning \"reserve password generator Script: cant find ext wan ip address\"\r\
-    \n        } else={\r\
-    \n            :foreach j in=[/ip firewall address-list find list~\"external-ip\"] do={\r\
-    \n\t\t:set extWANip (\$extWANip  . [/ip firewall address-list get \$j address])\r\
-    \n            }\r\
-    \n        }\r\
-    \n\r\
-    \n:log info (\"External wan IP: '\$extWANip'\");\r\
-    \n\r\
-    \n:log info (\"Sending generated data via E-mail...\");\r\
-    \n\r\
-    \n:delay 2;\r\
-    \n\r\
-    \n:local SMTPBody (\"Device '\$sysname'\" . \"\\\r\
-    \n\" . \"\\nRouterOS version: '\$sysver'\" . \"\\\r\
-    \n\" . \"\\nTime and Date: \" . [/system clock get time] .  [/system clock get date] . \"\\\r\
-    \n\" . \"\\nadditional password: '***\$halfPass'\" . \"\\\r\
-    \n\" . \"\\nexternal ip '\$extWANip'\")\r\
-    \n\r\
-    \n:local SMTPSubject (\"\$sysname reserve password generator Script (\" . [/system clock get date] . \")\")\r\
-    \n\r\
-    \n/tool e-mail send to=\$Eaccount body=\$SMTPBody subject=\$SMTPSubject;\r\
-    \n\r\
-    \n:delay 5;\r\
-    \n\r\
-    \n:log info \"Email sent\";\r\
-    \n\r\
-    \n# some beeps to notice\r\
-    \n\r\
-    \n:beep frequency=784 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n:beep frequency=738 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n:beep frequency=684 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n:beep frequency=644 length=1000ms;\r\
-    \n\r\
-    \n}"
 /system script add dont-require-permissions=no name=doAdblock owner=reserved policy=read,write,policy source="## StopAD - Script for blocking advertisements, based on your defined hosts files\r\
     \n## For changing any parameters, please, use this link: https://stopad.cgood.ru/\r\
     \n##\r\
@@ -1744,7 +1663,7 @@
     \n"
 /system script add dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doPeriodicLogDump\";\r\
+    \n#\$globalScriptBeforeRun \"doPeriodicLogDump\";\r\
     \n\r\
     \n# Script Name: Log-Parser\r\
     \n# This script reads a specified log buffer.  At each log entry read,\r\
@@ -1848,7 +1767,7 @@
     \n"
 /system script add dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doPeriodicLogParse\";\r\
+    \n#\$globalScriptBeforeRun \"doPeriodicLogParse\";\r\
     \n\r\
     \n# Script Name: Log-Parser-Script\r\
     \n#\r\
@@ -2004,17 +1923,28 @@
     \n  :put \"INFLUXDB: Service Failed!\";\r\
     \n\r\
     \n}"
-/system script add dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
+/system script add dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:global globalNoteMe;\r\
     \n\r\
+    \n:if (!any \$globalNoteMe) do={ \r\
+    \n  :global globalNoteMe do={\r\
+    \n\r\
+    \n  ## outputs \$value using both :put and :log info\r\
+    \n  ## example \$outputInfo value=\"12345\"\r\
+    \n  :put \"info: \$value\"\r\
+    \n  :log info \"\$value\"\r\
+    \n\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:global globalScriptBeforeRun;\r\
     \n\r\
     \n:if (!any \$globalScriptBeforeRun) do={ \r\
-    \n\r\
     \n  :global globalScriptBeforeRun do={\r\
     \n\r\
     \n    :if ([:len \$1] > 0) do={\r\
     \n\r\
     \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\r\
-    \n\r\
     \n      :local scriptname \"\$1\";\r\
     \n\r\
     \n      :local count [:len [/system script job find script=\$scriptname]];\r\
@@ -2022,47 +1952,47 @@
     \n      :if (\$count > 0) do={\r\
     \n\r\
     \n        :foreach counter in=[/system script job find script=\$scriptname] do={\r\
-    \n          \r\
-    \n           #But ignoring scripts started right NOW\r\
-    \n           :local thisScriptCallTime  [/system script job get \$counter started];\r\
     \n\r\
-    \n           :if (\$currentTime != \$thisScriptCallTime) do={\r\
-    \n \r\
-    \n            :log warning \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\r\
-    \n            :put \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\r\
-    \n        \r\
-    \n             /system script job remove \$counter;\r\
-    \n\r\
-    \n            }\r\
-    \n\r\
+    \n         #But ignoring scripts started right NOW\r\
+    \n         :local thisScriptCallTime  [/system script job get \$counter started];\r\
+    \n         :if (\$currentTime != \$thisScriptCallTime) do={\r\
+    \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            /system script job remove \$counter;\r\
+    \n          }\r\
     \n        }\r\
-    \n        \r\
     \n      }\r\
     \n\r\
-    \n      :log warning \"Starting script: \$scriptname\";\r\
-    \n      :put \"Starting script: \$scriptname\"\r\
-    \n    \r\
+    \n      :local state \"Starting script: \$scriptname\";\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
     \n    }\r\
-    \n    \r\
     \n  }\r\
-    \n\r\
     \n}\r\
     \n\r\
-    \n:global globalDebugInfo;\r\
+    \n:global globalTgMessage;\r\
     \n\r\
-    \n:if (!any \$globalDebugInfo) do={ \r\
+    \n:if (!any \$globalTgMessage) do={ \r\
+    \n  :global globalTgMessage do={\r\
     \n\r\
-    \n  :global globalDebugInfo do={\r\
+    \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\r\
+    \n    :local tGroupID \"-343674739\";\r\
+    \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\r\
     \n\r\
-    \n  ## outputs \$value using both :put and :log info\r\
-    \n  ## example \$outputInfo value=\"12345\"\r\
-    \n  :put \"info: \$value\"\r\
-    \n  :log info \"\$value\"\r\
+    \n    :local state (\"Sending telegram message... \$value\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    \r\
+    \n    :do {\r\
+    \n      /tool fetch http-method=post mode=https url=\"\$tURL\" http-data=\"text=\$value\" keep-result=no;\r\
+    \n    } on-error= {\r\
+    \n      :local state (\"Telegram notify error\");\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n    };\r\
     \n  }\r\
-    \n\r\
     \n}\r\
+    \n\r\
+    \n\r\
+    \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# DHCP Lease to Simple Queues\r\
     \n# 2014 Lonnie Mendez (lmendez@anvilcom.com)\r\
@@ -2167,14 +2097,224 @@
     \n}\r\
     \n}\r\
     \n}"
-/system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
-    \n:local sysver [/system package get system version];\r\
+/system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \"doBackup\";\r\
     \n\r\
-    \n:local saveUserDB false\r\
+    \n:local sysname [/system identity get name]\r\
+    \n:local sysver [/system package get system version]\r\
+    \n:local scriptname \"doBackup\"\r\
     \n:local saveSysBackup true\r\
     \n:local encryptSysBackup false\r\
     \n:local saveRawExport true\r\
     \n:local verboseRawExport false\r\
+    \n:local state \"\"\r\
+    \n\r\
+    \n:local ts [/system clock get time]\r\
+    \n:set ts ([:pick \$ts 0 2].[:pick \$ts 3 5].[:pick \$ts 6 8])\r\
+    \n:local ds [/system clock get date]\r\
+    \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\
+    \n\r\
+    \n#directories have to exist!\r\
+    \n:local FTPEnable true\r\
+    \n:local FTPServer \"minialx.home\"\r\
+    \n:local FTPPort 21\r\
+    \n:local FTPUser \"ftp\"\r\
+    \n:local FTPPass \"\"\r\
+    \n:local FTPRoot \"/pub/\"\r\
+    \n:local FTPGitEnable true\r\
+    \n:local FTPRawGitName \"/pub/git/rawconf_\$sysname_\$sysver.rsc\"\r\
+    \n\r\
+    \n:local SMTPEnable true\r\
+    \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\
+    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\
+    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\
+    \n\r\
+    \n:local noteMe do={\r\
+    \n  :put \"DEBUG: \$value\"\r\
+    \n  :log info message=\"\$value\"\r\
+    \n}\r\
+    \n\r\
+    \n:local itsOk true;\r\
+    \n\r\
+    \n:do {\r\
+    \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
+    \n} on-error={ \r\
+    \n  :set state \"FTP server looks like to be unreachable\"\r\
+    \n  \$noteMe value=\$state;\r\
+    \n  :set itsOk false;\r\
+    \n}\r\
+    \n\r\
+    \n:local fname (\"BACKUP-\$sysname-\$ds-\$ts\")\r\
+    \n\r\
+    \n:if (\$saveSysBackup and \$itsOk) do={\r\
+    \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
+    \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\
+    \n  \$noteMe value=\"System Backup Finished\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (\$saveRawExport and \$itsOk) do={\r\
+    \n  :if (\$FTPGitEnable ) do={\r\
+    \n     :if (\$verboseRawExport = true) do={ /export terse hide-sensitive verbose file=(\$fname.\".safe.rsc\") }\r\
+    \n     :if (\$verboseRawExport = false) do={ /export terse hide-sensitive  file=(\$fname.\".safe.rsc\") }\r\
+    \n  }\r\
+    \n  \$noteMe value=\"Raw configuration script export Finished\"\r\
+    \n}\r\
+    \n\r\
+    \n:delay 5s\r\
+    \n\r\
+    \n:local buFile \"\"\r\
+    \n\r\
+    \n:foreach backupFile in=[/file find] do={\r\
+    \n  :set buFile ([/file get \$backupFile name])\r\
+    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\" and \$itsOk) do={\r\
+    \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\
+    \n    if (\$FTPEnable and \$itsOk) do={\r\
+    \n        :do {\r\
+    \n        :local state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\
+    \n        \$noteMe value=\$state\r\
+    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\
+    \n        \$noteMe value=\"Done\"\r\
+    \n        } on-error={ \r\
+    \n          :set state \"Error When \$state\"\r\
+    \n          \$noteMe value=\$state;\r\
+    \n          :set itsOk false;\r\
+    \n       }\r\
+    \n\r\
+    \n        #special ftp upload for git purposes\r\
+    \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\
+    \n            :do {\r\
+    \n            :local state \"Uploading \$buFile to FTP (RAW, \$FTPRawGitName)\"\r\
+    \n            \$noteMe value=\$state\r\
+    \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
+    \n            \$noteMe value=\"Done\"\r\
+    \n            } on-error={ \r\
+    \n              :set state \"Error When \$state\"\r\
+    \n              \$noteMe value=\$state;\r\
+    \n              :set itsOk false;\r\
+    \n           }\r\
+    \n        }\r\
+    \n\r\
+    \n    }\r\
+    \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\
+    \n        :do {\r\
+    \n        :local state \"Uploading \$buFile to SMTP\"\r\
+    \n        \$noteMe value=\$state\r\
+    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile\r\
+    \n        \$noteMe value=\"Done\"\r\
+    \n        } on-error={ \r\
+    \n          :set state \"Error When \$state\"\r\
+    \n          \$noteMe value=\$state;\r\
+    \n          :set itsOk false;\r\
+    \n       }\r\
+    \n    }\r\
+    \n\r\
+    \n    :delay 1s;\r\
+    \n    /file remove \$backupFile;\r\
+    \n\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: Automatic Backup Completed Successfully\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$noteMe value=\$inf\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
+    \n"
+/system script add dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \"doRandomGen\";\r\
+    \n\r\
+    \n{\r\
+    \n:log info (\"Starting reserve password generator Script...\");\r\
+    \n\r\
+    \n# special password appendix - current month 3chars\r\
+    \n:local pfx [:pick [/system clock get date] 0 3 ];\r\
+    \n:local newPassword \"\";\r\
+    \n\r\
+    \n#call random.org\r\
+    \n/tool fetch url=\"https://www.random.org/strings/\?num=1&len=8&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new\" keep-result=yes dst-path=\"pass.txt\";\r\
+    \n\r\
+    \ndelay 3;\r\
+    \n\r\
+    \n:local newPassword [/file get pass.txt contents];\r\
+    \n:set newPassword [:pick [\$newPassword] 1 6 ];\r\
+    \n\r\
+    \n/file remove pass.txt;\r\
+    \n\r\
+    \n:log info (\"Randomized: '\$newPassword'\");\r\
+    \n\r\
+    \n# doing salt\r\
+    \n:set newPassword (\$pfx . \$newPassword);\r\
+    \n\r\
+    \n/user set [find name=reserved] password=\$newPassword\r\
+    \n\r\
+    \n# crop appendix\r\
+    \n:local halfPass [:pick [\$newPassword] 3 11 ];\r\
+    \n\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local sysver [/system package get system version];\r\
+    \n\r\
+    \n:local Eaccount \"defm.kopcap@gmail.com\";\r\
+    \n\r\
+    \n:log info (\"Calculating external wan IP...\");\r\
+    \n\r\
+    \n:local extWANip \"\";\r\
+    \n\r\
+    \n:if ( [/ip firewall address-list find list~\"external-ip\" ] = \"\") do={\r\
+    \n        :put \"reserve password generator Script: cant fine ext wan ip address\"\r\
+    \n        :log warning \"reserve password generator Script: cant find ext wan ip address\"\r\
+    \n        } else={\r\
+    \n            :foreach j in=[/ip firewall address-list find list~\"external-ip\"] do={\r\
+    \n\t\t:set extWANip (\$extWANip  . [/ip firewall address-list get \$j address])\r\
+    \n            }\r\
+    \n        }\r\
+    \n\r\
+    \n:log info (\"External wan IP: '\$extWANip'\");\r\
+    \n\r\
+    \n:log info (\"Sending generated data via E-mail...\");\r\
+    \n\r\
+    \n:delay 2;\r\
+    \n\r\
+    \n:local SMTPBody (\"Device '\$sysname'\" . \"\\\r\
+    \n\" . \"\\nRouterOS version: '\$sysver'\" . \"\\\r\
+    \n\" . \"\\nTime and Date: \" . [/system clock get time] .  [/system clock get date] . \"\\\r\
+    \n\" . \"\\nadditional password: '***\$halfPass'\" . \"\\\r\
+    \n\" . \"\\nexternal ip '\$extWANip'\")\r\
+    \n\r\
+    \n:local SMTPSubject (\"\$sysname reserve password generator Script (\" . [/system clock get date] . \")\")\r\
+    \n\r\
+    \n/tool e-mail send to=\$Eaccount body=\$SMTPBody subject=\$SMTPSubject;\r\
+    \n\r\
+    \n:delay 5;\r\
+    \n\r\
+    \n:log info \"Email sent\";\r\
+    \n\r\
+    \n# some beeps to notice\r\
+    \n\r\
+    \n:beep frequency=784 length=500ms;\r\
+    \n:delay 500ms;\r\
+    \n:beep frequency=738 length=500ms;\r\
+    \n:delay 500ms;\r\
+    \n:beep frequency=684 length=500ms;\r\
+    \n:delay 500ms;\r\
+    \n:beep frequency=644 length=1000ms;\r\
+    \n\r\
+    \n}"
+/system script add dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n#directories have to exist!\r\
+    \n:local FTPRoot \"/pub/git/\"\r\
+    \n\r\
+    \n#This subdir will be created locally to put exported scripts in\r\
+    \n#and it must exist under \$FTPRoot to upload scripts to\r\
+    \n:local SubDir \"scripts/\"\r\
     \n\r\
     \n:local FTPEnable true\r\
     \n:local FTPServer \"minialx.home\"\r\
@@ -2182,131 +2322,115 @@
     \n:local FTPUser \"ftp\"\r\
     \n:local FTPPass \"\"\r\
     \n\r\
-    \n#directories have to exist!\r\
-    \n:local FTPRoot \"/pub/\"\r\
-    \n:local FTPGitEnable true\r\
-    \n:local FTPRawGitName \"/pub/git/rawconf_\$sysname_\$sysver.src\"\r\
-    \n\r\
-    \n\r\
-    \n:local SMTPEnable true\r\
-    \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\
-    \n\r\
-    \n\r\
-    \n:local ts [/system clock get time]\r\
-    \n:set ts ([:pick \$ts 0 2].[:pick \$ts 3 5].[:pick \$ts 6 8])\r\
-    \n:local ds [/system clock get date]\r\
-    \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\
-    \n\r\
-    \n:local SMTPsysSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\
-    \n:local SMTPrawSubject (\"\$sysname Setup Script Backup (\$ds-\$ts)\")\r\
-    \n\r\
-    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\
-    \n\r\
-    \n:local DNSName \"\"\r\
-    \n\r\
     \n:local DebugInfo do={\r\
-    \n \r\
-    \n ## outputs \$value using both :put and :log info\r\
-    \n ## example \$DebugInfo value=\"12345\"\r\
+    \n\r\
     \n :put \"DEBUG: \$value\"\r\
     \n :log info message=\"\$value\"\r\
     \n\r\
     \n}\r\
     \n\r\
+    \n:global GscriptId;\r\
+    \n\r\
+    \n:local continue true;\r\
+    \n\r\
     \n:do {\r\
     \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
-    \n} on-error={ \$DebugInfo value=\"FTP server looks like to be unreachable\" }\r\
-    \n  \r\
-    \n:do {\r\
-    \n    :set DNSName (\"-\".[/ip cloud get dns-name])\r\
+    \n} on-error={\r\
+    \n   \$DebugInfo value=\"FTP server looks like to be unreachable\";\r\
+    \n  :local continue false;    \r\
     \n}\r\
     \n\r\
-    \n:local fname (\"BACKUP-\".[/system identity get name].\"-\".\$ds.\"-\".\$ts)\r\
-    \n\r\
-    \n:if (\$saveUserDB) do={\r\
+    \n:if (\$continue) do={\r\
     \n  :do {\r\
-    \n  \$DebugInfo value=\"User Manager DB Backup\"\r\
-    \n  /tool user-manager database save name=(\$fname.\".umb\")\r\
-    \n  \$DebugInfo value=\"Done\"\r\
-    \n      } on-error={ \$DebugInfo value=\"Error When User Manager DB Backup\" }\r\
-    \n}\r\
-    \n\r\
-    \n:if (\$saveSysBackup) do={\r\
-    \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
-    \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\
-    \n  \$DebugInfo value=\"System Backup Finished\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (\$saveRawExport) do={\r\
-    \n  :if (\$verboseRawExport = true) do={ /export verbose file=(\$fname.\".rsc\") }\r\
-    \n  :if (\$verboseRawExport = false) do={ /export file=(\$fname.\".rsc\") }\r\
-    \n  :if (\$FTPGitEnable ) do={\r\
-    \n     :if (\$verboseRawExport = true) do={ /export terse hide-sensitive verbose file=(\$fname.\".safe.rsc\") }\r\
-    \n     :if (\$verboseRawExport = false) do={ /export terse hide-sensitive  file=(\$fname.\".safe.rsc\") }\r\
+    \n    [/tool fetch dst-path=\"\$SubDir.FooFile\" url=\"http://127.0.0.1:80/mikrotik_logo.png\" keep-result=no];\r\
+    \n  } on-error={ \r\
+    \n    \$DebugInfo value=\"Error When Creating Local Scripts Directory\";\r\
+    \n    :local continue false;\r\
     \n  }\r\
-    \n  \$DebugInfo value=\"Raw configuration script export Finished\"\r\
     \n}\r\
+    \n\r\
+    \n:if (\$continue) do={\r\
+    \n  :foreach scriptId in [/system script find] do={\r\
+    \n\r\
+    \n    :local scriptSource [/system script get \$scriptId source];\r\
+    \n    :local scriptName [/system script get \$scriptId name];\r\
+    \n    :local scriptSourceLength [:len \$scriptSource];\r\
+    \n    :local path \"\$SubDir\$scriptName.rsc.txt\";\r\
+    \n\r\
+    \n    :set \$GscriptId \$scriptId;\r\
+    \n\r\
+    \n    :if (\$scriptSourceLength >= 4096) do={\r\
+    \n      :local state \"Please keep care about '\$scriptName' consistency - its size over 4096 bytes\";\r\
+    \n      \$DebugInfo value=\$state;\r\
+    \n    }\r\
+    \n\r\
+    \n\r\
+    \n    :do {\r\
+    \n      /file print file=\$path where 1=0;\r\
+    \n      #filesystem delay\r\
+    \n      :delay 1s;\r\
+    \n      #/file set [find name=\"\$path\"] contents=\$scriptSource;\r\
+    \n      #/file set \$path contents=\$scriptSource;\r\
+    \n      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack\r\
+    \n      /execute script=\":global GscriptId; :put [/system script get \$GscriptId source];\" file=\$path;\r\
+    \n      :local state \"Exported '\$scriptName' to '\$path'\";\r\
+    \n      \$DebugInfo value=\$state;\r\
+    \n    } on-error={ \r\
+    \n      :local state \"Error When Exporting '\$scriptName' Script to '\$path'\";\r\
+    \n      \$DebugInfo value=\$state;\r\
+    \n      :local continue false;\r\
+    \n    }\r\
+    \n\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
     \n\r\
     \n:delay 5s\r\
     \n\r\
     \n:local backupFileName \"\"\r\
     \n\r\
-    \n:foreach backupFile in=[/file find] do={\r\
-    \n  :set backupFileName ([/file get \$backupFile name])\r\
-    \n  :if ([:typeof [:find \$backupFileName \$fname]] != \"nil\") do={\r\
-    \n    :local rawfile ( \$backupFileName ~\".safe.rsc\")\r\
-    \n    if (\$FTPEnable) do={\r\
+    \n:if (\$continue) do={\r\
+    \n  :foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\r\
+    \n    :set backupFileName ([/file get \$backupFile name]);\r\
+    \n    :if ([:typeof [:find \$backupFileName \".rsc.txt\"]] != \"nil\") do={\r\
+    \n      :local rawfile ( \$backupFileName ~\".rsc.txt\");\r\
+    \n      #special ftp upload for git purposes\r\
+    \n      if (\$FTPEnable) do={\r\
+    \n        :local dst \"\$FTPRoot\$backupFileName\";\r\
     \n        :do {\r\
-    \n        :local state \"Uploading \$backupFileName to FTP (\$FTPRoot\$backupFileName)\"\r\
-    \n        \$DebugInfo value=\$state\r\
-    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$backupFileName user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$backupFileName\" mode=ftp upload=yes\r\
-    \n        \$DebugInfo value=\"Done\"\r\
-    \n            } on-error={ \$DebugInfo value=\"Error When Uploading file to FTP\" }\r\
-    \n    }\r\
-    \n    #special ftp upload for git purposes\r\
-    \n    if (\$FTPEnable and \$rawfile and \$FTPGitEnable) do={\r\
-    \n        :do {\r\
-    \n        :local state \"Uploading \$backupFileName to FTP (RAW, \$FTPRawGitName)\"\r\
-    \n        \$DebugInfo value=\$state\r\
-    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$backupFileName user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
-    \n        \$DebugInfo value=\"Done\"\r\
-    \n            } on-error={ \$DebugInfo value=\"Error When Uploading file to FTP (RAW)\" }\r\
-    \n    }\r\
-    \n    if (\$SMTPEnable and !\$rawfile) do={\r\
-    \n        :do {\r\
-    \n        :local state \"Uploading \$backupFileName to SMTP\"\r\
-    \n        \$DebugInfo value=\$state\r\
-    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPsysSubject file=\$backupFileName\r\
-    \n        \$DebugInfo value=\"Done\"\r\
-    \n            } on-error={ \$DebugInfo value=\"Error When Uploading file to SMTP\" }        \r\
-    \n    }\r\
-    \n    if (\$SMTPEnable and \$rawfile) do={\r\
-    \n        :do {\r\
-    \n        :local state \"Uploading \$backupFileName to SMTP (RAW)\"\r\
-    \n        \$DebugInfo value=\$state\r\
-    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPrawSubject file=\$backupFileName\r\
-    \n        \$DebugInfo value=\"Done\"\r\
-    \n            } on-error={ \$DebugInfo value=\"Error When Uploading file to SMTP (RAW)\" }        \r\
+    \n          :local state \"Uploading \$backupFileName' to '\$dst'\";\r\
+    \n          \$DebugInfo value=\$state;\r\
+    \n          /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$backupFileName user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes;\r\
+    \n          \$DebugInfo value=\"Done\";\r\
+    \n        } on-error={ \r\
+    \n          :local state \"Error When Uploading '\$backupFileName' to '\$dst'\";\r\
+    \n          \$DebugInfo value=\$state; \r\
+    \n        }\r\
+    \n      }\r\
     \n    }\r\
     \n  }\r\
     \n}\r\
     \n\r\
     \n:delay 5s\r\
     \n\r\
-    \n:foreach backupFile in=[/file find] do={\r\
-    \n  :if ([:typeof [:find [/file get \$backupFile name] \"BACKUP-\"]]!= \"nil\") do={\r\
-    \n    /file remove \$backupFile\r\
+    \n:foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\r\
+    \n  :if ([:typeof [:find \$backupFileName \".rsc.txt\"]] != \"nil\") do={\r\
+    \n    /file remove \$backupFile;\r\
     \n  }\r\
     \n}\r\
     \n\r\
-    \n\$DebugInfo value=\"Successfully removed Temporary Backup Files\"\r\
-    \n\$DebugInfo value=\"Automatic Backup Completed Successfully\"\r\
+    \n\$DebugInfo value=\"Successfully removed Temporary Script Files\";\r\
+    \n\$DebugInfo value=\"Automatic Script Export Completed\";\r\
     \n\r\
     \n#urlencoded cyrillic\r\
     \n:local backupDone \"%D0%92%D1%8B%D0%BF%D0%BE%D0%BB%D0%BD%D0%B5%D0%BD%D0%BE%20%D1%80%D0%B5%D0%B7%D0%B5%D1%80%D0%B2%D0%BD%D0%BE%D0%B5%20%D0%B0%D1%80%D1%85%D0%B8%D0%B2%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5%20%D0%BA%D0%BE%D0%BD%D1%84%D0%B8%D0%B3%D1%83%D1%80%D0%B0%D1%86%D0%B8%D0%B8%20%D0%BC%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%D0%B0%20%28%D1%81%D0%BC.%20%D0%BF%D0%BE%D1%87%D1%82%D1%83%29\";\r\
     \n:global TelegramMessage \"\$backupDone\";\r\
     \n\r\
-    \n/system script run doTelegramNotify;"
+    \n/system script run doTelegramNotify;\r\
+    \n\r\
+    \n\r\
+    \n\r\
+    \n"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool mac-server set allowed-interface-list=none
@@ -2315,7 +2439,3 @@
     \n/system script run doNetwatchHostIsDown;" host=192.168.99.180 up-script=":global NetwatchHostName \"miniAlx\";\r\
     \n/system script run doNetwatchHostIsUp;"
 /tool sniffer set filter-interface=tunnel filter-operator-between-entries=and streaming-enabled=yes streaming-server=192.168.99.170
-#error exporting /tool user-manager database
-#error exporting /tool user-manager profile profile-limitation
-#error exporting /tool user-manager router
-#error exporting /tool user-manager user

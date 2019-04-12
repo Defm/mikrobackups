@@ -1,0 +1,19 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doTelegramNotify";
+
+:global TelegramToken "798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M";
+:global TelegramGroupID "-343674739";
+:global TelegramURL "https://api.telegram.org/bot$TelegramToken/sendMessage\?chat_id=$TelegramGroupID";
+
+:global TelegramMessage;
+
+:log info ("Sending telegram message... $TelegramMessage");
+:put "Sending telegram message... $TelegramMessage";
+
+:do {
+/tool fetch http-method=post mode=https url="$TelegramURL" http-data="text=$TelegramMessage" keep-result=no;
+} on-error= {
+:log error ("Telegram notify error");
+:put "Telegram notify error";
+};

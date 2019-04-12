@@ -1,0 +1,32 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doCollectSpeedStats";
+
+:local txAvg 0
+:local rxAvg 0
+
+:local ts [/system clock get time]
+:set ts ([:pick $ts 0 2].[:pick $ts 3 5].[:pick $ts 6 8])
+
+:local ds [/system clock get date]
+:set ds ([:pick $ds 7 11].[:pick $ds 0 3].[:pick $ds 4 6])
+
+:local btServer 185.13.148.14;
+
+tool bandwidth-test protocol=tcp direction=transmit user=btest password=btest address=$btServer duration=5s do={
+:set txAvg ($"tx-total-average" / 1048576 );
+}
+
+tool bandwidth-test protocol=tcp direction=receive user=btest password=btest address=$btServer duration=5s do={
+:set rxAvg ($"rx-total-average" / 1048576 );
+}
+
+:local perf "%D0%9F%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%BE%D1%81%D1%82%D1%8C%20%D0%BA%D0%B0%D0%BD%D0%B0%D0%BB%D0%B0%3A%20";
+:local stats "$ds-$ts tx: $txAvg Mbps - rx: $rxAvg Mbps";
+
+:log info ("VPN Tunnel speed $stats");
+:put "VPN Tunnel speed $stats";
+
+
+
+

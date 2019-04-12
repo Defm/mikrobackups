@@ -1,0 +1,16 @@
+:local PolicyComment "UBUNTU VPN traffic"
+:local WANip [/ip address get [find interface="wan"] address] 
+:local shortWANip ( [:pick "$WANip" 0 [:find "$WANip" "/" -1]] ) 
+
+:do {
+:local extip ( $shortWANip . "/32" ) 
+
+:local IPSECip [/ip ipsec policy get [find comment="$PolicyComment"] sa-src-address] 
+
+if ($shortWANip != $IPSECip) do={ 
+/ip ipsec policy set [find comment="$PolicyComment"] sa-src-address=$shortWANip src-address=$extip 
+}
+} on-error={
+        :put "IPSEC Policy Updater: 'WAN' Unable to update IPSEC address'"
+        :log info "IPSEC Policy Updater: 'WAN' Unable to update IPSEC address'"
+}

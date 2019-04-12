@@ -1,0 +1,92 @@
+
+:global globalScriptBeforeRun;
+#$globalScriptBeforeRun "doPeriodicLogParse";
+
+# Script Name: Log-Parser-Script
+#
+# This is an EXAMPLE script.  Modify it to your requirements.
+#
+# This script will work with all v3.x and v4.x
+# If your version >= v3.23, you can use the ~ operator to match against
+# regular expressions.
+
+# Get log entry data from global variable and store it locally
+:global logParseVar
+:local logTime ($logParseVar->0)
+:local logTopics [:tostr ($logParseVar->1)]
+:local logMessage [:tostr ($logParseVar->2)]
+:set $logParseVar ""
+
+:local ruleop
+:local loguser
+:local logsettings
+:local findindex
+:local tmpstring
+
+# Uncomment to view the log entry's details
+:put ("Log Time: " . $logTime)
+:put ("Log Topics: " . $logTopics)
+:put ("Log Message: " . $logMessage)
+
+# Check for login failure
+:if ($logMessage~"login failure") do={
+   :put ("A login failure has occured: $logMessage.  Take some action")
+
+   :local newLogin "%D0%9E%D0%B1%D0%BD%D0%B0%D1%80%D1%83%D0%B6%D0%B5%D0%BD%D0%B0%20%D0%BF%D0%BE%D0%BF%D1%8B%D1%82%D0%BA%D0%B0%20%D0%B2%D1%85%D0%BE%D0%B4%D0%B0%20%D0%B2%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%83";
+   :global TelegramMessage "$newLogin $logMessage";
+
+   /system script run doTelegramNotify;
+
+}
+# End check for login failure
+
+# Check for logged in users
+:if ($logMessage~"logged in") do={
+   
+   :put ("A user has logged in: $logMessage")
+
+   :local newLogin "%D0%A3%D1%81%D0%BF%D0%B5%D1%88%D0%BD%D1%8B%D0%B9%20%D0%B2%D1%85%D0%BE%D0%B4%20%D0%B2%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%83";
+   :global TelegramMessage "$newLogin $logMessage";
+
+   /system script run doTelegramNotify;
+
+}
+# End check for logged in users
+
+# Wireless events
+        :if ($logTopics="wireless;info") do={
+            :local macAddress [:pick $logMessage0 17]
+            :if ($logMessage~"wlan 5Ghz: connected" || $logMessage~"wlan 2Ghz: connected") do={
+
+                #:put ("A user $macAddress has connected to WiFi: $logMessage");
+                #:log warning ("A user $macAddress has connected to WiFi: $logMessage");
+
+            }
+            :if ($logMessage~"wlan 5Ghz: disconnected" || $logMessage~"wlan 2Ghz: disconnected") do={
+
+                #:put ("A user $macAddress has disconnected WiFi: $logMessage");
+                #:log warning ("A user $macAddress has disconnected WiFi: $logMessage");
+
+            }
+        }
+
+# Check for configuration changes: added, changed, or removed
+:if ([:tostr $logTopics] = "system;info") do={
+   :set ruleop ""
+   :if ([:len [:find [:tostr $logMessage] "changed "]] > 0) do={ :set ruleop "changed" }
+   :if ([:len [:find [:tostr $logMessage] "added "]] > 0) do={ :set ruleop "added" }
+   :if ([:len [:find [:tostr $logMessage] "removed "]] > 0) do={ :set ruleop "removed" }
+
+   :if ([:len $ruleop] > 0) do={
+      :set tmpstring $logMessage
+      :set findindex [:find [:tostr $tmpstring] [:tostr $ruleop]]
+      :set tmpstring ([:pick [:tostr $tmpstring] 0 $findindex] . \
+                               [:pick [:tostr $tmpstring] ($findindex + [:len [:tostr $ruleop]]) [:len [:tostr $tmpstring]]])
+      :set findindex [:find [:tostr $tmpstring] " by "]
+      :set loguser ([:pick [:tostr $tmpstring] ($findindex + 4) [:len [:tostr $tmpstring]]])
+      :set logsettings [:pick [:tostr $tmpstring] 0 $findindex]
+
+      :put ($loguser . " " . $ruleop . " " . $logsettings . " configuration.  We should take a backup now.")
+   }
+}
+# End check for configuration changes}

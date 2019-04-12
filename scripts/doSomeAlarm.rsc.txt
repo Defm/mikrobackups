@@ -1,0 +1,11 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doSomeAlarm";
+
+:for i from=1000 to=3000 step=1000  do={
+ :beep frequency=2000 length=500ms;
+ :delay delay-time=1000ms;
+ :beep frequency=4000 length=500ms;
+ :delay delay-time=1000ms;
+}
+

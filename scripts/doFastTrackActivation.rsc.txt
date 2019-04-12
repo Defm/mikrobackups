@@ -1,0 +1,2 @@
+/ip settings set allow-fast-path=yes
+/ip firewall filter add chain=forward action=fasttrack-connection connection-state=established,related

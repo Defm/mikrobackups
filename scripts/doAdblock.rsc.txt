@@ -1,0 +1,32 @@
+## StopAD - Script for blocking advertisements, based on your defined hosts files
+## For changing any parameters, please, use this link: https://stopad.cgood.ru/
+##
+## @github    <https://github.com/tarampampam/mikrotik-hosts-parser>
+## @version   2.0.2
+##
+## Setup this Policy for script: [X] Read [X] Write [X] Policy [X] Test
+
+:local hostScriptUrl "https://stopad.cgood.ru/script/source?format=routeros&version=2.0.2&sources_urls=https%3A%2F%2Fcdn.rawgit.com%2Ftarampampam%2Fstatic%2Fmaster%2Fhosts%2Fblock_shit.txt,http%3A%2F%2Fadaway.org%2Fhosts.txt,http%3A%2F%2Fpgl.yoyo.org%2Fadservers%2Fserverlist.php%3Fhostformat%3Dhosts%26showintro%3D0%26mimetype%3Dplaintext&excluded_hosts=localhost";
+:local scriptName "stop_ad.script";
+:local backupFileName "before_stopad";
+:local logPrefix "[StopAD]";
+
+do {
+  /tool fetch check-certificate=no mode=https url=$hostScriptUrl dst-path=("./".$scriptName);
+  :if ([:len [/file find name=$scriptName]] > 0) do={
+    /system backup save name=$backupFileName;
+    :delay 1s;
+    :if ([:len [/file find name=($backupFileName.".backup")]] > 0) do={
+      /ip dns static remove [/ip dns static find comment=ADBlock];
+      /import file-name=$scriptName;
+      /file remove $scriptName;
+      :log info "$logPrefix AD block script imported, backup file (\"$backupFileName.backup\") created";
+    } else={
+      :log warning "$logPrefix Backup file not created, importing AD block script stopped";
+    }
+  } else={
+    :log warning "$logPrefix AD block script not downloaded, script stopped";
+  }
+} on-error={
+  :log warning "$logPrefix AD block script download FAILED";
+};
