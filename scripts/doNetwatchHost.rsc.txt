@@ -1,6 +1,5 @@
 
 
-
 :local sysname [/system identity get name];
 :local scriptname "doNetwatchHost";
 :global globalScriptBeforeRun;
@@ -14,7 +13,7 @@ $globalScriptBeforeRun $scriptname;
   
 :global NetwatchHostName;
 
-:local state "Netwatch for $NetwatchHostName started...";
+:set state "Netwatch for $NetwatchHostName started...";
 $globalNoteMe value=$state;
 
 :do {
@@ -26,31 +25,31 @@ $globalNoteMe value=$state;
 
    :if ($checkip = 10) do={
 
-     :local state "$NetwatchHostName is UP";
+     :set state "$NetwatchHostName is UP";
      $globalNoteMe value=$state;
      #success when OnUp
-     :local itsOk true;
+     :set itsOk true;
 
    } else {
 
-    :local state "$NetwatchHostName is DOWN";
+    :set state "$NetwatchHostName is DOWN";
     $globalNoteMe value=$state;
     #success when OnDown
-    :local itsOk true;
+    :set itsOk true;
     
    }
  } else {
 
-  :local state "The system is just started, wait some time before using netwatch";
+  :set state "The system is just started, wait some time before using netwatch";
   $globalNoteMe value=$state;
-  :local itsOk false;
+  :set itsOk false;
 
  }
 } on-error= {
 
-  :local state "Netwatch for $NetwatchHostName FAILED...";
+  :set state "Netwatch for $NetwatchHostName FAILED...";
   $globalNoteMe value=$state;
-  :local itsOk false;
+  :set itsOk false;
 
 };
 
@@ -63,7 +62,7 @@ $globalNoteMe value=$state;
   :set inf "Error When $scriptname on $sysname: $state"  
 }
 
-$noteMe value=$inf
+$globalNoteMe value=$inf
 
 :global globalTgMessage;
 $globalTgMessage value=$inf;
