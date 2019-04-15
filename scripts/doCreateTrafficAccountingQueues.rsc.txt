@@ -1,103 +1,152 @@
-# DHCP Lease to Simple Queues
-# 2014 Lonnie Mendez (lmendez@anvilcom.com)
-#
-# Mikrotik RouterOS v6.9
-
+:local sysname [/system identity get name];
+:local scriptname "doCreateTrafficAccountingQueues";
 :global globalScriptBeforeRun;
-$globalScriptBeforeRun "doCreateTrafficAccountingQueues";
+$globalScriptBeforeRun $scriptname;
+
+#a part of queue comment to locate queues to be processed
+:local queueCommentMark "dtq";
+
+:global globalNoteMe;
+:local itsOk true;
+
+:local state "";
  
 /ip dhcp-server lease
 :foreach x in=[find] do={
- 
-# grab variables for use below
-:local leaseaddr ([get $x address])
-:local leasemacaddr [get $x mac-address]
-:local leasehostname [get $x host-name]
-:local leasename [get $x comment]
-:local queuecomment
- 
-:local leaseinqueue false
- 
-/queue simple
-:foreach y in=[find] do={
- 
-#grab variables for use below
-:local queuetargetaddr [get $y target]
-:set queuecomment [get $y comment]
- 
-# Isolate information  from the comment field (MAC, Hostname)
-:local queuemac [:pick $queuecomment 4 21]
-:local queuehostname [:pick $queuecomment 22 [:len $queuecomment]]
- 
-# If MAC from lease matches the queue MAC then refresh the queue item
-:if ($queuemac = $leasemacaddr) do={
-# build a comment field
-:set queuecomment ("dtq," . $leasemacaddr . "," . $leasehostname)
- 
-set $y target=$leaseaddr comment=$queuecomment
-:if ($leasename != "") do= {
-set $y name=($leasename . " (" . $leasemacaddr . ")")
-} else= {
-:if ($leasehostname != "") do= {
-set $y name=($leasehostname . " (" . $leasemacaddr . ")")
-} else= {
-set $y name=$leasemacaddr
-}
-}
-:set leaseinqueue true
-} else= {
-# if ip exists for this lease but mac is different then update mac/hostname and reset counter
-:if ($queuetargetaddr = $leaseaddr) do={
-# build a comment field
-:set queuecomment ("dtq," . $leasemacaddr . "," . $leasehostname)
- 
-set $y comment=$queuecomment
-reset-counters $y
-:if ($leasename != "") do= {
-set $y name=($leasename . " (" . $leasemacaddr . ")")
-} else= {
-:if ($leasehostname != "") do= {
-set $y name=($leasehostname . " (" . $leasemacaddr . ")")
-} else= {
-set $y name=$leasemacaddr
-}
-}
-:set leaseinqueue true
-}
-}
-}
- 
-# There was not an existing entry so add one for this lease
-:if ($leaseinqueue = false) do={
-# build a comment field
-:set queuecomment ("dtq," . $leasemacaddr . "," . $leasehostname)
-# build command
-:local cmd "/queue simple add target=$leaseaddr max-limit=10M/10M comment=$queuecomment"
-:if ($leasename != "") do={ 
-:set cmd "$cmd name=\"$leasename ($leasemacaddr)\"" 
-} else= {
-:if ($leasehostname != "") do={
-:set cmd "$cmd name=\"$leasehostname ($leasemacaddr)\""
-} else= {
-:set cmd "$cmd name=\"$leasemacaddr\""
-}
-}
- 
-:execute $cmd
+   
+  # grab variables for use below
+  :local leaseaddr ([get $x address])
+  :local leasemacaddr [get $x mac-address]
+  :local leasehostname [get $x host-name]
+  :local leasename [get $x comment]
+  :local queuecomment
+   
+  :local leaseinqueue false
+   
+  /queue simple
 
-}
+  :foreach y in=[find where comment~"$queueCommentMark"] do={
+     
+    #grab variables for use below
+    :local ip [get $y target]
+    :set queuecomment [get $y comment]
+
+    :local skip false;
+  
+    :if ( ($ip->0) != nil ) do={
+      #:set state ("Locating queue target IP for queue $queuecomment");
+      $globalNoteMe value=$state;
+      :set ip ($ip->0) 
+      :set ip ( [:pick $ip 0 [:find $ip "/" -1]] ) ;
+      #$globalNoteMe value="Done";
+    } else {
+      #:set state "Cant locate queue target IP for queue $queuecomment. Skip it."
+      #$globalNoteMe value=$state;
+      :set skip true;
+    }
+         
+    # Isolate information  from the comment field (MAC, Hostname)
+    :local queuemac [:pick $queuecomment 4 21]
+    :local queuehostname [:pick $queuecomment 22 [:len $queuecomment]]
+
+    :set state "$queuemac = $leasemacaddr and $ip = $leaseaddr"
+    $globalNoteMe value=$state;
+     
+    # If MAC from lease matches the queue MAC and IPs are the same - then refresh the queue item
+    :if ($queuemac = $leasemacaddr and $ip = $leaseaddr and !$skip) do={
+
+      # build a comment field
+      :set queuecomment ($queueCommentMark . "," . $leasemacaddr . "," . $leasehostname)
+       
+      set $y target=$leaseaddr comment=$queuecomment
+      
+      :if ($leasename != "") do= {
+        set $y name=($leasename . " (" . $leasemacaddr . ")")
+      } else= {
+        :if ($leasehostname != "") do= {
+          set $y name=($leasehostname . " (" . $leasemacaddr . ")")
+        } else= {
+          set $y name=$leasemacaddr
+        }
+      }
+
+      :local queuename [get $y name]
+
+      :set state "Queue $queuename updated"
+      $globalNoteMe value=$state;
+
+      :set leaseinqueue true
+    } 
+  }
+ 
+  # There was not an existing entry so add one for this lease
+  :if ($leaseinqueue = false) do={
+
+    # build a comment field
+    :set queuecomment ($queueCommentMark . "," . $leasemacaddr . "," . $leasehostname)
+
+    # build command
+    :local cmd "/queue simple add target=$leaseaddr max-limit=10M/10M comment=$queuecomment"
+    :if ($leasename != "") do={ 
+      :set cmd "$cmd name=\"$leasename ($leasemacaddr)\"" 
+    } else= {
+      :if ($leasehostname != "") do={
+        :set cmd "$cmd name=\"$leasehostname ($leasemacaddr)\""
+      } else= {
+        :set cmd "$cmd name=\"$leasemacaddr\""
+      }
+    }
+
+    :execute $cmd
+
+    :set state "Queue $queuecomment created"
+    $globalNoteMe value=$state;
+
+  }
 }
  
 # Cleanup Routine - remove dynamic entries that no longer exist in the lease table
 /queue simple
-:foreach z in=[find] do={
-:local queuecomment [get $z comment]
-:local queue1stpart [:pick $queuecomment 0 3]
-:local queue2ndpart [:pick $queuecomment 4 21]
-:if ( $queue1stpart = "dtq") do={
-:if ( [/ip dhcp-server lease find mac-address=$queue2ndpart] = "") do={
-:log info ("DTQ: Removing stale entry for MAC Address - " . $queue2ndpart)
-remove $z
+:foreach z in=[find where comment~"$queueCommentMark"] do={
+
+  :local queuecomment [get $z comment]
+  :local queuemac [:pick $queuecomment 4 21]
+
+  :local ip [get $z target]
+  :local skip false
+
+  :if ( ($ip->0) != nil ) do={
+    :set state ("Locating queue target IP for queue $queuecomment");
+    $globalNoteMe value=$state;
+    :set ip ($ip->0) 
+    :set ip ( [:pick $ip 0 [:find $ip "/" -1]] ) ;
+    $globalNoteMe value="Done";
+  } else {
+    :set state "Cant locate queue target IP for queue $queuecomment. Skip it."
+    $globalNoteMe value=$state;
+    :set skip true;
+  }
+
+  :if ($itsOk and !$skip) do={
+    :if ( [/ip dhcp-server lease find address=$ip and mac-address=$queuemac] = "") do={
+      :set state "Queue $queuecomment dropped as stale"
+      $globalNoteMe value=$state;
+      remove $z
+    }
+  }    
 }
+
+
+:local inf ""
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: refreshed traffic accounting queues Succesfully"
 }
+
+:if (!$itsOk) do={
+  :set inf "Error When $scriptname on $sysname: $state"  
 }
+
+$globalNoteMe value=$inf
+
+:global globalTgMessage;
+$globalTgMessage value=$inf;
