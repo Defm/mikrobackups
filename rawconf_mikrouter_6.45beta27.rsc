@@ -1,4 +1,4 @@
-# apr/16/2019 00:28:09 by RouterOS 6.45beta27
+# apr/16/2019 10:12:51 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -70,18 +70,21 @@
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name="guest dhcp"
 /ppp profile add address-list=l2tp-active-clients interface-list=list-2tp-dynamic-tun local-address=10.0.0.2 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-mic
-/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx (54:E4:3A:B8:12:07)" target=192.168.99.140/32
-/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
-/queue simple add comment=dtq,B0:34:95:2D:D6:85,ATV max-limit=10M/10M name="ATV (B0:34:95:2D:D6:85)" target=192.168.99.190/32
-/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx max-limit=10M/10M name="MbpAlx (78:31:C1:CF:9E:70)" target=192.168.99.160/32
-/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx max-limit=10M/10M name="MbpAlx (38:C9:86:51:D2:B3)" target=192.168.99.170/32
-/queue simple add comment=dtq,08:00:27:17:3A:80, max-limit=10M/10M name=" (08:00:27:17:3A:80)" target=192.168.99.20/32
-/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl max-limit=10M/10M name="iPhoneGl (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
-/queue simple add comment=dtq,98:22:EF:26:FE:6E,DESKTOP-UPPUU22 max-limit=10M/10M name="DESKTOP-UPPUU22 (98:22:EF:26:FE:6E)" target=192.168.99.70/32
-/queue simple add comment=dtq,98:22:EF:26:FE:6E, max-limit=10M/10M name="asusGl (98:22:EF:26:FE:6E)" target=192.168.98.210/32
-/queue simple add comment=dtq,88:53:95:30:68:9F,miniAlx max-limit=10M/10M name="miniAlx (88:53:95:30:68:9F)" target=192.168.98.228/32
-/queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
-/queue simple add comment=dtq,94:C6:91:94:98:DC,DESKTOP-ELCNKHP max-limit=10M/10M name="DESKTOP-ELCNKHP (94:C6:91:94:98:DC)" target=192.168.99.88/32
+/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
+/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
+/queue simple add comment=dtq,B0:34:95:2D:D6:85,ATV max-limit=10M/10M name="ATV@main dhcp (B0:34:95:2D:D6:85)" target=192.168.99.190/32
+/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
+/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
+/queue simple add comment=dtq,08:00:27:17:3A:80, max-limit=10M/10M name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
+/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl max-limit=10M/10M name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
+/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl max-limit=10M/10M name="iPhoneGl@guest dhcp (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
+/queue simple add comment=dtq,98:22:EF:26:FE:6E,DESKTOP-UPPUU22 max-limit=10M/10M name="DESKTOP-UPPUU22@main dhcp (98:22:EF:26:FE:6E)" target=192.168.99.70/32
+/queue simple add comment=dtq,98:22:EF:26:FE:6E, max-limit=10M/10M name="asusGl@guest dhcp (98:22:EF:26:FE:6E)" target=192.168.98.210/32
+/queue simple add comment=dtq,88:53:95:30:68:9F,miniAlx max-limit=10M/10M name="miniAlx@guest dhcp (88:53:95:30:68:9F)" target=192.168.98.228/32
+/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx@guest dhcp (AC:61:EA:EA:CC:84)" target=192.168.98.225/32
+/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" target=192.168.98.224/32
+/queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
+/queue simple add comment=dtq,94:C6:91:94:98:DC,DESKTOP-ELCNKHP max-limit=10M/10M name="DESKTOP-ELCNKHP@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -564,7 +567,6 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -588,8 +590,8 @@
 /system logging add action=ParseMemoryLog topics=wireless
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:37 d:h:m:s | CPU: 40%\
-    \nRAM: 33448/131072M | Voltage: 23 v | Temp: 51c\
+    \nUptime:  00:00:22 d:h:m:s | CPU: 61%\
+    \nRAM: 33608/131072M | Voltage: 23 v | Temp: 51c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -610,6 +612,7 @@
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system scheduler add interval=1d name=doTrackFirmwareUpdates on-event="/system script run doTrackFirmwareUpdates" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=11:30:00
 /system scheduler add interval=1d name=doCreateTrafficAccountingQueues on-event="/system script run doCreateTrafficAccountingQueues" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
+/system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system script add dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -1997,7 +2000,7 @@
     \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
     \n#a part of queue comment to locate queues to be processed\r\
-    \n:local queueCommentMark \"dtq\";\r\
+    \n:local qCommentMark \"dtq\";\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -2008,58 +2011,50 @@
     \n:foreach x in=[find] do={\r\
     \n   \r\
     \n  # grab variables for use below\r\
-    \n  :local leaseaddr ([get \$x address])\r\
-    \n  :local leasemacaddr [get \$x mac-address]\r\
-    \n  :local leasehostname [get \$x host-name]\r\
-    \n  :local leasename [get \$x comment]\r\
-    \n  :local queuecomment\r\
+    \n  :local dhcpIp ([get \$x address])\r\
+    \n  :local dhcpMac [get \$x mac-address]\r\
+    \n  :local dhcpHost [get \$x host-name]\r\
+    \n  :local dhcpComment [get \$x comment]\r\
+    \n  :local dhcpServer [get \$x server]\r\
+    \n  :local qComment \"\"\r\
     \n   \r\
     \n  :local leaseinqueue false\r\
-    \n   \r\
-    \n  /queue simple\r\
     \n\r\
-    \n  :foreach y in=[find where comment~\"\$queueCommentMark\"] do={\r\
+    \n  /queue simple\r\
+    \n  :foreach y in=[find where comment~\"\$qCommentMark\"] do={\r\
     \n     \r\
     \n    #grab variables for use below\r\
-    \n    :local ip [get \$y target]\r\
-    \n    :set queuecomment [get \$y comment]\r\
+    \n    :local qIp [get \$y target]\r\
+    \n    :set qComment [get \$y comment]\r\
     \n\r\
     \n    :local skip false;\r\
     \n  \r\
-    \n    :if ( (\$ip->0) != nil ) do={\r\
-    \n      #:set state (\"Locating queue target IP for queue \$queuecomment\");\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      :set ip (\$ip->0) \r\
-    \n      :set ip ( [:pick \$ip 0 [:find \$ip \"/\" -1]] ) ;\r\
-    \n      #\$globalNoteMe value=\"Done\";\r\
+    \n    :if ( (\$qIp->0) != nil ) do={\r\
+    \n      :set qIp (\$qIp->0) \r\
+    \n      :set qIp ( [:pick \$qIp 0 [:find \$qIp \"/\" -1]] ) ;\r\
     \n    } else {\r\
-    \n      #:set state \"Cant locate queue target IP for queue \$queuecomment. Skip it.\"\r\
-    \n      #\$globalNoteMe value=\$state;\r\
     \n      :set skip true;\r\
     \n    }\r\
     \n         \r\
     \n    # Isolate information  from the comment field (MAC, Hostname)\r\
-    \n    :local queuemac [:pick \$queuecomment 4 21]\r\
-    \n    :local queuehostname [:pick \$queuecomment 22 [:len \$queuecomment]]\r\
+    \n    :local qMac [:pick \$qComment 4 21]\r\
+    \n    :local qHost [:pick \$qComment 22 [:len \$qComment]]\r\
     \n\r\
-    \n    :set state \"\$queuemac = \$leasemacaddr and \$ip = \$leaseaddr\"\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n     \r\
     \n    # If MAC from lease matches the queue MAC and IPs are the same - then refresh the queue item\r\
-    \n    :if (\$queuemac = \$leasemacaddr and \$ip = \$leaseaddr and !\$skip) do={\r\
+    \n    :if (\$qMac = \$dhcpMac and \$qIp = \$dhcpIp and !\$skip) do={\r\
     \n\r\
     \n      # build a comment field\r\
-    \n      :set queuecomment (\$queueCommentMark . \",\" . \$leasemacaddr . \",\" . \$leasehostname)\r\
-    \n       \r\
-    \n      set \$y target=\$leaseaddr comment=\$queuecomment\r\
-    \n      \r\
-    \n      :if (\$leasename != \"\") do= {\r\
-    \n        set \$y name=(\$leasename . \" (\" . \$leasemacaddr . \")\")\r\
+    \n      :set qComment (\$qCommentMark . \",\" . \$dhcpMac . \",\" . \$dhcpHost)\r\
+    \n\r\
+    \n      set \$y target=\$dhcpIp comment=\$qComment\r\
+    \n\r\
+    \n      :if (\$dhcpComment != \"\") do= {\r\
+    \n        set \$y name=(\$dhcpComment . \"@\" . \$dhcpServer . \" (\" . \$dhcpMac . \")\")\r\
     \n      } else= {\r\
-    \n        :if (\$leasehostname != \"\") do= {\r\
-    \n          set \$y name=(\$leasehostname . \" (\" . \$leasemacaddr . \")\")\r\
+    \n        :if (\$dhcpHost != \"\") do= {\r\
+    \n          set \$y name=(\$dhcpHost . \"@\" . \$dhcpServer . \" (\" . \$dhcpMac . \")\")\r\
     \n        } else= {\r\
-    \n          set \$y name=\$leasemacaddr\r\
+    \n          set \$y name=(\$dhcpMac . \"@\" . \$dhcpServer)\r\
     \n        }\r\
     \n      }\r\
     \n\r\
@@ -2071,64 +2066,58 @@
     \n      :set leaseinqueue true\r\
     \n    } \r\
     \n  }\r\
-    \n \r\
+    \n\r\
     \n  # There was not an existing entry so add one for this lease\r\
     \n  :if (\$leaseinqueue = false) do={\r\
     \n\r\
     \n    # build a comment field\r\
-    \n    :set queuecomment (\$queueCommentMark . \",\" . \$leasemacaddr . \",\" . \$leasehostname)\r\
+    \n    :set qComment (\$qCommentMark . \",\" . \$dhcpMac . \",\" . \$dhcpHost)\r\
     \n\r\
-    \n    # build command\r\
-    \n    :local cmd \"/queue simple add target=\$leaseaddr max-limit=10M/10M comment=\$queuecomment\"\r\
-    \n    :if (\$leasename != \"\") do={ \r\
-    \n      :set cmd \"\$cmd name=\\\"\$leasename (\$leasemacaddr)\\\"\" \r\
+    \n    # build command (queue names should be unique)\r\
+    \n    :local cmd \"/queue simple add target=\$dhcpIp max-limit=10M/10M comment=\$qComment\"\r\
+    \n    :if (\$dhcpComment != \"\") do={ \r\
+    \n      :set cmd \"\$cmd name=\\\"\$dhcpComment@\$dhcpServer (\$dhcpMac)\\\"\" \r\
     \n    } else= {\r\
-    \n      :if (\$leasehostname != \"\") do={\r\
-    \n        :set cmd \"\$cmd name=\\\"\$leasehostname (\$leasemacaddr)\\\"\"\r\
+    \n      :if (\$dhcpHost != \"\") do={\r\
+    \n        :set cmd \"\$cmd name=\\\"\$dhcpHost@\$dhcpServer (\$dhcpMac)\\\"\"\r\
     \n      } else= {\r\
-    \n        :set cmd \"\$cmd name=\\\"\$leasemacaddr\\\"\"\r\
+    \n        :set cmd \"\$cmd name=\\\"\$dhcpMac@\$dhcpServer\\\"\"\r\
     \n      }\r\
     \n    }\r\
     \n\r\
     \n    :execute \$cmd\r\
     \n\r\
-    \n    :set state \"Queue \$queuecomment created\"\r\
+    \n    :set state \"Queue \$qComment created\"\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
     \n  }\r\
     \n}\r\
-    \n \r\
+    \n\r\
     \n# Cleanup Routine - remove dynamic entries that no longer exist in the lease table\r\
     \n/queue simple\r\
-    \n:foreach z in=[find where comment~\"\$queueCommentMark\"] do={\r\
+    \n:foreach z in=[find where comment~\"\$qCommentMark\"] do={\r\
     \n\r\
-    \n  :local queuecomment [get \$z comment]\r\
-    \n  :local queuemac [:pick \$queuecomment 4 21]\r\
+    \n  :local qComment [get \$z comment]\r\
+    \n  :local qMac [:pick \$qComment 4 21]\r\
     \n\r\
-    \n  :local ip [get \$z target]\r\
+    \n  :local qIp [get \$z target]\r\
     \n  :local skip false\r\
     \n\r\
-    \n  :if ( (\$ip->0) != nil ) do={\r\
-    \n    :set state (\"Locating queue target IP for queue \$queuecomment\");\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    :set ip (\$ip->0) \r\
-    \n    :set ip ( [:pick \$ip 0 [:find \$ip \"/\" -1]] ) ;\r\
-    \n    \$globalNoteMe value=\"Done\";\r\
+    \n  :if ( (\$qIp->0) != nil ) do={\r\
+    \n    :set qIp (\$qIp->0) \r\
+    \n    :set qIp ( [:pick \$qIp 0 [:find \$qIp \"/\" -1]] ) ;\r\
     \n  } else {\r\
-    \n    :set state \"Cant locate queue target IP for queue \$queuecomment. Skip it.\"\r\
-    \n    \$globalNoteMe value=\$state;\r\
     \n    :set skip true;\r\
     \n  }\r\
     \n\r\
     \n  :if (\$itsOk and !\$skip) do={\r\
-    \n    :if ( [/ip dhcp-server lease find address=\$ip and mac-address=\$queuemac] = \"\") do={\r\
-    \n      :set state \"Queue \$queuecomment dropped as stale\"\r\
+    \n    :if ( [/ip dhcp-server lease find address=\$qIp and mac-address=\$qMac] = \"\") do={\r\
+    \n      :set state \"Queue \$qComment dropped as stale\"\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      remove \$z\r\
     \n    }\r\
     \n  }    \r\
     \n}\r\
-    \n\r\
     \n\r\
     \n:local inf \"\"\r\
     \n:if (\$itsOk) do={\r\

@@ -1,4 +1,14 @@
-### Git Auto Save, Date: вторник, 16 апреля 2019 г. 00:30:27 (MSK), New Files: scripts/doPushStatsToInfluxDB.rsc.txt,  Modified Files:  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: вторник, 16 апреля 2019 г. 10:13:05 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta27.rsc,  Removed Files: (HEAD -> _autobranch)
+>Tue, 16 Apr 2019 10:13:05 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: вторник, 16 апреля 2019 г. 00:30:27 (MSK), New Files: scripts/doPushStatsToInfluxDB.rsc.txt,  Modified Files:  Removed Files: (mikrobackups/_autobranch)
 >Tue, 16 Apr 2019 00:30:27 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Git Auto Save, Date: вторник, 16 апреля 2019 г. 00:30:19 (MSK), New Files:  Modified Files: scripts/doCreateTrafficAccountingQueues.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: вторник, 16 апреля 2019 г. 00:30:19 (MSK), New Files:  Modified Files: scripts/doCreateTrafficAccountingQueues.rsc.txt,  Removed Files:
 >Tue, 16 Apr 2019 00:30:19 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
