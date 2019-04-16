@@ -1,4 +1,4 @@
-# apr/16/2019 10:12:51 by RouterOS 6.45beta27
+# apr/16/2019 19:50:21 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -2631,8 +2631,7 @@
     \n    :do {\r\
     \n      :set state (\"Pushing stats to influxDB about \$hostName: UP = \$upload, DOWN=\$download\");\r\
     \n      \$globalNoteMe value=\$state;\r\
-    \n      /tool fetch http-method=post port=8000 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tURL\" http-header-field=\"content-type: text/plain\" http-data=\"TrafficStats,host=\$sysname,target=\$hostName,direction=UP value=\$upload\" keep-result=no;\r\
-    \n      /tool fetch http-method=post port=8000 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tURL\" http-header-field=\"content-type: text/plain\" http-data=\"TrafficStats,host=\$sysname,target=\$hostName,direction=DOWN value=\$download\" keep-result=no;\r\
+    \n      /tool fetch http-method=post port=8000 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tURL\" http-header-field=\"content-type: text/plain\" http-data=\"TrafficStats,host=\$sysname,target=\$hostName upload=\$upload,download=\$download\" keep-result=no;\r\
     \n      \$globalNoteMe value=\"Done\";\r\
     \n    } on-error= {\r\
     \n      :set state \"Error When \$state\"\r\
@@ -2659,8 +2658,9 @@
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
     \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;"
+    \n#don't spam\r\
+    \n#:global globalTgMessage;\r\
+    \n#\$globalTgMessage value=\$inf;"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool mac-server set allowed-interface-list=none
