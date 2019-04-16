@@ -78,8 +78,7 @@ $globalScriptBeforeRun $scriptname;
     :do {
       :set state ("Pushing stats to influxDB about $hostName: UP = $upload, DOWN=$download");
       $globalNoteMe value=$state;
-      /tool fetch http-method=post port=8000 user="mikrotik" password="mikrotik" mode=http url="$tURL" http-header-field="content-type: text/plain" http-data="TrafficStats,host=$sysname,target=$hostName,direction=UP value=$upload" keep-result=no;
-      /tool fetch http-method=post port=8000 user="mikrotik" password="mikrotik" mode=http url="$tURL" http-header-field="content-type: text/plain" http-data="TrafficStats,host=$sysname,target=$hostName,direction=DOWN value=$download" keep-result=no;
+      /tool fetch http-method=post port=8000 user="mikrotik" password="mikrotik" mode=http url="$tURL" http-header-field="content-type: text/plain" http-data="TrafficStats,host=$sysname,target=$hostName,direction=UP upload=$upload,download=$download" keep-result=no;
       $globalNoteMe value="Done";
     } on-error= {
       :set state "Error When $state"
