@@ -1,4 +1,4 @@
-# apr/12/2019 21:24:47 by RouterOS 6.45beta27
+# apr/16/2019 19:50:21 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -70,18 +70,21 @@
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name="guest dhcp"
 /ppp profile add address-list=l2tp-active-clients interface-list=list-2tp-dynamic-tun local-address=10.0.0.2 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-mic
-/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx (54:E4:3A:B8:12:07)" target=192.168.98.224/32
-/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx (AC:61:EA:EA:CC:84)" target=192.168.98.225/32
-/queue simple add comment=dtq,B0:34:95:2D:D6:85,ATV max-limit=10M/10M name="ATV (B0:34:95:2D:D6:85)" target=192.168.99.190/32
-/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx max-limit=10M/10M name="MbpAlx (78:31:C1:CF:9E:70)" target=192.168.99.160/32
-/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx max-limit=10M/10M name="MbpAlx (38:C9:86:51:D2:B3)" target=192.168.99.170/32
-/queue simple add comment=dtq,08:00:27:17:3A:80, max-limit=10M/10M name=" (08:00:27:17:3A:80)" target=192.168.99.20/32
-/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl max-limit=10M/10M name="iPhoneGl (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
-/queue simple add comment=dtq,98:22:EF:26:FE:6E, max-limit=10M/10M name="asusGl (98:22:EF:26:FE:6E)" target=192.168.98.210/32
-/queue simple add comment=dtq,88:53:95:30:68:9F,miniAlx max-limit=10M/10M name="miniAlx (88:53:95:30:68:9F)" target=192.168.98.228/32
-/queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
-/queue simple add comment=dtq,94:C6:91:94:98:DC,DESKTOP-ELCNKHP max-limit=10M/10M name="DESKTOP-ELCNKHP (94:C6:91:94:98:DC)" target=192.168.99.88/32
-/queue simple add comment=dtq,C4:B3:01:75:EE:FB,iPhone-88 max-limit=10M/10M name="iPhone-88 (C4:B3:01:75:EE:FB)" target=192.168.98.229/32
+/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
+/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
+/queue simple add comment=dtq,B0:34:95:2D:D6:85,ATV max-limit=10M/10M name="ATV@main dhcp (B0:34:95:2D:D6:85)" target=192.168.99.190/32
+/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
+/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
+/queue simple add comment=dtq,08:00:27:17:3A:80, max-limit=10M/10M name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
+/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl max-limit=10M/10M name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
+/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl max-limit=10M/10M name="iPhoneGl@guest dhcp (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
+/queue simple add comment=dtq,98:22:EF:26:FE:6E,DESKTOP-UPPUU22 max-limit=10M/10M name="DESKTOP-UPPUU22@main dhcp (98:22:EF:26:FE:6E)" target=192.168.99.70/32
+/queue simple add comment=dtq,98:22:EF:26:FE:6E, max-limit=10M/10M name="asusGl@guest dhcp (98:22:EF:26:FE:6E)" target=192.168.98.210/32
+/queue simple add comment=dtq,88:53:95:30:68:9F,miniAlx max-limit=10M/10M name="miniAlx@guest dhcp (88:53:95:30:68:9F)" target=192.168.98.228/32
+/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx@guest dhcp (AC:61:EA:EA:CC:84)" target=192.168.98.225/32
+/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" target=192.168.98.224/32
+/queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
+/queue simple add comment=dtq,94:C6:91:94:98:DC,DESKTOP-ELCNKHP max-limit=10M/10M name="DESKTOP-ELCNKHP@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -587,8 +590,8 @@
 /system logging add action=ParseMemoryLog topics=wireless
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:37 d:h:m:s | CPU: 40%\
-    \nRAM: 33448/131072M | Voltage: 23 v | Temp: 51c\
+    \nUptime:  00:00:22 d:h:m:s | CPU: 61%\
+    \nRAM: 33608/131072M | Voltage: 23 v | Temp: 51c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -599,7 +602,6 @@
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=read,write start-date=feb/21/2017 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/21/2017 start-time=19:19:59
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=mar/01/2018 start-time=15:54:04
-/system scheduler add disabled=yes interval=1w3d name=doAdblock on-event="/system script run doAdblock" policy=read,write,policy,test start-date=mar/01/2018 start-time=19:01:38
 /system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=15:17:58
 /system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/10/2018 start-time=15:06:29
 /system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=14:41:22
@@ -609,6 +611,8 @@
 /system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=11:31:24
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system scheduler add interval=1d name=doTrackFirmwareUpdates on-event="/system script run doTrackFirmwareUpdates" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=11:30:00
+/system scheduler add interval=1d name=doCreateTrafficAccountingQueues on-event="/system script run doCreateTrafficAccountingQueues" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
+/system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system script add dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -1435,42 +1439,6 @@
     \n:delay 200ms;\r\
     \n:beep frequency=1950 length=700ms;\r\
     \n:delay 200ms;"
-/system script add dont-require-permissions=yes name=doNetwatchHostIsDown owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doNetwatchHostIsDown\";\r\
-    \n\r\
-    \n#NetWatch notifier OnDown\r\
-    \n\r\
-    \n:global NetwatchHostName;\r\
-    \n\r\
-    \n/log warning \"\$NetwatchHostName fail...\"\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \nif ([system resource get uptime] > 00:01:00) do={\r\
-    \n\r\
-    \n     :local connectionlost \"%D0%A1%D0%B2%D1%8F%D0%B7%D1%8C%20%D0%BF%D0%BE%D1%82%D0%B5%D1%80%D1%8F%D0%BD%D0%B0%3A%20\";\r\
-    \n\r\
-    \n     :local checkip [/ping \$NetwatchHostName count=10];\r\
-    \n\r\
-    \n     :if (checkip < 7) do={\r\
-    \n\r\
-    \n            /log error \"\$NetwatchHostName IS DOWN\";\r\
-    \n\r\
-    \n            :global TelegramMessage \"\$connectionlost\$NetwatchHostName\";\r\
-    \n\r\
-    \n            /system script run doTelegramNotify;\r\
-    \n\r\
-    \n            :delay 2\r\
-    \n       }\r\
-    \n   }\r\
-    \n} on-error= {\r\
-    \n\r\
-    \n:log info (\"Telegram notify error\");\r\
-    \n\r\
-    \n:put \"Telegram notify error\";\r\
-    \n\r\
-    \n};"
 /system script add dont-require-permissions=yes name=doTelegramNotify owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doTelegramNotify\";\r\
@@ -1492,7 +1460,6 @@
     \n};"
 /system script add dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
-    \n\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doNetwatchHost\";\r\
     \n:global globalScriptBeforeRun;\r\
@@ -1506,7 +1473,7 @@
     \n  \r\
     \n:global NetwatchHostName;\r\
     \n\r\
-    \n:local state \"Netwatch for \$NetwatchHostName started...\";\r\
+    \n:set state \"Netwatch for \$NetwatchHostName started...\";\r\
     \n\$globalNoteMe value=\$state;\r\
     \n\r\
     \n:do {\r\
@@ -1518,31 +1485,31 @@
     \n\r\
     \n   :if (\$checkip = 10) do={\r\
     \n\r\
-    \n     :local state \"\$NetwatchHostName is UP\";\r\
+    \n     :set state \"\$NetwatchHostName is UP\";\r\
     \n     \$globalNoteMe value=\$state;\r\
     \n     #success when OnUp\r\
-    \n     :local itsOk true;\r\
+    \n     :set itsOk true;\r\
     \n\r\
     \n   } else {\r\
     \n\r\
-    \n    :local state \"\$NetwatchHostName is DOWN\";\r\
+    \n    :set state \"\$NetwatchHostName is DOWN\";\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n    #success when OnDown\r\
-    \n    :local itsOk true;\r\
+    \n    :set itsOk true;\r\
     \n    \r\
     \n   }\r\
     \n } else {\r\
     \n\r\
-    \n  :local state \"The system is just started, wait some time before using netwatch\";\r\
+    \n  :set state \"The system is just started, wait some time before using netwatch\";\r\
     \n  \$globalNoteMe value=\$state;\r\
-    \n  :local itsOk false;\r\
+    \n  :set itsOk false;\r\
     \n\r\
     \n }\r\
     \n} on-error= {\r\
     \n\r\
-    \n  :local state \"Netwatch for \$NetwatchHostName FAILED...\";\r\
+    \n  :set state \"Netwatch for \$NetwatchHostName FAILED...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
-    \n  :local itsOk false;\r\
+    \n  :set itsOk false;\r\
     \n\r\
     \n};\r\
     \n\r\
@@ -1555,7 +1522,7 @@
     \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
     \n}\r\
     \n\r\
-    \n\$noteMe value=\$inf\r\
+    \n\$globalNoteMe value=\$inf\r\
     \n\r\
     \n:global globalTgMessage;\r\
     \n\$globalTgMessage value=\$inf;\r\
@@ -2027,109 +1994,144 @@
     \n\r\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# DHCP Lease to Simple Queues\r\
-    \n# 2014 Lonnie Mendez (lmendez@anvilcom.com)\r\
-    \n#\r\
-    \n# Mikrotik RouterOS v6.9\r\
-    \n\r\
+/system script add dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
+    \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doCreateTrafficAccountingQueues\";\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n#a part of queue comment to locate queues to be processed\r\
+    \n:local qCommentMark \"dtq\";\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n\r\
+    \n:local state \"\";\r\
     \n \r\
     \n/ip dhcp-server lease\r\
     \n:foreach x in=[find] do={\r\
-    \n \r\
-    \n# grab variables for use below\r\
-    \n:local leaseaddr ([get \$x address])\r\
-    \n:local leasemacaddr [get \$x mac-address]\r\
-    \n:local leasehostname [get \$x host-name]\r\
-    \n:local leasename [get \$x comment]\r\
-    \n:local queuecomment\r\
-    \n \r\
-    \n:local leaseinqueue false\r\
-    \n \r\
-    \n/queue simple\r\
-    \n:foreach y in=[find] do={\r\
-    \n \r\
-    \n#grab variables for use below\r\
-    \n:local queuetargetaddr [get \$y target]\r\
-    \n:set queuecomment [get \$y comment]\r\
-    \n \r\
-    \n# Isolate information  from the comment field (MAC, Hostname)\r\
-    \n:local queuemac [:pick \$queuecomment 4 21]\r\
-    \n:local queuehostname [:pick \$queuecomment 22 [:len \$queuecomment]]\r\
-    \n \r\
-    \n# If MAC from lease matches the queue MAC then refresh the queue item\r\
-    \n:if (\$queuemac = \$leasemacaddr) do={\r\
-    \n# build a comment field\r\
-    \n:set queuecomment (\"dtq,\" . \$leasemacaddr . \",\" . \$leasehostname)\r\
-    \n \r\
-    \nset \$y target=\$leaseaddr comment=\$queuecomment\r\
-    \n:if (\$leasename != \"\") do= {\r\
-    \nset \$y name=(\$leasename . \" (\" . \$leasemacaddr . \")\")\r\
-    \n} else= {\r\
-    \n:if (\$leasehostname != \"\") do= {\r\
-    \nset \$y name=(\$leasehostname . \" (\" . \$leasemacaddr . \")\")\r\
-    \n} else= {\r\
-    \nset \$y name=\$leasemacaddr\r\
-    \n}\r\
-    \n}\r\
-    \n:set leaseinqueue true\r\
-    \n} else= {\r\
-    \n# if ip exists for this lease but mac is different then update mac/hostname and reset counter\r\
-    \n:if (\$queuetargetaddr = \$leaseaddr) do={\r\
-    \n# build a comment field\r\
-    \n:set queuecomment (\"dtq,\" . \$leasemacaddr . \",\" . \$leasehostname)\r\
-    \n \r\
-    \nset \$y comment=\$queuecomment\r\
-    \nreset-counters \$y\r\
-    \n:if (\$leasename != \"\") do= {\r\
-    \nset \$y name=(\$leasename . \" (\" . \$leasemacaddr . \")\")\r\
-    \n} else= {\r\
-    \n:if (\$leasehostname != \"\") do= {\r\
-    \nset \$y name=(\$leasehostname . \" (\" . \$leasemacaddr . \")\")\r\
-    \n} else= {\r\
-    \nset \$y name=\$leasemacaddr\r\
-    \n}\r\
-    \n}\r\
-    \n:set leaseinqueue true\r\
-    \n}\r\
-    \n}\r\
-    \n}\r\
-    \n \r\
-    \n# There was not an existing entry so add one for this lease\r\
-    \n:if (\$leaseinqueue = false) do={\r\
-    \n# build a comment field\r\
-    \n:set queuecomment (\"dtq,\" . \$leasemacaddr . \",\" . \$leasehostname)\r\
-    \n# build command\r\
-    \n:local cmd \"/queue simple add target=\$leaseaddr max-limit=10M/10M comment=\$queuecomment\"\r\
-    \n:if (\$leasename != \"\") do={ \r\
-    \n:set cmd \"\$cmd name=\\\"\$leasename (\$leasemacaddr)\\\"\" \r\
-    \n} else= {\r\
-    \n:if (\$leasehostname != \"\") do={\r\
-    \n:set cmd \"\$cmd name=\\\"\$leasehostname (\$leasemacaddr)\\\"\"\r\
-    \n} else= {\r\
-    \n:set cmd \"\$cmd name=\\\"\$leasemacaddr\\\"\"\r\
-    \n}\r\
-    \n}\r\
-    \n \r\
-    \n:execute \$cmd\r\
+    \n   \r\
+    \n  # grab variables for use below\r\
+    \n  :local dhcpIp ([get \$x address])\r\
+    \n  :local dhcpMac [get \$x mac-address]\r\
+    \n  :local dhcpHost [get \$x host-name]\r\
+    \n  :local dhcpComment [get \$x comment]\r\
+    \n  :local dhcpServer [get \$x server]\r\
+    \n  :local qComment \"\"\r\
+    \n   \r\
+    \n  :local leaseinqueue false\r\
     \n\r\
+    \n  /queue simple\r\
+    \n  :foreach y in=[find where comment~\"\$qCommentMark\"] do={\r\
+    \n     \r\
+    \n    #grab variables for use below\r\
+    \n    :local qIp [get \$y target]\r\
+    \n    :set qComment [get \$y comment]\r\
+    \n\r\
+    \n    :local skip false;\r\
+    \n  \r\
+    \n    :if ( (\$qIp->0) != nil ) do={\r\
+    \n      :set qIp (\$qIp->0) \r\
+    \n      :set qIp ( [:pick \$qIp 0 [:find \$qIp \"/\" -1]] ) ;\r\
+    \n    } else {\r\
+    \n      :set skip true;\r\
+    \n    }\r\
+    \n         \r\
+    \n    # Isolate information  from the comment field (MAC, Hostname)\r\
+    \n    :local qMac [:pick \$qComment 4 21]\r\
+    \n    :local qHost [:pick \$qComment 22 [:len \$qComment]]\r\
+    \n\r\
+    \n    # If MAC from lease matches the queue MAC and IPs are the same - then refresh the queue item\r\
+    \n    :if (\$qMac = \$dhcpMac and \$qIp = \$dhcpIp and !\$skip) do={\r\
+    \n\r\
+    \n      # build a comment field\r\
+    \n      :set qComment (\$qCommentMark . \",\" . \$dhcpMac . \",\" . \$dhcpHost)\r\
+    \n\r\
+    \n      set \$y target=\$dhcpIp comment=\$qComment\r\
+    \n\r\
+    \n      :if (\$dhcpComment != \"\") do= {\r\
+    \n        set \$y name=(\$dhcpComment . \"@\" . \$dhcpServer . \" (\" . \$dhcpMac . \")\")\r\
+    \n      } else= {\r\
+    \n        :if (\$dhcpHost != \"\") do= {\r\
+    \n          set \$y name=(\$dhcpHost . \"@\" . \$dhcpServer . \" (\" . \$dhcpMac . \")\")\r\
+    \n        } else= {\r\
+    \n          set \$y name=(\$dhcpMac . \"@\" . \$dhcpServer)\r\
+    \n        }\r\
+    \n      }\r\
+    \n\r\
+    \n      :local queuename [get \$y name]\r\
+    \n\r\
+    \n      :set state \"Queue \$queuename updated\"\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n      :set leaseinqueue true\r\
+    \n    } \r\
+    \n  }\r\
+    \n\r\
+    \n  # There was not an existing entry so add one for this lease\r\
+    \n  :if (\$leaseinqueue = false) do={\r\
+    \n\r\
+    \n    # build a comment field\r\
+    \n    :set qComment (\$qCommentMark . \",\" . \$dhcpMac . \",\" . \$dhcpHost)\r\
+    \n\r\
+    \n    # build command (queue names should be unique)\r\
+    \n    :local cmd \"/queue simple add target=\$dhcpIp max-limit=10M/10M comment=\$qComment\"\r\
+    \n    :if (\$dhcpComment != \"\") do={ \r\
+    \n      :set cmd \"\$cmd name=\\\"\$dhcpComment@\$dhcpServer (\$dhcpMac)\\\"\" \r\
+    \n    } else= {\r\
+    \n      :if (\$dhcpHost != \"\") do={\r\
+    \n        :set cmd \"\$cmd name=\\\"\$dhcpHost@\$dhcpServer (\$dhcpMac)\\\"\"\r\
+    \n      } else= {\r\
+    \n        :set cmd \"\$cmd name=\\\"\$dhcpMac@\$dhcpServer\\\"\"\r\
+    \n      }\r\
+    \n    }\r\
+    \n\r\
+    \n    :execute \$cmd\r\
+    \n\r\
+    \n    :set state \"Queue \$qComment created\"\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  }\r\
     \n}\r\
-    \n}\r\
-    \n \r\
+    \n\r\
     \n# Cleanup Routine - remove dynamic entries that no longer exist in the lease table\r\
     \n/queue simple\r\
-    \n:foreach z in=[find] do={\r\
-    \n:local queuecomment [get \$z comment]\r\
-    \n:local queue1stpart [:pick \$queuecomment 0 3]\r\
-    \n:local queue2ndpart [:pick \$queuecomment 4 21]\r\
-    \n:if ( \$queue1stpart = \"dtq\") do={\r\
-    \n:if ( [/ip dhcp-server lease find mac-address=\$queue2ndpart] = \"\") do={\r\
-    \n:log info (\"DTQ: Removing stale entry for MAC Address - \" . \$queue2ndpart)\r\
-    \nremove \$z\r\
+    \n:foreach z in=[find where comment~\"\$qCommentMark\"] do={\r\
+    \n\r\
+    \n  :local qComment [get \$z comment]\r\
+    \n  :local qMac [:pick \$qComment 4 21]\r\
+    \n\r\
+    \n  :local qIp [get \$z target]\r\
+    \n  :local skip false\r\
+    \n\r\
+    \n  :if ( (\$qIp->0) != nil ) do={\r\
+    \n    :set qIp (\$qIp->0) \r\
+    \n    :set qIp ( [:pick \$qIp 0 [:find \$qIp \"/\" -1]] ) ;\r\
+    \n  } else {\r\
+    \n    :set skip true;\r\
+    \n  }\r\
+    \n\r\
+    \n  :if (\$itsOk and !\$skip) do={\r\
+    \n    :if ( [/ip dhcp-server lease find address=\$qIp and mac-address=\$qMac] = \"\") do={\r\
+    \n      :set state \"Queue \$qComment dropped as stale\"\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n      remove \$z\r\
+    \n    }\r\
+    \n  }    \r\
     \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: refreshed traffic accounting queues Succesfully\"\r\
     \n}\r\
-    \n}"
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;"
 /system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\
     \n\r\
@@ -2479,7 +2481,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHostIsDown, doNetwatchHostIsUp\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -2549,6 +2551,116 @@
     \n\$globalTgMessage value=\$inf;\r\
     \n\r\
     \n"
+/system script add dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
+    \n:local scriptname \"doPushStatsToInfluxDB\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n#a part of queue comment to locate queues to be processed\r\
+    \n:local queueCommentMark \"dtq\";\r\
+    \n\r\
+    \n#influxDB service URL (beware about port when /fetch)\r\
+    \n:local tURL \"http://192.168.99.180/write\\\?db=mikroscripts\"\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n\r\
+    \n:local state \"\";\r\
+    \n \r\
+    \n/queue simple\r\
+    \n\r\
+    \n:foreach z in=[find where comment~\"\$queueCommentMark\"] do={\r\
+    \n\r\
+    \n  :local skip false;\r\
+    \n\r\
+    \n  :local queuecomment [get \$z comment]\r\
+    \n  :local ip [get \$z target]\r\
+    \n\r\
+    \n  :if ( \$itsOk ) do={\r\
+    \n\r\
+    \n    :if ( (\$ip->0) != nil ) do={\r\
+    \n      :set state (\"Locating queue target IP for queue \$queuecomment\");\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n      :set ip (\$ip->0) \r\
+    \n      :set ip ( [:pick \$ip 0 [:find \$ip \"/\" -1]] ) ;\r\
+    \n      \$globalNoteMe value=\"Done\";\r\
+    \n    } else {\r\
+    \n      :set state \"Cant locate queue target IP for queue \$queuecomment. Skip it.\"\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n      :set skip true;\r\
+    \n    }\r\
+    \n\r\
+    \n  }\r\
+    \n\r\
+    \n  :local hostName \"\"\r\
+    \n  :local upload 0\r\
+    \n  :local download 0\r\
+    \n\r\
+    \n  :if ( \$itsOk and !\$skip) do={\r\
+    \n    :local bytes [get \$z bytes]\r\
+    \n    :set upload (\$upload + [:pick \$bytes 0 [:find \$bytes \"/\"]])\r\
+    \n    :set download (\$download + [:pick \$bytes ([:find \$bytes \"/\"]+1) [:len \$bytes]])\r\
+    \n  }\r\
+    \n\r\
+    \n  :if ( \$itsOk and !\$skip) do={\r\
+    \n    :do {\r\
+    \n      #dhcp server for IP->name translation\r\
+    \n      :set state (\"Picking host name for \$ip via DHCP\");\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n      :set hostName [/ip dhcp-server lease get [find (address=\$ip)] host-name]\r\
+    \n\r\
+    \n      :local typeOfValue [:typeof \$hostName]\r\
+    \n\r\
+    \n      :if ((\$typeOfValue = \"nothing\") or (\$typeOfValue = \"nil\")) do={\r\
+    \n        :set state \"Got empty host name. Skip it.\"\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :set skip true;\r\
+    \n      } else={\r\
+    \n        :set state \"Got it \$hostName\"\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n      }\r\
+    \n\r\
+    \n    } on-error= {\r\
+    \n      :set state \"Error When \$state\"\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n      :set skip true;\r\
+    \n    }\r\
+    \n  }\r\
+    \n\r\
+    \n  :if ( \$itsOk and !\$skip) do={\r\
+    \n    :do {\r\
+    \n      :set state (\"Pushing stats to influxDB about \$hostName: UP = \$upload, DOWN=\$download\");\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n      /tool fetch http-method=post port=8000 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tURL\" http-header-field=\"content-type: text/plain\" http-data=\"TrafficStats,host=\$sysname,target=\$hostName upload=\$upload,download=\$download\" keep-result=no;\r\
+    \n      \$globalNoteMe value=\"Done\";\r\
+    \n    } on-error= {\r\
+    \n      :set state \"Error When \$state\"\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n      :set itsOk false;\r\
+    \n    }\r\
+    \n  }\r\
+    \n  \r\
+    \n  :if (\$itsOk and !\$skip) do={\r\
+    \n    :set state \"Flushing stats..\"\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    reset-counters \$z\r\
+    \n  }  \r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: stats pushed Succesfully\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n#don't spam\r\
+    \n#:global globalTgMessage;\r\
+    \n#\$globalTgMessage value=\$inf;"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool mac-server set allowed-interface-list=none

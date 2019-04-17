@@ -1,0 +1,110 @@
+:local sysname [/system identity get name];
+:local scriptname "doPushStatsToInfluxDB";
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun $scriptname;
+
+#a part of queue comment to locate queues to be processed
+:local queueCommentMark "dtq";
+
+#influxDB service URL (beware about port when /fetch)
+:local tURL "http://192.168.99.180/write\?db=mikroscripts"
+
+:global globalNoteMe;
+:local itsOk true;
+
+:local state "";
+ 
+/queue simple
+
+:foreach z in=[find where comment~"$queueCommentMark"] do={
+
+  :local skip false;
+
+  :local queuecomment [get $z comment]
+  :local ip [get $z target]
+
+  :if ( $itsOk ) do={
+
+    :if ( ($ip->0) != nil ) do={
+      :set state ("Locating queue target IP for queue $queuecomment");
+      $globalNoteMe value=$state;
+      :set ip ($ip->0) 
+      :set ip ( [:pick $ip 0 [:find $ip "/" -1]] ) ;
+      $globalNoteMe value="Done";
+    } else {
+      :set state "Cant locate queue target IP for queue $queuecomment. Skip it."
+      $globalNoteMe value=$state;
+      :set skip true;
+    }
+
+  }
+
+  :local hostName ""
+  :local upload 0
+  :local download 0
+
+  :if ( $itsOk and !$skip) do={
+    :local bytes [get $z bytes]
+    :set upload ($upload + [:pick $bytes 0 [:find $bytes "/"]])
+    :set download ($download + [:pick $bytes ([:find $bytes "/"]+1) [:len $bytes]])
+  }
+
+  :if ( $itsOk and !$skip) do={
+    :do {
+      #dhcp server for IP->name translation
+      :set state ("Picking host name for $ip via DHCP");
+      $globalNoteMe value=$state;
+      :set hostName [/ip dhcp-server lease get [find (address=$ip)] host-name]
+
+      :local typeOfValue [:typeof $hostName]
+
+      :if (($typeOfValue = "nothing") or ($typeOfValue = "nil")) do={
+        :set state "Got empty host name. Skip it."
+        $globalNoteMe value=$state;
+        :set skip true;
+      } else={
+        :set state "Got it $hostName"
+        $globalNoteMe value=$state;
+      }
+
+    } on-error= {
+      :set state "Error When $state"
+      $globalNoteMe value=$state;
+      :set skip true;
+    }
+  }
+
+  :if ( $itsOk and !$skip) do={
+    :do {
+      :set state ("Pushing stats to influxDB about $hostName: UP = $upload, DOWN=$download");
+      $globalNoteMe value=$state;
+      /tool fetch http-method=post port=8000 user="mikrotik" password="mikrotik" mode=http url="$tURL" http-header-field="content-type: text/plain" http-data="TrafficStats,host=$sysname,target=$hostName upload=$upload,download=$download" keep-result=no;
+      $globalNoteMe value="Done";
+    } on-error= {
+      :set state "Error When $state"
+      $globalNoteMe value=$state;
+      :set itsOk false;
+    }
+  }
+  
+  :if ($itsOk and !$skip) do={
+    :set state "Flushing stats.."
+    $globalNoteMe value=$state;
+    reset-counters $z
+  }  
+}
+
+:local inf ""
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: stats pushed Succesfully"
+}
+
+:if (!$itsOk) do={
+  :set inf "Error When $scriptname on $sysname: $state"  
+}
+
+$globalNoteMe value=$inf
+
+#don't spam
+#:global globalTgMessage;
+#$globalTgMessage value=$inf;
