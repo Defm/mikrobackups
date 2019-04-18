@@ -28,7 +28,7 @@ $globalScriptBeforeRun "doCoolConcole";
 #to record otherwise script will halt unexpectedly
 ##
  
-:if ([/system resource get architecture-name]="x86") do={
+:if ([/system resource get architecture-name]="x86" or [/system resource get architecture-name]="x86_64") do={
   :set logcontenttemp "Voltage: NIL"
   :set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
   :set logcontenttemp "Temp: NIL"
