@@ -1,4 +1,14 @@
-### Git Auto Save, Date: суббота, 20 апреля 2019 г. 18:28:28 (MSK), New Files:  Modified Files: rawconf_CHR_6.45beta27.rsc,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: понедельник, 22 апреля 2019 г. 15:18:23 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta27.rsc,  Removed Files: (HEAD -> _autobranch)
+>Mon, 22 Apr 2019 15:18:23 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: суббота, 20 апреля 2019 г. 18:28:28 (MSK), New Files:  Modified Files: rawconf_CHR_6.45beta27.rsc,  Removed Files: (mikrobackups/_autobranch)
 >Sat, 20 Apr 2019 18:28:28 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Git Auto Save, Date: четверг, 18 апреля 2019 г. 21:53:57 (MSK), New Files:  Modified Files: scripts/doStartupScript.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: четверг, 18 апреля 2019 г. 21:53:57 (MSK), New Files:  Modified Files: scripts/doStartupScript.rsc.txt,  Removed Files:
 >Thu, 18 Apr 2019 21:53:57 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
