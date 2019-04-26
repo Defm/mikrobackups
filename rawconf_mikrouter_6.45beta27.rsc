@@ -1,4 +1,4 @@
-# apr/22/2019 15:18:04 by RouterOS 6.45beta27
+# apr/27/2019 01:01:24 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -195,7 +195,7 @@
 /ip dns static add address=192.168.99.170 comment="<AUTO:DHCP:main dhcp>" name=MbpAlx.home ttl=5m
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
 /ip dns static add address=192.168.99.88 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-ELCNKHP.home ttl=5m
-/ip dns static add address=109.252.109.27 name=ftpserver.org
+/ip dns static add address=109.252.109.53 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -253,7 +253,7 @@
 /ip firewall address-list add address=192.168.99.180 list=grafana-service
 /ip firewall address-list add address=172.16.0.17 list=influxdb-server
 /ip firewall address-list add address=192.168.99.180 list=influxdb-service
-/ip firewall address-list add address=109.252.109.27 list=external-ip
+/ip firewall address-list add address=109.252.109.53 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=jump chain=input comment="VPN Access" jump-target=vpn-rules
 /ip firewall filter add action=accept chain=vpn-rules comment="L2TP tunnel" dst-port=1701 log-prefix=#L2TP protocol=udp
@@ -567,6 +567,7 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -590,8 +591,8 @@
 /system logging add action=ParseMemoryLog topics=wireless
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  2d12:09:18 d:h:m:s | CPU: 2%\
-    \nRAM: 49660/131072M | Voltage: 23 v | Temp: 52c\
+    \nUptime:  00:04:18 d:h:m:s | CPU: 39%\
+    \nRAM: 34552/131072M | Voltage: 23 v | Temp: 55c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -613,6 +614,7 @@
 /system scheduler add interval=1d name=doTrackFirmwareUpdates on-event="/system script run doTrackFirmwareUpdates" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=11:30:00
 /system scheduler add interval=1d name=doCreateTrafficAccountingQueues on-event="/system script run doCreateTrafficAccountingQueues" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
+/system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=11:31:24
 /system script add dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -841,7 +843,7 @@
     \n#to record otherwise script will halt unexpectedly\r\
     \n##\r\
     \n \r\
-    \n:if ([/system resource get architecture-name]=\"x86\" or [/system resource get architecture-name]=\"x86_64\") do={\r\
+    \n:if ([/system resource get architecture-name]=\"x86\") do={\r\
     \n  :set logcontenttemp \"Voltage: NIL\"\r\
     \n  :set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
     \n  :set logcontenttemp \"Temp: NIL\"\r\
@@ -1573,9 +1575,10 @@
 /system script add dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time\r\
     \n/ip cloud force-update;\r\
     \n\r\
-    \n:delay 3s;\r\
+    \n:log warning \"Starting script: doStartupScript\";\r\
+    \n:put \"Starting script: doStartupScript\"\r\
     \n\r\
-    \n:local itsOk true;\r\
+    \n:delay 3s;\r\
     \n\r\
     \n/system script run doEnvironmentClearance;\r\
     \n\r\
@@ -1589,26 +1592,11 @@
     \n\r\
     \n:delay 15s;\r\
     \n\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doStartupScript\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n:local rebootEvent \"%D0%9C%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%20%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B6%D0%B5%D0%BD\";\r\
+    \n:global TelegramMessage \"\$rebootEvent\";\r\
     \n\r\
-    \n:global globalNoteMe;\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: router has been rebooted\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
+    \n/system script run doTelegramNotify;\r\
+    \n      \r\
     \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doSuperviseCHRviaSSH owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# This script will set a password and identity on all accesspoints it can connect to\r\
@@ -2495,7 +2483,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doStartupScript, doCoolConcole, doEnvironmentClearance, doCoolConcole\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -2675,6 +2663,104 @@
     \n#don't spam\r\
     \n#:global globalTgMessage;\r\
     \n#\$globalTgMessage value=\$inf;"
+/system script add dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doCPUHighLoadReboot\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n:local state \"\";\r\
+    \n  \r\
+    \n:local UsedCPU [/system resource get cpu-load]\r\
+    \n:local FreeCPU (100 - \$UsedCPU)\r\
+    \n:local FreeRam ((100 * [/system resource get free-memory]) / [/system resource get total-memory])\r\
+    \n:local UsedRam (100 - \$FreeRam)\r\
+    \n\r\
+    \n#available (free) resource (percent), set it to 90 for testing\r\
+    \n:local RamWarnLimit 15;\r\
+    \n:local CpuWarnLimit 15;\r\
+    \n\r\
+    \n:local ticks 7;\r\
+    \n:local delayTime 7;\r\
+    \n:local progressiveDelay true;\r\
+    \n\r\
+    \n:set state (\"Checking for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time\");\r\
+    \n\$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n:set state (\"Step 0: free CPU/RAM \$FreeCPU%/\$FreeRam%, goind deeper..\");\r\
+    \n\$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n:if (\$FreeRam < \$RamWarnLimit or \$FreeCPU < \$CpuWarnLimit) do={\r\
+    \n\r\
+    \n  #this tick is high-HighLoad\r\
+    \n  :set itsOk false;  \r\
+    \n\r\
+    \n  :delay (\$delayTime);\r\
+    \n\r\
+    \n} \r\
+    \n\r\
+    \n:for i from=1 to=\$ticks do={\r\
+    \n\r\
+    \n  :if (!\$itsOk) do={\r\
+    \n\r\
+    \n    :set UsedCPU [/system resource get cpu-load]\r\
+    \n    :set FreeCPU (100 - \$UsedCPU)\r\
+    \n    :set FreeRam ((100 * [/system resource get free-memory]) / [/system resource get total-memory])\r\
+    \n    :set UsedRam (100 - \$FreeRam)\r\
+    \n\r\
+    \n    :set state (\"Recalc stats\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  }\r\
+    \n\r\
+    \n  :if (!\$itsOk and \$FreeRam < \$RamWarnLimit or \$FreeCPU < \$CpuWarnLimit) do={\r\
+    \n\r\
+    \n    #keep \$itsOk = false\r\
+    \n\r\
+    \n    :local delaySec 0;\r\
+    \n    :if (\$progressiveDelay) do={\r\
+    \n      :set delaySec (\$delayTime + \$i)\r\
+    \n    } else={\r\
+    \n      :set delaySec (\$delayTime)\r\
+    \n    }\r\
+    \n\r\
+    \n    :set state (\"Step \$i: free CPU/RAM \$FreeCPU%/\$FreeRam%, its too low, sleep \$delaySec and recheck..\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    :delay (\$delaySec);\r\
+    \n\r\
+    \n  } else={\r\
+    \n\r\
+    \n    #if one step is non-HighLoad, then the whole result is non-HighLoad\r\
+    \n    :set itsOk true;\r\
+    \n\r\
+    \n  }\r\
+    \n\r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: cpu load ok\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Warn When \$scriptname on \$sysname: CPU load too high, I'm going reboot\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n  /system reboot\r\
+    \n  \r\
+    \n}\r\
+    \n\r\
+    \n"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool mac-server set allowed-interface-list=none
