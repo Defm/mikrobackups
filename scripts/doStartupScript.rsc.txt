@@ -1,9 +1,10 @@
 #Force sync time
 /ip cloud force-update;
 
-:delay 3s;
+:log warning "Starting script: doStartupScript";
+:put "Starting script: doStartupScript"
 
-:local itsOk true;
+:delay 3s;
 
 /system script run doEnvironmentClearance;
 
@@ -17,25 +18,10 @@
 
 :delay 15s;
 
-:local sysname [/system identity get name];
-:local scriptname "doStartupScript";
-:global globalScriptBeforeRun;
-$globalScriptBeforeRun $scriptname;
+:local rebootEvent "%D0%9C%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%20%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B6%D0%B5%D0%BD";
+:global TelegramMessage "$rebootEvent";
 
-:global globalNoteMe;
-
-:local inf ""
-:if ($itsOk) do={
-  :set inf "$scriptname on $sysname: router has been rebooted"
-}
-
-:if (!$itsOk) do={
-  :set inf "Error When $scriptname on $sysname: $state"  
-}
-
-$globalNoteMe value=$inf
-
-:global globalTgMessage;
-$globalTgMessage value=$inf;
+/system script run doTelegramNotify;
+      
 
 

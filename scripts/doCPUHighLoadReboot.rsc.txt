@@ -1,0 +1,98 @@
+
+:local sysname [/system identity get name];
+:local scriptname "doCPUHighLoadReboot";
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun $scriptname;
+
+:global globalNoteMe;
+:local itsOk true;
+:local state "";
+  
+:local UsedCPU [/system resource get cpu-load]
+:local FreeCPU (100 - $UsedCPU)
+:local FreeRam ((100 * [/system resource get free-memory]) / [/system resource get total-memory])
+:local UsedRam (100 - $FreeRam)
+
+#available (free) resource (percent), set it to 90 for testing
+:local RamWarnLimit 15;
+:local CpuWarnLimit 15;
+
+:local ticks 7;
+:local delayTime 7;
+:local progressiveDelay true;
+
+:set state ("Checking for free CPU/RAM resources over $ticks times to be more than $CpuWarnLimit%/$RamWarnLimit% each time");
+$globalNoteMe value=$state;
+
+:set state ("Step 0: free CPU/RAM $FreeCPU%/$FreeRam%, goind deeper..");
+$globalNoteMe value=$state;
+
+:if ($FreeRam < $RamWarnLimit or $FreeCPU < $CpuWarnLimit) do={
+
+  #this tick is high-HighLoad
+  :set itsOk false;  
+
+  :delay ($delayTime);
+
+} 
+
+:for i from=1 to=$ticks do={
+
+  :if (!$itsOk) do={
+
+    :set UsedCPU [/system resource get cpu-load]
+    :set FreeCPU (100 - $UsedCPU)
+    :set FreeRam ((100 * [/system resource get free-memory]) / [/system resource get total-memory])
+    :set UsedRam (100 - $FreeRam)
+
+    :set state ("Recalc stats");
+    $globalNoteMe value=$state;
+
+  }
+
+  :if (!$itsOk and $FreeRam < $RamWarnLimit or $FreeCPU < $CpuWarnLimit) do={
+
+    #keep $itsOk = false
+
+    :local delaySec 0;
+    :if ($progressiveDelay) do={
+      :set delaySec ($delayTime + $i)
+    } else={
+      :set delaySec ($delayTime)
+    }
+
+    :set state ("Step $i: free CPU/RAM $FreeCPU%/$FreeRam%, its too low, sleep $delaySec and recheck..");
+    $globalNoteMe value=$state;
+
+    :delay ($delaySec);
+
+  } else={
+
+    #if one step is non-HighLoad, then the whole result is non-HighLoad
+    :set itsOk true;
+
+  }
+
+}
+
+:local inf ""
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: cpu load ok"
+}
+
+:if (!$itsOk) do={
+  :set inf "Warn When $scriptname on $sysname: CPU load too high, I'm going reboot"  
+}
+
+$globalNoteMe value=$inf
+
+:if (!$itsOk) do={
+
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+
+  /system reboot
+  
+}
+
+

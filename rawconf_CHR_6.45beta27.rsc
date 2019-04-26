@@ -1,4 +1,4 @@
-# apr/12/2019 19:57:56 by RouterOS 6.45beta27
+# apr/20/2019 18:28:18 by RouterOS 6.45beta27
 # software id = 
 #
 #
@@ -68,6 +68,7 @@
 /ip dns set cache-max-ttl=1d
 /ip dns static add address=10.0.0.1 name=CHR
 /ip dns static add address=192.168.99.180 name=minialx.home
+/ip dns static add address=192.168.99.1 name=mikrouter.home
 /ip firewall address-list add address=8.8.8.8 list=dns-accept
 /ip firewall address-list add address=192.168.97.0/30 list=mis-network
 /ip firewall address-list add address=rutracker.org list=vpn-sites
@@ -226,10 +227,19 @@
 /system logging add action=AuthDiskLog topics=account
 /system logging add action=CertificatesOnScreenLog topics=certificate
 /system logging add action=AuthDiskLog topics=manager
+/system note set note="You are logged into: CHR\
+    \n############### system health ###############\
+    \nUptime:  1w4d21:54:34 d:h:m:s | CPU: 2%\
+    \nRAM: 62604/1015808M | Voltage: NIL | Temp: NIL\
+    \n############# user auth details #############\
+    \nHotspot online: 0 | PPP online: 1\
+    \n"
 /system ntp client set enabled=yes primary-ntp=195.151.98.66 secondary-ntp=46.254.216.9
 /system package update set channel=testing
 /system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=nov/26/2017 start-time=18:28:18
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=21:40:49
+/system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=08:00:00
+/system scheduler add interval=1w3d name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,read,write,policy,test,password,sensitive source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\
     \n\r\
@@ -443,68 +453,125 @@
     \n\r\
     \n}\r\
     \n"
-/system script add dont-require-permissions=yes name=doCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=""
-/system script add dont-require-permissions=no name=doClientCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n# generates CLIENT IPSEC certs\r\
+/system script add dont-require-permissions=yes name=doCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n# generates IPSEC certs: CA, server, code sign and clients\r\
     \n# i recommend to run it on server side\r\
     \n\r\
-    \n:global CN [/system identity get name]\r\
+    \n#clients\r\
+    \n:local IDs [:toarray \"mikrouter,alx.iphone.rw.2019,glo.iphone.rw.2019,alx.mbp.rw.2019\"];\r\
+    \n\r\
+    \n:local sysname [/system identity get name]\r\
+    \n:local sysver [/system package get system version]\r\
+    \n:local scriptname \"doCertificatesIssuing\"\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
     \n## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
-    \n## :global COUNTRY \"RU\"\r\
-    \n## :global STATE \"MSC\"\r\
-    \n## :global LOC \"Moscow\"\r\
-    \n## :global ORG \"IKEv2 Home\"\r\
-    \n## :global OU \"IKEv2 Mikrotik\"\r\
+    \n## :local COUNTRY \"RU\"\r\
+    \n## :local STATE \"MSC\"\r\
+    \n## :local LOC \"Moscow\"\r\
+    \n## :local ORG \"IKEv2 Home\"\r\
+    \n## :local OU \"IKEv2 Mikrotik\"\r\
     \n\r\
-    \n:global COUNTRY \"\"\r\
-    \n:global STATE \"\"\r\
-    \n:global LOC \"\"\r\
-    \n:global ORG \"\"\r\
-    \n:global OU \"\"\r\
+    \n:local COUNTRY \"\"\r\
+    \n:local STATE \"\"\r\
+    \n:local LOC \"\"\r\
+    \n:local ORG \"\"\r\
+    \n:local OU \"\"\r\
     \n\r\
-    \n:global KEYSIZE \"2048\"\r\
-    \n:global USERNAME \"alx.iphone.rw\"\r\
+    \n:local KEYSIZE \"2048\"\r\
+    \n:local USERNAME \"mikrouter\"\r\
     \n\r\
-    \n:global MaskedServerIP [/ip address get [find where interface=wan] address];\r\
-    \n:global ServerIP ( [:pick \"\$MaskedServerIP\" 0 [:find \"\$MaskedServerIP\" \"/\" -1]] ) ;\r\
+    \n:local MaskedServerIP [/ip address get [find where interface=wan] address];\r\
+    \n:local ServerIP ( [:pick \"\$MaskedServerIP\" 0 [:find \"\$MaskedServerIP\" \"/\" -1]] ) ;\r\
     \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n  \r\
     \n:do {\r\
     \n\r\
-    \n:log info (\"CLIENT certificates generation...\");\r\
-    \n:put \"CLIENT certificates generation...\";\r\
+    \n  :local state \"CA certificates generation...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n## create a client certificate\r\
-    \n/certificate\r\
-    \nadd name=\"client.myvpn.local\" common-name=\"\$USERNAME@\$CN\" subject-alt-name=\"email:\$USERNAME@myvpn.local\" key-usage=tls-client \\\r\
-    \n  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" \\\r\
-    \n  organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n  ## generate a CA certificate\r\
+    \n  /certificate add name=\"ca.myvpn.local\" common-name=\"ca@\$sysname\" subject-alt-name=\"email:ca@myvpn.local\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"   \\\r\
+    \n  ##  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
     \n\r\
-    \n:put \"Signing...\";\r\
-    \n:log info (\"Signing...\");\r\
+    \n  :local state \"Signing...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \nsign \"client.myvpn.local\" ca=\"ca@\$CN\" name=\"\$USERNAME@\$CN\"\r\
+    \n  sign \"ca.myvpn.local\" ca-crl-host=\"\$ServerIP\" name=\"ca@\$sysname\"\r\
     \n\r\
-    \n:delay 6s\r\
+    \n  :delay 6s\r\
     \n\r\
-    \n:put \"Trusting...\";\r\
-    \n:log info (\"Trusting...\");\r\
+    \n  set trusted=yes \"ca@\$sysname\"\r\
     \n\r\
-    \nset trusted=yes \"\$USERNAME@\$CN\"\r\
+    \n  :local state \"SERVER certificates generation...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n:log info (\"Exporting...\");\r\
-    \n:put \"Exporting...\";\r\
+    \n  ## generate a server certificate\r\
+    \n  /certificate add name=\"server.myvpn.local\" common-name=\"\$ServerIP\" subject-alt-name=\"IP:\$ServerIP\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
+    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
     \n\r\
-    \n## export the CA, client certificate, and private key\r\
-    \n/certificate\r\
-    \nexport-certificate \"\$USERNAME@\$CN\" export-passphrase=\"12345678\" type=pkcs12\r\
-    \nexport-certificate \"ca@\$CN\" type=pem\r\
+    \n  :local state \"Signing...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  sign \"server.myvpn.local\" ca=\"ca@\$sysname\" name=\"server@\$sysname\"\r\
+    \n\r\
+    \n  :delay 6s\r\
+    \n\r\
+    \n  set trusted=yes \"server@\$sysname\"\r\
+    \n\r\
+    \n  :local state \"CODE SIGN certificates generation...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  ## generate a code signing (apple IOS profiles) certificate\r\
+    \n  /certificate add name=\"sign.myvpn.local\" common-name=\"sign@\$sysname\" subject-alt-name=\"email:sign@myvpn.local\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
+    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n\r\
+    \n  :local state \"Signing...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  sign \"sign.myvpn.local\" ca=\"ca@\$sysname\" name=\"sign@\$sysname\"\r\
+    \n\r\
+    \n  :delay 6s\r\
+    \n\r\
+    \n  set trusted=yes \"sign@\$sysname\"\r\
+    \n\r\
+    \n  ## export the CA, code sign certificate, and private key\r\
+    \n  /certificate export-certificate \"sign@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
+    \n\r\
+    \n  :foreach USERNAME in=\$IDs do={\r\
+    \n\r\
+    \n    :local state \"CLIENT certificates generation...  \$USERNAME\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    ## create a client certificate\r\
+    \n    /certificate add name=\"client.myvpn.local\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@myvpn.local\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
+    \n    ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n\r\
+    \n    :local state \"Signing...\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    sign \"client.myvpn.local\" ca=\"ca@\$sysname\" name=\"\$USERNAME@\$sysname\"\r\
+    \n\r\
+    \n    :delay 6s\r\
+    \n\r\
+    \n    set trusted=yes \"\$USERNAME@\$sysname\"\r\
+    \n\r\
+    \n    ## export the CA, client certificate, and private key\r\
+    \n    /certificate export-certificate \"\$USERNAME@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
+    \n\r\
+    \n  };\r\
     \n\r\
     \n} on-error={\r\
-    \n  :put \"Certificates generation script FAILED\";\r\
-    \n  :log warning \"Certificates generation script FAILED\";\r\
-    \n};"
+    \n\r\
+    \n  :local state \"Certificates generation script FAILED\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n};\r\
+    \n\r\
+    \n"
 /system script add dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doFreshTheScripts\";\r\
@@ -517,7 +584,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doStartupScript, doCoolConcole, doEnvironmentClearance, doCoolConcole\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -547,7 +614,6 @@
     \n      #Please keep care about consistency if size over 4096 bytes\r\
     \n      :local answer ([ /tool fetch url=\"\$RequestUrl\$\$theScript.rsc.txt\" output=user as-value]);\r\
     \n      :set code ( \$answer->\"data\" );\r\
-    \n      :put \$code;\r\
     \n      \$globalNoteMe value=\"Done\";\r\
     \n\r\
     \n    } on-error= { \r\
@@ -661,6 +727,185 @@
     \n\r\
     \n\r\
     \n"
+/system script add dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doNetwatchHost\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n#NetWatch notifier OnUp/OnDown\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n:local state \"\";\r\
+    \n  \r\
+    \n:global NetwatchHostName;\r\
+    \n\r\
+    \n:set state \"Netwatch for \$NetwatchHostName started...\";\r\
+    \n\$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n:do {\r\
+    \n\r\
+    \n  if ([system resource get uptime] > 00:01:00) do={\r\
+    \n\r\
+    \n   #additional manual check via ping\r\
+    \n   :local checkip [/ping \$NetwatchHostName count=10];\r\
+    \n\r\
+    \n   :if (\$checkip = 10) do={\r\
+    \n\r\
+    \n     :set state \"\$NetwatchHostName is UP\";\r\
+    \n     \$globalNoteMe value=\$state;\r\
+    \n     #success when OnUp\r\
+    \n     :set itsOk true;\r\
+    \n\r\
+    \n   } else {\r\
+    \n\r\
+    \n    :set state \"\$NetwatchHostName is DOWN\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    #success when OnDown\r\
+    \n    :set itsOk true;\r\
+    \n    \r\
+    \n   }\r\
+    \n } else {\r\
+    \n\r\
+    \n  :set state \"The system is just started, wait some time before using netwatch\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n  :set itsOk false;\r\
+    \n\r\
+    \n }\r\
+    \n} on-error= {\r\
+    \n\r\
+    \n  :set state \"Netwatch for \$NetwatchHostName FAILED...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n  :set itsOk false;\r\
+    \n\r\
+    \n};\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: netwatch \$state\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n\r\
+    \n\r\
+    \n"
+/system script add dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time\r\
+    \n/ip cloud force-update;\r\
+    \n\r\
+    \n:delay 3s;\r\
+    \n\r\
+    \n:local itsOk true;\r\
+    \n\r\
+    \n/system script run doEnvironmentClearance;\r\
+    \n\r\
+    \n/system script run doEnvironmentSetup;\r\
+    \n\r\
+    \n/system script run doCoolConcole;\r\
+    \n\r\
+    \n/system script run doImperialMarch;\r\
+    \n\r\
+    \n#wait some for all tunnels to come up after reboot and VPN to work\r\
+    \n\r\
+    \n:delay 15s;\r\
+    \n\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doStartupScript\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: router has been rebooted\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n\r\
+    \n"
+/system script add dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n#clear all global variables\r\
+    \n/system script environment remove [find];\r\
+    \n"
+/system script add dont-require-permissions=yes name=doCoolConcole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \"doCoolConcole\";\r\
+    \n\r\
+    \n:local content\r\
+    \n:local logcontenttemp \"\"\r\
+    \n:local logcontent \"\"\r\
+    \n:local counter\r\
+    \n:local v 0\r\
+    \n \r\
+    \n:set logcontenttemp \"You are logged into: \$[/system identity get name]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
+    \n \r\
+    \n:set logcontenttemp \"############### system health ###############\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
+    \n \r\
+    \n:set logcontenttemp \"Uptime:  \$[/system resource get uptime] d:h:m:s\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n \r\
+    \n:set logcontenttemp \"CPU: \$[/system resource get cpu-load]%\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
+    \n \r\
+    \n:set logcontenttemp \"RAM: \$(([/system resource get total-memory]-[/system resource get free-memory])/1024)/\$([/system resource get total-memory]/1024)M\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n \r\
+    \n##\r\
+    \n#voltage and temp readout not available on x86, check for this before trying\r\
+    \n#to record otherwise script will halt unexpectedly\r\
+    \n##\r\
+    \n \r\
+    \n:if ([/system resource get architecture-name]=\"x86\" or [/system resource get architecture-name]=\"x86_64\") do={\r\
+    \n  :set logcontenttemp \"Voltage: NIL\"\r\
+    \n  :set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n  :set logcontenttemp \"Temp: NIL\"\r\
+    \n  :set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
+    \n} else={\r\
+    \n  :set logcontenttemp \"Voltage: \$[:pick [/system health get voltage] 0 2] v\"\r\
+    \n  :set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n  :set logcontenttemp \"Temp: \$[ /system health get temperature]c\"\r\
+    \n  :set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
+    \n}\r\
+    \n \r\
+    \n:set logcontenttemp \"############# user auth details #############\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
+    \n \r\
+    \n:foreach counter in=[/ip hotspot active find ] do={:set v (\$v + 1)}\r\
+    \n:set logcontenttemp \"Hotspot online: \$v |\"\r\
+    \n:set v 0\r\
+    \n:foreach counter in=[/ppp active find ] do={:set v (\$v + 1)}\r\
+    \n:set logcontenttemp (\"\$logcontenttemp\" . \" PPP online: \$v\")\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
+    \n \r\
+    \n/system note set note=\"\$logcontent\"\r\
+    \n"
+/system script add dont-require-permissions=yes name=doImperialMarch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#test\r\
+    \n\r\
+    \n\r\
+    \n"
 /tool bandwidth-server set authenticate=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 start-tls=yes user=defm.kopcap@gmail.com
+/tool netwatch add down-script=":global NetwatchHostName \"mikrouter.home\";\r\
+    \n/system script run doNetwatchHost;" host=192.168.99.1 up-script=":global NetwatchHostName \"mikrouter.home\";\r\
+    \n/system script run doNetwatchHost;"
 /tool sniffer set filter-port=https streaming-server=192.168.99.170
