@@ -4,7 +4,7 @@ $globalScriptBeforeRun "doInxluxdbServiceOnline";
 
 :do {
 
-  :local result [/tool fetch port=8000 mode=http http-method=get url="http://influxdb/ping" user="grafana" password="grafana"  as-value output=user];
+  :local result [/tool fetch port=8000 mode=http http-method=get url="http://192.168.99.180//ping" user="mikrotik" password="mikrotik"  as-value output=user];
 
   :log info "INFLUXDB: Service OK!";
   :put "INFLUXDB: Service OK!";
