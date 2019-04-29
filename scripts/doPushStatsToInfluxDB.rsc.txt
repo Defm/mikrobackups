@@ -8,11 +8,31 @@ $globalScriptBeforeRun $scriptname;
 
 #influxDB service URL (beware about port when /fetch)
 :local tURL "http://192.168.99.180/write\?db=mikroscripts"
-
+:local tPingURL "http://192.168.99.180/ping"
 :global globalNoteMe;
 :local itsOk true;
 
 :local state "";
+
+:do {
+
+  :set state ("Checking if INFLUXDB Service online");
+  $globalNoteMe value=$state;
+
+  :local result [/tool fetch http-method=get port=8000 user="mikrotik" password="mikrotik" mode=http url="$tPingURL"  as-value output=user];
+ 
+} on-error={
+  
+  :set state ("INFLUXDB: Service Failed!");
+  $globalNoteMe value=$state;
+
+  :local inf "Error When $scriptname on $sysname: $state"  
+
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+
+  :error $inf;
+}
  
 /queue simple
 

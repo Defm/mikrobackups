@@ -1,4 +1,14 @@
-### Git Auto Save, Date: понедельник, 29 апреля 2019 г. 22:21:29 (MSK), New Files:  Modified Files: scripts/doInxluxdbServiceOnline.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: понедельник, 29 апреля 2019 г. 22:21:37 (MSK), New Files:  Modified Files: scripts/doPushStatsToInfluxDB.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+>Mon, 29 Apr 2019 22:21:37 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 29 апреля 2019 г. 22:21:29 (MSK), New Files:  Modified Files: scripts/doInxluxdbServiceOnline.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
 >Mon, 29 Apr 2019 22:21:29 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Git Auto Save, Date: суббота, 27 апреля 2019 г. 01:04:20 (MSK), New Files: scripts/doCPUHighLoadReboot.rsc.txt,  Modified Files:  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: суббота, 27 апреля 2019 г. 01:04:20 (MSK), New Files: scripts/doCPUHighLoadReboot.rsc.txt,  Modified Files:  Removed Files:
 >Sat, 27 Apr 2019 01:04:20 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
