@@ -1,4 +1,4 @@
-# apr/27/2019 01:01:24 by RouterOS 6.45beta27
+# apr/30/2019 00:30:03 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -615,6 +615,7 @@
 /system scheduler add interval=1d name=doCreateTrafficAccountingQueues on-event="/system script run doCreateTrafficAccountingQueues" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=11:31:24
+/system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system script add dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -1859,16 +1860,109 @@
     \n   }\r\
     \n}\r\
     \n# End check for configuration changes}"
-/system script add dont-require-permissions=yes name=doIPSECviaSNMP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# The simple script gives results of 0 or 1 after asking by SNMP (Script checks if phase 2 established with an SA Destination Address)\r\
-    \n# Do not forget to use /32 on single IP\r\
+/system script add dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
+    \n:local scriptname \"doIPSECPunch\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
-    \n:local sadstip 10.0.0.1\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
     \n\r\
-    \nif ([/ip ipsec policy get value-name=ph2-state [find sa-dst-address=\$sadstip]] = \"established\") do={\r\
-    \n    :put 1\r\
-    \n} else= {\r\
-    \n    :put 0\r\
-    \n}"
+    \n:local state \"\";\r\
+    \n\r\
+    \n#IPSEC Policies SA-Dst addresses\r\
+    \n:local vpnEndpoints [:toarray \"10.0.0.1, 185.13.148.14/32\"];\r\
+    \n\r\
+    \n:foreach vpnEndpoint in=\$vpnEndpoints do={\r\
+    \n\r\
+    \n  :local skip false;\r\
+    \n\r\
+    \n  :if ([:len [/ip ipsec policy find sa-dst-address=\$vpnEndpoint]] != 0) do={:nothing}\r\
+    \n\r\
+    \n  :local ph2state \"\"\r\
+    \n\r\
+    \n  :do {\r\
+    \n\r\
+    \n    #tunnel=yes\r\
+    \n    :set ph2state [/ip ipsec policy get value-name=ph2-state [find sa-dst-address=\$vpnEndpoint]]\r\
+    \n\r\
+    \n  } on-error= { \r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n      #tunnel=no\r\
+    \n      :set ph2state [/ip ipsec policy get value-name=ph2-state [find dst-address=\$vpnEndpoint]]\r\
+    \n\r\
+    \n    } on-error= { \r\
+    \n\r\
+    \n      :set state \"Can't locate IPSEC policy for \$vpnEndpoint endpoint. Skip it (do you really have one\?)\"\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n      :set skip true;\r\
+    \n\r\
+    \n    };\r\
+    \n\r\
+    \n  };\r\
+    \n\r\
+    \n  :local typeOfValue [:typeof \$ph2state]\r\
+    \n  :if ((\$itsOk and !\$skip) and (\$typeOfValue = \"nothing\") or (\$typeOfValue = \"nil\")) do={\r\
+    \n\r\
+    \n    :set state \"Got IPSEC policy for \$vpnEndpoint endpoint of wrong type \$typeOfValue. Skip it\"\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    :set skip true;\r\
+    \n\r\
+    \n  } \r\
+    \n\r\
+    \n  if ((\$itsOk and !\$skip) and (\$ph2state != \"established\")) do={\r\
+    \n\r\
+    \n    :set state \"Non-established IPSEC policy found for \$vpnEndpoint endpoint. Going flush..\"\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    :set itsOk false;\r\
+    \n\r\
+    \n  }\r\
+    \n\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :do {\r\
+    \n    :set state (\"Disconnecting IPSEC active peers\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    /ip ipsec active-peers kill-connections;\r\
+    \n\r\
+    \n    :set state (\"Flushing installed SA\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    /ip ipsec installed-sa flush;\r\
+    \n\r\
+    \n    #waiting for tunnel to come up\r\
+    \n    :delay 10;\r\
+    \n\r\
+    \n    :set state (\"IPSEC tunnel got a punch after down\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    \r\
+    \n  } on-error= {\r\
+    \n    :set state \"Error When \$state\"\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    :set itsOk false;\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnel is fine\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  \r\
+    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
+    \n  \r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n"
 /system script add dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doHotspotLoginTrack\";\r\
@@ -1906,25 +2000,6 @@
     \n\r\
     \n/ip firewall address-list add list=\$today address=\"log-in.\$time1.\$user.\$usermac.\$ipuser\"\r\
     \n"
-/system script add dont-require-permissions=yes name=doInxluxdbServiceOnline owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doInxluxdbServiceOnline\";\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \n  :local result [/tool fetch port=8000 mode=http http-method=get url=\"http://influxdb/ping\" user=\"grafana\" password=\"grafana\"  as-value output=user];\r\
-    \n\r\
-    \n  :log info \"INFLUXDB: Service OK!\";\r\
-    \n  :put \"INFLUXDB: Service OK!\";\r\
-    \n\r\
-    \n  :put \$result;\r\
-    \n \r\
-    \n} on-error={\r\
-    \n  \r\
-    \n  :log error \"INFLUXDB: Service Failed!\";\r\
-    \n  :put \"INFLUXDB: Service Failed!\";\r\
-    \n\r\
-    \n}"
 /system script add dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalNoteMe;\r\
     \n\r\
@@ -2563,11 +2638,31 @@
     \n\r\
     \n#influxDB service URL (beware about port when /fetch)\r\
     \n:local tURL \"http://192.168.99.180/write\\\?db=mikroscripts\"\r\
-    \n\r\
+    \n:local tPingURL \"http://192.168.99.180/ping\"\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
     \n\r\
     \n:local state \"\";\r\
+    \n\r\
+    \n:do {\r\
+    \n\r\
+    \n  :set state (\"Checking if INFLUXDB Service online\");\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  :local result [/tool fetch http-method=get port=8000 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tPingURL\"  as-value output=user];\r\
+    \n \r\
+    \n} on-error={\r\
+    \n  \r\
+    \n  :set state (\"INFLUXDB: Service Failed!\");\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  :local inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n  :error \$inf;\r\
+    \n}\r\
     \n \r\
     \n/queue simple\r\
     \n\r\
