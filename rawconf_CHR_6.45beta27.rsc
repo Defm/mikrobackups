@@ -1,4 +1,4 @@
-# apr/20/2019 18:28:18 by RouterOS 6.45beta27
+# apr/30/2019 18:28:18 by RouterOS 6.45beta27
 # software id = 
 #
 #
@@ -229,8 +229,8 @@
 /system logging add action=AuthDiskLog topics=manager
 /system note set note="You are logged into: CHR\
     \n############### system health ###############\
-    \nUptime:  1w4d21:54:34 d:h:m:s | CPU: 2%\
-    \nRAM: 62604/1015808M | Voltage: NIL | Temp: NIL\
+    \nUptime:  2w6d00:00:10 d:h:m:s | CPU: 0%\
+    \nRAM: 65092/1015808M | Voltage: NIL | Temp: NIL\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 1\
     \n"
@@ -584,7 +584,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doStartupScript, doCoolConcole, doEnvironmentClearance, doCoolConcole\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -802,9 +802,10 @@
 /system script add dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time\r\
     \n/ip cloud force-update;\r\
     \n\r\
-    \n:delay 3s;\r\
+    \n:log warning \"Starting script: doStartupScript\";\r\
+    \n:put \"Starting script: doStartupScript\"\r\
     \n\r\
-    \n:local itsOk true;\r\
+    \n:delay 3s;\r\
     \n\r\
     \n/system script run doEnvironmentClearance;\r\
     \n\r\
@@ -818,26 +819,11 @@
     \n\r\
     \n:delay 15s;\r\
     \n\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doStartupScript\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n:local rebootEvent \"%D0%9C%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%20%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B6%D0%B5%D0%BD\";\r\
+    \n:global TelegramMessage \"\$rebootEvent\";\r\
     \n\r\
-    \n:global globalNoteMe;\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: router has been rebooted\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
+    \n/system script run doTelegramNotify;\r\
+    \n      \r\
     \n\r\
     \n\r\
     \n"
@@ -875,7 +861,7 @@
     \n#to record otherwise script will halt unexpectedly\r\
     \n##\r\
     \n \r\
-    \n:if ([/system resource get architecture-name]=\"x86\" or [/system resource get architecture-name]=\"x86_64\") do={\r\
+    \n:if ([/system resource get architecture-name]=\"x86\") do={\r\
     \n  :set logcontenttemp \"Voltage: NIL\"\r\
     \n  :set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
     \n  :set logcontenttemp \"Temp: NIL\"\r\
