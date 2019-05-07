@@ -1,4 +1,4 @@
-# may/02/2019 15:18:03 by RouterOS 6.45beta27
+# may/07/2019 16:53:09 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -1868,99 +1868,88 @@
     \n:local itsOk true;\r\
     \n\r\
     \n:local state \"\";\r\
-    \n\r\
-    \n#IPSEC Policies SA-Dst addresses\r\
-    \n:local vpnEndpoints [:toarray \"10.0.0.1, 185.13.148.14/32\"];\r\
-    \n\r\
-    \n:foreach vpnEndpoint in=\$vpnEndpoints do={\r\
-    \n\r\
-    \n  :local skip false;\r\
-    \n\r\
-    \n  :if ([:len [/ip ipsec policy find sa-dst-address=\$vpnEndpoint]] != 0) do={:nothing}\r\
-    \n\r\
-    \n  :local ph2state \"\"\r\
-    \n\r\
-    \n  :do {\r\
-    \n\r\
-    \n    #tunnel=yes\r\
-    \n    :set ph2state [/ip ipsec policy get value-name=ph2-state [find sa-dst-address=\$vpnEndpoint]]\r\
-    \n\r\
-    \n  } on-error= { \r\
-    \n\r\
-    \n    :do {\r\
-    \n\r\
-    \n      #tunnel=no\r\
-    \n      :set ph2state [/ip ipsec policy get value-name=ph2-state [find dst-address=\$vpnEndpoint]]\r\
-    \n\r\
-    \n    } on-error= { \r\
-    \n\r\
-    \n      :set state \"Can't locate IPSEC policy for \$vpnEndpoint endpoint. Skip it (do you really have one\?)\"\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n      :set skip true;\r\
-    \n\r\
-    \n    };\r\
-    \n\r\
-    \n  };\r\
-    \n\r\
-    \n  :local typeOfValue [:typeof \$ph2state]\r\
-    \n  :if ((\$itsOk and !\$skip) and (\$typeOfValue = \"nothing\") or (\$typeOfValue = \"nil\")) do={\r\
-    \n\r\
-    \n    :set state \"Got IPSEC policy for \$vpnEndpoint endpoint of wrong type \$typeOfValue. Skip it\"\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n    :set skip true;\r\
-    \n\r\
-    \n  } \r\
-    \n\r\
-    \n  if ((\$itsOk and !\$skip) and (\$ph2state != \"established\")) do={\r\
-    \n\r\
-    \n    :set state \"Non-established IPSEC policy found for \$vpnEndpoint endpoint. Going flush..\"\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    :set itsOk false;\r\
-    \n\r\
-    \n  }\r\
-    \n\r\
-    \n}\r\
+    \n:local punched \"\";\r\
     \n\r\
     \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :do {\r\
-    \n    :set state (\"Disconnecting IPSEC active peers\");\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    /ip ipsec active-peers kill-connections;\r\
+    \n/ip ipsec policy {\r\
+    \n  :foreach vpnEndpoint in=[find (!disabled and !template)] do={\r\
     \n\r\
-    \n    :set state (\"Flushing installed SA\");\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    /ip ipsec installed-sa flush;\r\
+    \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\r\
+    \n    :local isTunnel [get value-name=tunnel \$vpnEndpoint]\r\
+    \n    :local dstIp;\r\
     \n\r\
-    \n    #waiting for tunnel to come up\r\
-    \n    :delay 10;\r\
+    \n    :if (\$isTunnel) do={\r\
+    \n      :set dstIp [get value-name=sa-dst-address \$vpnEndpoint]\r\
+    \n    } else {\r\
+    \n      :set dstIp [get value-name=dst-address \$vpnEndpoint]\r\
+    \n    }\r\
     \n\r\
-    \n    :set state (\"IPSEC tunnel got a punch after down\");\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    \r\
-    \n  } on-error= {\r\
-    \n    :set state \"Error When \$state\"\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    :set itsOk false;\r\
+    \n    :if ((\$itsOk) and (\$ph2state != \"established\")) do={\r\
+    \n\r\
+    \n      /ip ipsec active-peers {\r\
+    \n        :foreach actPeer in=[find remote-address=\$dstIp] do={\r\
+    \n\r\
+    \n          :local peerId [get \$actPeer id];\r\
+    \n          :local peer \"\";\r\
+    \n\r\
+    \n          :if ([:typeof \$peerId] != \"nil\") do={\r\
+    \n            :set peer \"\$peerId\"\r\
+    \n          } else {\r\
+    \n            :set peer \"\$dstIp\"\r\
+    \n          }\r\
+    \n\r\
+    \n          :do {\r\
+    \n\r\
+    \n            :set state \"Non-established IPSEC policy found for \$peer endpoint. Going flush..\"\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            [remove \$actPeer];\r\
+    \n\r\
+    \n            :set state (\"IPSEC tunnel got a punch after down for \$dstIp \");\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            #waiting for tunnel to come up, because Telegram notes goes through tunnel\r\
+    \n            :delay 10;\r\
+    \n\r\
+    \n            :set punched (\$punched . \"\$peer\");\r\
+    \n            \r\
+    \n          } on-error= {\r\
+    \n\r\
+    \n            :set state \"Error When \$state\"\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :set itsOk false;\r\
+    \n            \r\
+    \n          }\r\
+    \n        }\r\
+    \n      }\r\
+    \n    }\r\
     \n  }\r\
     \n}\r\
     \n\r\
     \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnel is fine\"\r\
+    \n\r\
+    \n:if ((\$itsOk) and (\$punched = \"\")) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnels are fine\"\r\
     \n}\r\
     \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  \r\
-    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
-    \n  \r\
+    \n:if ((\$itsOk) and (\$punched != \"\")) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnels refreshed for \$punched\"\r\
+    \n\r\
     \n  :global globalTgMessage;\r\
     \n  \$globalTgMessage value=\$inf;\r\
     \n}\r\
     \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
+    \n  \r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n}\r\
+    \n\r\
     \n\$globalNoteMe value=\$inf\r\
+    \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2557,7 +2546,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
