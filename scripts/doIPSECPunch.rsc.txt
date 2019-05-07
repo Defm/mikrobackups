@@ -7,97 +7,86 @@ $globalScriptBeforeRun $scriptname;
 :local itsOk true;
 
 :local state "";
-
-#IPSEC Policies SA-Dst addresses
-:local vpnEndpoints [:toarray "10.0.0.1, 185.13.148.14/32"];
-
-:foreach vpnEndpoint in=$vpnEndpoints do={
-
-  :local skip false;
-
-  :if ([:len [/ip ipsec policy find sa-dst-address=$vpnEndpoint]] != 0) do={:nothing}
-
-  :local ph2state ""
-
-  :do {
-
-    #tunnel=yes
-    :set ph2state [/ip ipsec policy get value-name=ph2-state [find sa-dst-address=$vpnEndpoint]]
-
-  } on-error= { 
-
-    :do {
-
-      #tunnel=no
-      :set ph2state [/ip ipsec policy get value-name=ph2-state [find dst-address=$vpnEndpoint]]
-
-    } on-error= { 
-
-      :set state "Can't locate IPSEC policy for $vpnEndpoint endpoint. Skip it (do you really have one?)"
-      $globalNoteMe value=$state;
-
-      :set skip true;
-
-    };
-
-  };
-
-  :local typeOfValue [:typeof $ph2state]
-  :if (($itsOk and !$skip) and ($typeOfValue = "nothing") or ($typeOfValue = "nil")) do={
-
-    :set state "Got IPSEC policy for $vpnEndpoint endpoint of wrong type $typeOfValue. Skip it"
-    $globalNoteMe value=$state;
-
-    :set skip true;
-
-  } 
-
-  if (($itsOk and !$skip) and ($ph2state != "established")) do={
-
-    :set state "Non-established IPSEC policy found for $vpnEndpoint endpoint. Going flush.."
-    $globalNoteMe value=$state;
-    :set itsOk false;
-
-  }
-
-}
+:local punched "";
 
 
-:if (!$itsOk) do={
-  :do {
-    :set state ("Disconnecting IPSEC active peers");
-    $globalNoteMe value=$state;
-    /ip ipsec active-peers kill-connections;
+/ip ipsec policy {
+  :foreach vpnEndpoint in=[find (!disabled and !template)] do={
 
-    :set state ("Flushing installed SA");
-    $globalNoteMe value=$state;
-    /ip ipsec installed-sa flush;
+    :local ph2state [get value-name=ph2-state $vpnEndpoint]
+    :local isTunnel [get value-name=tunnel $vpnEndpoint]
+    :local dstIp;
 
-    #waiting for tunnel to come up
-    :delay 10;
+    :if ($isTunnel) do={
+      :set dstIp [get value-name=sa-dst-address $vpnEndpoint]
+    } else {
+      :set dstIp [get value-name=dst-address $vpnEndpoint]
+    }
 
-    :set state ("IPSEC tunnel got a punch after down");
-    $globalNoteMe value=$state;
-    
-  } on-error= {
-    :set state "Error When $state"
-    $globalNoteMe value=$state;
-    :set itsOk false;
+    :if (($itsOk) and ($ph2state != "established")) do={
+
+      /ip ipsec active-peers {
+        :foreach actPeer in=[find remote-address=$dstIp] do={
+
+          :local peerId [get $actPeer id];
+          :local peer "";
+
+          :if ([:typeof $peerId] != "nil") do={
+            :set peer "$peerId"
+          } else {
+            :set peer "$dstIp"
+          }
+
+          :do {
+
+            :set state "Non-established IPSEC policy found for $peer endpoint. Going flush.."
+            $globalNoteMe value=$state;
+
+            [remove $actPeer];
+
+            :set state ("IPSEC tunnel got a punch after down for $dstIp ");
+            $globalNoteMe value=$state;
+
+            #waiting for tunnel to come up, because Telegram notes goes through tunnel
+            :delay 10;
+
+            :set punched ($punched . "$peer");
+            
+          } on-error= {
+
+            :set state "Error When $state"
+            $globalNoteMe value=$state;
+
+            :set itsOk false;
+            
+          }
+        }
+      }
+    }
   }
 }
 
 :local inf ""
-:if ($itsOk) do={
-  :set inf "$scriptname on $sysname: IPSEC tunnel is fine"
+
+:if (($itsOk) and ($punched = "")) do={
+  :set inf "$scriptname on $sysname: IPSEC tunnels are fine"
 }
 
-:if (!$itsOk) do={
-  
-  :set inf "$scriptname on $sysname: $state"  
-  
+:if (($itsOk) and ($punched != "")) do={
+  :set inf "$scriptname on $sysname: IPSEC tunnels refreshed for $punched"
+
   :global globalTgMessage;
   $globalTgMessage value=$inf;
 }
 
+:if (!$itsOk) do={
+  :set inf "$scriptname on $sysname: $state"  
+  
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+
+}
+
 $globalNoteMe value=$inf
+
 
