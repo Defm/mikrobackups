@@ -1,4 +1,4 @@
-# may/07/2019 16:53:09 by RouterOS 6.45beta27
+# may/12/2019 15:18:04 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -1368,20 +1368,13 @@
     \n\r\
     \n/system leds settings set all-leds-off=immediate\r\
     \n\r\
-    \n:local LedNightMode \"%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%20%D0%BD%D0%BE%D1%87%D0%BD%D0%BE%D0%B9%20%D1%80%D0%B5%D0%B6%D0%B8%D0%BC%20%D1%81%D0%B2%D0%B5%D1%82%D0%BE%D0%B2%D1%8B%D1%85%20%D0%B8%D0%BD%D0%B4%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80%D0%BE%D0%B2\";\r\
-    \n:global TelegramMessage \"\$LedNightMode\";\r\
-    \n/system script run doTelegramNotify;\r\
-    \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doLEDon owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doLEDon\";\r\
     \n\r\
     \n/system leds settings set all-leds-off=never;\r\
-    \n\r\
-    \n:local LedNightMode \"%D0%94%D0%B5%D0%B0%D0%BA%D1%82%D0%B8%D0%B2%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%20%D0%BD%D0%BE%D1%87%D0%BD%D0%BE%D0%B9%20%D1%80%D0%B5%D0%B6%D0%B8%D0%BC%20%D1%81%D0%B2%D0%B5%D1%82%D0%BE%D0%B2%D1%8B%D1%85%20%D0%B8%D0%BD%D0%B4%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80%D0%BE%D0%B2\";\r\
-    \n:global TelegramMessage \"\$LedNightMode\";\r\
-    \n/system script run doTelegramNotify;"
+    \n"
 /system script add dont-require-permissions=no name=doBumerSound owner=owner policy=read,test source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBumerSound\";\r\
     \n\r\
