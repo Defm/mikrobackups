@@ -1,4 +1,4 @@
-# may/12/2019 15:18:04 by RouterOS 6.45beta27
+# may/14/2019 22:09:14 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -27,9 +27,9 @@
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
 /interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" management-protection=allowed mode=dynamic-keys name=private supplicant-identity=""
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
-/interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" country=russia disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" scan-list=2412,2437,2462 security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" tx-power-mode=all-rates-fixed wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless add default-forwarding=no disabled=no keepalive-frames=disabled mac-address=6E:3B:6B:11:DA:1F master-interface="wlan 2Ghz" multicast-buffering=disabled name="wlan 2Ghz GUEST" security-profile=public ssid="WiFi 2Ghz FREE" wds-cost-range=0 wds-default-cost=0 wps-mode=disabled
-/interface wireless set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-a/n/ac country=russia disabled=no distance=indoors frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" security-profile=private ssid="WiFi 5Ghz PRIVATE" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-a/n/ac channel-width=20/40/80mhz-Ceee country=russia disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" security-profile=private ssid="WiFi 5Ghz PRIVATE" tx-power=25 tx-power-mode=all-rates-fixed wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless nstreme set "wlan 2Ghz" enable-polling=no
 /interface wireless nstreme set "wlan 5Ghz" enable-polling=no
 /ip dhcp-server add authoritative=after-2sec-delay disabled=no interface="main infrastructure" lease-time=1d name="main dhcp"
@@ -253,6 +253,7 @@
 /ip firewall address-list add address=192.168.99.180 list=grafana-service
 /ip firewall address-list add address=172.16.0.17 list=influxdb-server
 /ip firewall address-list add address=192.168.99.180 list=influxdb-service
+/ip firewall address-list add address=auntmia.com list=vpn-tunneled-sites
 /ip firewall address-list add address=109.252.109.53 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=jump chain=input comment="VPN Access" jump-target=vpn-rules
