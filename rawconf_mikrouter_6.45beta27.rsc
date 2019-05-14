@@ -1,4 +1,4 @@
-# may/14/2019 22:09:14 by RouterOS 6.45beta27
+# may/14/2019 23:05:35 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -27,9 +27,9 @@
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
 /interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" management-protection=allowed mode=dynamic-keys name=private supplicant-identity=""
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
-/interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" country=russia disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" scan-list=2412,2437,2462 security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" tx-power-mode=all-rates-fixed wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" country=russia default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" scan-list=2412,2437,2462 security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" tx-power-mode=all-rates-fixed wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless add default-forwarding=no disabled=no keepalive-frames=disabled mac-address=6E:3B:6B:11:DA:1F master-interface="wlan 2Ghz" multicast-buffering=disabled name="wlan 2Ghz GUEST" security-profile=public ssid="WiFi 2Ghz FREE" wds-cost-range=0 wds-default-cost=0 wps-mode=disabled
-/interface wireless set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-a/n/ac channel-width=20/40/80mhz-Ceee country=russia disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" security-profile=private ssid="WiFi 5Ghz PRIVATE" tx-power=25 tx-power-mode=all-rates-fixed wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-a/n/ac channel-width=20/40/80mhz-Ceee country=russia default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" security-profile=private ssid="WiFi 5Ghz PRIVATE" tx-power=25 tx-power-mode=all-rates-fixed wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless nstreme set "wlan 2Ghz" enable-polling=no
 /interface wireless nstreme set "wlan 5Ghz" enable-polling=no
 /ip dhcp-server add authoritative=after-2sec-delay disabled=no interface="main infrastructure" lease-time=1d name="main dhcp"
@@ -135,6 +135,14 @@
 /interface list member add comment="winbox allowed" interface="main infrastructure" list=list-winbox-allowed
 /interface list member add comment="neighbors lookup" interface=tunnel list=list-neighbors-lookup
 /interface list member add interface=wan list=list-drop-invalid-connections
+/interface wireless access-list add comment=ATV interface="wlan 2Ghz" mac-address=B0:34:95:2D:D6:85 vlan-mode=no-tag
+/interface wireless access-list add comment=iPhoneAlx interface="wlan 5Ghz" mac-address=AC:61:EA:EA:CC:84 vlan-mode=no-tag
+/interface wireless access-list add authentication=no comment="Block iPhoneAlx on 2Ghz" interface="wlan 2Ghz" mac-address=AC:61:EA:EA:CC:84 vlan-mode=no-tag
+/interface wireless access-list add comment=iPhoneGl interface="wlan 5Ghz" mac-address=00:CD:FE:EC:B5:52 vlan-mode=no-tag
+/interface wireless access-list add authentication=no comment="Block iPhoneGl on 2Ghz" interface="wlan 2Ghz" mac-address=00:CD:FE:EC:B5:52 vlan-mode=no-tag
+/interface wireless access-list add comment=iPadAlx interface="wlan 2Ghz" mac-address=54:E4:3A:B8:12:07 vlan-mode=no-tag
+/interface wireless access-list add authentication=no comment="Block iPadAlx on 5Ghz" interface="wlan 5Ghz" mac-address=54:E4:3A:B8:12:07 vlan-mode=no-tag
+/interface wireless access-list add comment=MbpAlx interface="wlan 2Ghz" mac-address=78:31:C1:CF:9E:70 vlan-mode=no-tag
 /ip accounting set account-local-traffic=yes enabled=yes threshold=200
 /ip address add address=192.168.99.1/24 comment="local IP" interface="main infrastructure" network=192.168.99.0
 /ip address add address=192.168.98.1/24 comment="local guest wifi" interface="guest infrastructure" network=192.168.98.0
