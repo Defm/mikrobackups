@@ -1,4 +1,4 @@
-# apr/30/2019 18:28:18 by RouterOS 6.45beta27
+# may/10/2019 18:28:18 by RouterOS 6.45beta27
 # software id = 
 #
 #
@@ -240,6 +240,7 @@
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=21:40:49
 /system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=08:00:00
 /system scheduler add interval=1w3d name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/07/2019 start-time=09:00:00
 /system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,read,write,policy,test,password,sensitive source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\
     \n\r\
@@ -584,7 +585,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -886,6 +887,99 @@
     \n/system note set note=\"\$logcontent\"\r\
     \n"
 /system script add dont-require-permissions=yes name=doImperialMarch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#test\r\
+    \n\r\
+    \n\r\
+    \n"
+/system script add dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
+    \n:local scriptname \"doIPSECPunch\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n\r\
+    \n:local state \"\";\r\
+    \n:local punched \"\";\r\
+    \n\r\
+    \n\r\
+    \n/ip ipsec policy {\r\
+    \n  :foreach vpnEndpoint in=[find (!disabled and !template)] do={\r\
+    \n\r\
+    \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\r\
+    \n    :local isTunnel [get value-name=tunnel \$vpnEndpoint]\r\
+    \n    :local dstIp;\r\
+    \n\r\
+    \n    :if (\$isTunnel) do={\r\
+    \n      :set dstIp [get value-name=sa-dst-address \$vpnEndpoint]\r\
+    \n    } else {\r\
+    \n      :set dstIp [get value-name=dst-address \$vpnEndpoint]\r\
+    \n    }\r\
+    \n\r\
+    \n    :if ((\$itsOk) and (\$ph2state != \"established\")) do={\r\
+    \n\r\
+    \n      /ip ipsec active-peers {\r\
+    \n        :foreach actPeer in=[find remote-address=\$dstIp] do={\r\
+    \n\r\
+    \n          :local peerId [get \$actPeer id];\r\
+    \n          :local peer \"\";\r\
+    \n\r\
+    \n          :if ([:typeof \$peerId] != \"nil\") do={\r\
+    \n            :set peer \"\$peerId\"\r\
+    \n          } else {\r\
+    \n            :set peer \"\$dstIp\"\r\
+    \n          }\r\
+    \n\r\
+    \n          :do {\r\
+    \n\r\
+    \n            :set state \"Non-established IPSEC policy found for \$peer endpoint. Going flush..\"\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            [remove \$actPeer];\r\
+    \n\r\
+    \n            :set state (\"IPSEC tunnel got a punch after down for \$dstIp \");\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            #waiting for tunnel to come up, because Telegram notes goes through tunnel\r\
+    \n            :delay 10;\r\
+    \n\r\
+    \n            :set punched (\$punched . \"\$peer\");\r\
+    \n            \r\
+    \n          } on-error= {\r\
+    \n\r\
+    \n            :set state \"Error When \$state\"\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :set itsOk false;\r\
+    \n            \r\
+    \n          }\r\
+    \n        }\r\
+    \n      }\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n\r\
+    \n:if ((\$itsOk) and (\$punched = \"\")) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnels are fine\"\r\
+    \n}\r\
+    \n\r\
+    \n:if ((\$itsOk) and (\$punched != \"\")) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnels refreshed for \$punched\"\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
+    \n  \r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
     \n\r\
     \n\r\
     \n"

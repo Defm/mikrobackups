@@ -1,4 +1,4 @@
-# may/07/2019 16:53:09 by RouterOS 6.45beta27
+# may/19/2019 01:02:03 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -27,9 +27,9 @@
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
 /interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" management-protection=allowed mode=dynamic-keys name=private supplicant-identity=""
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
-/interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" country=russia default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" scan-list=2412,2437,2462 security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" tx-power-mode=all-rates-fixed wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless add default-forwarding=no disabled=no keepalive-frames=disabled mac-address=6E:3B:6B:11:DA:1F master-interface="wlan 2Ghz" multicast-buffering=disabled name="wlan 2Ghz GUEST" security-profile=public ssid="WiFi 2Ghz FREE" wds-cost-range=0 wds-default-cost=0 wps-mode=disabled
-/interface wireless set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-a/n/ac country=russia disabled=no distance=indoors frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" security-profile=private ssid="WiFi 5Ghz PRIVATE" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-a/n/ac channel-width=20/40/80mhz-Ceee country=russia default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" security-profile=private ssid="WiFi 5Ghz PRIVATE" tx-power=25 tx-power-mode=all-rates-fixed wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless nstreme set "wlan 2Ghz" enable-polling=no
 /interface wireless nstreme set "wlan 5Ghz" enable-polling=no
 /ip dhcp-server add authoritative=after-2sec-delay disabled=no interface="main infrastructure" lease-time=1d name="main dhcp"
@@ -99,7 +99,7 @@
 /snmp community set [ find default=yes ] addresses=192.168.99.180/32,192.168.99.170/32 authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 name=public
 /system logging action add name=IpsecOnScreenLog target=memory
-/system logging action add disk-file-count=10 disk-file-name=flash/ScriptsDiskLog disk-lines-per-file=60000 name=ScriptsDiskLog target=disk
+/system logging action add disk-file-count=10 disk-file-name=flash/ScriptsDiskLog name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=flash/ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
 /system logging action add memory-lines=500 name=OnScreenLog target=memory
@@ -108,7 +108,7 @@
 /system logging action add name=RouterControlLog target=memory
 /system logging action add name=OSPFOnscreenLog target=memory
 /system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-count=20 disk-file-name=flash/AuthDiskLog disk-lines-per-file=60000 name=AuthDiskLog target=disk
+/system logging action add disk-file-count=20 disk-file-name=flash/AuthDiskLog name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
@@ -135,6 +135,14 @@
 /interface list member add comment="winbox allowed" interface="main infrastructure" list=list-winbox-allowed
 /interface list member add comment="neighbors lookup" interface=tunnel list=list-neighbors-lookup
 /interface list member add interface=wan list=list-drop-invalid-connections
+/interface wireless access-list add comment=ATV interface="wlan 2Ghz" mac-address=B0:34:95:2D:D6:85 vlan-mode=no-tag
+/interface wireless access-list add comment=iPhoneAlx interface="wlan 5Ghz" mac-address=AC:61:EA:EA:CC:84 vlan-mode=no-tag
+/interface wireless access-list add authentication=no comment="Block iPhoneAlx on 2Ghz" interface="wlan 2Ghz" mac-address=AC:61:EA:EA:CC:84 vlan-mode=no-tag
+/interface wireless access-list add comment=iPhoneGl interface="wlan 5Ghz" mac-address=00:CD:FE:EC:B5:52 vlan-mode=no-tag
+/interface wireless access-list add authentication=no comment="Block iPhoneGl on 2Ghz" interface="wlan 2Ghz" mac-address=00:CD:FE:EC:B5:52 vlan-mode=no-tag
+/interface wireless access-list add comment=iPadAlx interface="wlan 2Ghz" mac-address=54:E4:3A:B8:12:07 vlan-mode=no-tag
+/interface wireless access-list add authentication=no comment="Block iPadAlx on 5Ghz" interface="wlan 5Ghz" mac-address=54:E4:3A:B8:12:07 vlan-mode=no-tag
+/interface wireless access-list add comment=MbpAlx interface="wlan 2Ghz" mac-address=78:31:C1:CF:9E:70 vlan-mode=no-tag
 /ip accounting set account-local-traffic=yes enabled=yes threshold=200
 /ip address add address=192.168.99.1/24 comment="local IP" interface="main infrastructure" network=192.168.99.0
 /ip address add address=192.168.98.1/24 comment="local guest wifi" interface="guest infrastructure" network=192.168.98.0
@@ -253,6 +261,7 @@
 /ip firewall address-list add address=192.168.99.180 list=grafana-service
 /ip firewall address-list add address=172.16.0.17 list=influxdb-server
 /ip firewall address-list add address=192.168.99.180 list=influxdb-service
+/ip firewall address-list add address=auntmia.com list=vpn-tunneled-sites
 /ip firewall address-list add address=109.252.109.53 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=jump chain=input comment="VPN Access" jump-target=vpn-rules
@@ -567,6 +576,7 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -1368,20 +1378,13 @@
     \n\r\
     \n/system leds settings set all-leds-off=immediate\r\
     \n\r\
-    \n:local LedNightMode \"%D0%90%D0%BA%D1%82%D0%B8%D0%B2%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%20%D0%BD%D0%BE%D1%87%D0%BD%D0%BE%D0%B9%20%D1%80%D0%B5%D0%B6%D0%B8%D0%BC%20%D1%81%D0%B2%D0%B5%D1%82%D0%BE%D0%B2%D1%8B%D1%85%20%D0%B8%D0%BD%D0%B4%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80%D0%BE%D0%B2\";\r\
-    \n:global TelegramMessage \"\$LedNightMode\";\r\
-    \n/system script run doTelegramNotify;\r\
-    \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doLEDon owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doLEDon\";\r\
     \n\r\
     \n/system leds settings set all-leds-off=never;\r\
-    \n\r\
-    \n:local LedNightMode \"%D0%94%D0%B5%D0%B0%D0%BA%D1%82%D0%B8%D0%B2%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%20%D0%BD%D0%BE%D1%87%D0%BD%D0%BE%D0%B9%20%D1%80%D0%B5%D0%B6%D0%B8%D0%BC%20%D1%81%D0%B2%D0%B5%D1%82%D0%BE%D0%B2%D1%8B%D1%85%20%D0%B8%D0%BD%D0%B4%D0%B8%D0%BA%D0%B0%D1%82%D0%BE%D1%80%D0%BE%D0%B2\";\r\
-    \n:global TelegramMessage \"\$LedNightMode\";\r\
-    \n/system script run doTelegramNotify;"
+    \n"
 /system script add dont-require-permissions=no name=doBumerSound owner=owner policy=read,test source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBumerSound\";\r\
     \n\r\

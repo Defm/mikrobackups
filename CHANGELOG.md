@@ -1,4 +1,64 @@
-### Git Auto Save, Date: вторник,  7 мая 2019 г. 16:57:50 (MSK), New Files:  Modified Files: scripts/doFreshTheScripts.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: воскресенье, 19 мая 2019 г. 01:02:20 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta27.rsc,  Removed Files: (HEAD -> _autobranch)
+>Sun, 19 May 2019 01:02:20 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: вторник, 14 мая 2019 г. 23:06:05 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta27.rsc,  Removed Files: (mikrobackups/_autobranch)
+>Tue, 14 May 2019 23:06:05 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: вторник, 14 мая 2019 г. 22:09:37 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta27.rsc,  Removed Files:
+>Tue, 14 May 2019 22:09:37 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: воскресенье, 12 мая 2019 г. 15:18:27 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta27.rsc,  Removed Files:
+>Sun, 12 May 2019 15:18:27 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: пятница, 10 мая 2019 г. 18:28:28 (MSK), New Files:  Modified Files: rawconf_CHR_6.45beta27.rsc,  Removed Files:
+>Fri, 10 May 2019 18:28:28 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: вторник,  7 мая 2019 г. 17:31:52 (MSK), New Files:  Modified Files: rawconf_CHR_6.45beta27.rsc,  Removed Files:
+>Tue, 7 May 2019 17:31:52 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: вторник,  7 мая 2019 г. 16:57:50 (MSK), New Files:  Modified Files: scripts/doFreshTheScripts.rsc.txt,  Removed Files:
 >Tue, 7 May 2019 16:57:50 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +68,7 @@
 
 
 
-### Git Auto Save, Date: вторник,  7 мая 2019 г. 16:57:41 (MSK), New Files:  Modified Files: scripts/doIPSECPunch.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: вторник,  7 мая 2019 г. 16:57:41 (MSK), New Files:  Modified Files: scripts/doIPSECPunch.rsc.txt,  Removed Files:
 >Tue, 7 May 2019 16:57:41 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
