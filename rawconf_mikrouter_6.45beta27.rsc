@@ -1,4 +1,4 @@
-# may/14/2019 23:05:35 by RouterOS 6.45beta27
+# may/19/2019 01:02:03 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -99,7 +99,7 @@
 /snmp community set [ find default=yes ] addresses=192.168.99.180/32,192.168.99.170/32 authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 name=public
 /system logging action add name=IpsecOnScreenLog target=memory
-/system logging action add disk-file-count=10 disk-file-name=flash/ScriptsDiskLog disk-lines-per-file=60000 name=ScriptsDiskLog target=disk
+/system logging action add disk-file-count=10 disk-file-name=flash/ScriptsDiskLog name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=flash/ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
 /system logging action add memory-lines=500 name=OnScreenLog target=memory
@@ -108,7 +108,7 @@
 /system logging action add name=RouterControlLog target=memory
 /system logging action add name=OSPFOnscreenLog target=memory
 /system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-count=20 disk-file-name=flash/AuthDiskLog disk-lines-per-file=60000 name=AuthDiskLog target=disk
+/system logging action add disk-file-count=20 disk-file-name=flash/AuthDiskLog name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
@@ -576,6 +576,7 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
