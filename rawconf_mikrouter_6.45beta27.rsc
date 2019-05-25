@@ -1,4 +1,4 @@
-# may/19/2019 01:02:03 by RouterOS 6.45beta27
+# may/25/2019 16:35:12 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -25,7 +25,7 @@
 /interface list add comment="WAN interfaces" name=treated-as-WAN
 /interface list add comment="Internet interfaces" name=treated-as-INTERNET
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
-/interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" management-protection=allowed mode=dynamic-keys name=private supplicant-identity=""
+/interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" management-protection=allowed mode=dynamic-keys name=private supplicant-identity="" wpa-pre-shared-key=mikrotik wpa2-pre-shared-key=mikrotik
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
 /interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" country=russia default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" scan-list=2412,2437,2462 security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" tx-power-mode=all-rates-fixed wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless add default-forwarding=no disabled=no keepalive-frames=disabled mac-address=6E:3B:6B:11:DA:1F master-interface="wlan 2Ghz" multicast-buffering=disabled name="wlan 2Ghz GUEST" security-profile=public ssid="WiFi 2Ghz FREE" wds-cost-range=0 wds-default-cost=0 wps-mode=disabled
@@ -69,7 +69,7 @@
     \n\r\
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name="guest dhcp"
 /ppp profile add address-list=l2tp-active-clients interface-list=list-2tp-dynamic-tun local-address=10.0.0.2 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
-/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-mic
+/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-mic
 /queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
 /queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
 /queue simple add comment=dtq,B0:34:95:2D:D6:85,ATV max-limit=10M/10M name="ATV@main dhcp (B0:34:95:2D:D6:85)" target=192.168.99.190/32
@@ -113,7 +113,6 @@
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
-/certificate scep-server add days-valid=365 path=/scep/sign
 /certificate settings set crl-download=no crl-store=system crl-use=no
 /interface bridge filter add action=drop chain=forward comment="drop all dhcp requests over bridge" dst-port=67 ip-protocol=udp mac-protocol=ip
 /interface bridge port add bridge="main infrastructure" interface="lan D (master)"
@@ -540,8 +539,8 @@
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
-/ip ipsec identity add peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore
 /ip ipsec identity add auth-method=digital-signature certificate=mikrouter@CHR peer=CHR-external policy-template-group=outside-ipsec-encryption remote-id=ignore
+/ip ipsec identity add peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
 /ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/30 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" sa-dst-address=10.0.0.1 sa-src-address=10.0.0.2 src-address=192.168.99.0/24 tunnel=yes
@@ -576,7 +575,6 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -600,8 +598,8 @@
 /system logging add action=ParseMemoryLog topics=wireless
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:04:18 d:h:m:s | CPU: 39%\
-    \nRAM: 34552/131072M | Voltage: 23 v | Temp: 55c\
+    \nUptime:  00:00:22 d:h:m:s | CPU: 100%\
+    \nRAM: 31112/131072M | Voltage: 23 v | Temp: 47c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -2257,8 +2255,9 @@
     \n\r\
     \n:if (\$saveRawExport and \$itsOk) do={\r\
     \n  :if (\$FTPGitEnable ) do={\r\
-    \n     :if (\$verboseRawExport = true) do={ /export terse hide-sensitive verbose file=(\$fname.\".safe.rsc\") }\r\
-    \n     :if (\$verboseRawExport = false) do={ /export terse hide-sensitive  file=(\$fname.\".safe.rsc\") }\r\
+    \n     #do not apply hide-sensitive flag\r\
+    \n     :if (\$verboseRawExport = true) do={ /export terse verbose file=(\$fname.\".safe.rsc\") }\r\
+    \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\
     \n  }\r\
     \n  \$noteMe value=\"Raw configuration script export Finished\"\r\
     \n}\r\
@@ -2848,7 +2847,7 @@
     \n\r\
     \n"
 /tool bandwidth-server set enabled=no
-/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 start-tls=yes user=defm.kopcap@gmail.com
+/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool mac-server set allowed-interface-list=none
 /tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
 /tool netwatch add comment="miniAlx status check" down-script=":global NetwatchHostName \"miniAlx\";\r\
