@@ -1,4 +1,14 @@
-### Git Auto Save, Date: суббота, 25 мая 2019 г. 16:51:29 (MSK), New Files:  Modified Files: scripts/doLEDoff.rsc.txt, scripts/doLEDon.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: суббота, 25 мая 2019 г. 16:51:38 (MSK), New Files:  Modified Files: scripts/doDHCPLeaseTrack.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+>Sat, 25 May 2019 16:51:38 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: суббота, 25 мая 2019 г. 16:51:29 (MSK), New Files:  Modified Files: scripts/doLEDoff.rsc.txt, scripts/doLEDon.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
 >Sat, 25 May 2019 16:51:29 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Git Auto Save, Date: суббота, 25 мая 2019 г. 16:35:45 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta27.rsc,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: суббота, 25 мая 2019 г. 16:35:45 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta27.rsc,  Removed Files:
 >Sat, 25 May 2019 16:35:45 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
