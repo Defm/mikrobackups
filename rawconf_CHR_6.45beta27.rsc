@@ -1,4 +1,4 @@
-# may/20/2019 18:28:18 by RouterOS 6.45beta27
+# may/30/2019 18:28:18 by RouterOS 6.45beta27
 # software id = 
 #
 #
@@ -56,7 +56,7 @@
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=neighbors
 /ip settings set accept-source-route=yes allow-fast-path=no rp-filter=loose
-/interface l2tp-server server set authentication=mschap2 default-profile=l2tp-no-encrypt-site2site enabled=yes max-mru=1418 max-mtu=1418
+/interface l2tp-server server set authentication=mschap2 default-profile=l2tp-no-encrypt-site2site enabled=yes ipsec-secret=123 max-mru=1418 max-mtu=1418
 /interface list member add comment="neighbors lookup" interface=tunnel list=neighbors
 /interface list member add comment="neighbors lookup" interface="main infrastructure" list=neighbors
 /ip accounting set enabled=yes
@@ -177,10 +177,10 @@
 /ip firewall service-port set udplite disabled=yes
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
-/ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=MIC-INNER policy-template-group=inside-ipsec-encryption
+/ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=MIC-INNER policy-template-group=inside-ipsec-encryption secret=123
 /ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=alx.iphone.rw.2019@CHR remote-id=fqdn:alx.iphone.rw.2019@CHR
 /ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=glo.iphone.rw.2019@CHR remote-id=fqdn:glo.iphone.rw.2019@CHR
-/ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=WIN policy-template-group=inside-ipsec-encryption
+/ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=WIN policy-template-group=inside-ipsec-encryption secret=123
 /ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override mode-config=common-setup peer=MIC-OUTER policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
 /ip ipsec policy set 0 disabled=yes
 /ip ipsec policy add comment="Roadwarrior IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption)" dst-address=10.10.10.8/29 group=roadwarrior-ipsec proposal="IPSEC IKEv2 VPN PHASE2 IOS/OSX" src-address=0.0.0.0/0 template=yes
@@ -298,8 +298,9 @@
     \n\r\
     \n:if (\$saveRawExport and \$itsOk) do={\r\
     \n  :if (\$FTPGitEnable ) do={\r\
-    \n     :if (\$verboseRawExport = true) do={ /export terse hide-sensitive verbose file=(\$fname.\".safe.rsc\") }\r\
-    \n     :if (\$verboseRawExport = false) do={ /export terse hide-sensitive  file=(\$fname.\".safe.rsc\") }\r\
+    \n     #do not apply hide-sensitive flag\r\
+    \n     :if (\$verboseRawExport = true) do={ /export terse verbose file=(\$fname.\".safe.rsc\") }\r\
+    \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\
     \n  }\r\
     \n  \$noteMe value=\"Raw configuration script export Finished\"\r\
     \n}\r\
@@ -984,7 +985,7 @@
     \n\r\
     \n"
 /tool bandwidth-server set authenticate=no
-/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 start-tls=yes user=defm.kopcap@gmail.com
+/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool netwatch add down-script=":global NetwatchHostName \"mikrouter.home\";\r\
     \n/system script run doNetwatchHost;" host=192.168.99.1 up-script=":global NetwatchHostName \"mikrouter.home\";\r\
     \n/system script run doNetwatchHost;"
