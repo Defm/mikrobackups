@@ -1,4 +1,4 @@
-# may/25/2019 16:35:12 by RouterOS 6.45beta27
+# jun/15/2019 19:29:47 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -10,7 +10,7 @@
 /interface ethernet set [ find default-name=ether4 ] name="lan A" speed=100Mbps
 /interface ethernet set [ find default-name=ether2 ] name="lan B" speed=100Mbps
 /interface ethernet set [ find default-name=ether3 ] name="lan C" speed=100Mbps
-/interface ethernet set [ find default-name=ether5 ] name="lan D (master)" poe-out=off speed=100Mbps
+/interface ethernet set [ find default-name=ether5 ] name="lan D (master)" speed=100Mbps
 /interface ethernet set [ find default-name=sfp1 ] advertise=10M-half,10M-full,100M-half,100M-full,1000M-half,1000M-full disabled=yes name=optic
 /interface ethernet set [ find default-name=ether1 ] arp=proxy-arp name=wan speed=100Mbps
 /interface list add comment="Trusted networks" name=list-trusted
@@ -27,9 +27,9 @@
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
 /interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" management-protection=allowed mode=dynamic-keys name=private supplicant-identity="" wpa-pre-shared-key=mikrotik wpa2-pre-shared-key=mikrotik
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
-/interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" country=russia default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" scan-list=2412,2437,2462 security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" tx-power-mode=all-rates-fixed wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless add default-forwarding=no disabled=no keepalive-frames=disabled mac-address=6E:3B:6B:11:DA:1F master-interface="wlan 2Ghz" multicast-buffering=disabled name="wlan 2Ghz GUEST" security-profile=public ssid="WiFi 2Ghz FREE" wds-cost-range=0 wds-default-cost=0 wps-mode=disabled
-/interface wireless set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-a/n/ac channel-width=20/40/80mhz-Ceee country=russia default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" security-profile=private ssid="WiFi 5Ghz PRIVATE" tx-power=25 tx-power-mode=all-rates-fixed wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-a/n/ac channel-width=20/40/80mhz-Ceee country=russia default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" security-profile=private ssid="WiFi 5Ghz PRIVATE" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless nstreme set "wlan 2Ghz" enable-polling=no
 /interface wireless nstreme set "wlan 5Ghz" enable-polling=no
 /ip dhcp-server add authoritative=after-2sec-delay disabled=no interface="main infrastructure" lease-time=1d name="main dhcp"
@@ -73,18 +73,18 @@
 /queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
 /queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
 /queue simple add comment=dtq,B0:34:95:2D:D6:85,ATV max-limit=10M/10M name="ATV@main dhcp (B0:34:95:2D:D6:85)" target=192.168.99.190/32
-/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
+/queue simple add comment=dtq,78:31:C1:CF:9E:70, max-limit=10M/10M name="@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
 /queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
 /queue simple add comment=dtq,08:00:27:17:3A:80, max-limit=10M/10M name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
 /queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl max-limit=10M/10M name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
-/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl max-limit=10M/10M name="iPhoneGl@guest dhcp (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
+/queue simple add comment=dtq,00:CD:FE:EC:B5:52, max-limit=10M/10M name="@guest dhcp (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
 /queue simple add comment=dtq,98:22:EF:26:FE:6E,DESKTOP-UPPUU22 max-limit=10M/10M name="DESKTOP-UPPUU22@main dhcp (98:22:EF:26:FE:6E)" target=192.168.99.70/32
 /queue simple add comment=dtq,98:22:EF:26:FE:6E, max-limit=10M/10M name="asusGl@guest dhcp (98:22:EF:26:FE:6E)" target=192.168.98.210/32
-/queue simple add comment=dtq,88:53:95:30:68:9F,miniAlx max-limit=10M/10M name="miniAlx@guest dhcp (88:53:95:30:68:9F)" target=192.168.98.228/32
-/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx@guest dhcp (AC:61:EA:EA:CC:84)" target=192.168.98.225/32
+/queue simple add comment=dtq,88:53:95:30:68:9F, max-limit=10M/10M name="@guest dhcp (88:53:95:30:68:9F)" target=192.168.98.228/32
+/queue simple add comment=dtq,AC:61:EA:EA:CC:84, max-limit=10M/10M name="@guest dhcp (AC:61:EA:EA:CC:84)" target=192.168.98.225/32
 /queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" target=192.168.98.224/32
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
-/queue simple add comment=dtq,94:C6:91:94:98:DC,DESKTOP-ELCNKHP max-limit=10M/10M name="DESKTOP-ELCNKHP@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
+/queue simple add comment=dtq,94:C6:91:94:98:DC, max-limit=10M/10M name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -142,6 +142,7 @@
 /interface wireless access-list add comment=iPadAlx interface="wlan 2Ghz" mac-address=54:E4:3A:B8:12:07 vlan-mode=no-tag
 /interface wireless access-list add authentication=no comment="Block iPadAlx on 5Ghz" interface="wlan 5Ghz" mac-address=54:E4:3A:B8:12:07 vlan-mode=no-tag
 /interface wireless access-list add comment=MbpAlx interface="wlan 2Ghz" mac-address=78:31:C1:CF:9E:70 vlan-mode=no-tag
+/interface wireless access-list add comment=asusGl interface="wlan 2Ghz" mac-address=98:22:EF:26:FE:6E vlan-mode=no-tag
 /ip accounting set account-local-traffic=yes enabled=yes threshold=200
 /ip address add address=192.168.99.1/24 comment="local IP" interface="main infrastructure" network=192.168.99.0
 /ip address add address=192.168.98.1/24 comment="local guest wifi" interface="guest infrastructure" network=192.168.98.0
@@ -175,7 +176,7 @@
 /ip dhcp-server lease add address=192.168.98.210 block-access=yes client-id=1:98:22:ef:26:fe:6e comment=asusGl mac-address=98:22:EF:26:FE:6E server="guest dhcp"
 /ip dhcp-server lease add address=192.168.98.228 block-access=yes client-id=1:88:53:95:30:68:9f mac-address=88:53:95:30:68:9F server="guest dhcp"
 /ip dhcp-server lease add address=192.168.98.225 block-access=yes client-id=1:ac:61:ea:ea:cc:84 mac-address=AC:61:EA:EA:CC:84 server="guest dhcp"
-/ip dhcp-server lease add address=192.168.98.224 block-access=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="guest dhcp"
+/ip dhcp-server lease add address=192.168.98.224 client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.180 address-lists=osx-hosts always-broadcast=yes mac-address=10:DD:B1:9E:19:5E server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.88 mac-address=94:C6:91:94:98:DC server="main dhcp"
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
@@ -195,14 +196,13 @@
 /ip dns static add address=192.168.97.1 name=chr.home
 /ip dns static add address=192.168.100.1 name=gateway.home
 /ip dns static add address=192.168.99.190 comment="<AUTO:DHCP:main dhcp>" name=ATV.home ttl=5m
-/ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-UPPUU22.home ttl=5m
 /ip dns static add address=192.168.99.140 comment="<AUTO:DHCP:main dhcp>" name=iPadAlx.home ttl=5m
-/ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
-/ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
 /ip dns static add address=192.168.99.170 comment="<AUTO:DHCP:main dhcp>" name=MbpAlx.home ttl=5m
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
-/ip dns static add address=192.168.99.88 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-ELCNKHP.home ttl=5m
-/ip dns static add address=109.252.109.53 name=ftpserver.org
+/ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
+/ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
+/ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-UPPUU22.home ttl=5m
+/ip dns static add address=109.252.109.17 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -261,7 +261,8 @@
 /ip firewall address-list add address=172.16.0.17 list=influxdb-server
 /ip firewall address-list add address=192.168.99.180 list=influxdb-service
 /ip firewall address-list add address=auntmia.com list=vpn-tunneled-sites
-/ip firewall address-list add address=109.252.109.53 list=external-ip
+/ip firewall address-list add address=clubseventeen.com list=vpn-tunneled-sites
+/ip firewall address-list add address=109.252.109.17 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=jump chain=input comment="VPN Access" jump-target=vpn-rules
 /ip firewall filter add action=accept chain=vpn-rules comment="L2TP tunnel" dst-port=1701 log-prefix=#L2TP protocol=udp
@@ -598,8 +599,8 @@
 /system logging add action=ParseMemoryLog topics=wireless
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:22 d:h:m:s | CPU: 100%\
-    \nRAM: 31112/131072M | Voltage: 23 v | Temp: 47c\
+    \nUptime:  00:00:23 d:h:m:s | CPU: 100%\
+    \nRAM: 30460/131072M | Voltage: 23 v | Temp: 32c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -609,11 +610,11 @@
 /system scheduler add interval=1h name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=read,write,policy,password start-date=jan/30/2017 start-time=18:57:09
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=read,write start-date=feb/21/2017 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/21/2017 start-time=19:19:59
-/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=mar/01/2018 start-time=15:54:04
-/system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=15:17:58
-/system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/10/2018 start-time=15:06:29
-/system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=14:41:22
-/system scheduler add interval=1h name=doCheckPingRate on-event="/system script run doCheckPingRate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=14:41:22
+/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=mar/01/2018 start-time=15:55:00
+/system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
+/system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/10/2018 start-time=15:10:00
+/system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=03:25:00
+/system scheduler add interval=1h name=doCheckPingRate on-event="/system script run doCheckPingRate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=02:40:00
 /system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=23:30:00
 /system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=07:00:00
 /system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=11:31:24
@@ -621,7 +622,7 @@
 /system scheduler add interval=1d name=doTrackFirmwareUpdates on-event="/system script run doTrackFirmwareUpdates" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=11:30:00
 /system scheduler add interval=1d name=doCreateTrafficAccountingQueues on-event="/system script run doCreateTrafficAccountingQueues" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
-/system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=11:31:24
+/system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=06:05:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system script add dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2845,6 +2846,81 @@
     \n  \r\
     \n}\r\
     \n\r\
+    \n"
+/system script add dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n\r\
+    \n{\r\
+    \n\r\
+    \n:global targetfile \"flash/backup.rsc\"\r\
+    \n:global importlog \"flash/import.log\"\r\
+    \n:global debuglog \"flash/perfectrestore.log\"\r\
+    \n\r\
+    \n/file remove [find name ~\"\$importlog\"]\r\
+    \n/file remove [find name ~\"\$debuglog\"]\r\
+    \n\r\
+    \n# Wait for interfaces to initialize\r\
+    \n:delay 15s\r\
+    \n\r\
+    \n# Beep Functions\r\
+    \n :local doStartBeep [:parse \":beep frequency=1000 length=300ms;:delay 150ms;:beep frequency=1500 length=300ms;\"];\r\
+    \n :local doFinishBeep [:parse \":beep frequency=1000 length=.6;:delay .5s;:beep frequency=1600 length=.6;:delay .5s;:beep frequency=2100 length=.3;:delay .3s;:beep frequency=2500 length=.3;:delay .3s;:beep frequency=2400 length=1;\r\
+    \n\"];\r\
+    \n\r\
+    \n# Setup temporary logging to disk\r\
+    \n/system logging action add disk-file-count=1 disk-file-name=\$debuglog disk-lines-per-file=4096 name=perfectrestore target=disk\r\
+    \n/system logging add action=perfectrestore topics=system,info\r\
+    \n/system logging add action=perfectrestore topics=script,info\r\
+    \n/system logging add action=perfectrestore topics=warning\r\
+    \n/system logging add action=perfectrestore topics=error\r\
+    \n/system logging add action=perfectrestore topics=critical\r\
+    \n/system logging add action=perfectrestore topics=debug,!packet\r\
+    \n\r\
+    \n# Play Audible Start Sequence\r\
+    \n\$doStartBeep\r\
+    \n\r\
+    \n# Import the rsc file\r\
+    \n:log info \"BEGIN IMPORT file=\$targetfile -----------------------------------------------------------------------------\"\r\
+    \n\r\
+    \n:do {\r\
+    \n\r\
+    \n  #IPSEC certs have to be imported before the other config is restored\r\
+    \n  #Its should be kept on flash memory to get alive after /system reset-configuration\r\
+    \n\r\
+    \n  /certificate import file-name=flash/ca@CHR.p12 passphrase=1234567890\r\
+    \n  /certificate set [find common-name=ca@CHR] name=ca@CHR\r\
+    \n  /certificate import file-name=flash/mikrouter@CHR.p12 passphrase=1234567890\r\
+    \n  /certificate set [find common-name=mikrouter@CHR] name=mikrouter@CHR\r\
+    \n\r\
+    \n  :local write2file \":import file-name=\$targetfile verbose=yes\"\r\
+    \n\r\
+    \n  :execute script=\$write2file file=\$importlog\r\
+    \n\r\
+    \n  :log info \"END IMPORT file=\$targetfile  -----------------------------------------------------------------------------\"\r\
+    \n\r\
+    \n} on-error={\r\
+    \n\r\
+    \n:log error \"ERROR IMPORT file=\$targetfile  -----------------------------------------------------------------------------\"\r\
+    \n\r\
+    \n}\r\
+    \n\r\
+    \n# Post import delay\r\
+    \n:delay 20s\r\
+    \n\r\
+    \n# Play Audible Finish Sequence\r\
+    \n\$doFinishBeep\r\
+    \n\r\
+    \n# Teardown temporary logging to disk\r\
+    \n/system logging remove [/system logging find where action=perfectrestore]\r\
+    \n/system logging action remove [/system logging action find where name=perfectrestore]\r\
+    \n\r\
+    \n/system script environment remove [find name=\"targetfile\"]\r\
+    \n/system script environment remove [find name=\"importlog\"]\r\
+    \n/system script environment remove [find name=\"debuglog\"]\r\
+    \n\r\
+    \n#new startup scripts maybe restored so...\r\
+    \n/system reboot\r\
+    \n\r\
+    \n}\r\
     \n"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
