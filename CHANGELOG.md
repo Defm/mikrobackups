@@ -1,4 +1,14 @@
-### Git Auto Save, Date: четверг, 30 мая 2019 г. 18:28:27 (MSK), New Files:  Modified Files: rawconf_CHR_6.45beta27.rsc,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: суббота, 15 июня 2019 г. 19:33:53 (MSK), New Files:  Modified Files: rawconf_CHR_6.45beta27.rsc, rawconf_mikrouter_6.45beta27.rsc,  Removed Files: (HEAD -> _autobranch)
+>Sat, 15 Jun 2019 19:33:53 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: четверг, 30 мая 2019 г. 18:28:27 (MSK), New Files:  Modified Files: rawconf_CHR_6.45beta27.rsc,  Removed Files: (mikrobackups/_autobranch)
 >Thu, 30 May 2019 18:28:27 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Git Auto Save, Date: суббота, 25 мая 2019 г. 17:09:26 (MSK), New Files:  Modified Files: scripts/doDHCPLeaseTrack.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: суббота, 25 мая 2019 г. 17:09:26 (MSK), New Files:  Modified Files: scripts/doDHCPLeaseTrack.rsc.txt,  Removed Files:
 >Sat, 25 May 2019 17:09:26 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
