@@ -1,8 +1,13 @@
-# jun/15/2019 19:29:47 by RouterOS 6.45beta27
+# jun/16/2019 11:54:49 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
 # serial number = 673706ED7949
+/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=Ce frequency=2412 name=common-ch1-2Ghz tx-power=17
+/caps-man channel add band=5ghz-a/n/ac control-channel-width=20mhz extension-channel=Ceee frequency=5180 name=common-ch5-5Ghz tx-power=17
+/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=Ce frequency=2437 name=common-ch6-2Ghz tx-power=17
+/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=eC frequency=2462 name=common-ch11-2Ghz tx-power=17
+/caps-man configuration add mode=ap name=empty
 /interface bridge add arp=proxy-arp fast-forward=no name="guest infrastructure"
 /interface bridge add arp=proxy-arp fast-forward=no name="ip mapping"
 /interface bridge add admin-mac=6C:3B:6B:11:DA:1C arp=reply-only auto-mac=no fast-forward=no name="main infrastructure"
@@ -13,6 +18,16 @@
 /interface ethernet set [ find default-name=ether5 ] name="lan D (master)" speed=100Mbps
 /interface ethernet set [ find default-name=sfp1 ] advertise=10M-half,10M-full,100M-half,100M-full,1000M-half,1000M-full disabled=yes name=optic
 /interface ethernet set [ find default-name=ether1 ] arp=proxy-arp name=wan speed=100Mbps
+/caps-man datapath add bridge="guest infrastructure" name=forward-to-CapsMan-guest
+/caps-man datapath add bridge="main infrastructure" client-to-client-forwarding=yes name=forward-to-CapsMan-main
+/caps-man security add authentication-types=wpa2-psk encryption=aes-ccm group-encryption=aes-ccm group-key-update=5m name=private passphrase=mikrotik
+/caps-man security add authentication-types="" encryption="" group-key-update=5m name=public
+/caps-man configuration add channel=common-ch1-2Ghz datapath=forward-to-CapsMan-main distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch1-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-ch6-2Ghz datapath=forward-to-CapsMan-main distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch6-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-ch11-2Ghz datapath=forward-to-CapsMan-main distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch11-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-ch1-2Ghz datapath=forward-to-CapsMan-main distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch1-2Ghz-public rx-chains=0,1,2,3 security=public ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-ch6-2Ghz datapath=forward-to-CapsMan-main distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch6-2Ghz-public rx-chains=0,1,2,3 security=public ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-ch11-2Ghz datapath=forward-to-CapsMan-main distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch11-2Ghz-public rx-chains=0,1,2,3 security=public ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
 /interface list add comment="Trusted networks" name=list-trusted
 /interface list add comment="Semi-Trusted networks" name=list-semi-trusted
 /interface list add comment="Untrusted networks" name=list-untrusted
@@ -73,7 +88,7 @@
 /queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
 /queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
 /queue simple add comment=dtq,B0:34:95:2D:D6:85,ATV max-limit=10M/10M name="ATV@main dhcp (B0:34:95:2D:D6:85)" target=192.168.99.190/32
-/queue simple add comment=dtq,78:31:C1:CF:9E:70, max-limit=10M/10M name="@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
+/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
 /queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
 /queue simple add comment=dtq,08:00:27:17:3A:80, max-limit=10M/10M name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
 /queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl max-limit=10M/10M name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
@@ -113,6 +128,12 @@
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
+/caps-man manager set ca-certificate=ca@CHR certificate=mikrouter@CHR enabled=yes
+/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=mikro master-configuration=common-ch1-2Ghz-public name-format=prefix-identity name-prefix=guest-ch1-2Ghz
+/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=mikro master-configuration=common-ch6-2Ghz-public name-format=prefix-identity name-prefix=guest-ch1-2Ghz
+/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=mikro master-configuration=common-ch6-2Ghz-private name-format=prefix-identity name-prefix=main-ch1-2Ghz
+/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=mikro master-configuration=common-ch11-2Ghz-private name-format=prefix-identity name-prefix=main-ch1-2Ghz
+/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=mikro master-configuration=common-ch11-2Ghz-public name-format=prefix-identity name-prefix=guest-ch1-2Ghz
 /certificate settings set crl-download=no crl-store=system crl-use=no
 /interface bridge filter add action=drop chain=forward comment="drop all dhcp requests over bridge" dst-port=67 ip-protocol=udp mac-protocol=ip
 /interface bridge port add bridge="main infrastructure" interface="lan D (master)"
@@ -143,6 +164,7 @@
 /interface wireless access-list add authentication=no comment="Block iPadAlx on 5Ghz" interface="wlan 5Ghz" mac-address=54:E4:3A:B8:12:07 vlan-mode=no-tag
 /interface wireless access-list add comment=MbpAlx interface="wlan 2Ghz" mac-address=78:31:C1:CF:9E:70 vlan-mode=no-tag
 /interface wireless access-list add comment=asusGl interface="wlan 2Ghz" mac-address=98:22:EF:26:FE:6E vlan-mode=no-tag
+/interface wireless cap set caps-man-addresses=:: interfaces="wlan 2Ghz,wlan 5Ghz"
 /ip accounting set account-local-traffic=yes enabled=yes threshold=200
 /ip address add address=192.168.99.1/24 comment="local IP" interface="main infrastructure" network=192.168.99.0
 /ip address add address=192.168.98.1/24 comment="local guest wifi" interface="guest infrastructure" network=192.168.98.0
