@@ -1,4 +1,4 @@
-# jun/19/2019 21:04:36 by RouterOS 6.45beta27
+# jun/19/2019 21:27:21 by RouterOS 6.45beta27
 # software id = 
 #
 #
@@ -39,7 +39,7 @@
 /snmp community set [ find default=yes ] addresses=0.0.0.0/0
 /snmp community add addresses=192.168.99.180/32,192.168.99.170/32 name=globus
 /system logging action add memory-lines=400 name=IpsecOnScreenLog target=memory
-/system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog name=ScriptsDiskLog target=disk
+/system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
 /system logging action add memory-lines=500 name=OnScreenLog target=memory
@@ -48,7 +48,7 @@
 /system logging action add name=RouterControlDiskLog target=memory
 /system logging action add name=OSFTOnScreenLog target=memory
 /system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=60000 name=AuthDiskLog target=disk
+/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
