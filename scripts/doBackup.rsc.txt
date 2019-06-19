@@ -110,7 +110,7 @@ $globalScriptBeforeRun "doBackup";
        }
     }
 
-    :delay 1s;
+    :delay 3s;
     /file remove $backupFile;
 
   }
