@@ -1,4 +1,4 @@
-# jun/19/2019 21:57:34 by RouterOS 6.45beta27
+# jun/19/2019 22:06:22 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -2287,6 +2287,7 @@
     \n:if (\$saveSysBackup and \$itsOk) do={\r\
     \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
     \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\
+    \n  :delay 2s;\r\
     \n  \$noteMe value=\"System Backup Finished\"\r\
     \n}\r\
     \n\r\
@@ -2295,6 +2296,7 @@
     \n     #do not apply hide-sensitive flag\r\
     \n     :if (\$verboseRawExport = true) do={ /export terse verbose file=(\$fname.\".safe.rsc\") }\r\
     \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\
+    \n     :delay 2s;\r\
     \n  }\r\
     \n  \$noteMe value=\"Raw configuration script export Finished\"\r\
     \n}\r\
@@ -2342,7 +2344,8 @@
     \n        #email works in background, delay needed\r\
     \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile\r\
     \n\r\
-    \n        :delay 5s;\r\
+    \n        #waiting for email to be delivered\r\
+    \n        :delay 15s;\r\
     \n\r\
     \n        :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\r\
     \n\r\
