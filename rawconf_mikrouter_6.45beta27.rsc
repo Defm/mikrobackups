@@ -1,8 +1,15 @@
-# jun/15/2019 19:29:47 by RouterOS 6.45beta27
+# jun/19/2019 22:26:39 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
 # serial number = 673706ED7949
+/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=Ce frequency=2412 name=common-ch1-2Ghz tx-power=17
+/caps-man channel add band=5ghz-a/n/ac control-channel-width=20mhz extension-channel=Ceee frequency=5180 name=common-ch36-5Ghz tx-power=17
+/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=Ce frequency=2437 name=common-ch6-2Ghz tx-power=17
+/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=eC frequency=2462 name=common-ch11-2Ghz tx-power=17
+/caps-man channel add band=5ghz-a/n/ac control-channel-width=20mhz extension-channel=Ceee frequency=5230 name=common-ch46-5Ghz tx-power=17
+/caps-man channel add band=5ghz-a/n/ac control-channel-width=20mhz extension-channel=eeeC frequency=5320 name=common-ch64-5Ghz tx-power=17
+/caps-man configuration add mode=ap name=empty
 /interface bridge add arp=proxy-arp fast-forward=no name="guest infrastructure"
 /interface bridge add arp=proxy-arp fast-forward=no name="ip mapping"
 /interface bridge add admin-mac=6C:3B:6B:11:DA:1C arp=reply-only auto-mac=no fast-forward=no name="main infrastructure"
@@ -13,6 +20,18 @@
 /interface ethernet set [ find default-name=ether5 ] name="lan D (master)" speed=100Mbps
 /interface ethernet set [ find default-name=sfp1 ] advertise=10M-half,10M-full,100M-half,100M-full,1000M-half,1000M-full disabled=yes name=optic
 /interface ethernet set [ find default-name=ether1 ] arp=proxy-arp name=wan speed=100Mbps
+/caps-man datapath add bridge="guest infrastructure" name=2CapsMan-guest
+/caps-man datapath add bridge="main infrastructure" client-to-client-forwarding=yes name=2CapsMan-private
+/caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps name="5GHz Rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps vht-basic-mcs=mcs0-9 vht-supported-mcs=mcs0-9
+/caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps ht-basic-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 ht-supported-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 name="2GHz rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps
+/caps-man security add authentication-types=wpa2-psk comment="2GHz/5GHz Security" encryption=aes-ccm group-encryption=aes-ccm group-key-update=5m name=private passphrase=mikrotik
+/caps-man security add authentication-types="" comment="2GHz/5GHz FREE" encryption="" group-key-update=5m name=guest
+/caps-man configuration add channel=common-ch1-2Ghz datapath=2CapsMan-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch1-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-ch6-2Ghz datapath=2CapsMan-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch6-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-ch11-2Ghz datapath=2CapsMan-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch11-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-ch1-2Ghz datapath=2CapsMan-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch1-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-ch6-2Ghz datapath=2CapsMan-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch6-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-ch11-2Ghz datapath=2CapsMan-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch11-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
 /interface list add comment="Trusted networks" name=list-trusted
 /interface list add comment="Semi-Trusted networks" name=list-semi-trusted
 /interface list add comment="Untrusted networks" name=list-untrusted
@@ -73,7 +92,7 @@
 /queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
 /queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
 /queue simple add comment=dtq,B0:34:95:2D:D6:85,ATV max-limit=10M/10M name="ATV@main dhcp (B0:34:95:2D:D6:85)" target=192.168.99.190/32
-/queue simple add comment=dtq,78:31:C1:CF:9E:70, max-limit=10M/10M name="@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
+/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
 /queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
 /queue simple add comment=dtq,08:00:27:17:3A:80, max-limit=10M/10M name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
 /queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl max-limit=10M/10M name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
@@ -85,6 +104,8 @@
 /queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" target=192.168.98.224/32
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
 /queue simple add comment=dtq,94:C6:91:94:98:DC, max-limit=10M/10M name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
+/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,mikroWAP max-limit=10M/10M name="mikroWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
+/queue simple add comment=dtq,CC:2D:E0:E7:BE:04,mikroWAP max-limit=10M/10M name="mikroWAP@main dhcp (CC:2D:E0:E7:BE:04)" target=192.168.99.201/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -113,6 +134,15 @@
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
+/caps-man manager set enabled=yes
+/caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
+/caps-man manager interface add comment="Deny WAN CapsMan" disabled=no interface=wan
+/caps-man manager interface add comment="Do CapsMan on private" disabled=no interface="main infrastructure"
+/caps-man manager interface add comment="Do CapsMan on guest" disabled=no interface="guest infrastructure"
+/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=mikro master-configuration=common-ch1-2Ghz-private name-format=prefix-identity name-prefix=private-1/6/11-2Ghz slave-configurations=common-ch6-2Ghz-private,common-ch11-2Ghz-private
+/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=mikro master-configuration=common-ch1-2Ghz-guest name-format=prefix-identity name-prefix=guest-1/6/11-2Ghz slave-configurations=common-ch6-2Ghz-guest,common-ch11-2Ghz-guest
+/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=mikro master-configuration=common-ch11-2Ghz-private name-format=prefix-identity name-prefix=ch11-2Ghz slave-configurations=common-ch11-2Ghz-guest
+/caps-man provisioning add master-configuration=empty name-format=prefix-identity name-prefix=dummy
 /certificate settings set crl-download=no crl-store=system crl-use=no
 /interface bridge filter add action=drop chain=forward comment="drop all dhcp requests over bridge" dst-port=67 ip-protocol=udp mac-protocol=ip
 /interface bridge port add bridge="main infrastructure" interface="lan D (master)"
@@ -143,6 +173,7 @@
 /interface wireless access-list add authentication=no comment="Block iPadAlx on 5Ghz" interface="wlan 5Ghz" mac-address=54:E4:3A:B8:12:07 vlan-mode=no-tag
 /interface wireless access-list add comment=MbpAlx interface="wlan 2Ghz" mac-address=78:31:C1:CF:9E:70 vlan-mode=no-tag
 /interface wireless access-list add comment=asusGl interface="wlan 2Ghz" mac-address=98:22:EF:26:FE:6E vlan-mode=no-tag
+/interface wireless cap set discovery-interfaces="main infrastructure" interfaces="wlan 2Ghz,wlan 5Ghz"
 /ip accounting set account-local-traffic=yes enabled=yes threshold=200
 /ip address add address=192.168.99.1/24 comment="local IP" interface="main infrastructure" network=192.168.99.0
 /ip address add address=192.168.98.1/24 comment="local guest wifi" interface="guest infrastructure" network=192.168.98.0
@@ -163,6 +194,8 @@
 /ip arp add address=192.168.99.70 interface="main infrastructure" mac-address=98:22:EF:26:FE:6E
 /ip arp add address=192.168.99.180 interface="main infrastructure" mac-address=10:DD:B1:9E:19:5E
 /ip arp add address=192.168.99.88 interface="main infrastructure" mac-address=94:C6:91:94:98:DC
+/ip arp add address=192.168.99.200 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:02
+/ip arp add address=192.168.99.201 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:04
 /ip cloud set ddns-enabled=yes
 /ip dhcp-server lease add address=192.168.99.140 always-broadcast=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.150 client-id=1:ac:61:ea:ea:cc:84 mac-address=AC:61:EA:EA:CC:84 server="main dhcp"
@@ -176,14 +209,16 @@
 /ip dhcp-server lease add address=192.168.98.210 block-access=yes client-id=1:98:22:ef:26:fe:6e comment=asusGl mac-address=98:22:EF:26:FE:6E server="guest dhcp"
 /ip dhcp-server lease add address=192.168.98.228 block-access=yes client-id=1:88:53:95:30:68:9f mac-address=88:53:95:30:68:9F server="guest dhcp"
 /ip dhcp-server lease add address=192.168.98.225 block-access=yes client-id=1:ac:61:ea:ea:cc:84 mac-address=AC:61:EA:EA:CC:84 server="guest dhcp"
-/ip dhcp-server lease add address=192.168.98.224 client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="guest dhcp"
+/ip dhcp-server lease add address=192.168.98.224 block-access=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.180 address-lists=osx-hosts always-broadcast=yes mac-address=10:DD:B1:9E:19:5E server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.88 mac-address=94:C6:91:94:98:DC server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.200 client-id=1:cc:2d:e0:e7:be:02 mac-address=CC:2D:E0:E7:BE:02 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.201 client-id=1:cc:2d:e0:e7:be:04 mac-address=CC:2D:E0:E7:BE:04 server="main dhcp"
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
-/ip dhcp-server network add address=192.168.99.0/26 comment="VIRTUAL MACHINES DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
-/ip dhcp-server network add address=192.168.99.64/26 comment="WINDOWS DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
-/ip dhcp-server network add address=192.168.99.128/26 comment="APPLE DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
-/ip dhcp-server network add address=192.168.99.192/26 comment="DNS/PROXY redirect DHCP leasing" gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
+/ip dhcp-server network add address=192.168.99.0/26 caps-manager=192.168.99.1 comment="VIRTUAL MACHINES DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
+/ip dhcp-server network add address=192.168.99.64/26 caps-manager=192.168.99.1 comment="WINDOWS DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
+/ip dhcp-server network add address=192.168.99.128/26 caps-manager=192.168.99.1 comment="APPLE DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
+/ip dhcp-server network add address=192.168.99.192/26 caps-manager=192.168.99.1 comment="DNS/PROXY redirect DHCP leasing" gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.100.1
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=192.168.99.1 name=mikrouter.home
@@ -202,6 +237,7 @@
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
 /ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
 /ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-UPPUU22.home ttl=5m
+/ip dns static add address=192.168.99.201 comment="<AUTO:DHCP:main dhcp>" name=mikroWAP.home ttl=5m
 /ip dns static add address=109.252.109.17 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" list=Bogons
@@ -548,8 +584,8 @@
 /ip proxy set anonymous=yes cache-administrator=defm.kopcap@gmail.com enabled=yes max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=deny dst-host=grafana redirect-to=192.168.99.180:3000
 /ip proxy access add action=deny dst-host=influxdb redirect-to=192.168.99.180:8000
-/ip route add comment=api.telegram.org disabled=yes distance=1 gateway=tunnel routing-mark=mark-telegram
 /ip route add comment="GLOBAL MGTS" distance=50 gateway=192.168.100.1
+/ip route add distance=1 dst-address=192.168.88.0/24 gateway="lan D (master)" pref-src=192.168.99.1 scope=10
 /ip route rule add action=unreachable comment="LAN/GUEST isolation" dst-address=192.168.98.0/24 src-address=192.168.99.0/24
 /ip route rule add action=unreachable comment="LAN/GUEST isolation" dst-address=192.168.99.0/24 src-address=192.168.98.0/24
 /ip route rule add comment=API.TELEGRAM.ORG dst-address=149.154.167.0/24 table=mark-telegram
@@ -2251,6 +2287,7 @@
     \n:if (\$saveSysBackup and \$itsOk) do={\r\
     \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
     \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\
+    \n  :delay 2s;\r\
     \n  \$noteMe value=\"System Backup Finished\"\r\
     \n}\r\
     \n\r\
@@ -2259,6 +2296,7 @@
     \n     #do not apply hide-sensitive flag\r\
     \n     :if (\$verboseRawExport = true) do={ /export terse verbose file=(\$fname.\".safe.rsc\") }\r\
     \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\
+    \n     :delay 2s;\r\
     \n  }\r\
     \n  \$noteMe value=\"Raw configuration script export Finished\"\r\
     \n}\r\
@@ -2302,8 +2340,27 @@
     \n        :do {\r\
     \n        :local state \"Uploading \$buFile to SMTP\"\r\
     \n        \$noteMe value=\$state\r\
+    \n\r\
+    \n        #email works in background, delay needed\r\
     \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile\r\
-    \n        \$noteMe value=\"Done\"\r\
+    \n\r\
+    \n        #waiting for email to be delivered\r\
+    \n        :delay 15s;\r\
+    \n\r\
+    \n        :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\r\
+    \n\r\
+    \n        if (!\$emlResult) do={\r\
+    \n\r\
+    \n          :set state \"Error When \$state\"\r\
+    \n          \$noteMe value=\$state;\r\
+    \n          :set itsOk false;\r\
+    \n\r\
+    \n        } else={\r\
+    \n\r\
+    \n          \$noteMe value=\"Done\"\r\
+    \n       \r\
+    \n        }\r\
+    \n\r\
     \n        } on-error={ \r\
     \n          :set state \"Error When \$state\"\r\
     \n          \$noteMe value=\$state;\r\
@@ -2311,7 +2368,7 @@
     \n       }\r\
     \n    }\r\
     \n\r\
-    \n    :delay 1s;\r\
+    \n    :delay 2s;\r\
     \n    /file remove \$backupFile;\r\
     \n\r\
     \n  }\r\

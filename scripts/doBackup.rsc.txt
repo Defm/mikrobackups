@@ -50,6 +50,7 @@ $globalScriptBeforeRun "doBackup";
 :if ($saveSysBackup and $itsOk) do={
   :if ($encryptSysBackup = true) do={ /system backup save name=($fname.".backup") }
   :if ($encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=($fname.".backup") }
+  :delay 2s;
   $noteMe value="System Backup Finished"
 }
 
@@ -58,6 +59,7 @@ $globalScriptBeforeRun "doBackup";
      #do not apply hide-sensitive flag
      :if ($verboseRawExport = true) do={ /export terse verbose file=($fname.".safe.rsc") }
      :if ($verboseRawExport = false) do={ /export terse file=($fname.".safe.rsc") }
+     :delay 2s;
   }
   $noteMe value="Raw configuration script export Finished"
 }
@@ -101,8 +103,27 @@ $globalScriptBeforeRun "doBackup";
         :do {
         :local state "Uploading $buFile to SMTP"
         $noteMe value=$state
+
+        #email works in background, delay needed
         /tool e-mail send to=$SMTPAddress body=$SMTPBody subject=$SMTPSubject file=$buFile
-        $noteMe value="Done"
+
+        #waiting for email to be delivered
+        :delay 15s;
+
+        :local emlResult ([/tool e-mail get last-status] = "succeeded")
+
+        if (!$emlResult) do={
+
+          :set state "Error When $state"
+          $noteMe value=$state;
+          :set itsOk false;
+
+        } else={
+
+          $noteMe value="Done"
+       
+        }
+
         } on-error={ 
           :set state "Error When $state"
           $noteMe value=$state;
@@ -110,7 +131,7 @@ $globalScriptBeforeRun "doBackup";
        }
     }
 
-    :delay 1s;
+    :delay 2s;
     /file remove $backupFile;
 
   }

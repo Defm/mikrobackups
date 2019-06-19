@@ -1,4 +1,4 @@
-# jun/09/2019 18:28:18 by RouterOS 6.45beta27
+# jun/19/2019 21:41:37 by RouterOS 6.45beta27
 # software id = 
 #
 #
@@ -39,7 +39,7 @@
 /snmp community set [ find default=yes ] addresses=0.0.0.0/0
 /snmp community add addresses=192.168.99.180/32,192.168.99.170/32 name=globus
 /system logging action add memory-lines=400 name=IpsecOnScreenLog target=memory
-/system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog name=ScriptsDiskLog target=disk
+/system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
 /system logging action add memory-lines=500 name=OnScreenLog target=memory
@@ -48,10 +48,11 @@
 /system logging action add name=RouterControlDiskLog target=memory
 /system logging action add name=OSFTOnScreenLog target=memory
 /system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=60000 name=AuthDiskLog target=disk
+/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
+#error exporting /interface bridge calea
 /interface bridge settings set allow-fast-path=no use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=neighbors
@@ -82,6 +83,7 @@
 /ip firewall address-list add address=2ip.ru list=vpn-sites
 /ip firewall address-list add address=10.0.0.2 list=mic-network
 /ip firewall address-list add address=10.0.0.1 list=mis-network
+#error exporting /ip firewall calea
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Bandwidth test allow" port=2000 protocol=tcp
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -353,7 +355,7 @@
     \n       }\r\
     \n    }\r\
     \n\r\
-    \n    :delay 1s;\r\
+    \n    :delay 3s;\r\
     \n    /file remove \$backupFile;\r\
     \n\r\
     \n  }\r\
