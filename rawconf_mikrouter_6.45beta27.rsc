@@ -1,4 +1,4 @@
-# jun/19/2019 22:26:39 by RouterOS 6.45beta27
+# jun/19/2019 22:31:36 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -195,7 +195,6 @@
 /ip arp add address=192.168.99.180 interface="main infrastructure" mac-address=10:DD:B1:9E:19:5E
 /ip arp add address=192.168.99.88 interface="main infrastructure" mac-address=94:C6:91:94:98:DC
 /ip arp add address=192.168.99.200 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:02
-/ip arp add address=192.168.99.201 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:04
 /ip cloud set ddns-enabled=yes
 /ip dhcp-server lease add address=192.168.99.140 always-broadcast=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.150 client-id=1:ac:61:ea:ea:cc:84 mac-address=AC:61:EA:EA:CC:84 server="main dhcp"
@@ -213,7 +212,6 @@
 /ip dhcp-server lease add address=192.168.99.180 address-lists=osx-hosts always-broadcast=yes mac-address=10:DD:B1:9E:19:5E server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.88 mac-address=94:C6:91:94:98:DC server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.200 client-id=1:cc:2d:e0:e7:be:02 mac-address=CC:2D:E0:E7:BE:02 server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.201 client-id=1:cc:2d:e0:e7:be:04 mac-address=CC:2D:E0:E7:BE:04 server="main dhcp"
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server network add address=192.168.99.0/26 caps-manager=192.168.99.1 comment="VIRTUAL MACHINES DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.64/26 caps-manager=192.168.99.1 comment="WINDOWS DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
@@ -585,7 +583,6 @@
 /ip proxy access add action=deny dst-host=grafana redirect-to=192.168.99.180:3000
 /ip proxy access add action=deny dst-host=influxdb redirect-to=192.168.99.180:8000
 /ip route add comment="GLOBAL MGTS" distance=50 gateway=192.168.100.1
-/ip route add distance=1 dst-address=192.168.88.0/24 gateway="lan D (master)" pref-src=192.168.99.1 scope=10
 /ip route rule add action=unreachable comment="LAN/GUEST isolation" dst-address=192.168.98.0/24 src-address=192.168.99.0/24
 /ip route rule add action=unreachable comment="LAN/GUEST isolation" dst-address=192.168.99.0/24 src-address=192.168.98.0/24
 /ip route rule add comment=API.TELEGRAM.ORG dst-address=149.154.167.0/24 table=mark-telegram
