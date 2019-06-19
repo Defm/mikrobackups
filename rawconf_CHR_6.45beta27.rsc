@@ -1,4 +1,4 @@
-# jun/19/2019 21:29:07 by RouterOS 6.45beta27
+# jun/19/2019 21:41:37 by RouterOS 6.45beta27
 # software id = 
 #
 #
@@ -355,7 +355,7 @@
     \n       }\r\
     \n    }\r\
     \n\r\
-    \n    :delay 1s;\r\
+    \n    :delay 3s;\r\
     \n    /file remove \$backupFile;\r\
     \n\r\
     \n  }\r\
