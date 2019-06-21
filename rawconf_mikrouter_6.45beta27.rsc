@@ -1,14 +1,10 @@
-# jun/19/2019 22:31:36 by RouterOS 6.45beta27
+# jun/22/2019 01:31:39 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
 # serial number = 673706ED7949
-/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=Ce frequency=2412 name=common-ch1-2Ghz tx-power=17
-/caps-man channel add band=5ghz-a/n/ac control-channel-width=20mhz extension-channel=Ceee frequency=5180 name=common-ch36-5Ghz tx-power=17
-/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=Ce frequency=2437 name=common-ch6-2Ghz tx-power=17
-/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=eC frequency=2462 name=common-ch11-2Ghz tx-power=17
-/caps-man channel add band=5ghz-a/n/ac control-channel-width=20mhz extension-channel=Ceee frequency=5230 name=common-ch46-5Ghz tx-power=17
-/caps-man channel add band=5ghz-a/n/ac control-channel-width=20mhz extension-channel=eeeC frequency=5320 name=common-ch64-5Ghz tx-power=17
+/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=Ce frequency=2412,2437 name=common-chnls-2Ghz tx-power=17
+/caps-man channel add band=5ghz-n/ac control-channel-width=20mhz extension-channel=eeeC frequency=5230,5320 name=common-chnls-5Ghz tx-power=17
 /caps-man configuration add mode=ap name=empty
 /interface bridge add arp=proxy-arp fast-forward=no name="guest infrastructure"
 /interface bridge add arp=proxy-arp fast-forward=no name="ip mapping"
@@ -24,31 +20,32 @@
 /caps-man datapath add bridge="main infrastructure" client-to-client-forwarding=yes name=2CapsMan-private
 /caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps name="5GHz Rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps vht-basic-mcs=mcs0-9 vht-supported-mcs=mcs0-9
 /caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps ht-basic-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 ht-supported-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 name="2GHz rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps
-/caps-man security add authentication-types=wpa2-psk comment="2GHz/5GHz Security" encryption=aes-ccm group-encryption=aes-ccm group-key-update=5m name=private passphrase=mikrotik
+/caps-man security add authentication-types=wpa2-psk comment="2GHz/5GHz Security" encryption=aes-ccm group-encryption=aes-ccm group-key-update=1h name=private passphrase=mikrotik
 /caps-man security add authentication-types="" comment="2GHz/5GHz FREE" encryption="" group-key-update=5m name=guest
-/caps-man configuration add channel=common-ch1-2Ghz datapath=2CapsMan-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch1-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
-/caps-man configuration add channel=common-ch6-2Ghz datapath=2CapsMan-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch6-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
-/caps-man configuration add channel=common-ch11-2Ghz datapath=2CapsMan-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch11-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
-/caps-man configuration add channel=common-ch1-2Ghz datapath=2CapsMan-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch1-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
-/caps-man configuration add channel=common-ch6-2Ghz datapath=2CapsMan-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch6-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
-/caps-man configuration add channel=common-ch11-2Ghz datapath=2CapsMan-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-ch11-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
 /interface list add comment="Trusted networks" name=list-trusted
 /interface list add comment="Semi-Trusted networks" name=list-semi-trusted
 /interface list add comment="Untrusted networks" name=list-untrusted
-/interface list add comment="Guest Wireless" name=list-guest-wireless
-/interface list add comment="neighbors allowed interfaces" name=list-neighbors-lookup
 /interface list add comment="winbox allowed interfaces" name=list-winbox-allowed
 /interface list add comment="includes l2tp client interfaces when UP" name=list-2tp-dynamic-tun
 /interface list add comment="firewall rule: drop invalid conn" name=list-drop-invalid-connections
 /interface list add comment="LAN intefaces" name=treated-as-LAN
 /interface list add comment="WAN interfaces" name=treated-as-WAN
 /interface list add comment="Internet interfaces" name=treated-as-INTERNET
+/interface list add comment="Controlled access points (2ghz)" name=list-2ghz-caps-private
+/interface list add comment="Controlled access points (public)" name=list-2ghz-caps-guest
+/interface list add comment="Controlled access points (5ghz)" name=list-5ghz-caps-private
+/caps-man configuration add channel=common-chnls-2Ghz datapath=2CapsMan-private datapath.interface-list=list-2ghz-caps-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-chnls-5Ghz datapath=2CapsMan-private datapath.interface-list=list-5ghz-caps-private disconnect-timeout=9s distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-5Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 5Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-chnls-2Ghz datapath=2CapsMan-guest datapath.interface-list=list-2ghz-caps-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
+/interface list add comment="Guest Wireless" include=list-2ghz-caps-guest name=list-guest-wireless
+/interface list add comment="neighbors allowed interfaces" include=list-2ghz-caps-private name=list-neighbors-lookup
+/interface list add comment="Private Wireless" include=list-2ghz-caps-private,list-5ghz-caps-private name=list-private-wireless
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
-/interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" management-protection=allowed mode=dynamic-keys name=private supplicant-identity="" wpa-pre-shared-key=mikrotik wpa2-pre-shared-key=mikrotik
+/interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" group-key-update=1h management-protection=allowed mode=dynamic-keys name=private supplicant-identity="" wpa-pre-shared-key=mikrotik wpa2-pre-shared-key=mikrotik
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
-/interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia default-authentication=no disabled=no distance=indoors frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" preamble-mode=long security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless add default-forwarding=no disabled=no keepalive-frames=disabled mac-address=6E:3B:6B:11:DA:1F master-interface="wlan 2Ghz" multicast-buffering=disabled name="wlan 2Ghz GUEST" security-profile=public ssid="WiFi 2Ghz FREE" wds-cost-range=0 wds-default-cost=0 wps-mode=disabled
-/interface wireless set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-a/n/ac channel-width=20/40/80mhz-Ceee country=russia default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" security-profile=private ssid="WiFi 5Ghz PRIVATE" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-n/ac channel-width=20/40/80mhz-Ceee country=russia2 default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" preamble-mode=long security-profile=private ssid="WiFi 5Ghz PRIVATE" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless nstreme set "wlan 2Ghz" enable-polling=no
 /interface wireless nstreme set "wlan 5Ghz" enable-polling=no
 /ip dhcp-server add authoritative=after-2sec-delay disabled=no interface="main infrastructure" lease-time=1d name="main dhcp"
@@ -105,7 +102,6 @@
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
 /queue simple add comment=dtq,94:C6:91:94:98:DC, max-limit=10M/10M name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
 /queue simple add comment=dtq,CC:2D:E0:E7:BE:02,mikroWAP max-limit=10M/10M name="mikroWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
-/queue simple add comment=dtq,CC:2D:E0:E7:BE:04,mikroWAP max-limit=10M/10M name="mikroWAP@main dhcp (CC:2D:E0:E7:BE:04)" target=192.168.99.201/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -134,14 +130,22 @@
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
+/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate" disabled=yes signal-range=-120..-71 ssid-regexp=""
+/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="iPhoneAlx on 5ghz only" disabled=no mac-address=AC:61:EA:EA:CC:84 ssid-regexp="WiFi 5Ghz"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="iPhoneGl on 5ghz only" disabled=no mac-address=00:CD:FE:EC:B5:52 ssid-regexp="WiFi 5Ghz"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="mbpAlx on 2ghz only" disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp="WiFi 2Ghz"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="ATV on 2ghz only" disabled=no mac-address=B0:34:95:2D:D6:85 ssid-regexp="WiFi 2Ghz"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="iPadAlx on 2ghz only" disabled=no mac-address=54:E4:3A:B8:12:07 ssid-regexp="WiFi 2Ghz"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="asusGl on 2ghz only" disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp="WiFi 2Ghz"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
+/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
 /caps-man manager set enabled=yes
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
-/caps-man manager interface add comment="Deny WAN CapsMan" disabled=no interface=wan
+/caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface=wan
 /caps-man manager interface add comment="Do CapsMan on private" disabled=no interface="main infrastructure"
 /caps-man manager interface add comment="Do CapsMan on guest" disabled=no interface="guest infrastructure"
-/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=mikro master-configuration=common-ch1-2Ghz-private name-format=prefix-identity name-prefix=private-1/6/11-2Ghz slave-configurations=common-ch6-2Ghz-private,common-ch11-2Ghz-private
-/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=mikro master-configuration=common-ch1-2Ghz-guest name-format=prefix-identity name-prefix=guest-1/6/11-2Ghz slave-configurations=common-ch6-2Ghz-guest,common-ch11-2Ghz-guest
-/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=mikro master-configuration=common-ch11-2Ghz-private name-format=prefix-identity name-prefix=ch11-2Ghz slave-configurations=common-ch11-2Ghz-guest
+/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=WAP master-configuration=common-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=common-2Ghz-guest
+/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=ac identity-regexp=WAP master-configuration=common-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add master-configuration=empty name-format=prefix-identity name-prefix=dummy
 /certificate settings set crl-download=no crl-store=system crl-use=no
 /interface bridge filter add action=drop chain=forward comment="drop all dhcp requests over bridge" dst-port=67 ip-protocol=udp mac-protocol=ip
@@ -164,6 +168,8 @@
 /interface list member add comment="winbox allowed" interface="main infrastructure" list=list-winbox-allowed
 /interface list member add comment="neighbors lookup" interface=tunnel list=list-neighbors-lookup
 /interface list member add interface=wan list=list-drop-invalid-connections
+/interface list member add comment="GUEST WLAN" interface="wlan 2Ghz" list=list-private-wireless
+/interface list member add comment="GUEST WLAN" interface="wlan 5Ghz" list=list-private-wireless
 /interface wireless access-list add comment=ATV interface="wlan 2Ghz" mac-address=B0:34:95:2D:D6:85 vlan-mode=no-tag
 /interface wireless access-list add comment=iPhoneAlx interface="wlan 5Ghz" mac-address=AC:61:EA:EA:CC:84 vlan-mode=no-tag
 /interface wireless access-list add authentication=no comment="Block iPhoneAlx on 2Ghz" interface="wlan 2Ghz" mac-address=AC:61:EA:EA:CC:84 vlan-mode=no-tag
@@ -174,6 +180,7 @@
 /interface wireless access-list add comment=MbpAlx interface="wlan 2Ghz" mac-address=78:31:C1:CF:9E:70 vlan-mode=no-tag
 /interface wireless access-list add comment=asusGl interface="wlan 2Ghz" mac-address=98:22:EF:26:FE:6E vlan-mode=no-tag
 /interface wireless cap set discovery-interfaces="main infrastructure" interfaces="wlan 2Ghz,wlan 5Ghz"
+/interface wireless snooper set receive-errors=yes
 /ip accounting set account-local-traffic=yes enabled=yes threshold=200
 /ip address add address=192.168.99.1/24 comment="local IP" interface="main infrastructure" network=192.168.99.0
 /ip address add address=192.168.98.1/24 comment="local guest wifi" interface="guest infrastructure" network=192.168.98.0
@@ -235,7 +242,7 @@
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
 /ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
 /ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-UPPUU22.home ttl=5m
-/ip dns static add address=192.168.99.201 comment="<AUTO:DHCP:main dhcp>" name=mikroWAP.home ttl=5m
+/ip dns static add address=192.168.99.200 comment="<AUTO:DHCP:main dhcp>" name=mikroWAP.home ttl=5m
 /ip dns static add address=109.252.109.17 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" list=Bogons
@@ -609,6 +616,7 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -632,8 +640,8 @@
 /system logging add action=ParseMemoryLog topics=wireless
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:23 d:h:m:s | CPU: 100%\
-    \nRAM: 30460/131072M | Voltage: 23 v | Temp: 32c\
+    \nUptime:  00:00:23 d:h:m:s | CPU: 57%\
+    \nRAM: 32048/131072M | Voltage: 23 v | Temp: 53c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
