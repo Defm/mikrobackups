@@ -1,4 +1,4 @@
-# jun/26/2019 22:34:58 by RouterOS 6.45beta27
+# jun/26/2019 23:16:56 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -129,6 +129,7 @@
 /system logging action add name=CertificatesOnScreenLog target=memory
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
 /system logging action add name=CAPSOnScreenLog target=memory
+/system logging action add name=FirewallOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=""
@@ -246,7 +247,7 @@
 /ip dns static add address=192.168.99.200 comment="<AUTO:DHCP:main dhcp>" name=LivingRoomWAP.home ttl=5m
 /ip dns static add address=109.252.109.17 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
-/ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" list=Bogons
+/ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=Bogons
 /ip firewall address-list add address=127.0.0.0/8 comment="RFC 1122 (Loopback)" list=Bogons
@@ -306,8 +307,8 @@
 /ip firewall address-list add address=clubseventeen.com list=vpn-tunneled-sites
 /ip firewall address-list add address=109.252.109.17 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
-/ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-port=5678 protocol=udp
-/ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-port=5678 protocol=udp
+/ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
+/ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=output comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
 /ip firewall filter add action=accept chain=input comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
 /ip firewall filter add action=jump chain=input comment="VPN Access" jump-target=vpn-rules
@@ -643,6 +644,7 @@
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=wireless
 /system logging add action=CAPSOnScreenLog topics=caps
+/system logging add action=FirewallOnScreenLog topics=firewall
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
     \nUptime:  00:00:23 d:h:m:s | CPU: 79%\
