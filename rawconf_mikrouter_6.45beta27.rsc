@@ -1,4 +1,4 @@
-# jun/26/2019 20:02:46 by RouterOS 6.45beta27
+# jun/26/2019 22:34:58 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -140,7 +140,7 @@
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="asusGl on 2ghz only" disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp="WiFi 2Ghz"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set enabled=yes upgrade-policy=require-same-version
+/caps-man manager set enabled=yes
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
 /caps-man manager interface add comment="Deny WAN CapsMan" forbid=yes interface=wan
 /caps-man manager interface add comment="Do CapsMan on private" interface="main infrastructure"
@@ -306,6 +306,8 @@
 /ip firewall address-list add address=clubseventeen.com list=vpn-tunneled-sites
 /ip firewall address-list add address=109.252.109.17 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
+/ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-port=5678 protocol=udp
+/ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=output comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
 /ip firewall filter add action=accept chain=input comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
 /ip firewall filter add action=jump chain=input comment="VPN Access" jump-target=vpn-rules
