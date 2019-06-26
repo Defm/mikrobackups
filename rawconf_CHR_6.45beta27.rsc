@@ -1,4 +1,4 @@
-# jun/19/2019 21:41:37 by RouterOS 6.45beta27
+# jun/20/2019 20:51:36 by RouterOS 6.45beta27
 # software id = 
 #
 #
@@ -52,7 +52,6 @@
 /system logging action add name=CertificatesOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
-#error exporting /interface bridge calea
 /interface bridge settings set allow-fast-path=no use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=neighbors
@@ -83,7 +82,6 @@
 /ip firewall address-list add address=2ip.ru list=vpn-sites
 /ip firewall address-list add address=10.0.0.2 list=mic-network
 /ip firewall address-list add address=10.0.0.1 list=mis-network
-#error exporting /ip firewall calea
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Bandwidth test allow" port=2000 protocol=tcp
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -295,6 +293,7 @@
     \n:if (\$saveSysBackup and \$itsOk) do={\r\
     \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
     \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\
+    \n  :delay 2s;\r\
     \n  \$noteMe value=\"System Backup Finished\"\r\
     \n}\r\
     \n\r\
@@ -303,6 +302,7 @@
     \n     #do not apply hide-sensitive flag\r\
     \n     :if (\$verboseRawExport = true) do={ /export terse verbose file=(\$fname.\".safe.rsc\") }\r\
     \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\
+    \n     :delay 2s;\r\
     \n  }\r\
     \n  \$noteMe value=\"Raw configuration script export Finished\"\r\
     \n}\r\
@@ -346,8 +346,27 @@
     \n        :do {\r\
     \n        :local state \"Uploading \$buFile to SMTP\"\r\
     \n        \$noteMe value=\$state\r\
+    \n\r\
+    \n        #email works in background, delay needed\r\
     \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile\r\
-    \n        \$noteMe value=\"Done\"\r\
+    \n\r\
+    \n        #waiting for email to be delivered\r\
+    \n        :delay 15s;\r\
+    \n\r\
+    \n        :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\r\
+    \n\r\
+    \n        if (!\$emlResult) do={\r\
+    \n\r\
+    \n          :set state \"Error When \$state\"\r\
+    \n          \$noteMe value=\$state;\r\
+    \n          :set itsOk false;\r\
+    \n\r\
+    \n        } else={\r\
+    \n\r\
+    \n          \$noteMe value=\"Done\"\r\
+    \n       \r\
+    \n        }\r\
+    \n\r\
     \n        } on-error={ \r\
     \n          :set state \"Error When \$state\"\r\
     \n          \$noteMe value=\$state;\r\
@@ -355,7 +374,7 @@
     \n       }\r\
     \n    }\r\
     \n\r\
-    \n    :delay 3s;\r\
+    \n    :delay 2s;\r\
     \n    /file remove \$backupFile;\r\
     \n\r\
     \n  }\r\
