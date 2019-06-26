@@ -1,10 +1,10 @@
-# jun/22/2019 01:31:39 by RouterOS 6.45beta27
+# jun/26/2019 20:02:46 by RouterOS 6.45beta27
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
 # serial number = 673706ED7949
-/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=Ce frequency=2412,2437 name=common-chnls-2Ghz tx-power=17
-/caps-man channel add band=5ghz-n/ac control-channel-width=20mhz extension-channel=eeeC frequency=5230,5320 name=common-chnls-5Ghz tx-power=17
+/caps-man channel add band=2ghz-b/g/n control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
+/caps-man channel add band=5ghz-a/n/ac comment="20Mhz + Ce = 40Mhz, reselect interval from 5180, 5220, 5745, 5785 once per 10h" control-channel-width=20mhz extension-channel=Ce frequency=5180,5220,5745,5785 name=common-chnls-5Ghz reselect-interval=10h tx-power=15
 /caps-man configuration add mode=ap name=empty
 /interface bridge add arp=proxy-arp fast-forward=no name="guest infrastructure"
 /interface bridge add arp=proxy-arp fast-forward=no name="ip mapping"
@@ -34,9 +34,9 @@
 /interface list add comment="Controlled access points (2ghz)" name=list-2ghz-caps-private
 /interface list add comment="Controlled access points (public)" name=list-2ghz-caps-guest
 /interface list add comment="Controlled access points (5ghz)" name=list-5ghz-caps-private
-/caps-man configuration add channel=common-chnls-2Ghz datapath=2CapsMan-private datapath.interface-list=list-2ghz-caps-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
-/caps-man configuration add channel=common-chnls-5Ghz datapath=2CapsMan-private datapath.interface-list=list-5ghz-caps-private disconnect-timeout=9s distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-5Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 5Ghz PRIVATE" tx-chains=0,1,2,3
-/caps-man configuration add channel=common-chnls-2Ghz datapath=2CapsMan-guest datapath.interface-list=list-2ghz-caps-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=common-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-chnls-2Ghz datapath=2CapsMan-private datapath.interface-list=list-2ghz-caps-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-chnls-5Ghz datapath=2CapsMan-private datapath.interface-list=list-5ghz-caps-private disconnect-timeout=9s distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-5Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 5Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-chnls-2Ghz datapath=2CapsMan-guest datapath.interface-list=list-2ghz-caps-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
 /interface list add comment="Guest Wireless" include=list-2ghz-caps-guest name=list-guest-wireless
 /interface list add comment="neighbors allowed interfaces" include=list-2ghz-caps-private name=list-neighbors-lookup
 /interface list add comment="Private Wireless" include=list-2ghz-caps-private,list-5ghz-caps-private name=list-private-wireless
@@ -101,7 +101,7 @@
 /queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" target=192.168.98.224/32
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
 /queue simple add comment=dtq,94:C6:91:94:98:DC, max-limit=10M/10M name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
-/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,mikroWAP max-limit=10M/10M name="mikroWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
+/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP max-limit=10M/10M name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -125,12 +125,13 @@
 /system logging action add name=RouterControlLog target=memory
 /system logging action add name=OSPFOnscreenLog target=memory
 /system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-count=20 disk-file-name=flash/AuthDiskLog name=AuthDiskLog target=disk
+/system logging action add disk-file-name=flash/AuthDiskLog name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
+/system logging action add name=CAPSOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
-/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate" disabled=yes signal-range=-120..-71 ssid-regexp=""
+/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="iPhoneAlx on 5ghz only" disabled=no mac-address=AC:61:EA:EA:CC:84 ssid-regexp="WiFi 5Ghz"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="iPhoneGl on 5ghz only" disabled=no mac-address=00:CD:FE:EC:B5:52 ssid-regexp="WiFi 5Ghz"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="mbpAlx on 2ghz only" disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp="WiFi 2Ghz"
@@ -139,14 +140,14 @@
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="asusGl on 2ghz only" disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp="WiFi 2Ghz"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set enabled=yes
+/caps-man manager set enabled=yes upgrade-policy=require-same-version
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
-/caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface=wan
-/caps-man manager interface add comment="Do CapsMan on private" disabled=no interface="main infrastructure"
-/caps-man manager interface add comment="Do CapsMan on guest" disabled=no interface="guest infrastructure"
-/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=gn identity-regexp=WAP master-configuration=common-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=common-2Ghz-guest
-/caps-man provisioning add action=create-dynamic-enabled hw-supported-modes=ac identity-regexp=WAP master-configuration=common-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
-/caps-man provisioning add master-configuration=empty name-format=prefix-identity name-prefix=dummy
+/caps-man manager interface add comment="Deny WAN CapsMan" forbid=yes interface=wan
+/caps-man manager interface add comment="Do CapsMan on private" interface="main infrastructure"
+/caps-man manager interface add comment="Do CapsMan on guest" interface="guest infrastructure"
+/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest" hw-supported-modes=gn,b identity-regexp=*WAP* master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
+/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private" hw-supported-modes=ac,an,a identity-regexp=*WAP* master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
+/caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
 /certificate settings set crl-download=no crl-store=system crl-use=no
 /interface bridge filter add action=drop chain=forward comment="drop all dhcp requests over bridge" dst-port=67 ip-protocol=udp mac-protocol=ip
 /interface bridge port add bridge="main infrastructure" interface="lan D (master)"
@@ -218,7 +219,7 @@
 /ip dhcp-server lease add address=192.168.98.224 block-access=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.180 address-lists=osx-hosts always-broadcast=yes mac-address=10:DD:B1:9E:19:5E server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.88 mac-address=94:C6:91:94:98:DC server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.200 client-id=1:cc:2d:e0:e7:be:02 mac-address=CC:2D:E0:E7:BE:02 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.200 mac-address=CC:2D:E0:E7:BE:02 server="main dhcp"
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server network add address=192.168.99.0/26 caps-manager=192.168.99.1 comment="VIRTUAL MACHINES DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.64/26 caps-manager=192.168.99.1 comment="WINDOWS DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
@@ -242,7 +243,7 @@
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
 /ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
 /ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-UPPUU22.home ttl=5m
-/ip dns static add address=192.168.99.200 comment="<AUTO:DHCP:main dhcp>" name=mikroWAP.home ttl=5m
+/ip dns static add address=192.168.99.200 comment="<AUTO:DHCP:main dhcp>" name=LivingRoomWAP.home ttl=5m
 /ip dns static add address=109.252.109.17 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" list=Bogons
@@ -305,6 +306,8 @@
 /ip firewall address-list add address=clubseventeen.com list=vpn-tunneled-sites
 /ip firewall address-list add address=109.252.109.17 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
+/ip firewall filter add action=accept chain=output comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
+/ip firewall filter add action=accept chain=input comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
 /ip firewall filter add action=jump chain=input comment="VPN Access" jump-target=vpn-rules
 /ip firewall filter add action=accept chain=vpn-rules comment="L2TP tunnel" dst-port=1701 log-prefix=#L2TP protocol=udp
 /ip firewall filter add action=accept chain=vpn-rules comment="VPN \"Allow IPSec-ah\"" log-prefix=#VPN protocol=ipsec-ah src-address-list="VPN server"
@@ -616,7 +619,6 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -638,10 +640,11 @@
 /system logging add action=AuthDiskLog topics=manager
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=wireless
+/system logging add action=CAPSOnScreenLog topics=caps
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:23 d:h:m:s | CPU: 57%\
-    \nRAM: 32048/131072M | Voltage: 23 v | Temp: 53c\
+    \nUptime:  00:00:23 d:h:m:s | CPU: 79%\
+    \nRAM: 32104/131072M | Voltage: 23 v | Temp: 53c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
