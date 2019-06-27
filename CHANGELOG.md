@@ -1,4 +1,14 @@
-### Git Auto Save, Date: четверг, 27 июня 2019 г. 22:35:54 (MSK), New Files:  Modified Files: scripts/doFreshTheScripts.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: четверг, 27 июня 2019 г. 22:41:35 (MSK), New Files:  Modified Files: rawconf_CHR_6.45beta27.rsc,  Removed Files: (HEAD -> _autobranch)
+>Thu, 27 Jun 2019 22:41:35 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: четверг, 27 июня 2019 г. 22:35:54 (MSK), New Files:  Modified Files: scripts/doFreshTheScripts.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
 >Thu, 27 Jun 2019 22:35:54 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Git Auto Save, Date: четверг, 27 июня 2019 г. 22:08:06 (MSK), New Files:  Modified Files: scripts/doFreshTheScripts.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: четверг, 27 июня 2019 г. 22:08:06 (MSK), New Files:  Modified Files: scripts/doFreshTheScripts.rsc.txt,  Removed Files:
 >Thu, 27 Jun 2019 22:08:06 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)

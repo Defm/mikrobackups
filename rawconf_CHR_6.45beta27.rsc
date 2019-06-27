@@ -1,4 +1,4 @@
-# jun/20/2019 20:51:36 by RouterOS 6.45beta27
+# jun/27/2019 22:41:06 by RouterOS 6.45beta27
 # software id = 
 #
 #
@@ -603,7 +603,10 @@
     \n\r\
     \n:local GitHubUserName \"Defm\";\r\
     \n:local GitHubRepoName \"mikrobackups\";\r\
-    \n:local GitHubAccessToken \"ce73ea614f27f4caf391850da45a94564dddc7a7\";\r\
+    \n\r\
+    \n#should be used for private repos\r\
+    \n:local GitHubAccessToken \"\";\r\
+    \n\r\
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
@@ -611,6 +614,7 @@
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
+    \n:local state \"\";\r\
     \n  \r\
     \n:foreach scriptId in [/system script find] do={\r\
     \n\r\
@@ -621,7 +625,7 @@
     \n  :if ( \$UseUpdateList ) do={\r\
     \n    :if ( [:len [find key=\$theScript in=\$UpdateList ]] > 0 ) do={\r\
     \n    } else={\r\
-    \n      :local state \"Script '\$theScript' skipped due to setup\";\r\
+    \n      :set state \"Script '\$theScript' skipped due to setup\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      :set skip true;\r\
     \n    }\r\
@@ -631,7 +635,7 @@
     \n  :if ( \$itsOk and !\$skip) do={\r\
     \n    :do {\r\
     \n\r\
-    \n      :local state \"/tool fetch url=\$RequestUrl\$\$theScript.rsc.txt output=user as-value\";\r\
+    \n      :set state \"/tool fetch url=\$RequestUrl\$\$theScript.rsc.txt output=user as-value\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n \r\
     \n      #Please keep care about consistency if size over 4096 bytes\r\
@@ -640,7 +644,7 @@
     \n      \$globalNoteMe value=\"Done\";\r\
     \n\r\
     \n    } on-error= { \r\
-    \n      :local state \"Error When Downloading Script '\$theScript' From GitHub\";\r\
+    \n      :set state \"Error When Downloading Script '\$theScript' From GitHub\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      :set itsOk false;\r\
     \n    }\r\
@@ -648,12 +652,12 @@
     \n\r\
     \n  :if ( \$itsOk and !\$skip) do={\r\
     \n    :do {\r\
-    \n      :local state \"Setting Up Script source for '\$theScript'\";\r\
+    \n      :set state \"Setting Up Script source for '\$theScript'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      /system script set \$theScript source=\"\$code\";\r\
     \n      \$globalNoteMe value=\"Done\";\r\
     \n    } on-error= { \r\
-    \n      :local state \"Error When Setting Up Script source for '\$theScript'\";\r\
+    \n      :set state \"Error When Setting Up Script source for '\$theScript'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      :set itsOk false;\r\
     \n    }\r\
