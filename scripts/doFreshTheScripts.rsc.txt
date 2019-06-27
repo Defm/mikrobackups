@@ -14,6 +14,7 @@ $globalScriptBeforeRun $scriptname;
 
 :global globalNoteMe;
 :local itsOk true;
+:local state "";
   
 :foreach scriptId in [/system script find] do={
 
@@ -24,7 +25,7 @@ $globalScriptBeforeRun $scriptname;
   :if ( $UseUpdateList ) do={
     :if ( [:len [find key=$theScript in=$UpdateList ]] > 0 ) do={
     } else={
-      :local state "Script '$theScript' skipped due to setup";
+      :set state "Script '$theScript' skipped due to setup";
       $globalNoteMe value=$state;
       :set skip true;
     }
@@ -34,7 +35,7 @@ $globalScriptBeforeRun $scriptname;
   :if ( $itsOk and !$skip) do={
     :do {
 
-      :local state "/tool fetch url=$RequestUrl$$theScript.rsc.txt output=user as-value";
+      :set state "/tool fetch url=$RequestUrl$$theScript.rsc.txt output=user as-value";
       $globalNoteMe value=$state;
  
       #Please keep care about consistency if size over 4096 bytes
@@ -43,7 +44,7 @@ $globalScriptBeforeRun $scriptname;
       $globalNoteMe value="Done";
 
     } on-error= { 
-      :local state "Error When Downloading Script '$theScript' From GitHub";
+      :set state "Error When Downloading Script '$theScript' From GitHub";
       $globalNoteMe value=$state;
       :set itsOk false;
     }
@@ -51,12 +52,12 @@ $globalScriptBeforeRun $scriptname;
 
   :if ( $itsOk and !$skip) do={
     :do {
-      :local state "Setting Up Script source for '$theScript'";
+      :set state "Setting Up Script source for '$theScript'";
       $globalNoteMe value=$state;
       /system script set $theScript source="$code";
       $globalNoteMe value="Done";
     } on-error= { 
-      :local state "Error When Setting Up Script source for '$theScript'";
+      :set state "Error When Setting Up Script source for '$theScript'";
       $globalNoteMe value=$state;
       :set itsOk false;
     }
