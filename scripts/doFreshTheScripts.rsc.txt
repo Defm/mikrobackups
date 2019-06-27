@@ -6,7 +6,10 @@ $globalScriptBeforeRun $scriptname;
 
 :local GitHubUserName "Defm";
 :local GitHubRepoName "mikrobackups";
-:local GitHubAccessToken "ce73ea614f27f4caf391850da45a94564dddc7a7";
+
+#should be used for private repos
+:local GitHubAccessToken "";
+
 :local RequestUrl "https://$GitHubAccessToken@raw.githubusercontent.com/$GitHubUserName/$GitHubRepoName/master/scripts/";
 
 :local UseUpdateList true;
