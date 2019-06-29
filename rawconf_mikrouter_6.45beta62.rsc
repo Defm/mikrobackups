@@ -1,4 +1,4 @@
-# jun/26/2019 23:39:15 by RouterOS 6.45beta62
+# jun/29/2019 15:25:39 by RouterOS 6.45beta62
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -43,11 +43,22 @@
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
 /interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" group-key-update=1h management-protection=allowed mode=dynamic-keys name=private supplicant-identity="" wpa-pre-shared-key=mikrotik wpa2-pre-shared-key=mikrotik
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
-/interface wireless set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia default-authentication=no disabled=no distance=indoors frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" preamble-mode=long security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
-/interface wireless add default-forwarding=no disabled=no keepalive-frames=disabled mac-address=6E:3B:6B:11:DA:1F master-interface="wlan 2Ghz" multicast-buffering=disabled name="wlan 2Ghz GUEST" security-profile=public ssid="WiFi 2Ghz FREE" wds-cost-range=0 wds-default-cost=0 wps-mode=disabled
-/interface wireless set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-n/ac channel-width=20/40/80mhz-Ceee country=russia2 default-authentication=no disabled=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" preamble-mode=long security-profile=private ssid="WiFi 5Ghz PRIVATE" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
-/interface wireless nstreme set "wlan 2Ghz" enable-polling=no
-/interface wireless nstreme set "wlan 5Ghz" enable-polling=no
+/interface wireless
+# managed by CAPsMAN
+# channel: 2412/20/gn(15dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
+set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia3 default-authentication=no distance=indoors frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" preamble-mode=long security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless
+# managed by CAPsMAN
+# channel: 5220/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-n/ac channel-width=20/40/80mhz-Ceee country=russia3 default-authentication=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" preamble-mode=long security-profile=private ssid="WiFi 5Ghz PRIVATE" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+/interface wireless nstreme
+# managed by CAPsMAN
+# channel: 2412/20/gn(15dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
+set "wlan 2Ghz" enable-polling=no
+/interface wireless nstreme
+# managed by CAPsMAN
+# channel: 5220/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+set "wlan 5Ghz" enable-polling=no
 /ip dhcp-server add authoritative=after-2sec-delay disabled=no interface="main infrastructure" lease-time=1d name="main dhcp"
 /ip dhcp-server option add code=15 name=DomainName value="s'home'"
 /ip firewall layer7-protocol add name=EXE regexp=".(exe)"
@@ -62,8 +73,8 @@
 /ip hotspot profile set [ find default=yes ] html-directory=flash/hotspot login-by=http-chap,trial
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=outside-ipsec-encryption
-/ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
-/ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" exchange-mode=ike2 name=CHR-external profile=ROUTEROS
+/ip ipsec profile add dh-group=modp1024 dpd-interval=20s dpd-maximum-failures=4 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
+/ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" exchange-mode=ike2 local-address=192.168.100.7 name=CHR-external profile=ROUTEROS
 /ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" local-address=10.0.0.2 name=CHR-internal profile=ROUTEROS
 /ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
 /ip ipsec proposal add auth-algorithms=sha256 enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
@@ -132,29 +143,30 @@
 /system logging action add name=FirewallOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
-/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=""
-/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="iPhoneAlx on 5ghz only" disabled=no mac-address=AC:61:EA:EA:CC:84 ssid-regexp="WiFi 5Ghz"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="iPhoneGl on 5ghz only" disabled=no mac-address=00:CD:FE:EC:B5:52 ssid-regexp="WiFi 5Ghz"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="mbpAlx on 2ghz only" disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp="WiFi 2Ghz"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="ATV on 2ghz only" disabled=no mac-address=B0:34:95:2D:D6:85 ssid-regexp="WiFi 2Ghz"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="iPadAlx on 2ghz only" disabled=no mac-address=54:E4:3A:B8:12:07 ssid-regexp="WiFi 2Ghz"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="asusGl on 2ghz only" disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp="WiFi 2Ghz"
+/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlx disabled=no mac-address=AC:61:EA:EA:CC:84 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneGl disabled=no mac-address=00:CD:FE:EC:B5:52 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=mbpAlx disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=ATV disabled=no mac-address=B0:34:95:2D:D6:85 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlx disabled=no mac-address=54:E4:3A:B8:12:07 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=asusGl disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set enabled=yes
+/caps-man manager set enabled=yes upgrade-policy=require-same-version
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
-/caps-man manager interface add comment="Deny WAN CapsMan" forbid=yes interface=wan
-/caps-man manager interface add comment="Do CapsMan on private" interface="main infrastructure"
-/caps-man manager interface add comment="Do CapsMan on guest" interface="guest infrastructure"
-/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest" hw-supported-modes=gn,b identity-regexp=*WAP* master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
-/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private" hw-supported-modes=ac,an,a identity-regexp=*WAP* master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
+/caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface=wan
+/caps-man manager interface add comment="Do CapsMan on private" disabled=no interface="main infrastructure"
+/caps-man manager interface add comment="Do CapsMan on guest" disabled=no interface="guest infrastructure"
+/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest" hw-supported-modes=gn,b identity-regexp=WAP master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
+/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private" hw-supported-modes=ac,an,a identity-regexp=WAP master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
+/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn,b identity-regexp=mikrouter master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
+/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac,an,a identity-regexp=mikrouter master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
 /certificate settings set crl-download=no crl-store=system crl-use=no
 /interface bridge filter add action=drop chain=forward comment="drop all dhcp requests over bridge" dst-port=67 ip-protocol=udp mac-protocol=ip
 /interface bridge port add bridge="main infrastructure" interface="lan D (master)"
 /interface bridge port add bridge="main infrastructure" interface="wlan 2Ghz"
 /interface bridge port add bridge="main infrastructure" interface="wlan 5Ghz"
-/interface bridge port add bridge="guest infrastructure" interface="wlan 2Ghz GUEST"
 /interface bridge port add bridge="main infrastructure" interface="lan A"
 /interface bridge port add bridge="main infrastructure" interface="lan B"
 /interface bridge port add bridge="main infrastructure" interface="lan C"
@@ -170,8 +182,8 @@
 /interface list member add comment="winbox allowed" interface="main infrastructure" list=list-winbox-allowed
 /interface list member add comment="neighbors lookup" interface=tunnel list=list-neighbors-lookup
 /interface list member add interface=wan list=list-drop-invalid-connections
-/interface list member add comment="GUEST WLAN" interface="wlan 2Ghz" list=list-private-wireless
-/interface list member add comment="GUEST WLAN" interface="wlan 5Ghz" list=list-private-wireless
+/interface list member add comment="PRIVATE WLAN" interface="wlan 2Ghz" list=list-private-wireless
+/interface list member add comment="PRIVATE WLAN" interface="wlan 5Ghz" list=list-private-wireless
 /interface wireless access-list add comment=ATV interface="wlan 2Ghz" mac-address=B0:34:95:2D:D6:85 vlan-mode=no-tag
 /interface wireless access-list add comment=iPhoneAlx interface="wlan 5Ghz" mac-address=AC:61:EA:EA:CC:84 vlan-mode=no-tag
 /interface wireless access-list add authentication=no comment="Block iPhoneAlx on 2Ghz" interface="wlan 2Ghz" mac-address=AC:61:EA:EA:CC:84 vlan-mode=no-tag
@@ -181,7 +193,9 @@
 /interface wireless access-list add authentication=no comment="Block iPadAlx on 5Ghz" interface="wlan 5Ghz" mac-address=54:E4:3A:B8:12:07 vlan-mode=no-tag
 /interface wireless access-list add comment=MbpAlx interface="wlan 2Ghz" mac-address=78:31:C1:CF:9E:70 vlan-mode=no-tag
 /interface wireless access-list add comment=asusGl interface="wlan 2Ghz" mac-address=98:22:EF:26:FE:6E vlan-mode=no-tag
-/interface wireless cap set discovery-interfaces="main infrastructure" interfaces="wlan 2Ghz,wlan 5Ghz"
+/interface wireless cap
+# 
+set caps-man-addresses=192.168.99.1 enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
 /interface wireless snooper set receive-errors=yes
 /ip accounting set account-local-traffic=yes enabled=yes threshold=200
 /ip address add address=192.168.99.1/24 comment="local IP" interface="main infrastructure" network=192.168.99.0
@@ -238,14 +252,14 @@
 /ip dns static add address=192.168.97.1 name=chr.home
 /ip dns static add address=192.168.100.1 name=gateway.home
 /ip dns static add address=192.168.99.190 comment="<AUTO:DHCP:main dhcp>" name=ATV.home ttl=5m
-/ip dns static add address=192.168.99.140 comment="<AUTO:DHCP:main dhcp>" name=iPadAlx.home ttl=5m
-/ip dns static add address=192.168.99.170 comment="<AUTO:DHCP:main dhcp>" name=MbpAlx.home ttl=5m
-/ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
-/ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
-/ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
 /ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-UPPUU22.home ttl=5m
 /ip dns static add address=192.168.99.200 comment="<AUTO:DHCP:main dhcp>" name=LivingRoomWAP.home ttl=5m
-/ip dns static add address=109.252.109.17 name=ftpserver.org
+/ip dns static add address=192.168.99.170 comment="<AUTO:DHCP:main dhcp>" name=MbpAlx.home ttl=5m
+/ip dns static add address=192.168.99.140 comment="<AUTO:DHCP:main dhcp>" name=iPadAlx.home ttl=5m
+/ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
+/ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
+/ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
+/ip dns static add address=109.252.108.18 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -305,7 +319,7 @@
 /ip firewall address-list add address=192.168.99.180 list=influxdb-service
 /ip firewall address-list add address=auntmia.com list=vpn-tunneled-sites
 /ip firewall address-list add address=clubseventeen.com list=vpn-tunneled-sites
-/ip firewall address-list add address=109.252.109.17 list=external-ip
+/ip firewall address-list add address=109.252.108.18 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -587,11 +601,11 @@
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
-/ip ipsec identity add auth-method=digital-signature certificate=mikrouter@CHR peer=CHR-external policy-template-group=outside-ipsec-encryption remote-id=ignore
-/ip ipsec identity add peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
+/ip ipsec identity add auth-method=digital-signature certificate=mikrouter@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption remote-id=ignore
+/ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
-/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/30 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" sa-dst-address=10.0.0.1 sa-src-address=10.0.0.2 src-address=192.168.99.0/24 tunnel=yes
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
+/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/30 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" sa-dst-address=10.0.0.1 sa-src-address=10.0.0.2 src-address=192.168.99.0/24 tunnel=yes
 /ip proxy set anonymous=yes cache-administrator=defm.kopcap@gmail.com enabled=yes max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=deny dst-host=grafana redirect-to=192.168.99.180:3000
 /ip proxy access add action=deny dst-host=influxdb redirect-to=192.168.99.180:8000
@@ -622,7 +636,6 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -646,10 +659,11 @@
 /system logging add action=ParseMemoryLog topics=wireless
 /system logging add action=CAPSOnScreenLog topics=caps
 /system logging add action=FirewallOnScreenLog topics=firewall
+/system logging add action=CAPSOnScreenLog topics=wireless
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
     \nUptime:  00:00:24 d:h:m:s | CPU: 100%\
-    \nRAM: 33172/131072M | Voltage: 23 v | Temp: 53c\
+    \nRAM: 33296/131072M | Voltage: 23 v | Temp: 52c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -2615,7 +2629,10 @@
     \n\r\
     \n:local GitHubUserName \"Defm\";\r\
     \n:local GitHubRepoName \"mikrobackups\";\r\
-    \n:local GitHubAccessToken \"ce73ea614f27f4caf391850da45a94564dddc7a7\";\r\
+    \n\r\
+    \n#should be used for private repos\r\
+    \n:local GitHubAccessToken \"\";\r\
+    \n\r\
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
@@ -2623,6 +2640,7 @@
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
+    \n:local state \"\";\r\
     \n  \r\
     \n:foreach scriptId in [/system script find] do={\r\
     \n\r\
@@ -2633,7 +2651,7 @@
     \n  :if ( \$UseUpdateList ) do={\r\
     \n    :if ( [:len [find key=\$theScript in=\$UpdateList ]] > 0 ) do={\r\
     \n    } else={\r\
-    \n      :local state \"Script '\$theScript' skipped due to setup\";\r\
+    \n      :set state \"Script '\$theScript' skipped due to setup\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      :set skip true;\r\
     \n    }\r\
@@ -2643,7 +2661,7 @@
     \n  :if ( \$itsOk and !\$skip) do={\r\
     \n    :do {\r\
     \n\r\
-    \n      :local state \"/tool fetch url=\$RequestUrl\$\$theScript.rsc.txt output=user as-value\";\r\
+    \n      :set state \"/tool fetch url=\$RequestUrl\$\$theScript.rsc.txt output=user as-value\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n \r\
     \n      #Please keep care about consistency if size over 4096 bytes\r\
@@ -2652,7 +2670,7 @@
     \n      \$globalNoteMe value=\"Done\";\r\
     \n\r\
     \n    } on-error= { \r\
-    \n      :local state \"Error When Downloading Script '\$theScript' From GitHub\";\r\
+    \n      :set state \"Error When Downloading Script '\$theScript' From GitHub\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      :set itsOk false;\r\
     \n    }\r\
@@ -2660,12 +2678,12 @@
     \n\r\
     \n  :if ( \$itsOk and !\$skip) do={\r\
     \n    :do {\r\
-    \n      :local state \"Setting Up Script source for '\$theScript'\";\r\
+    \n      :set state \"Setting Up Script source for '\$theScript'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      /system script set \$theScript source=\"\$code\";\r\
     \n      \$globalNoteMe value=\"Done\";\r\
     \n    } on-error= { \r\
-    \n      :local state \"Error When Setting Up Script source for '\$theScript'\";\r\
+    \n      :set state \"Error When Setting Up Script source for '\$theScript'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      :set itsOk false;\r\
     \n    }\r\

@@ -1,4 +1,4 @@
-# jun/20/2019 20:51:36 by RouterOS 6.45beta27
+# jun/29/2019 14:37:32 by RouterOS 6.45beta27
 # software id = 
 #
 #
@@ -15,8 +15,8 @@
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=roadwarrior-ipsec
 /ip ipsec policy group add name=outside-ipsec-encryption
-/ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
-/ip ipsec profile add dh-group=modp2048 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
+/ip ipsec profile add dh-group=modp1024 dpd-interval=20s dpd-maximum-failures=4 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
+/ip ipsec profile add dh-group=modp2048 dpd-interval=16s dpd-maximum-failures=2 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=WINDOWS
 /ip ipsec peer add address=10.0.0.2/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, traffic-only encryption)" local-address=10.0.0.1 name=MIC-INNER passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=109.252.0.0/17 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER passive=yes profile=ROUTEROS send-initial-contact=no
@@ -52,6 +52,7 @@
 /system logging action add name=CertificatesOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
+#error exporting /interface bridge calea
 /interface bridge settings set allow-fast-path=no use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=neighbors
@@ -82,6 +83,7 @@
 /ip firewall address-list add address=2ip.ru list=vpn-sites
 /ip firewall address-list add address=10.0.0.2 list=mic-network
 /ip firewall address-list add address=10.0.0.1 list=mis-network
+#error exporting /ip firewall calea
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Bandwidth test allow" port=2000 protocol=tcp
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -603,7 +605,10 @@
     \n\r\
     \n:local GitHubUserName \"Defm\";\r\
     \n:local GitHubRepoName \"mikrobackups\";\r\
-    \n:local GitHubAccessToken \"ce73ea614f27f4caf391850da45a94564dddc7a7\";\r\
+    \n\r\
+    \n#should be used for private repos\r\
+    \n:local GitHubAccessToken \"\";\r\
+    \n\r\
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
@@ -611,6 +616,7 @@
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
+    \n:local state \"\";\r\
     \n  \r\
     \n:foreach scriptId in [/system script find] do={\r\
     \n\r\
@@ -621,7 +627,7 @@
     \n  :if ( \$UseUpdateList ) do={\r\
     \n    :if ( [:len [find key=\$theScript in=\$UpdateList ]] > 0 ) do={\r\
     \n    } else={\r\
-    \n      :local state \"Script '\$theScript' skipped due to setup\";\r\
+    \n      :set state \"Script '\$theScript' skipped due to setup\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      :set skip true;\r\
     \n    }\r\
@@ -631,7 +637,7 @@
     \n  :if ( \$itsOk and !\$skip) do={\r\
     \n    :do {\r\
     \n\r\
-    \n      :local state \"/tool fetch url=\$RequestUrl\$\$theScript.rsc.txt output=user as-value\";\r\
+    \n      :set state \"/tool fetch url=\$RequestUrl\$\$theScript.rsc.txt output=user as-value\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n \r\
     \n      #Please keep care about consistency if size over 4096 bytes\r\
@@ -640,7 +646,7 @@
     \n      \$globalNoteMe value=\"Done\";\r\
     \n\r\
     \n    } on-error= { \r\
-    \n      :local state \"Error When Downloading Script '\$theScript' From GitHub\";\r\
+    \n      :set state \"Error When Downloading Script '\$theScript' From GitHub\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      :set itsOk false;\r\
     \n    }\r\
@@ -648,12 +654,12 @@
     \n\r\
     \n  :if ( \$itsOk and !\$skip) do={\r\
     \n    :do {\r\
-    \n      :local state \"Setting Up Script source for '\$theScript'\";\r\
+    \n      :set state \"Setting Up Script source for '\$theScript'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      /system script set \$theScript source=\"\$code\";\r\
     \n      \$globalNoteMe value=\"Done\";\r\
     \n    } on-error= { \r\
-    \n      :local state \"Error When Setting Up Script source for '\$theScript'\";\r\
+    \n      :set state \"Error When Setting Up Script source for '\$theScript'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n      :set itsOk false;\r\
     \n    }\r\
