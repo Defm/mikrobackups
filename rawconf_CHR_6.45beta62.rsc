@@ -1,4 +1,4 @@
-# jun/29/2019 18:28:20 by RouterOS 6.45beta62
+# jun/30/2019 01:22:31 by RouterOS 6.45beta62
 # software id = 
 #
 #
@@ -52,6 +52,8 @@
 /system logging action add name=CertificatesOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
+/certificate scep-server add ca-cert=ca@CHR days-valid=365 path=/scep/grant request-lifetime=5m
+#error exporting /interface bridge calea
 /interface bridge settings set allow-fast-path=no use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=neighbors
@@ -82,79 +84,80 @@
 /ip firewall address-list add address=2ip.ru list=vpn-sites
 /ip firewall address-list add address=10.0.0.2 list=mic-network
 /ip firewall address-list add address=10.0.0.1 list=mis-network
-/ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
-/ip firewall filter add action=accept chain=input comment="Bandwidth test allow" port=2000 protocol=tcp
-/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
-/ip firewall filter add action=jump chain=input comment="VPN Access" jump-target="VPN Access"
-/ip firewall filter add action=accept chain="VPN Access" comment="L2TP tunnel" dst-port=1701 log-prefix=#L2TP protocol=udp
-/ip firewall filter add action=accept chain="VPN Access" comment="VPN Allow IPSec-ah" log-prefix=#VPN protocol=ipsec-ah
-/ip firewall filter add action=accept chain="VPN Access" comment="VPN Allow IPSec-esp" log-prefix=#VPN protocol=ipsec-esp
-/ip firewall filter add action=accept chain="VPN Access" comment="VPN \"Allow IKE\" - IPSEC connection establishing" dst-port=500 log-prefix=#VPN protocol=udp
-/ip firewall filter add action=accept chain="VPN Access" comment="VPN \"Allow UDP\" - IPSEC data trasfer" dst-port=4500 log-prefix=#VPN protocol=udp
-/ip firewall filter add action=return chain="VPN Access" comment="Return from VPN Access"
-/ip firewall filter add action=jump chain=forward comment="VPN Passthrough" jump-target="VPN Access"
-/ip firewall filter add action=accept chain="VPN Passthrough" comment=VPN dst-address-list=mis-network log-prefix=#VPN
-/ip firewall filter add action=accept chain="VPN Passthrough" comment=VPN dst-address-list=mis-network log-prefix=#VPN
-/ip firewall filter add action=return chain="VPN Passthrough" comment="Return from VPN Passthrough"
-/ip firewall filter add action=jump chain=input comment="Invalid DROP" jump-target="Invalid input DROP"
-/ip firewall filter add action=drop chain="Invalid input DROP" comment="Drop Invalid Connections" connection-state=invalid
-/ip firewall filter add action=return chain="Invalid input DROP" comment="Invalid DROP"
-/ip firewall filter add action=jump chain=forward comment="Invalid DROP" jump-target="Invalid forward DROP"
-/ip firewall filter add action=drop chain="Invalid forward DROP" comment="Drop Invalid Connections" connection-state=invalid
-/ip firewall filter add action=return chain="Invalid forward DROP" comment="Invalid DROP"
-/ip firewall filter add action=jump chain=input comment="Input BL" jump-target="Input Blacklist"
-/ip firewall filter add action=drop chain="Input Blacklist" comment="Drop anyone in the Black List (Manually Added)" src-address-list=bh-manual
-/ip firewall filter add action=drop chain="Input Blacklist" comment="Drop anyone in the Black List (SSH)" src-address-list=bh-ssh
-/ip firewall filter add action=drop chain="Input Blacklist" comment="Drop anyone in the Black List (Winbox)" src-address-list=bh-winbox
-/ip firewall filter add action=drop chain="Input Blacklist" comment="Drop anyone in the WAN Port Scanner List" src-address-list=bh-wan-port-scan
-/ip firewall filter add action=drop chain="Input Blacklist" comment="Drop anyone in the LAN Port Scanner List" src-address-list=bh-lan-port-scan
-/ip firewall filter add action=return chain="Input Blacklist" comment="Input Blacklist"
-/ip firewall filter add action=jump chain=forward comment="Forward BL" jump-target="Forward Blacklist"
-/ip firewall filter add action=drop chain="Forward Blacklist" comment="Drop anyone in the Black List (Manually Added)" src-address-list=bh-manual
-/ip firewall filter add action=drop chain="Forward Blacklist" comment="Drop anyone in the Black List (SSH)" src-address-list=bh-ssh
-/ip firewall filter add action=drop chain="Forward Blacklist" comment="Drop anyone in the Black List (Winbox)" src-address-list=bh-winbox
-/ip firewall filter add action=drop chain="Forward Blacklist" comment="Drop anyone in the WAN Port Scanner List" src-address-list=bh-wan-port-scan
-/ip firewall filter add action=drop chain="Forward Blacklist" comment="Drop anyone in the LAN Port Scanner List" src-address-list=bh-lan-port-scan
-/ip firewall filter add action=return chain="Forward Blacklist" comment="Forward Blacklist"
-/ip firewall filter add action=jump chain=input comment="Jump to SSH Staged control" jump-target="SSH Staged control"
-/ip firewall filter add action=add-src-to-address-list address-list=bh-ssh address-list-timeout=none-dynamic chain="SSH Staged control" comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new dst-port=22 protocol=tcp src-address-list=ssh-staged-3
-/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-3 address-list-timeout=1m chain="SSH Staged control" comment="Add succesive attempts to SSH Stage 3" connection-state=new dst-port=22 protocol=tcp src-address-list=ssh-staged-2
-/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-2 address-list-timeout=1m chain="SSH Staged control" comment="Add succesive attempts to SSH Stage 2" connection-state=new dst-port=22 protocol=tcp src-address-list=ssh-staged-1
-/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-1 address-list-timeout=1m chain="SSH Staged control" comment="Add intial attempt to SSH Stage 1 List" connection-state=new dst-port=22 protocol=tcp
-/ip firewall filter add action=return chain="SSH Staged control" comment="Return From SSH Staged control"
-/ip firewall filter add action=jump chain=input comment="Jump to Winbox staged control" jump-target="Winbox staged control"
-/ip firewall filter add action=add-src-to-address-list address-list=bh-winbox address-list-timeout=none-dynamic chain="Winbox staged control" comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new dst-port=8291 protocol=tcp src-address-list=winbox-staged-3
-/ip firewall filter add action=add-src-to-address-list address-list=winbox-staged-3 address-list-timeout=1m chain="Winbox staged control" comment="Add succesive attempts to Winbox Stage 3" connection-state=new dst-port=8291 protocol=tcp src-address-list=winbox-staged-2
-/ip firewall filter add action=add-src-to-address-list address-list=winbox-staged-2 address-list-timeout=1m chain="Winbox staged control" comment="Add succesive attempts to Winbox Stage 2" connection-state=new dst-port=8291 protocol=tcp src-address-list=winbox-staged-1
-/ip firewall filter add action=add-src-to-address-list address-list=winbox-staged-1 address-list-timeout=1m chain="Winbox staged control" comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp
-/ip firewall filter add action=return chain="Winbox staged control" comment="Return From Winbox staged control"
-/ip firewall filter add action=add-src-to-address-list address-list=bh-wan-port-scan address-list-timeout=none-dynamic chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1
-/ip firewall filter add action=add-src-to-address-list address-list=bh-lan-port-scan address-list-timeout=none-dynamic chain=forward comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1
-/ip firewall filter add action=jump chain=input comment="Jump to DNS Amplification" jump-target="DNS Amplification" protocol=udp
-/ip firewall filter add action=accept chain="DNS Amplification" comment="Make exceptions for DNS" log-prefix=#DNS port=53 protocol=udp src-address-list=dns-accept
-/ip firewall filter add action=accept chain="DNS Amplification" comment="Make exceptions for DNS" dst-address-list=dns-accept log-prefix=#DNS port=53 protocol=udp
-/ip firewall filter add action=add-src-to-address-list address-list=dns-reject address-list-timeout=10h chain="DNS Amplification" comment="Add DNS Amplification to Blacklist" port=53 protocol=udp src-address-list=!dns-accept
-/ip firewall filter add action=drop chain="DNS Amplification" comment="Drop DNS Amplification" src-address-list=dns-reject
-/ip firewall filter add action=return chain="DNS Amplification" comment="Return from DNS Amplification"
-/ip firewall filter add action=jump chain=input comment="Check for ping flooding" jump-target=detect-ping-flood protocol=icmp
-/ip firewall filter add action=accept chain=detect-ping-flood comment="0:0 and limit for 5 pac/s" icmp-options=0:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=detect-ping-flood comment="3:3 and limit for 5 pac/s" icmp-options=3:3 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=detect-ping-flood comment="3:4 and limit for 5 pac/s" icmp-options=3:4 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 5 pac/s" icmp-options=8:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=detect-ping-flood comment="11:0 and limit for 5 pac/s" icmp-options=11:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" protocol=icmp
-/ip firewall filter add action=return chain=detect-ping-flood comment="Return from detect-ping-flood Chain"
-/ip firewall filter add action=jump chain=input comment="Router remote control" jump-target="Router remote control" src-address-list=mis-remote-control
-/ip firewall filter add action=accept chain="Router remote control" comment="SSH (2222/TCP)" dst-port=2222 protocol=tcp
-/ip firewall filter add action=accept chain="Router remote control" comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
-/ip firewall filter add action=return chain="Router remote control" comment="Return from Router remote control"
-/ip firewall filter add action=accept chain=input comment="Simple Network Management Protocol(SNMP)  " port=161 protocol=udp
-/ip firewall filter add action=accept chain=input comment="Simple Network Management ProtocolTrap (SNMPTRAP)" port=162 protocol=tcp
-/ip firewall filter add action=accept chain=input comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " port=162 protocol=udp
-/ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (INPUT)"
-/ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new log-prefix="#ACCEPTED UNKNOWN (FWD)"
-/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log-prefix="#DROP UNKNOWN (INPUT)"
-/ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log-prefix="#DROP UNKNOWN (FWD)"
+#error exporting /ip firewall calea
+/ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" disabled=yes log-prefix=#OSFP protocol=ospf
+/ip firewall filter add action=accept chain=input comment="Bandwidth test allow" disabled=yes port=2000 protocol=tcp
+/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related disabled=yes log-prefix="#ACCEPTED UNKNOWN (FWD)"
+/ip firewall filter add action=jump chain=input comment="VPN Access" disabled=yes jump-target="VPN Access"
+/ip firewall filter add action=accept chain="VPN Access" comment="L2TP tunnel" disabled=yes dst-port=1701 log-prefix=#L2TP protocol=udp
+/ip firewall filter add action=accept chain="VPN Access" comment="VPN Allow IPSec-ah" disabled=yes log-prefix=#VPN protocol=ipsec-ah
+/ip firewall filter add action=accept chain="VPN Access" comment="VPN Allow IPSec-esp" disabled=yes log-prefix=#VPN protocol=ipsec-esp
+/ip firewall filter add action=accept chain="VPN Access" comment="VPN \"Allow IKE\" - IPSEC connection establishing" disabled=yes dst-port=500 log-prefix=#VPN protocol=udp
+/ip firewall filter add action=accept chain="VPN Access" comment="VPN \"Allow UDP\" - IPSEC data trasfer" disabled=yes dst-port=4500 log-prefix=#VPN protocol=udp
+/ip firewall filter add action=return chain="VPN Access" comment="Return from VPN Access" disabled=yes
+/ip firewall filter add action=jump chain=forward comment="VPN Passthrough" disabled=yes jump-target="VPN Access"
+/ip firewall filter add action=accept chain="VPN Passthrough" comment=VPN disabled=yes dst-address-list=mis-network log-prefix=#VPN
+/ip firewall filter add action=accept chain="VPN Passthrough" comment=VPN disabled=yes dst-address-list=mis-network log-prefix=#VPN
+/ip firewall filter add action=return chain="VPN Passthrough" comment="Return from VPN Passthrough" disabled=yes
+/ip firewall filter add action=jump chain=input comment="Invalid DROP" disabled=yes jump-target="Invalid input DROP"
+/ip firewall filter add action=drop chain="Invalid input DROP" comment="Drop Invalid Connections" connection-state=invalid disabled=yes
+/ip firewall filter add action=return chain="Invalid input DROP" comment="Invalid DROP" disabled=yes
+/ip firewall filter add action=jump chain=forward comment="Invalid DROP" disabled=yes jump-target="Invalid forward DROP"
+/ip firewall filter add action=drop chain="Invalid forward DROP" comment="Drop Invalid Connections" connection-state=invalid disabled=yes
+/ip firewall filter add action=return chain="Invalid forward DROP" comment="Invalid DROP" disabled=yes
+/ip firewall filter add action=jump chain=input comment="Input BL" disabled=yes jump-target="Input Blacklist"
+/ip firewall filter add action=drop chain="Input Blacklist" comment="Drop anyone in the Black List (Manually Added)" disabled=yes src-address-list=bh-manual
+/ip firewall filter add action=drop chain="Input Blacklist" comment="Drop anyone in the Black List (SSH)" disabled=yes src-address-list=bh-ssh
+/ip firewall filter add action=drop chain="Input Blacklist" comment="Drop anyone in the Black List (Winbox)" disabled=yes src-address-list=bh-winbox
+/ip firewall filter add action=drop chain="Input Blacklist" comment="Drop anyone in the WAN Port Scanner List" disabled=yes src-address-list=bh-wan-port-scan
+/ip firewall filter add action=drop chain="Input Blacklist" comment="Drop anyone in the LAN Port Scanner List" disabled=yes src-address-list=bh-lan-port-scan
+/ip firewall filter add action=return chain="Input Blacklist" comment="Input Blacklist" disabled=yes
+/ip firewall filter add action=jump chain=forward comment="Forward BL" disabled=yes jump-target="Forward Blacklist"
+/ip firewall filter add action=drop chain="Forward Blacklist" comment="Drop anyone in the Black List (Manually Added)" disabled=yes src-address-list=bh-manual
+/ip firewall filter add action=drop chain="Forward Blacklist" comment="Drop anyone in the Black List (SSH)" disabled=yes src-address-list=bh-ssh
+/ip firewall filter add action=drop chain="Forward Blacklist" comment="Drop anyone in the Black List (Winbox)" disabled=yes src-address-list=bh-winbox
+/ip firewall filter add action=drop chain="Forward Blacklist" comment="Drop anyone in the WAN Port Scanner List" disabled=yes src-address-list=bh-wan-port-scan
+/ip firewall filter add action=drop chain="Forward Blacklist" comment="Drop anyone in the LAN Port Scanner List" disabled=yes src-address-list=bh-lan-port-scan
+/ip firewall filter add action=return chain="Forward Blacklist" comment="Forward Blacklist" disabled=yes
+/ip firewall filter add action=jump chain=input comment="Jump to SSH Staged control" disabled=yes jump-target="SSH Staged control"
+/ip firewall filter add action=add-src-to-address-list address-list=bh-ssh address-list-timeout=none-dynamic chain="SSH Staged control" comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=ssh-staged-3
+/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-3 address-list-timeout=1m chain="SSH Staged control" comment="Add succesive attempts to SSH Stage 3" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=ssh-staged-2
+/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-2 address-list-timeout=1m chain="SSH Staged control" comment="Add succesive attempts to SSH Stage 2" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=ssh-staged-1
+/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-1 address-list-timeout=1m chain="SSH Staged control" comment="Add intial attempt to SSH Stage 1 List" connection-state=new disabled=yes dst-port=22 protocol=tcp
+/ip firewall filter add action=return chain="SSH Staged control" comment="Return From SSH Staged control" disabled=yes
+/ip firewall filter add action=jump chain=input comment="Jump to Winbox staged control" disabled=yes jump-target="Winbox staged control"
+/ip firewall filter add action=add-src-to-address-list address-list=bh-winbox address-list-timeout=none-dynamic chain="Winbox staged control" comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=winbox-staged-3
+/ip firewall filter add action=add-src-to-address-list address-list=winbox-staged-3 address-list-timeout=1m chain="Winbox staged control" comment="Add succesive attempts to Winbox Stage 3" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=winbox-staged-2
+/ip firewall filter add action=add-src-to-address-list address-list=winbox-staged-2 address-list-timeout=1m chain="Winbox staged control" comment="Add succesive attempts to Winbox Stage 2" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=winbox-staged-1
+/ip firewall filter add action=add-src-to-address-list address-list=winbox-staged-1 address-list-timeout=1m chain="Winbox staged control" comment="Add Intial attempt to Winbox Stage 1" connection-state=new disabled=yes dst-port=8291 protocol=tcp
+/ip firewall filter add action=return chain="Winbox staged control" comment="Return From Winbox staged control" disabled=yes
+/ip firewall filter add action=add-src-to-address-list address-list=bh-wan-port-scan address-list-timeout=none-dynamic chain=input comment="Add TCP Port Scanners to Address List" disabled=yes protocol=tcp psd=40,3s,2,1
+/ip firewall filter add action=add-src-to-address-list address-list=bh-lan-port-scan address-list-timeout=none-dynamic chain=forward comment="Add TCP Port Scanners to Address List" disabled=yes protocol=tcp psd=40,3s,2,1
+/ip firewall filter add action=jump chain=input comment="Jump to DNS Amplification" disabled=yes jump-target="DNS Amplification" protocol=udp
+/ip firewall filter add action=accept chain="DNS Amplification" comment="Make exceptions for DNS" disabled=yes log-prefix=#DNS port=53 protocol=udp src-address-list=dns-accept
+/ip firewall filter add action=accept chain="DNS Amplification" comment="Make exceptions for DNS" disabled=yes dst-address-list=dns-accept log-prefix=#DNS port=53 protocol=udp
+/ip firewall filter add action=add-src-to-address-list address-list=dns-reject address-list-timeout=10h chain="DNS Amplification" comment="Add DNS Amplification to Blacklist" disabled=yes port=53 protocol=udp src-address-list=!dns-accept
+/ip firewall filter add action=drop chain="DNS Amplification" comment="Drop DNS Amplification" disabled=yes src-address-list=dns-reject
+/ip firewall filter add action=return chain="DNS Amplification" comment="Return from DNS Amplification" disabled=yes
+/ip firewall filter add action=jump chain=input comment="Check for ping flooding" disabled=yes jump-target=detect-ping-flood protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="0:0 and limit for 5 pac/s" disabled=yes icmp-options=0:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="3:3 and limit for 5 pac/s" disabled=yes icmp-options=3:3 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="3:4 and limit for 5 pac/s" disabled=yes icmp-options=3:4 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 5 pac/s" disabled=yes icmp-options=8:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="11:0 and limit for 5 pac/s" disabled=yes icmp-options=11:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" disabled=yes protocol=icmp
+/ip firewall filter add action=return chain=detect-ping-flood comment="Return from detect-ping-flood Chain" disabled=yes
+/ip firewall filter add action=jump chain=input comment="Router remote control" disabled=yes jump-target="Router remote control" src-address-list=mis-remote-control
+/ip firewall filter add action=accept chain="Router remote control" comment="SSH (2222/TCP)" disabled=yes dst-port=2222 protocol=tcp
+/ip firewall filter add action=accept chain="Router remote control" comment="Winbox (8291/TCP)" disabled=yes dst-port=8291 protocol=tcp
+/ip firewall filter add action=return chain="Router remote control" comment="Return from Router remote control" disabled=yes
+/ip firewall filter add action=accept chain=input comment="Simple Network Management Protocol(SNMP)  " disabled=yes port=161 protocol=udp
+/ip firewall filter add action=accept chain=input comment="Simple Network Management ProtocolTrap (SNMPTRAP)" disabled=yes port=162 protocol=tcp
+/ip firewall filter add action=accept chain=input comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " disabled=yes port=162 protocol=udp
+/ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related disabled=yes log-prefix="#ACCEPTED UNKNOWN (INPUT)"
+/ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new disabled=yes log-prefix="#ACCEPTED UNKNOWN (FWD)"
+/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" disabled=yes log-prefix="#DROP UNKNOWN (INPUT)"
+/ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" disabled=yes log-prefix="#DROP UNKNOWN (FWD)"
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" dst-address-list=vpn-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
@@ -189,7 +192,6 @@
 /ip route add check-gateway=ping comment=GLOBAL distance=10 gateway=185.13.148.1
 /ip service set telnet disabled=yes
 /ip service set ftp disabled=yes
-/ip service set www disabled=yes
 /ip service set ssh address=10.0.0.2/32 port=2222
 /ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
