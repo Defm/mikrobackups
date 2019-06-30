@@ -1,4 +1,4 @@
-# jun/30/2019 01:22:03 by RouterOS 6.45beta62
+# jun/30/2019 16:35:54 by RouterOS 6.45beta62
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -49,7 +49,7 @@
 set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia3 default-authentication=no distance=indoors frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" preamble-mode=long security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5220/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5180/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-n/ac channel-width=20/40/80mhz-Ceee country=russia3 default-authentication=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" preamble-mode=long security-profile=private ssid="WiFi 5Ghz PRIVATE" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless nstreme
 # managed by CAPsMAN
@@ -57,7 +57,7 @@ set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode anten
 set "wlan 2Ghz" enable-polling=no
 /interface wireless nstreme
 # managed by CAPsMAN
-# channel: 5220/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5180/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set "wlan 5Ghz" enable-polling=no
 /ip dhcp-server add authoritative=after-2sec-delay disabled=no interface="main infrastructure" lease-time=1d name="main dhcp"
 /ip dhcp-server option add code=15 name=DomainName value="s'home'"
@@ -73,7 +73,7 @@ set "wlan 5Ghz" enable-polling=no
 /ip hotspot profile set [ find default=yes ] html-directory=flash/hotspot login-by=http-chap,trial
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=outside-ipsec-encryption
-/ip ipsec profile add dh-group=modp1024 dpd-interval=24s dpd-maximum-failures=3 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
+/ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
 /ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" exchange-mode=ike2 local-address=192.168.100.7 name=CHR-external profile=ROUTEROS
 /ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" local-address=10.0.0.2 name=CHR-internal profile=ROUTEROS
 /ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
@@ -636,7 +636,6 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -663,8 +662,8 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system logging add action=CAPSOnScreenLog topics=wireless
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:22 d:h:m:s | CPU: 21%\
-    \nRAM: 33280/131072M | Voltage: 23 v | Temp: 55c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 35%\
+    \nRAM: 29580/131072M | Voltage: 23 v | Temp: 52c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
