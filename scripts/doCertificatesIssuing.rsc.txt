@@ -1,5 +1,5 @@
 
-# generates IPSEC certs: CA, server, code sign and clients
+# generates IPSEC certs: CA, server, IOS *.mobileconfig profile sign and clients
 # i recommend to run it on server side
 
 #clients
@@ -38,7 +38,8 @@ $globalScriptBeforeRun $scriptname;
   :local state "CA certificates generation...";
   $globalNoteMe value=$state;
 
-  ## generate a CA certificate
+  ## generate a CA certificate (that will be just a template while not signed)
+  ## crl-sign allows to use SCEP
   /certificate add name="ca.myvpn.local" common-name="ca@$sysname" subject-alt-name="email:ca@myvpn.local"  key-usage=crl-sign,key-cert-sign country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"   \
   ##  key-size="$KEYSIZE" days-valid=3650 
 
@@ -54,7 +55,7 @@ $globalScriptBeforeRun $scriptname;
   :local state "SERVER certificates generation...";
   $globalNoteMe value=$state;
 
-  ## generate a server certificate
+  ## generate a server certificate (that will be just a template while not signed)
   /certificate add name="server.myvpn.local" common-name="$ServerIP" subject-alt-name="IP:$ServerIP" key-usage=tls-server country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  \
   ##  key-size="$KEYSIZE" days-valid=1095 
 
@@ -70,7 +71,7 @@ $globalScriptBeforeRun $scriptname;
   :local state "CODE SIGN certificates generation...";
   $globalNoteMe value=$state;
 
-  ## generate a code signing (apple IOS profiles) certificate
+  ## generate a code signing (apple IOS profiles) certificate (that will be just a template while not signed)
   /certificate add name="sign.myvpn.local" common-name="sign@$sysname" subject-alt-name="email:sign@myvpn.local" key-usage=code-sign,digital-signature country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  \
   ##  key-size="$KEYSIZE" days-valid=1095 
 
@@ -91,7 +92,7 @@ $globalScriptBeforeRun $scriptname;
     :local state "CLIENT certificates generation...  $USERNAME";
     $globalNoteMe value=$state;
 
-    ## create a client certificate
+    ## create a client certificate (that will be just a template while not signed)
     /certificate add name="client.myvpn.local" common-name="$USERNAME@$sysname" subject-alt-name="email:$USERNAME@myvpn.local" key-usage=tls-client country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  \
     ##  key-size="$KEYSIZE" days-valid=1095 
 

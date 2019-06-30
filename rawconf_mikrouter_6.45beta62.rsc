@@ -1,4 +1,4 @@
-# jun/29/2019 16:19:56 by RouterOS 6.45beta62
+# jun/30/2019 16:35:54 by RouterOS 6.45beta62
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -73,7 +73,7 @@ set "wlan 5Ghz" enable-polling=no
 /ip hotspot profile set [ find default=yes ] html-directory=flash/hotspot login-by=http-chap,trial
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=outside-ipsec-encryption
-/ip ipsec profile add dh-group=modp1024 dpd-interval=24s dpd-maximum-failures=3 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
+/ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
 /ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" exchange-mode=ike2 local-address=192.168.100.7 name=CHR-external profile=ROUTEROS
 /ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" local-address=10.0.0.2 name=CHR-internal profile=ROUTEROS
 /ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
@@ -152,7 +152,7 @@ set "wlan 5Ghz" enable-polling=no
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=asusGl disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set enabled=yes upgrade-policy=require-same-version
+/caps-man manager set ca-certificate=ca@CHR certificate=mikrouter@CAPsMAN enabled=yes require-peer-certificate=yes upgrade-policy=require-same-version
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
 /caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface=wan
 /caps-man manager interface add comment="Do CapsMan on private" disabled=no interface="main infrastructure"
@@ -162,7 +162,7 @@ set "wlan 5Ghz" enable-polling=no
 /caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn,b identity-regexp=mikrouter master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
 /caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac,an,a identity-regexp=mikrouter master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
-/certificate settings set crl-download=no crl-store=system crl-use=no
+/certificate settings set crl-download=no crl-use=no
 /interface bridge filter add action=drop chain=forward comment="drop all dhcp requests over bridge" dst-port=67 ip-protocol=udp mac-protocol=ip
 /interface bridge port add bridge="main infrastructure" interface="lan D (master)"
 /interface bridge port add bridge="main infrastructure" interface="wlan 2Ghz"
@@ -195,7 +195,7 @@ set "wlan 5Ghz" enable-polling=no
 /interface wireless access-list add comment=asusGl interface="wlan 2Ghz" mac-address=98:22:EF:26:FE:6E vlan-mode=no-tag
 /interface wireless cap
 # 
-set caps-man-addresses=192.168.99.1 enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
+set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
 /interface wireless snooper set receive-errors=yes
 /ip accounting set account-local-traffic=yes enabled=yes threshold=200
 /ip address add address=192.168.99.1/24 comment="local IP" interface="main infrastructure" network=192.168.99.0
@@ -606,7 +606,7 @@ set caps-man-addresses=192.168.99.1 enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
 /ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/30 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" sa-dst-address=10.0.0.1 sa-src-address=10.0.0.2 src-address=192.168.99.0/24 tunnel=yes
-/ip proxy set anonymous=yes cache-administrator=defm.kopcap@gmail.com enabled=yes max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
+/ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=deny dst-host=grafana redirect-to=192.168.99.180:3000
 /ip proxy access add action=deny dst-host=influxdb redirect-to=192.168.99.180:8000
 /ip route add comment="GLOBAL MGTS" distance=50 gateway=192.168.100.1
@@ -662,8 +662,8 @@ set caps-man-addresses=192.168.99.1 enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
 /system logging add action=CAPSOnScreenLog topics=wireless
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:22 d:h:m:s | CPU: 21%\
-    \nRAM: 33280/131072M | Voltage: 23 v | Temp: 55c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 35%\
+    \nRAM: 29580/131072M | Voltage: 23 v | Temp: 52c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -1198,7 +1198,7 @@ set caps-man-addresses=192.168.99.1 enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
     \n#\r\
     \n# end of script"
 /system script add dont-require-permissions=yes name=doCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n# generates IPSEC certs: CA, server, code sign and clients\r\
+    \n# generates IPSEC certs: CA, server, IOS *.mobileconfig profile sign and clients\r\
     \n# i recommend to run it on server side\r\
     \n\r\
     \n#clients\r\
@@ -1237,7 +1237,8 @@ set caps-man-addresses=192.168.99.1 enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
     \n  :local state \"CA certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  ## generate a CA certificate\r\
+    \n  ## generate a CA certificate (that will be just a template while not signed)\r\
+    \n  ## crl-sign allows to use SCEP\r\
     \n  /certificate add name=\"ca.myvpn.local\" common-name=\"ca@\$sysname\" subject-alt-name=\"email:ca@myvpn.local\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"   \\\r\
     \n  ##  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
     \n\r\
@@ -1253,7 +1254,7 @@ set caps-man-addresses=192.168.99.1 enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
     \n  :local state \"SERVER certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  ## generate a server certificate\r\
+    \n  ## generate a server certificate (that will be just a template while not signed)\r\
     \n  /certificate add name=\"server.myvpn.local\" common-name=\"\$ServerIP\" subject-alt-name=\"IP:\$ServerIP\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
     \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
     \n\r\
@@ -1269,7 +1270,7 @@ set caps-man-addresses=192.168.99.1 enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
     \n  :local state \"CODE SIGN certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  ## generate a code signing (apple IOS profiles) certificate\r\
+    \n  ## generate a code signing (apple IOS profiles) certificate (that will be just a template while not signed)\r\
     \n  /certificate add name=\"sign.myvpn.local\" common-name=\"sign@\$sysname\" subject-alt-name=\"email:sign@myvpn.local\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
     \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
     \n\r\
@@ -1290,7 +1291,7 @@ set caps-man-addresses=192.168.99.1 enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
     \n    :local state \"CLIENT certificates generation...  \$USERNAME\";\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    ## create a client certificate\r\
+    \n    ## create a client certificate (that will be just a template while not signed)\r\
     \n    /certificate add name=\"client.myvpn.local\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@myvpn.local\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
     \n    ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
     \n\r\

@@ -18,8 +18,8 @@
 # -----------------------------------
 :global logParseVar ""
 
-:local loglastparsetime
-:local loglastparsemessage
+:global loglastparsetime
+:global loglastparsemessage
 :local findindex
 :local property
 :local value
