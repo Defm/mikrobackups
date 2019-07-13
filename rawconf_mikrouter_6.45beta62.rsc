@@ -1,4 +1,4 @@
-# jun/30/2019 16:35:54 by RouterOS 6.45beta62
+# jul/13/2019 20:08:22 by RouterOS 6.45beta62
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -662,8 +662,8 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system logging add action=CAPSOnScreenLog topics=wireless
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:20 d:h:m:s | CPU: 35%\
-    \nRAM: 29580/131072M | Voltage: 23 v | Temp: 52c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 61%\
+    \nRAM: 29448/131072M | Voltage: 23 v | Temp: 20c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
