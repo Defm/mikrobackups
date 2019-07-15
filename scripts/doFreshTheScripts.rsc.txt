@@ -78,7 +78,7 @@ $globalScriptBeforeRun $scriptname;
   :set inf "Error When $scriptname on $sysname: $state"  
 }
 
-$noteMe value=$inf
+$globalNoteMe value=$inf
 
 :global globalTgMessage;
 $globalTgMessage value=$inf;

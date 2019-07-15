@@ -20,7 +20,7 @@ $globalScriptBeforeRun $scriptname;
 :global globalNoteMe;
 :local itsOk true;
 
-:global GscriptId;
+:global globalScriptId;
 :local itsOk true;
 
 :do {
@@ -49,7 +49,7 @@ $globalScriptBeforeRun $scriptname;
     :local scriptSourceLength [:len $scriptSource];
     :local path "$SubDir$theScript.rsc.txt";
 
-    :set $GscriptId $scriptId;
+    :set $globalScriptId $scriptId;
 
     :if ($scriptSourceLength >= 4096) do={
       :local state "Please keep care about '$theScript' consistency - its size over 4096 bytes";
@@ -63,7 +63,7 @@ $globalScriptBeforeRun $scriptname;
       #/file set [find name="$path"] contents=$scriptSource;
       #/file set $path contents=$scriptSource;
       # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack
-      /execute script=":global GscriptId; :put [/system script get $GscriptId source];" file=$path;
+      /execute script=":global globalScriptId; :put [/system script get $globalScriptId source];" file=$path;
       :local state "Exported '$theScript' to '$path'";
       $globalNoteMe value=$state;
     } on-error={ 
@@ -118,7 +118,7 @@ $globalScriptBeforeRun $scriptname;
   :set inf "Error When $scriptname on $sysname: $state"  
 }
 
-$noteMe value=$inf
+$globalNoteMe value=$inf
 
 :global globalTgMessage;
 $globalTgMessage value=$inf;
