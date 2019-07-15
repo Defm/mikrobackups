@@ -2,6 +2,9 @@
 :global globalScriptBeforeRun;
 #$globalScriptBeforeRun "doPeriodicLogParse";
 
+:local sysname [/system identity get name]
+:local scriptname "doPeriodicLogParse"
+
 # Script Name: Log-Parser-Script
 #
 # This is an EXAMPLE script.  Modify it to your requirements.
@@ -11,11 +14,16 @@
 # regular expressions.
 
 # Get log entry data from global variable and store it locally
-:global logParseVar
-:local logTime ($logParseVar->0)
-:local logTopics [:tostr ($logParseVar->1)]
-:local logMessage [:tostr ($logParseVar->2)]
-:set $logParseVar ""
+:global globalParseVar;
+
+:global globalTgMessage;
+:global globalNoteMe;
+
+:local logTime ($globalParseVar->0)
+:local logTopics [:tostr ($globalParseVar->1)]
+:local logMessage [:tostr ($globalParseVar->2)]
+
+:set $globalParseVar ""
 
 :local ruleop
 :local loguser
@@ -30,12 +38,11 @@
 
 # Check for login failure
 :if ($logMessage~"login failure") do={
-   :put ("A login failure has occured: $logMessage.  Take some action")
 
-   :local newLogin "%D0%9E%D0%B1%D0%BD%D0%B0%D1%80%D1%83%D0%B6%D0%B5%D0%BD%D0%B0%20%D0%BF%D0%BE%D0%BF%D1%8B%D1%82%D0%BA%D0%B0%20%D0%B2%D1%85%D0%BE%D0%B4%D0%B0%20%D0%B2%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%83";
-   :global TelegramMessage "$newLogin $logMessage";
+   :local inf "$scriptname on $sysname: A login failure has occured: $logMessage. Take some action";
 
-   /system script run doTelegramNotify;
+   $globalNoteMe value=$inf;
+   $globalTgMessage value=$inf;
 
 }
 # End check for login failure
@@ -43,32 +50,13 @@
 # Check for logged in users
 :if ($logMessage~"logged in") do={
    
-   :put ("A user has logged in: $logMessage")
+   :local inf "$scriptname on $sysname: A user has logged in: $logMessage";
 
-   :local newLogin "%D0%A3%D1%81%D0%BF%D0%B5%D1%88%D0%BD%D1%8B%D0%B9%20%D0%B2%D1%85%D0%BE%D0%B4%20%D0%B2%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%83";
-   :global TelegramMessage "$newLogin $logMessage";
-
-   /system script run doTelegramNotify;
+   $globalNoteMe value=$inf;
+   $globalTgMessage value=$inf;
 
 }
 # End check for logged in users
-
-# Wireless events
-        :if ($logTopics="wireless;info") do={
-            :local macAddress [:pick $logMessage0 17]
-            :if ($logMessage~"wlan 5Ghz: connected" || $logMessage~"wlan 2Ghz: connected") do={
-
-                #:put ("A user $macAddress has connected to WiFi: $logMessage");
-                #:log warning ("A user $macAddress has connected to WiFi: $logMessage");
-
-            }
-            :if ($logMessage~"wlan 5Ghz: disconnected" || $logMessage~"wlan 2Ghz: disconnected") do={
-
-                #:put ("A user $macAddress has disconnected WiFi: $logMessage");
-                #:log warning ("A user $macAddress has disconnected WiFi: $logMessage");
-
-            }
-        }
 
 # Check for configuration changes: added, changed, or removed
 :if ([:tostr $logTopics] = "system;info") do={
@@ -87,6 +75,15 @@
       :set logsettings [:pick [:tostr $tmpstring] 0 $findindex]
 
       :put ($loguser . " " . $ruleop . " " . $logsettings . " configuration.  We should take a backup now.")
+
+      :local inf "$scriptname on $sysname: $loguser $ruleop $logsettings configuration.  We should take a backup now.";
+
+      $globalNoteMe value=$inf;
+      $globalTgMessage value=$inf;
+
    }
 }
-# End check for configuration changes}
+
+# End check for configuration changes
+
+}

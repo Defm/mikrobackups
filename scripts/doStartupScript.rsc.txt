@@ -16,12 +16,18 @@
 
 #wait some for all tunnels to come up after reboot and VPN to work
 
-:delay 15s;
+:delay 25s;
 
-:local rebootEvent "%D0%9C%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%20%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B6%D0%B5%D0%BD";
-:global TelegramMessage "$rebootEvent";
+:local sysname [/system identity get name];
+:local scriptname "doStartupScript";
 
-/system script run doTelegramNotify;
+:local inf "$scriptname on $sysname: system restart detected" ;
+
+:global globalNoteMe;
+$globalNoteMe value=$inf;
+
+:global globalTgMessage;
+$globalTgMessage value=$inf;
       
 
 

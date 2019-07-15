@@ -1,4 +1,84 @@
-### Git Auto Save, Date: воскресенье, 30 июня 2019 г. 16:42:28 (MSK), New Files:  Modified Files: scripts/doPeriodicLogDump.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: понедельник, 15 июля 2019 г. 23:28:26 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta62.rsc,  Removed Files: (HEAD -> _autobranch)
+>Mon, 15 Jul 2019 23:28:26 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 15 июля 2019 г. 22:06:20 (MSK), New Files:  Modified Files: scripts/doDumpTheScripts.rsc.txt, scripts/doFreshTheScripts.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+>Mon, 15 Jul 2019 22:06:20 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 15 июля 2019 г. 22:06:11 (MSK), New Files:  Modified Files: scripts/doPeriodicLogDump.rsc.txt, scripts/doPeriodicLogParse.rsc.txt,  Removed Files:
+>Mon, 15 Jul 2019 22:06:11 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 15 июля 2019 г. 22:06:01 (MSK), New Files:  Modified Files: scripts/doStartupScript.rsc.txt, scripts/doTrackFirmwareUpdates.rsc.txt,  Removed Files:
+>Mon, 15 Jul 2019 22:06:01 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 15 июля 2019 г. 22:05:52 (MSK), New Files:  Modified Files: scripts/doCheckPingRate.rsc.txt,  Removed Files:
+>Mon, 15 Jul 2019 22:05:52 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 15 июля 2019 г. 22:05:43 (MSK), New Files:  Modified Files: scripts/doHeatFlag.rsc.txt,  Removed Files:
+>Mon, 15 Jul 2019 22:05:43 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 15 июля 2019 г. 22:02:38 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta62.rsc,  Removed Files:
+>Mon, 15 Jul 2019 22:02:38 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: суббота, 13 июля 2019 г. 20:09:01 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta62.rsc,  Removed Files:
+>Sat, 13 Jul 2019 20:09:01 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: воскресенье, 30 июня 2019 г. 16:42:28 (MSK), New Files:  Modified Files: scripts/doPeriodicLogDump.rsc.txt,  Removed Files:
 >Sun, 30 Jun 2019 16:42:28 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +88,7 @@
 
 
 
-### Git Auto Save, Date: воскресенье, 30 июня 2019 г. 16:42:09 (MSK), New Files:  Modified Files: scripts/doCertificatesIssuing.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: воскресенье, 30 июня 2019 г. 16:42:09 (MSK), New Files:  Modified Files: scripts/doCertificatesIssuing.rsc.txt,  Removed Files:
 >Sun, 30 Jun 2019 16:42:09 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)

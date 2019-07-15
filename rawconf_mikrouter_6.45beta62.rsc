@@ -1,4 +1,4 @@
-# jun/30/2019 16:35:54 by RouterOS 6.45beta62
+# jul/15/2019 23:27:51 by RouterOS 6.45beta62
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -660,10 +660,11 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system logging add action=CAPSOnScreenLog topics=caps
 /system logging add action=FirewallOnScreenLog topics=firewall
 /system logging add action=CAPSOnScreenLog topics=wireless
+/system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:20 d:h:m:s | CPU: 35%\
-    \nRAM: 29580/131072M | Voltage: 23 v | Temp: 52c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 61%\
+    \nRAM: 29448/131072M | Voltage: 23 v | Temp: 20c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -687,7 +688,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=06:05:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
-/system script add dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
     \n\r\
@@ -784,7 +785,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n    }\r\
     \n  }\r\
     \n}"
-/system script add dont-require-permissions=yes name=doImperialMarch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="StarWars march to  alarm on startup" dont-require-permissions=yes name=doImperialMarch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doImperialMarch\";\r\
     \n\r\
@@ -845,7 +846,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n:beep frequency=500 length=500ms;\r\
     \n:delay 1000ms;"
-/system script add dont-require-permissions=yes name=doUpdateExternalDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Updates address-list that contains my external IP" dont-require-permissions=yes name=doUpdateExternalDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local content\
     \n:local IPv4\
     \n:global LastIPv4\
@@ -885,7 +886,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n}\
     \n\
     \n"
-/system script add dont-require-permissions=no name=doCoolConcole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=no name=doCoolConcole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doCoolConcole\";\r\
     \n\r\
@@ -954,9 +955,9 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n        :put \"IPSEC Policy Updater: 'WAN' Unable to update IPSEC address'\"\r\
     \n        :log info \"IPSEC Policy Updater: 'WAN' Unable to update IPSEC address'\"\r\
     \n}"
-/system script add dont-require-permissions=no name=doFastTrackActivation owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="/ip settings set allow-fast-path=yes\r\
+/system script add comment="Just to note of fast-track activation" dont-require-permissions=no name=doFastTrackActivation owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="/ip settings set allow-fast-path=yes\r\
     \n/ip firewall filter add chain=forward action=fasttrack-connection connection-state=established,related"
-/system script add dont-require-permissions=yes name=doWestminister owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Some sound" dont-require-permissions=yes name=doWestminister owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doWestminister\";\r\
     \n\r\
@@ -971,7 +972,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n:delay 500ms\r\
     \n:beep length=480ms frequency=396\r\
     \n:delay 10000ms"
-/system script add dont-require-permissions=no name=doAdblock owner=reserved policy=read,write,policy source="## StopAD - Script for blocking advertisements, based on your defined hosts files\r\
+/system script add comment="Loads a HUGE list of ads/spammers to DNS-static records. https://stopad.cgood.ru/" dont-require-permissions=no name=doAdblock owner=owner policy=read,write,policy source="## StopAD - Script for blocking advertisements, based on your defined hosts files\r\
     \n## For changing any parameters, please, use this link: https://stopad.cgood.ru/\r\
     \n##\r\
     \n## @github    <https://github.com/tarampampam/mikrotik-hosts-parser>\r\
@@ -1197,7 +1198,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n#/tool fetch url=\"\$finalURL\" mode=https keep-result=no\r\
     \n#\r\
     \n# end of script"
-/system script add dont-require-permissions=yes name=doCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Script to simplify IPSEC IKEv2 certificates ussuing (a set of CA, server, clients and signing) to be used for VPN tunnels" dont-require-permissions=yes name=doCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n# generates IPSEC certs: CA, server, IOS *.mobileconfig profile sign and clients\r\
     \n# i recommend to run it on server side\r\
     \n\r\
@@ -1316,12 +1317,16 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n};\r\
     \n"
-/system script add dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Checks device temperature and warns on overheat" dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doHeatFlag\";\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doHeatFlag\";\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
-    \n:global maxTemp;\r\
-    \n:global currentTemp [/system health get temperature];\r\
+    \n:global globalNoteMe;\r\
+    \n\r\
+    \n:local maxTemp;\r\
+    \n:local currentTemp [/system health get temperature];\r\
     \n\r\
     \n:set maxTemp 55;\r\
     \n\r\
@@ -1329,10 +1334,13 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n:if (\$currentTemp > \$maxTemp) do= {\r\
     \n\r\
-    \n:local tooHigh \"%D0%9E%D0%B1%D0%BD%D0%B0%D1%80%D1%83%D0%B6%D0%B5%D0%BD%D0%BE%20%D0%BF%D1%80%D0%B5%D0%B2%D1%8B%D1%88%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%BF%D0%BE%D1%80%D0%BE%D0%B3%D0%B0%20%D1%82%D0%B5%D0%BC%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D1%83%D1%80%D1%8B%20%D1%8F%D0%B4%D1%80%D0%B0%20\";\r\
+    \n:local inf \"\$scriptname on \$sysname: system overheat at \$currentTemp C\"  \r\
     \n\r\
-    \n:global TelegramMessage \"\$tooHigh\";\r\
-    \n/system script run doTelegramNotify;\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
+    \n\r\
     \n\r\
     \n/beep length=.1\r\
     \n :delay 250ms\r\
@@ -1345,7 +1353,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n\r\
     \n};"
-/system script add dont-require-permissions=yes name=doCollectSpeedStats owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Collects bandwidth speeds using Mikrotik proprietary protocol, so you need mikrotik devices on both sides (i'm using CHR)" dont-require-permissions=yes name=doCollectSpeedStats owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doCollectSpeedStats\";\r\
     \n\r\
@@ -1377,14 +1385,18 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doCheckPingRate owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="This one checks some latencies (2 hosts, one is 8.8.8.8) and warns if its over \$ms value" dont-require-permissions=yes name=doCheckPingRate owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doCheckPingRate\";\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doCheckPingRate\";\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
     \n\r\
     \n#Mikrotik Ping more than 25ms to send mail\r\
     \n\r\
     \n:local host  [:resolve \"ya.ru\"];\r\
-    \n:local ms 25;\r\
+    \n:local ms 20;\r\
     \n\r\
     \n:log info (\"Checking ping rate \$host\");\r\
     \n:put \"Checking ping rate to \$host\";\r\
@@ -1412,19 +1424,17 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n:if (\$rate >= \$ms) do={\r\
     \n\r\
-    \n:log error \"Check ping rate over \$ms ms\";\r\
-    \n:put \"Check ping rate over \$ms ms\";\r\
+    \n:local inf \"\$scriptname on \$sysname: Yandex latency is too high (\$rate ms, over \$ms ms)\";\r\
     \n\r\
-    \n:local tooSlow \"%D0%9E%D0%B1%D0%BD%D0%B0%D1%80%D1%83%D0%B6%D0%B5%D0%BD%D0%BE%20%D1%81%D0%BD%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%20%28%3E25ms%29%20%D1%81%D0%BA%D0%BE%D1%80%D0%BE%D1%81%D1%82%D0%B8%20%D0%BE%D1%82%D0%BA%D0%BB%D0%B8%D0%BA%D0%B0%20%D0%B4%D0%BE%20%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BE%D0%B2%20Yandex%3A%20\";\r\
+    \n\$globalNoteMe value=\$inf;\r\
     \n\r\
-    \n:global TelegramMessage \"\$tooSlow \$rate ms\";\r\
-    \n/system script run doTelegramNotify;\r\
-    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
     \n\r\
     \n#some sound\r\
     \n\r\
     \n}"
-/system script add dont-require-permissions=yes name=doSomeAlarm owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Some sound" dont-require-permissions=yes name=doSomeAlarm owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doSomeAlarm\";\r\
     \n\r\
@@ -1435,20 +1445,20 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n :delay delay-time=1000ms;\r\
     \n}\r\
     \n"
-/system script add dont-require-permissions=yes name=doLEDoff owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Runs at midnight to have less flashes at living room (swith off all LEDs)" dont-require-permissions=yes name=doLEDoff owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doLEDoff\";\r\
     \n\r\
     \n/system leds settings set all-leds-off=immediate\r\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doLEDon owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Runs at morning to get flashes back (swith on all LEDs)" dont-require-permissions=yes name=doLEDon owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doLEDon\";\r\
     \n\r\
     \n/system leds settings set all-leds-off=never;\r\
     \n"
-/system script add dont-require-permissions=no name=doBumerSound owner=owner policy=read,test source=":global globalScriptBeforeRun;\r\
+/system script add comment="Just some sound" dont-require-permissions=no name=doBumerSound owner=owner policy=read,test source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBumerSound\";\r\
     \n\r\
     \n:beep frequency=1300 length=400ms;\r\
@@ -1526,7 +1536,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n:log error (\"Telegram notify error\");\r\
     \n:put \"Telegram notify error\";\r\
     \n};"
-/system script add dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Netwatch handler both when OnUp and OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doNetwatchHost\";\r\
@@ -1597,7 +1607,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doDHCPLeaseTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="DHCP service OnLease handler, should be called from DHCP server script page (see mikrotik manual available variables \$leaseBound, \$leaseServerName etc..)" dont-require-permissions=yes name=doDHCPLeaseTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doDHCPLeaseTrack\";\r\
     \n\r\
@@ -1635,10 +1645,10 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\t\t}\r\
     \n\t}\r\
     \n}"
-/system script add dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n#clear all global variables\r\
     \n/system script environment remove [find];"
-/system script add dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time\r\
+/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time\r\
     \n/ip cloud force-update;\r\
     \n\r\
     \n:log warning \"Starting script: doStartupScript\";\r\
@@ -1656,12 +1666,18 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n#wait some for all tunnels to come up after reboot and VPN to work\r\
     \n\r\
-    \n:delay 15s;\r\
+    \n:delay 25s;\r\
     \n\r\
-    \n:local rebootEvent \"%D0%9C%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%20%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B6%D0%B5%D0%BD\";\r\
-    \n:global TelegramMessage \"\$rebootEvent\";\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doStartupScript\";\r\
     \n\r\
-    \n/system script run doTelegramNotify;\r\
+    \n:local inf \"\$scriptname on \$sysname: system restart detected\" ;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n\$globalNoteMe value=\$inf;\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
     \n      \r\
     \n\r\
     \n"
@@ -1684,9 +1700,11 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n        :set Counter (\$Counter + 1)\r\
     \n    }\r\
     \n}"
-/system script add dont-require-permissions=yes name=doTrackFirmwareUpdates owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Tracks and notifies about firmware releases" dont-require-permissions=yes name=doTrackFirmwareUpdates owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doTrackFirmwareUpdates\";\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doTrackFirmwareUpdates\";\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
     \n:local isUpdateAvailable false\r\
     \n\r\
@@ -1702,12 +1720,15 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n}\r\
     \n\r\
     \n:if (\$isUpdateAvailable = true) do={\r\
-    \n  /log info \"update-monitor: system or firmware update available\"\r\
-    \n \r\
-    \n :local newFW \"%D0%94%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BD%D0%B0%20%D0%BD%D0%BE%D0%B2%D0%B0%D1%8F%20%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F%20%D0%BC%D0%B8%D0%BA%D1%80%D0%BE%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%20%D0%B4%D0%BB%D1%8F%20%D1%83%D1%81%D1%82%D1%80%D0%BE%D0%B9%D1%81%D1%82%D0%B2%D0%B0\";\r\
-    \n :global TelegramMessage \"\$newFW\";\r\
     \n\r\
-    \n  /system script run doTelegramNotify;\r\
+    \n  :local inf \"\$scriptname on \$sysname: system or firmware update available\";\r\
+    \n\r\
+    \n  :global globalNoteMe;\r\
+    \n  \$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n\r\
     \n}\r\
     \n"
 /system script add dont-require-permissions=yes name=doTranstaleMAC2IP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
@@ -1729,13 +1750,13 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n  }\r\
     \n}\r\
     \n"
-/system script add dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Mikrotik system log dump, collects new entries once per minute. You should have 'ParseMemoryLog' buffer at your 'system-logging'. Calls 'doPeriodicLogParse' when new logs available" dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n#\$globalScriptBeforeRun \"doPeriodicLogDump\";\r\
     \n\r\
     \n# Script Name: Log-Parser\r\
     \n# This script reads a specified log buffer.  At each log entry read,\r\
-    \n# the global variable 'logParseVar' is set to \"<log entry time>,<log entry topics>,<log entry message>\"\r\
+    \n# the global variable 'globalParseVar' is set to \"<log entry time>,<log entry topics>,<log entry message>\"\r\
     \n# then a parser action script is run.  The parser action script reads the global variable, and performs specified actions.\r\
     \n# The log buffer is then cleared, so only new entries are read each time this script gets executed.\r\
     \n\r\
@@ -1747,10 +1768,10 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n# Internal processing below....\r\
     \n# -----------------------------------\r\
-    \n:global logParseVar \"\"\r\
+    \n:global globalParseVar \"\"\r\
+    \n:global globalLastParseTime\r\
+    \n:global globalLastParseMsg\r\
     \n\r\
-    \n:global loglastparsetime\r\
-    \n:global loglastparsemessage\r\
     \n:local findindex\r\
     \n:local property\r\
     \n:local value\r\
@@ -1819,23 +1840,26 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n# End set \$logEntryTime to full time format\r\
     \n\r\
     \n# Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry\r\
-    \n   :if (\$logEntryTime = \$loglastparsetime && \$logEntryMessage = \$loglastparsemessage) do={\r\
+    \n   :if (\$logEntryTime = \$globalLastParseTime && \$logEntryMessage = \$globalLastParseMsg) do={\r\
     \n   } else={\r\
-    \n#   Set \$logParseVar, then run parser script\r\
-    \n      :set \$logParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\
+    \n#   Set \$globalParseVar, then run parser script\r\
+    \n      :set \$globalParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\
     \n      /system script run (\$logParserScript)\r\
     \n\r\
     \n#   Update last parsed time, and last parsed message\r\
-    \n      :set \$loglastparsetime \$logEntryTime\r\
-    \n      :set \$loglastparsemessage \$logEntryMessage\r\
+    \n      :set \$globalLastParseTime \$logEntryTime\r\
+    \n      :set \$globalLastParseMsg \$logEntryMessage\r\
     \n   }\r\
     \n\r\
     \n# end foreach rule\r\
     \n}\r\
     \n"
-/system script add dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n#\$globalScriptBeforeRun \"doPeriodicLogParse\";\r\
+    \n\r\
+    \n:local sysname [/system identity get name]\r\
+    \n:local scriptname \"doPeriodicLogParse\"\r\
     \n\r\
     \n# Script Name: Log-Parser-Script\r\
     \n#\r\
@@ -1846,11 +1870,16 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n# regular expressions.\r\
     \n\r\
     \n# Get log entry data from global variable and store it locally\r\
-    \n:global logParseVar\r\
-    \n:local logTime (\$logParseVar->0)\r\
-    \n:local logTopics [:tostr (\$logParseVar->1)]\r\
-    \n:local logMessage [:tostr (\$logParseVar->2)]\r\
-    \n:set \$logParseVar \"\"\r\
+    \n:global globalParseVar;\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n:global globalNoteMe;\r\
+    \n\r\
+    \n:local logTime (\$globalParseVar->0)\r\
+    \n:local logTopics [:tostr (\$globalParseVar->1)]\r\
+    \n:local logMessage [:tostr (\$globalParseVar->2)]\r\
+    \n\r\
+    \n:set \$globalParseVar \"\"\r\
     \n\r\
     \n:local ruleop\r\
     \n:local loguser\r\
@@ -1865,12 +1894,11 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n# Check for login failure\r\
     \n:if (\$logMessage~\"login failure\") do={\r\
-    \n   :put (\"A login failure has occured: \$logMessage.  Take some action\")\r\
     \n\r\
-    \n   :local newLogin \"%D0%9E%D0%B1%D0%BD%D0%B0%D1%80%D1%83%D0%B6%D0%B5%D0%BD%D0%B0%20%D0%BF%D0%BE%D0%BF%D1%8B%D1%82%D0%BA%D0%B0%20%D0%B2%D1%85%D0%BE%D0%B4%D0%B0%20%D0%B2%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%83\";\r\
-    \n   :global TelegramMessage \"\$newLogin \$logMessage\";\r\
+    \n   :local inf \"\$scriptname on \$sysname: A login failure has occured: \$logMessage. Take some action\";\r\
     \n\r\
-    \n   /system script run doTelegramNotify;\r\
+    \n   \$globalNoteMe value=\$inf;\r\
+    \n   \$globalTgMessage value=\$inf;\r\
     \n\r\
     \n}\r\
     \n# End check for login failure\r\
@@ -1878,32 +1906,13 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n# Check for logged in users\r\
     \n:if (\$logMessage~\"logged in\") do={\r\
     \n   \r\
-    \n   :put (\"A user has logged in: \$logMessage\")\r\
+    \n   :local inf \"\$scriptname on \$sysname: A user has logged in: \$logMessage\";\r\
     \n\r\
-    \n   :local newLogin \"%D0%A3%D1%81%D0%BF%D0%B5%D1%88%D0%BD%D1%8B%D0%B9%20%D0%B2%D1%85%D0%BE%D0%B4%20%D0%B2%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%83\";\r\
-    \n   :global TelegramMessage \"\$newLogin \$logMessage\";\r\
-    \n\r\
-    \n   /system script run doTelegramNotify;\r\
+    \n   \$globalNoteMe value=\$inf;\r\
+    \n   \$globalTgMessage value=\$inf;\r\
     \n\r\
     \n}\r\
     \n# End check for logged in users\r\
-    \n\r\
-    \n# Wireless events\r\
-    \n        :if (\$logTopics=\"wireless;info\") do={\r\
-    \n            :local macAddress [:pick \$logMessage0 17]\r\
-    \n            :if (\$logMessage~\"wlan 5Ghz: connected\" || \$logMessage~\"wlan 2Ghz: connected\") do={\r\
-    \n\r\
-    \n                #:put (\"A user \$macAddress has connected to WiFi: \$logMessage\");\r\
-    \n                #:log warning (\"A user \$macAddress has connected to WiFi: \$logMessage\");\r\
-    \n\r\
-    \n            }\r\
-    \n            :if (\$logMessage~\"wlan 5Ghz: disconnected\" || \$logMessage~\"wlan 2Ghz: disconnected\") do={\r\
-    \n\r\
-    \n                #:put (\"A user \$macAddress has disconnected WiFi: \$logMessage\");\r\
-    \n                #:log warning (\"A user \$macAddress has disconnected WiFi: \$logMessage\");\r\
-    \n\r\
-    \n            }\r\
-    \n        }\r\
     \n\r\
     \n# Check for configuration changes: added, changed, or removed\r\
     \n:if ([:tostr \$logTopics] = \"system;info\") do={\r\
@@ -1922,10 +1931,19 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n      :set logsettings [:pick [:tostr \$tmpstring] 0 \$findindex]\r\
     \n\r\
     \n      :put (\$loguser . \" \" . \$ruleop . \" \" . \$logsettings . \" configuration.  We should take a backup now.\")\r\
+    \n\r\
+    \n      :local inf \"\$scriptname on \$sysname: \$loguser \$ruleop \$logsettings configuration.  We should take a backup now.\";\r\
+    \n\r\
+    \n      \$globalNoteMe value=\$inf;\r\
+    \n      \$globalTgMessage value=\$inf;\r\
+    \n\r\
     \n   }\r\
     \n}\r\
-    \n# End check for configuration changes}"
-/system script add dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
+    \n\r\
+    \n# End check for configuration changes\r\
+    \n\r\
+    \n}"
+/system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doIPSECPunch\";\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \$scriptname;\r\
@@ -2017,7 +2035,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\$globalNoteMe value=\$inf\r\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="A template to track hotspot users" dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doHotspotLoginTrack\";\r\
     \n\r\
@@ -2054,7 +2072,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n/ip firewall address-list add list=\$today address=\"log-in.\$time1.\$user.\$usermac.\$ipuser\"\r\
     \n"
-/system script add dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalNoteMe;\r\
     \n\r\
     \n:if (!any \$globalNoteMe) do={ \r\
@@ -2125,7 +2143,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
+/system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \$scriptname;\r\
@@ -2263,7 +2281,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n:global globalTgMessage;\r\
     \n\$globalTgMessage value=\$inf;"
-/system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
+/system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\
     \n\r\
     \n:local sysname [/system identity get name]\r\
@@ -2416,7 +2434,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n:global globalTgMessage;\r\
     \n\$globalTgMessage value=\$inf;\r\
     \n"
-/system script add dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
+/system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doRandomGen\";\r\
     \n\r\
@@ -2496,7 +2514,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n:beep frequency=644 length=1000ms;\r\
     \n\r\
     \n}"
-/system script add dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Dumps all the scripts from you device to *.rsc.txt files, loads to FTP (all scripts in this Repo made with it)" dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doDumpTheScripts\";\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2518,7 +2536,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
     \n\r\
-    \n:global GscriptId;\r\
+    \n:global globalScriptId;\r\
     \n:local itsOk true;\r\
     \n\r\
     \n:do {\r\
@@ -2547,7 +2565,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n    :local scriptSourceLength [:len \$scriptSource];\r\
     \n    :local path \"\$SubDir\$theScript.rsc.txt\";\r\
     \n\r\
-    \n    :set \$GscriptId \$scriptId;\r\
+    \n    :set \$globalScriptId \$scriptId;\r\
     \n\r\
     \n    :if (\$scriptSourceLength >= 4096) do={\r\
     \n      :local state \"Please keep care about '\$theScript' consistency - its size over 4096 bytes\";\r\
@@ -2561,7 +2579,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n      #/file set [find name=\"\$path\"] contents=\$scriptSource;\r\
     \n      #/file set \$path contents=\$scriptSource;\r\
     \n      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack\r\
-    \n      /execute script=\":global GscriptId; :put [/system script get \$GscriptId source];\" file=\$path;\r\
+    \n      /execute script=\":global globalScriptId; :put [/system script get \$globalScriptId source];\" file=\$path;\r\
     \n      :local state \"Exported '\$theScript' to '\$path'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n    } on-error={ \r\
@@ -2616,13 +2634,13 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
     \n}\r\
     \n\r\
-    \n\$noteMe value=\$inf\r\
+    \n\$globalNoteMe value=\$inf\r\
     \n\r\
     \n:global globalTgMessage;\r\
     \n\$globalTgMessage value=\$inf;\r\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doFreshTheScripts\";\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2702,13 +2720,13 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
     \n}\r\
     \n\r\
-    \n\$noteMe value=\$inf\r\
+    \n\$globalNoteMe value=\$inf\r\
     \n\r\
     \n:global globalTgMessage;\r\
     \n\$globalTgMessage value=\$inf;\r\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
+/system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doPushStatsToInfluxDB\";\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \$scriptname;\r\
@@ -2838,7 +2856,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n#don't spam\r\
     \n#:global globalTgMessage;\r\
     \n#\$globalTgMessage value=\$inf;"
-/system script add dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="This will check for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time. Will reboot the router when overload" dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doCPUHighLoadReboot\";\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2936,7 +2954,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n}\r\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="A very special script for CFG restore from *.rsc files (not from backup). This one should be placed at flash/perfectrestore.rsc, your config should be at flash/backup.rsc. Run 'Reset confuguration' with 'no default config', choose 'flash/perfectrestore.rsc' as 'run after reset. Pretty logs will be at flash/import.log and flash/perfectrestore.log" dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
     \n{\r\
     \n\r\
