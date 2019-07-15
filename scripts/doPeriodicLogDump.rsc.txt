@@ -4,7 +4,7 @@
 
 # Script Name: Log-Parser
 # This script reads a specified log buffer.  At each log entry read,
-# the global variable 'logParseVar' is set to "<log entry time>,<log entry topics>,<log entry message>"
+# the global variable 'globalParseVar' is set to "<log entry time>,<log entry topics>,<log entry message>"
 # then a parser action script is run.  The parser action script reads the global variable, and performs specified actions.
 # The log buffer is then cleared, so only new entries are read each time this script gets executed.
 
@@ -16,10 +16,10 @@
 
 # Internal processing below....
 # -----------------------------------
-:global logParseVar ""
+:global globalParseVar ""
+:global globalLastParseTime
+:global globalLastParseMsg
 
-:global loglastparsetime
-:global loglastparsemessage
 :local findindex
 :local property
 :local value
@@ -88,15 +88,15 @@
 # End set $logEntryTime to full time format
 
 # Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry
-   :if ($logEntryTime = $loglastparsetime && $logEntryMessage = $loglastparsemessage) do={
+   :if ($logEntryTime = $globalLastParseTime && $logEntryMessage = $globalLastParseMsg) do={
    } else={
-#   Set $logParseVar, then run parser script
-      :set $logParseVar {$logEntryTime ; $logEntryTopics; $logEntryMessage}
+#   Set $globalParseVar, then run parser script
+      :set $globalParseVar {$logEntryTime ; $logEntryTopics; $logEntryMessage}
       /system script run ($logParserScript)
 
 #   Update last parsed time, and last parsed message
-      :set $loglastparsetime $logEntryTime
-      :set $loglastparsemessage $logEntryMessage
+      :set $globalLastParseTime $logEntryTime
+      :set $globalLastParseMsg $logEntryMessage
    }
 
 # end foreach rule
