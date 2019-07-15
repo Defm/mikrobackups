@@ -1,4 +1,4 @@
-# jul/13/2019 20:08:22 by RouterOS 6.45beta62
+# jul/15/2019 22:02:03 by RouterOS 6.45beta62
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -660,6 +660,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system logging add action=CAPSOnScreenLog topics=caps
 /system logging add action=FirewallOnScreenLog topics=firewall
 /system logging add action=CAPSOnScreenLog topics=wireless
+/system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
     \nUptime:  00:00:20 d:h:m:s | CPU: 61%\
@@ -1317,11 +1318,15 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n};\r\
     \n"
 /system script add dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doHeatFlag\";\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doHeatFlag\";\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
-    \n:global maxTemp;\r\
-    \n:global currentTemp [/system health get temperature];\r\
+    \n:global globalNoteMe;\r\
+    \n\r\
+    \n:local maxTemp;\r\
+    \n:local currentTemp [/system health get temperature];\r\
     \n\r\
     \n:set maxTemp 55;\r\
     \n\r\
@@ -1329,10 +1334,13 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n:if (\$currentTemp > \$maxTemp) do= {\r\
     \n\r\
-    \n:local tooHigh \"%D0%9E%D0%B1%D0%BD%D0%B0%D1%80%D1%83%D0%B6%D0%B5%D0%BD%D0%BE%20%D0%BF%D1%80%D0%B5%D0%B2%D1%8B%D1%88%D0%B5%D0%BD%D0%B8%D0%B5%20%D0%BF%D0%BE%D1%80%D0%BE%D0%B3%D0%B0%20%D1%82%D0%B5%D0%BC%D0%BF%D0%B5%D1%80%D0%B0%D1%82%D1%83%D1%80%D1%8B%20%D1%8F%D0%B4%D1%80%D0%B0%20\";\r\
+    \n:local inf \"\$scriptname on \$sysname: system overheat at \$currentTemp C\"  \r\
     \n\r\
-    \n:global TelegramMessage \"\$tooHigh\";\r\
-    \n/system script run doTelegramNotify;\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
+    \n\r\
     \n\r\
     \n/beep length=.1\r\
     \n :delay 250ms\r\
@@ -1378,13 +1386,17 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doCheckPingRate owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doCheckPingRate\";\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doCheckPingRate\";\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
     \n\r\
     \n#Mikrotik Ping more than 25ms to send mail\r\
     \n\r\
     \n:local host  [:resolve \"ya.ru\"];\r\
-    \n:local ms 25;\r\
+    \n:local ms 20;\r\
     \n\r\
     \n:log info (\"Checking ping rate \$host\");\r\
     \n:put \"Checking ping rate to \$host\";\r\
@@ -1412,14 +1424,12 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n:if (\$rate >= \$ms) do={\r\
     \n\r\
-    \n:log error \"Check ping rate over \$ms ms\";\r\
-    \n:put \"Check ping rate over \$ms ms\";\r\
+    \n:local inf \"\$scriptname on \$sysname: Yandex latency is too high (\$rate ms, over \$ms ms)\";\r\
     \n\r\
-    \n:local tooSlow \"%D0%9E%D0%B1%D0%BD%D0%B0%D1%80%D1%83%D0%B6%D0%B5%D0%BD%D0%BE%20%D1%81%D0%BD%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%20%28%3E25ms%29%20%D1%81%D0%BA%D0%BE%D1%80%D0%BE%D1%81%D1%82%D0%B8%20%D0%BE%D1%82%D0%BA%D0%BB%D0%B8%D0%BA%D0%B0%20%D0%B4%D0%BE%20%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BE%D0%B2%20Yandex%3A%20\";\r\
+    \n\$globalNoteMe value=\$inf;\r\
     \n\r\
-    \n:global TelegramMessage \"\$tooSlow \$rate ms\";\r\
-    \n/system script run doTelegramNotify;\r\
-    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
     \n\r\
     \n#some sound\r\
     \n\r\
@@ -1656,12 +1666,18 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n#wait some for all tunnels to come up after reboot and VPN to work\r\
     \n\r\
-    \n:delay 15s;\r\
+    \n:delay 25s;\r\
     \n\r\
-    \n:local rebootEvent \"%D0%9C%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%20%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B6%D0%B5%D0%BD\";\r\
-    \n:global TelegramMessage \"\$rebootEvent\";\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doStartupScript\";\r\
     \n\r\
-    \n/system script run doTelegramNotify;\r\
+    \n:local inf \"\$scriptname on \$sysname: system restart detected\" ;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n\$globalNoteMe value=\$inf;\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
     \n      \r\
     \n\r\
     \n"
@@ -1685,8 +1701,10 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n    }\r\
     \n}"
 /system script add dont-require-permissions=yes name=doTrackFirmwareUpdates owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doTrackFirmwareUpdates\";\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doTrackFirmwareUpdates\";\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
     \n:local isUpdateAvailable false\r\
     \n\r\
@@ -1702,12 +1720,15 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n}\r\
     \n\r\
     \n:if (\$isUpdateAvailable = true) do={\r\
-    \n  /log info \"update-monitor: system or firmware update available\"\r\
-    \n \r\
-    \n :local newFW \"%D0%94%D0%BE%D1%81%D1%82%D1%83%D0%BF%D0%BD%D0%B0%20%D0%BD%D0%BE%D0%B2%D0%B0%D1%8F%20%D0%B2%D0%B5%D1%80%D1%81%D0%B8%D1%8F%20%D0%BC%D0%B8%D0%BA%D1%80%D0%BE%D0%BF%D1%80%D0%BE%D0%B3%D1%80%D0%B0%D0%BC%D0%BC%20%D0%B4%D0%BB%D1%8F%20%D1%83%D1%81%D1%82%D1%80%D0%BE%D0%B9%D1%81%D1%82%D0%B2%D0%B0\";\r\
-    \n :global TelegramMessage \"\$newFW\";\r\
     \n\r\
-    \n  /system script run doTelegramNotify;\r\
+    \n  :local inf \"\$scriptname on \$sysname: system or firmware update available\";\r\
+    \n\r\
+    \n  :global globalNoteMe;\r\
+    \n  \$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n\r\
     \n}\r\
     \n"
 /system script add dont-require-permissions=yes name=doTranstaleMAC2IP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
@@ -1735,7 +1756,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n# Script Name: Log-Parser\r\
     \n# This script reads a specified log buffer.  At each log entry read,\r\
-    \n# the global variable 'logParseVar' is set to \"<log entry time>,<log entry topics>,<log entry message>\"\r\
+    \n# the global variable 'globalParseVar' is set to \"<log entry time>,<log entry topics>,<log entry message>\"\r\
     \n# then a parser action script is run.  The parser action script reads the global variable, and performs specified actions.\r\
     \n# The log buffer is then cleared, so only new entries are read each time this script gets executed.\r\
     \n\r\
@@ -1747,10 +1768,10 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n# Internal processing below....\r\
     \n# -----------------------------------\r\
-    \n:global logParseVar \"\"\r\
+    \n:global globalParseVar \"\"\r\
+    \n:global globalLastParseTime\r\
+    \n:global globalLastParseMsg\r\
     \n\r\
-    \n:global loglastparsetime\r\
-    \n:global loglastparsemessage\r\
     \n:local findindex\r\
     \n:local property\r\
     \n:local value\r\
@@ -1819,15 +1840,15 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n# End set \$logEntryTime to full time format\r\
     \n\r\
     \n# Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry\r\
-    \n   :if (\$logEntryTime = \$loglastparsetime && \$logEntryMessage = \$loglastparsemessage) do={\r\
+    \n   :if (\$logEntryTime = \$globalLastParseTime && \$logEntryMessage = \$globalLastParseMsg) do={\r\
     \n   } else={\r\
-    \n#   Set \$logParseVar, then run parser script\r\
-    \n      :set \$logParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\
+    \n#   Set \$globalParseVar, then run parser script\r\
+    \n      :set \$globalParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\
     \n      /system script run (\$logParserScript)\r\
     \n\r\
     \n#   Update last parsed time, and last parsed message\r\
-    \n      :set \$loglastparsetime \$logEntryTime\r\
-    \n      :set \$loglastparsemessage \$logEntryMessage\r\
+    \n      :set \$globalLastParseTime \$logEntryTime\r\
+    \n      :set \$globalLastParseMsg \$logEntryMessage\r\
     \n   }\r\
     \n\r\
     \n# end foreach rule\r\
@@ -1836,6 +1857,9 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system script add dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n#\$globalScriptBeforeRun \"doPeriodicLogParse\";\r\
+    \n\r\
+    \n:local sysname [/system identity get name]\r\
+    \n:local scriptname \"doPeriodicLogParse\"\r\
     \n\r\
     \n# Script Name: Log-Parser-Script\r\
     \n#\r\
@@ -1846,11 +1870,16 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n# regular expressions.\r\
     \n\r\
     \n# Get log entry data from global variable and store it locally\r\
-    \n:global logParseVar\r\
-    \n:local logTime (\$logParseVar->0)\r\
-    \n:local logTopics [:tostr (\$logParseVar->1)]\r\
-    \n:local logMessage [:tostr (\$logParseVar->2)]\r\
-    \n:set \$logParseVar \"\"\r\
+    \n:global globalParseVar;\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n:global globalNoteMe;\r\
+    \n\r\
+    \n:local logTime (\$globalParseVar->0)\r\
+    \n:local logTopics [:tostr (\$globalParseVar->1)]\r\
+    \n:local logMessage [:tostr (\$globalParseVar->2)]\r\
+    \n\r\
+    \n:set \$globalParseVar \"\"\r\
     \n\r\
     \n:local ruleop\r\
     \n:local loguser\r\
@@ -1865,12 +1894,11 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n# Check for login failure\r\
     \n:if (\$logMessage~\"login failure\") do={\r\
-    \n   :put (\"A login failure has occured: \$logMessage.  Take some action\")\r\
     \n\r\
-    \n   :local newLogin \"%D0%9E%D0%B1%D0%BD%D0%B0%D1%80%D1%83%D0%B6%D0%B5%D0%BD%D0%B0%20%D0%BF%D0%BE%D0%BF%D1%8B%D1%82%D0%BA%D0%B0%20%D0%B2%D1%85%D0%BE%D0%B4%D0%B0%20%D0%B2%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%83\";\r\
-    \n   :global TelegramMessage \"\$newLogin \$logMessage\";\r\
+    \n   :local inf \"\$scriptname on \$sysname: A login failure has occured: \$logMessage. Take some action\";\r\
     \n\r\
-    \n   /system script run doTelegramNotify;\r\
+    \n   \$globalNoteMe value=\$inf;\r\
+    \n   \$globalTgMessage value=\$inf;\r\
     \n\r\
     \n}\r\
     \n# End check for login failure\r\
@@ -1878,32 +1906,13 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n# Check for logged in users\r\
     \n:if (\$logMessage~\"logged in\") do={\r\
     \n   \r\
-    \n   :put (\"A user has logged in: \$logMessage\")\r\
+    \n   :local inf \"\$scriptname on \$sysname: A user has logged in: \$logMessage\";\r\
     \n\r\
-    \n   :local newLogin \"%D0%A3%D1%81%D0%BF%D0%B5%D1%88%D0%BD%D1%8B%D0%B9%20%D0%B2%D1%85%D0%BE%D0%B4%20%D0%B2%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%83\";\r\
-    \n   :global TelegramMessage \"\$newLogin \$logMessage\";\r\
-    \n\r\
-    \n   /system script run doTelegramNotify;\r\
+    \n   \$globalNoteMe value=\$inf;\r\
+    \n   \$globalTgMessage value=\$inf;\r\
     \n\r\
     \n}\r\
     \n# End check for logged in users\r\
-    \n\r\
-    \n# Wireless events\r\
-    \n        :if (\$logTopics=\"wireless;info\") do={\r\
-    \n            :local macAddress [:pick \$logMessage0 17]\r\
-    \n            :if (\$logMessage~\"wlan 5Ghz: connected\" || \$logMessage~\"wlan 2Ghz: connected\") do={\r\
-    \n\r\
-    \n                #:put (\"A user \$macAddress has connected to WiFi: \$logMessage\");\r\
-    \n                #:log warning (\"A user \$macAddress has connected to WiFi: \$logMessage\");\r\
-    \n\r\
-    \n            }\r\
-    \n            :if (\$logMessage~\"wlan 5Ghz: disconnected\" || \$logMessage~\"wlan 2Ghz: disconnected\") do={\r\
-    \n\r\
-    \n                #:put (\"A user \$macAddress has disconnected WiFi: \$logMessage\");\r\
-    \n                #:log warning (\"A user \$macAddress has disconnected WiFi: \$logMessage\");\r\
-    \n\r\
-    \n            }\r\
-    \n        }\r\
     \n\r\
     \n# Check for configuration changes: added, changed, or removed\r\
     \n:if ([:tostr \$logTopics] = \"system;info\") do={\r\
@@ -1922,9 +1931,18 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n      :set logsettings [:pick [:tostr \$tmpstring] 0 \$findindex]\r\
     \n\r\
     \n      :put (\$loguser . \" \" . \$ruleop . \" \" . \$logsettings . \" configuration.  We should take a backup now.\")\r\
+    \n\r\
+    \n      :local inf \"\$scriptname on \$sysname: \$loguser \$ruleop \$logsettings configuration.  We should take a backup now.\";\r\
+    \n\r\
+    \n      \$globalNoteMe value=\$inf;\r\
+    \n      \$globalTgMessage value=\$inf;\r\
+    \n\r\
     \n   }\r\
     \n}\r\
-    \n# End check for configuration changes}"
+    \n\r\
+    \n# End check for configuration changes\r\
+    \n\r\
+    \n}"
 /system script add dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doIPSECPunch\";\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2518,7 +2536,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
     \n\r\
-    \n:global GscriptId;\r\
+    \n:global globalScriptId;\r\
     \n:local itsOk true;\r\
     \n\r\
     \n:do {\r\
@@ -2547,7 +2565,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n    :local scriptSourceLength [:len \$scriptSource];\r\
     \n    :local path \"\$SubDir\$theScript.rsc.txt\";\r\
     \n\r\
-    \n    :set \$GscriptId \$scriptId;\r\
+    \n    :set \$globalScriptId \$scriptId;\r\
     \n\r\
     \n    :if (\$scriptSourceLength >= 4096) do={\r\
     \n      :local state \"Please keep care about '\$theScript' consistency - its size over 4096 bytes\";\r\
@@ -2561,7 +2579,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n      #/file set [find name=\"\$path\"] contents=\$scriptSource;\r\
     \n      #/file set \$path contents=\$scriptSource;\r\
     \n      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack\r\
-    \n      /execute script=\":global GscriptId; :put [/system script get \$GscriptId source];\" file=\$path;\r\
+    \n      /execute script=\":global globalScriptId; :put [/system script get \$globalScriptId source];\" file=\$path;\r\
     \n      :local state \"Exported '\$theScript' to '\$path'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n    } on-error={ \r\
@@ -2616,7 +2634,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
     \n}\r\
     \n\r\
-    \n\$noteMe value=\$inf\r\
+    \n\$globalNoteMe value=\$inf\r\
     \n\r\
     \n:global globalTgMessage;\r\
     \n\$globalTgMessage value=\$inf;\r\
@@ -2702,7 +2720,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
     \n}\r\
     \n\r\
-    \n\$noteMe value=\$inf\r\
+    \n\$globalNoteMe value=\$inf\r\
     \n\r\
     \n:global globalTgMessage;\r\
     \n\$globalTgMessage value=\$inf;\r\
