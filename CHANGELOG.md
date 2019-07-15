@@ -1,4 +1,14 @@
-### Git Auto Save, Date: понедельник, 15 июля 2019 г. 22:05:43 (MSK), New Files:  Modified Files: scripts/doHeatFlag.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: понедельник, 15 июля 2019 г. 22:05:52 (MSK), New Files:  Modified Files: scripts/doCheckPingRate.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+>Mon, 15 Jul 2019 22:05:52 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 15 июля 2019 г. 22:05:43 (MSK), New Files:  Modified Files: scripts/doHeatFlag.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
 >Mon, 15 Jul 2019 22:05:43 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Git Auto Save, Date: понедельник, 15 июля 2019 г. 22:02:38 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta62.rsc,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: понедельник, 15 июля 2019 г. 22:02:38 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta62.rsc,  Removed Files:
 >Mon, 15 Jul 2019 22:02:38 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
