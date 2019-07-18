@@ -17,6 +17,8 @@
 :if (!any $globalScriptBeforeRun) do={ 
   :global globalScriptBeforeRun do={
 
+    :global globalNoteMe;
+    
     :if ([:len $1] > 0) do={
 
       :local currentTime ([/system clock get date] . " " . [/system clock get time]);
