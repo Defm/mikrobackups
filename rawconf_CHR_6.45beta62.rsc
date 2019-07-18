@@ -1,4 +1,4 @@
-# jun/30/2019 16:36:10 by RouterOS 6.45beta62
+# jul/18/2019 08:35:19 by RouterOS 6.45beta62
 # software id = 
 #
 #
@@ -16,7 +16,7 @@
 /ip ipsec policy group add name=roadwarrior-ipsec
 /ip ipsec policy group add name=outside-ipsec-encryption
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
-/ip ipsec profile add dh-group=modp2048 dpd-interval=16s dpd-maximum-failures=2 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
+/ip ipsec profile add dh-group=modp2048 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=WINDOWS
 /ip ipsec peer add address=10.0.0.2/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, traffic-only encryption)" local-address=10.0.0.1 name=MIC-INNER passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=109.252.0.0/17 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER passive=yes profile=ROUTEROS send-initial-contact=no
@@ -53,7 +53,6 @@
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /certificate scep-server add ca-cert=ca@CHR days-valid=365 path=/scep/grant request-lifetime=5m
-#error exporting /interface bridge calea
 /interface bridge settings set allow-fast-path=no use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=neighbors
@@ -84,7 +83,6 @@
 /ip firewall address-list add address=2ip.ru list=vpn-sites
 /ip firewall address-list add address=10.0.0.2 list=mic-network
 /ip firewall address-list add address=10.0.0.1 list=mis-network
-#error exporting /ip firewall calea
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Bandwidth test allow" port=2000 protocol=tcp
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -242,8 +240,8 @@
 /system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=nov/26/2017 start-time=18:28:18
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=21:40:49
 /system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=08:00:00
-/system scheduler add interval=1w3d name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/07/2019 start-time=09:00:00
+/system scheduler add name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,read,write,policy,test,password,sensitive source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\
     \n\r\
@@ -480,7 +478,7 @@
     \n}\r\
     \n"
 /system script add dont-require-permissions=yes name=doCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n# generates IPSEC certs: CA, server, code sign and clients\r\
+    \n# generates IPSEC certs: CA, server, IOS *.mobileconfig profile sign and clients\r\
     \n# i recommend to run it on server side\r\
     \n\r\
     \n#clients\r\
@@ -519,7 +517,8 @@
     \n  :local state \"CA certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  ## generate a CA certificate\r\
+    \n  ## generate a CA certificate (that will be just a template while not signed)\r\
+    \n  ## crl-sign allows to use SCEP\r\
     \n  /certificate add name=\"ca.myvpn.local\" common-name=\"ca@\$sysname\" subject-alt-name=\"email:ca@myvpn.local\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"   \\\r\
     \n  ##  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
     \n\r\
@@ -535,7 +534,7 @@
     \n  :local state \"SERVER certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  ## generate a server certificate\r\
+    \n  ## generate a server certificate (that will be just a template while not signed)\r\
     \n  /certificate add name=\"server.myvpn.local\" common-name=\"\$ServerIP\" subject-alt-name=\"IP:\$ServerIP\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
     \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
     \n\r\
@@ -551,7 +550,7 @@
     \n  :local state \"CODE SIGN certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  ## generate a code signing (apple IOS profiles) certificate\r\
+    \n  ## generate a code signing (apple IOS profiles) certificate (that will be just a template while not signed)\r\
     \n  /certificate add name=\"sign.myvpn.local\" common-name=\"sign@\$sysname\" subject-alt-name=\"email:sign@myvpn.local\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
     \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
     \n\r\
@@ -572,7 +571,7 @@
     \n    :local state \"CLIENT certificates generation...  \$USERNAME\";\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    ## create a client certificate\r\
+    \n    ## create a client certificate (that will be just a template while not signed)\r\
     \n    /certificate add name=\"client.myvpn.local\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@myvpn.local\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
     \n    ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
     \n\r\
@@ -613,7 +612,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -678,7 +677,7 @@
     \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
     \n}\r\
     \n\r\
-    \n\$noteMe value=\$inf\r\
+    \n\$globalNoteMe value=\$inf\r\
     \n\r\
     \n:global globalTgMessage;\r\
     \n\$globalTgMessage value=\$inf;\r\
@@ -847,12 +846,18 @@
     \n\r\
     \n#wait some for all tunnels to come up after reboot and VPN to work\r\
     \n\r\
-    \n:delay 15s;\r\
+    \n:delay 25s;\r\
     \n\r\
-    \n:local rebootEvent \"%D0%9C%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%20%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B6%D0%B5%D0%BD\";\r\
-    \n:global TelegramMessage \"\$rebootEvent\";\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doStartupScript\";\r\
     \n\r\
-    \n/system script run doTelegramNotify;\r\
+    \n:local inf \"\$scriptname on \$sysname: system restart detected\" ;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n\$globalNoteMe value=\$inf;\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
     \n      \r\
     \n\r\
     \n\r\
