@@ -52,6 +52,8 @@
 :if (!any $globalTgMessage) do={ 
   :global globalTgMessage do={
 
+    :global globalNoteMe;
+
     :local tToken "798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M";
     :local tGroupID "-343674739";
     :local tURL "https://api.telegram.org/bot$tToken/sendMessage\?chat_id=$tGroupID";
@@ -65,6 +67,7 @@
       :local state ("Telegram notify error");
       $globalNoteMe value=$state;
     };
+
   }
 }
 
