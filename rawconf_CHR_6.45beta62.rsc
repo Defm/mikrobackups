@@ -1,4 +1,4 @@
-# jul/18/2019 08:35:19 by RouterOS 6.45beta62
+# jul/19/2019 18:28:20 by RouterOS 6.45beta62
 # software id = 
 #
 #
@@ -703,6 +703,8 @@
     \n:if (!any \$globalScriptBeforeRun) do={ \r\
     \n  :global globalScriptBeforeRun do={\r\
     \n\r\
+    \n    :global globalNoteMe;\r\
+    \n    \r\
     \n    :if ([:len \$1] > 0) do={\r\
     \n\r\
     \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\r\
@@ -736,6 +738,8 @@
     \n:if (!any \$globalTgMessage) do={ \r\
     \n  :global globalTgMessage do={\r\
     \n\r\
+    \n    :global globalNoteMe;\r\
+    \n\r\
     \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\r\
     \n    :local tGroupID \"-343674739\";\r\
     \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\r\
@@ -749,6 +753,7 @@
     \n      :local state (\"Telegram notify error\");\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n    };\r\
+    \n\r\
     \n  }\r\
     \n}\r\
     \n\r\
