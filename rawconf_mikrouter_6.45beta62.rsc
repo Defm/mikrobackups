@@ -1,9 +1,9 @@
-# jul/15/2019 23:27:51 by RouterOS 6.45beta62
+# jul/19/2019 16:19:46 by RouterOS 6.45beta62
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
 # serial number = 673706ED7949
-/caps-man channel add band=2ghz-b/g/n control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
+/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
 /caps-man channel add band=5ghz-a/n/ac comment="20Mhz + Ce = 40Mhz, reselect interval from 5180, 5220, 5745, 5785 once per 10h" control-channel-width=20mhz extension-channel=Ce frequency=5180,5220,5745,5785 name=common-chnls-5Ghz reselect-interval=10h tx-power=15
 /caps-man configuration add mode=ap name=empty
 /interface bridge add arp=proxy-arp fast-forward=no name="guest infrastructure"
@@ -49,7 +49,7 @@
 set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia3 default-authentication=no distance=indoors frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" preamble-mode=long security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5180/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5220/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-n/ac channel-width=20/40/80mhz-Ceee country=russia3 default-authentication=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" preamble-mode=long security-profile=private ssid="WiFi 5Ghz PRIVATE" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless nstreme
 # managed by CAPsMAN
@@ -57,7 +57,7 @@ set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode anten
 set "wlan 2Ghz" enable-polling=no
 /interface wireless nstreme
 # managed by CAPsMAN
-# channel: 5180/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5220/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set "wlan 5Ghz" enable-polling=no
 /ip dhcp-server add authoritative=after-2sec-delay disabled=no interface="main infrastructure" lease-time=1d name="main dhcp"
 /ip dhcp-server option add code=15 name=DomainName value="s'home'"
@@ -113,6 +113,7 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
 /queue simple add comment=dtq,94:C6:91:94:98:DC, max-limit=10M/10M name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
 /queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP max-limit=10M/10M name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
+/queue simple add comment=dtq,88:E8:7F:BD:E8:03,truth max-limit=10M/10M name="truth@guest dhcp (88:E8:7F:BD:E8:03)" target=192.168.98.229/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -157,10 +158,10 @@ set "wlan 5Ghz" enable-polling=no
 /caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface=wan
 /caps-man manager interface add comment="Do CapsMan on private" disabled=no interface="main infrastructure"
 /caps-man manager interface add comment="Do CapsMan on guest" disabled=no interface="guest infrastructure"
-/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest" hw-supported-modes=gn,b identity-regexp=WAP master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
-/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private" hw-supported-modes=ac,an,a identity-regexp=WAP master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
-/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn,b identity-regexp=mikrouter master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
-/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac,an,a identity-regexp=mikrouter master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
+/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest" hw-supported-modes=gn identity-regexp=WAP master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
+/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private" hw-supported-modes=ac identity-regexp=WAP master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
+/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn identity-regexp=mikrouter master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
+/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac identity-regexp=mikrouter master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
 /certificate settings set crl-download=no crl-use=no
 /interface bridge filter add action=drop chain=forward comment="drop all dhcp requests over bridge" dst-port=67 ip-protocol=udp mac-protocol=ip
@@ -663,8 +664,8 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:20 d:h:m:s | CPU: 61%\
-    \nRAM: 29448/131072M | Voltage: 23 v | Temp: 20c\
+    \nUptime:  00:00:19 d:h:m:s | CPU: 10%\
+    \nRAM: 29616/131072M | Voltage: 23 v | Temp: 54c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -2091,6 +2092,8 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n:if (!any \$globalScriptBeforeRun) do={ \r\
     \n  :global globalScriptBeforeRun do={\r\
     \n\r\
+    \n    :global globalNoteMe;\r\
+    \n    \r\
     \n    :if ([:len \$1] > 0) do={\r\
     \n\r\
     \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\r\
@@ -2124,6 +2127,8 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n:if (!any \$globalTgMessage) do={ \r\
     \n  :global globalTgMessage do={\r\
     \n\r\
+    \n    :global globalNoteMe;\r\
+    \n\r\
     \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\r\
     \n    :local tGroupID \"-343674739\";\r\
     \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\r\
@@ -2137,6 +2142,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n      :local state (\"Telegram notify error\");\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n    };\r\
+    \n\r\
     \n  }\r\
     \n}\r\
     \n\r\
@@ -2655,7 +2661,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
