@@ -1,4 +1,4 @@
-# jul/21/2019 21:00:02 by RouterOS 6.45beta62
+# jul/28/2019 19:02:55 by RouterOS 6.45beta62
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -34,9 +34,9 @@
 /interface list add comment="Controlled access points (2ghz)" name=list-2ghz-caps-private
 /interface list add comment="Controlled access points (public)" name=list-2ghz-caps-guest
 /interface list add comment="Controlled access points (5ghz)" name=list-5ghz-caps-private
-/caps-man configuration add channel=common-chnls-2Ghz country=russia3 datapath=2CapsMan-private datapath.interface-list=list-2ghz-caps-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
-/caps-man configuration add channel=common-chnls-5Ghz country=russia3 datapath=2CapsMan-private datapath.interface-list=list-5ghz-caps-private disconnect-timeout=9s distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-5Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 5Ghz PRIVATE" tx-chains=0,1,2,3
-/caps-man configuration add channel=common-chnls-2Ghz country=russia3 datapath=2CapsMan-guest datapath.interface-list=list-2ghz-caps-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-chnls-2Ghz country=russia datapath=2CapsMan-private datapath.interface-list=list-2ghz-caps-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-chnls-5Ghz country=russia datapath=2CapsMan-private datapath.interface-list=list-5ghz-caps-private disconnect-timeout=9s distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-5Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 5Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-chnls-2Ghz country=russia datapath=2CapsMan-guest datapath.interface-list=list-2ghz-caps-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
 /interface list add comment="Guest Wireless" include=list-2ghz-caps-guest name=list-guest-wireless
 /interface list add comment="neighbors allowed interfaces" include=list-2ghz-caps-private name=list-neighbors-lookup
 /interface list add comment="Private Wireless" include=list-2ghz-caps-private,list-5ghz-caps-private name=list-private-wireless
@@ -581,9 +581,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list="VPN network" log-prefix=#VPN_NAT src-address-list=Network
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" dst-address-list=vpn-tunneled-sites log-prefix=#VPN_NAT
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=Network log-prefix=#VPN_NAT src-address-list="VPN network"
-/ip firewall nat
-# tunnel not ready
-add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel
+/ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel
 /ip firewall nat add action=netmap chain=dstnat comment="WINBOX pass through" dst-port=9999 in-interface=wan log-prefix=#WNBOX protocol=tcp to-addresses=192.168.99.1 to-ports=8291
 /ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX NAT loopback" dst-address-list=external-ip dst-address-type="" dst-port=8291 in-interface="main infrastructure" log-prefix=#LOOP protocol=tcp src-address-list=Network to-addresses=192.168.99.1 to-ports=8291
 /ip firewall nat add action=netmap chain=dstnat comment="WEB pass through" dst-port=8888 in-interface=wan log-prefix="#WEB EXT CTRL" protocol=tcp to-addresses=192.168.99.1 to-ports=80
@@ -665,8 +663,8 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:20 d:h:m:s | CPU: 6%\
-    \nRAM: 29632/131072M | Voltage: 23 v | Temp: 52c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 55%\
+    \nRAM: 29708/131072M | Voltage: 23 v | Temp: 54c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -1538,7 +1536,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n:log error (\"Telegram notify error\");\r\
     \n:put \"Telegram notify error\";\r\
     \n};"
-/system script add comment="Netwatch handler both when OnUp and OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Netwatch handler both when OnUp and OnDown" dont-require-permissions=no name=doNetwatchHost owner=owner policy=reboot,read,write,test source="\r\
     \n\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doNetwatchHost\";\r\
@@ -3040,7 +3038,15 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool mac-server set allowed-interface-list=none
 /tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
-/tool netwatch add comment="miniAlx status check" down-script=":global NetwatchHostName \"miniAlx\";\r\
-    \n/system script run doNetwatchHost;" host=192.168.99.180 up-script=":global NetwatchHostName \"miniAlx\";\r\
+/tool netwatch add comment="miniAlx status check" down-script="\r\
+    \n:put \"info: Netwatch UP\"\r\
+    \n:log info \"Netwatch UP\"\r\
+    \n\r\
+    \n:global NetwatchHostName \"miniAlx\";\r\
+    \n/system script run doNetwatchHost;" host=192.168.99.180 up-script="\r\
+    \n:put \"info: Netwatch UP\"\r\
+    \n:log info \"Netwatch UP\"\r\
+    \n\r\
+    \n:global NetwatchHostName \"miniAlx\";\r\
     \n/system script run doNetwatchHost;"
 /tool sniffer set filter-interface=tunnel filter-operator-between-entries=and streaming-enabled=yes streaming-server=192.168.99.170
