@@ -15,6 +15,7 @@ $globalScriptBeforeRun $scriptname;
 
     :local ph2state [get value-name=ph2-state $vpnEndpoint]
     :local isTunnel [get value-name=tunnel $vpnEndpoint]
+    :local peerPoint [get $vpnEndpoint peer]
     :local dstIp;
 
     :if ($isTunnel) do={
@@ -24,6 +25,11 @@ $globalScriptBeforeRun $scriptname;
     }
 
     :if (($itsOk) and ($ph2state != "established")) do={
+
+      :set state "Non-established IPSEC policy found for destination IP $dstIp. Checking active peers.."
+      $globalNoteMe value=$state;
+
+      :local actPeerProcessed 0;
 
       /ip ipsec active-peers {
         :foreach actPeer in=[find remote-address=$dstIp] do={
@@ -39,7 +45,7 @@ $globalScriptBeforeRun $scriptname;
 
           :do {
 
-            :set state "Non-established IPSEC policy found for $peer endpoint. Going flush.."
+            :set state "Active peer $peer found Non-established IPSEC policy. Kill it.."
             $globalNoteMe value=$state;
 
             [remove $actPeer];
@@ -51,7 +57,7 @@ $globalScriptBeforeRun $scriptname;
             :delay 10;
 
             :set punched ($punched . "$peer");
-            
+          
           } on-error= {
 
             :set state "Error When $state"
@@ -60,8 +66,50 @@ $globalScriptBeforeRun $scriptname;
             :set itsOk false;
             
           }
+
+          :set actPeerProcessed ($actPeerProcessed + 1);
         }
+
       }
+
+      #there were no active peers with such remote-address
+      #This is the most common case if the policy is non-established
+
+      :if ($actPeerProcessed = 0) do={
+
+        #should not flush InstalledSA, because ot flushes the whole policies
+        #just make disable-enable cycle
+        
+        :set state ("There were no active peers with $dstIp destination IP, but policy is non-established.");
+        $globalNoteMe value=$state;
+
+        :set state ("Making disable-enable cycle for policy to clear InstalledSA");
+        $globalNoteMe value=$state;
+
+        :delay 2;
+
+        [set disabled=yes];
+        
+        #waiting for tunnel to come up, because Telegram notes goes through tunnel
+        :delay 5;
+
+        [set disabled=no];
+
+       :delay 2;
+
+        :local peerId ($peerPoint -> "id");
+        :local peer "";
+
+        :if ([:typeof $peerId] != "nil") do={
+          :set peer "$peerId"
+        } else {
+          :set peer "$dstIp"
+        }
+
+        :set punched ($punched . "$peer");
+
+      }      
+
     }
   }
 }
@@ -88,5 +136,4 @@ $globalScriptBeforeRun $scriptname;
 }
 
 $globalNoteMe value=$inf
-
 
