@@ -1,4 +1,4 @@
-# jul/28/2019 19:02:55 by RouterOS 6.45beta62
+# aug/01/2019 22:16:41 by RouterOS 6.46beta16
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -71,6 +71,7 @@ set "wlan 5Ghz" enable-polling=no
 /ip firewall layer7-protocol add name=BIN regexp=".(bin)"
 /ip firewall layer7-protocol add name="resolve local" regexp=".home|[0-9]+.[0-9]+.168.192.in-addr.arpa"
 /ip hotspot profile set [ find default=yes ] html-directory=flash/hotspot login-by=http-chap,trial
+/ip ipsec mode-config set [ find default=yes ] src-address-list=vpn-tunneled-sites
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=outside-ipsec-encryption
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
@@ -113,6 +114,7 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
 /queue simple add comment=dtq,94:C6:91:94:98:DC, max-limit=10M/10M name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
 /queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP max-limit=10M/10M name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
+/queue simple add comment=dtq,84:85:06:33:8C:17,truth max-limit=10M/10M name="truth@guest dhcp (84:85:06:33:8C:17)" target=192.168.98.229/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -144,11 +146,11 @@ set "wlan 5Ghz" enable-polling=no
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlx disabled=no mac-address=AC:61:EA:EA:CC:84 ssid-regexp=WiFi
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneGl disabled=no mac-address=00:CD:FE:EC:B5:52 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlx disabled=no mac-address=AC:61:EA:EA:CC:84 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneGl disabled=no mac-address=00:CD:FE:EC:B5:52 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=mbpAlx disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp=WiFi
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=ATV disabled=no mac-address=B0:34:95:2D:D6:85 ssid-regexp=WiFi
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlx disabled=no mac-address=54:E4:3A:B8:12:07 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s ap-tx-limit=0 client-to-client-forwarding=yes comment=ATV disabled=no mac-address=B0:34:95:2D:D6:85 ssid-regexp="WiFi 2"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlx disabled=no mac-address=54:E4:3A:B8:12:07 ssid-regexp="WiFi 2"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=asusGl disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
@@ -243,6 +245,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.100.1
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=192.168.99.1 name=mikrouter.home
+/ip dns static add address=10.0.0.2 name=mikrouter.home
 /ip dns static add address=192.168.99.1 name=mikrouter
 /ip dns static add address=192.168.99.1 name=time.windows.com
 /ip dns static add address=172.16.0.17 name=influxdb
@@ -250,6 +253,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip dns static add address=172.16.0.16 name=grafana
 /ip dns static add address=172.16.0.16 name=grafana.home
 /ip dns static add address=192.168.97.1 name=chr.home
+/ip dns static add address=10.0.0.1 name=chr.home
 /ip dns static add address=192.168.100.1 name=gateway.home
 /ip dns static add address=192.168.99.190 comment="<AUTO:DHCP:main dhcp>" name=ATV.home ttl=5m
 /ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-UPPUU22.home ttl=5m
@@ -663,8 +667,8 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:20 d:h:m:s | CPU: 55%\
-    \nRAM: 29708/131072M | Voltage: 23 v | Temp: 54c\
+    \nUptime:  00:00:23 d:h:m:s | CPU: 73%\
+    \nRAM: 31116/131072M | Voltage: 23 v | Temp: 49c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -1960,6 +1964,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\r\
     \n    :local isTunnel [get value-name=tunnel \$vpnEndpoint]\r\
+    \n    :local peerPoint [get \$vpnEndpoint peer]\r\
     \n    :local dstIp;\r\
     \n\r\
     \n    :if (\$isTunnel) do={\r\
@@ -1969,6 +1974,11 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n    }\r\
     \n\r\
     \n    :if ((\$itsOk) and (\$ph2state != \"established\")) do={\r\
+    \n\r\
+    \n      :set state \"Non-established IPSEC policy found for destination IP \$dstIp. Checking active peers..\"\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n      :local actPeerProcessed 0;\r\
     \n\r\
     \n      /ip ipsec active-peers {\r\
     \n        :foreach actPeer in=[find remote-address=\$dstIp] do={\r\
@@ -1984,7 +1994,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n          :do {\r\
     \n\r\
-    \n            :set state \"Non-established IPSEC policy found for \$peer endpoint. Going flush..\"\r\
+    \n            :set state \"Active peer \$peer found Non-established IPSEC policy. Kill it..\"\r\
     \n            \$globalNoteMe value=\$state;\r\
     \n\r\
     \n            [remove \$actPeer];\r\
@@ -1996,7 +2006,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n            :delay 10;\r\
     \n\r\
     \n            :set punched (\$punched . \"\$peer\");\r\
-    \n            \r\
+    \n          \r\
     \n          } on-error= {\r\
     \n\r\
     \n            :set state \"Error When \$state\"\r\
@@ -2005,8 +2015,50 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n            :set itsOk false;\r\
     \n            \r\
     \n          }\r\
+    \n\r\
+    \n          :set actPeerProcessed (\$actPeerProcessed + 1);\r\
     \n        }\r\
+    \n\r\
     \n      }\r\
+    \n\r\
+    \n      #there were no active peers with such remote-address\r\
+    \n      #This is the most common case if the policy is non-established\r\
+    \n\r\
+    \n      :if (\$actPeerProcessed = 0) do={\r\
+    \n\r\
+    \n        #should not flush InstalledSA, because ot flushes the whole policies\r\
+    \n        #just make disable-enable cycle\r\
+    \n        \r\
+    \n        :set state (\"There were no active peers with \$dstIp destination IP, but policy is non-established.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :set state (\"Making disable-enable cycle for policy to clear InstalledSA\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :delay 2;\r\
+    \n\r\
+    \n        [set disabled=yes];\r\
+    \n        \r\
+    \n        #waiting for tunnel to come up, because Telegram notes goes through tunnel\r\
+    \n        :delay 5;\r\
+    \n\r\
+    \n        [set disabled=no];\r\
+    \n\r\
+    \n       :delay 2;\r\
+    \n\r\
+    \n        :local peerId (\$peerPoint -> \"id\");\r\
+    \n        :local peer \"\";\r\
+    \n\r\
+    \n        :if ([:typeof \$peerId] != \"nil\") do={\r\
+    \n          :set peer \"\$peerId\"\r\
+    \n        } else {\r\
+    \n          :set peer \"\$dstIp\"\r\
+    \n        }\r\
+    \n\r\
+    \n        :set punched (\$punched . \"\$peer\");\r\
+    \n\r\
+    \n      }      \r\
+    \n\r\
     \n    }\r\
     \n  }\r\
     \n}\r\
@@ -2033,7 +2085,6 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n}\r\
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
-    \n\r\
     \n"
 /system script add comment="A template to track hotspot users" dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\

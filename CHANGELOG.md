@@ -1,4 +1,84 @@
-### Git Auto Save, Date: четверг, 18 июля 2019 г. 20:59:16 (MSK), New Files:  Modified Files: scripts/doEnvironmentSetup.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: четверг,  1 августа 2019 г. 22:19:39 (MSK), New Files:  Modified Files: scripts/doIPSECPunch.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+>Thu, 1 Aug 2019 22:19:39 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: четверг,  1 августа 2019 г. 22:17:15 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files: (mikrobackups/_autobranch)
+>Thu, 1 Aug 2019 22:17:15 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: среда, 31 июля 2019 г. 21:00:38 (MSK), New Files: rawconf_mikrouter_6.46beta16.rsc,  Modified Files:  Removed Files:
+>Wed, 31 Jul 2019 21:00:39 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 29 июля 2019 г. 18:28:46 (MSK), New Files: rawconf_CHR_6.46beta16.rsc,  Modified Files:  Removed Files:
+>Mon, 29 Jul 2019 18:28:46 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: воскресенье, 28 июля 2019 г. 19:03:33 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta62.rsc,  Removed Files:
+>Sun, 28 Jul 2019 19:03:33 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: воскресенье, 21 июля 2019 г. 21:00:43 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta62.rsc,  Removed Files:
+>Sun, 21 Jul 2019 21:00:43 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: пятница, 19 июля 2019 г. 18:28:51 (MSK), New Files:  Modified Files: rawconf_CHR_6.45beta62.rsc,  Removed Files:
+>Fri, 19 Jul 2019 18:28:51 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: пятница, 19 июля 2019 г. 16:20:19 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.45beta62.rsc,  Removed Files:
+>Fri, 19 Jul 2019 16:20:19 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: четверг, 18 июля 2019 г. 20:59:16 (MSK), New Files:  Modified Files: scripts/doEnvironmentSetup.rsc.txt,  Removed Files:
 >Thu, 18 Jul 2019 20:59:16 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +88,7 @@
 
 
 
-### Git Auto Save, Date: четверг, 18 июля 2019 г. 20:57:22 (MSK), New Files:  Modified Files: scripts/doEnvironmentSetup.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: четверг, 18 июля 2019 г. 20:57:22 (MSK), New Files:  Modified Files: scripts/doEnvironmentSetup.rsc.txt,  Removed Files:
 >Thu, 18 Jul 2019 20:57:22 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
