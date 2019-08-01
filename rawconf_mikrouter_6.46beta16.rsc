@@ -1,4 +1,4 @@
-# jul/31/2019 21:00:02 by RouterOS 6.46beta16
+# aug/01/2019 22:16:41 by RouterOS 6.46beta16
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -114,6 +114,7 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
 /queue simple add comment=dtq,94:C6:91:94:98:DC, max-limit=10M/10M name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
 /queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP max-limit=10M/10M name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
+/queue simple add comment=dtq,84:85:06:33:8C:17,truth max-limit=10M/10M name="truth@guest dhcp (84:85:06:33:8C:17)" target=192.168.98.229/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -584,9 +585,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list="VPN network" log-prefix=#VPN_NAT src-address-list=Network
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" dst-address-list=vpn-tunneled-sites log-prefix=#VPN_NAT
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=Network log-prefix=#VPN_NAT src-address-list="VPN network"
-/ip firewall nat
-# tunnel not ready
-add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel
+/ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel
 /ip firewall nat add action=netmap chain=dstnat comment="WINBOX pass through" dst-port=9999 in-interface=wan log-prefix=#WNBOX protocol=tcp to-addresses=192.168.99.1 to-ports=8291
 /ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX NAT loopback" dst-address-list=external-ip dst-address-type="" dst-port=8291 in-interface="main infrastructure" log-prefix=#LOOP protocol=tcp src-address-list=Network to-addresses=192.168.99.1 to-ports=8291
 /ip firewall nat add action=netmap chain=dstnat comment="WEB pass through" dst-port=8888 in-interface=wan log-prefix="#WEB EXT CTRL" protocol=tcp to-addresses=192.168.99.1 to-ports=80
@@ -1965,6 +1964,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n\r\
     \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\r\
     \n    :local isTunnel [get value-name=tunnel \$vpnEndpoint]\r\
+    \n    :local peerPoint [get \$vpnEndpoint peer]\r\
     \n    :local dstIp;\r\
     \n\r\
     \n    :if (\$isTunnel) do={\r\
@@ -1974,6 +1974,11 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n    }\r\
     \n\r\
     \n    :if ((\$itsOk) and (\$ph2state != \"established\")) do={\r\
+    \n\r\
+    \n      :set state \"Non-established IPSEC policy found for destination IP \$dstIp. Checking active peers..\"\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n      :local actPeerProcessed 0;\r\
     \n\r\
     \n      /ip ipsec active-peers {\r\
     \n        :foreach actPeer in=[find remote-address=\$dstIp] do={\r\
@@ -1989,7 +1994,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n\r\
     \n          :do {\r\
     \n\r\
-    \n            :set state \"Non-established IPSEC policy found for \$peer endpoint. Going flush..\"\r\
+    \n            :set state \"Active peer \$peer found Non-established IPSEC policy. Kill it..\"\r\
     \n            \$globalNoteMe value=\$state;\r\
     \n\r\
     \n            [remove \$actPeer];\r\
@@ -2001,7 +2006,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n            :delay 10;\r\
     \n\r\
     \n            :set punched (\$punched . \"\$peer\");\r\
-    \n            \r\
+    \n          \r\
     \n          } on-error= {\r\
     \n\r\
     \n            :set state \"Error When \$state\"\r\
@@ -2010,8 +2015,50 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n            :set itsOk false;\r\
     \n            \r\
     \n          }\r\
+    \n\r\
+    \n          :set actPeerProcessed (\$actPeerProcessed + 1);\r\
     \n        }\r\
+    \n\r\
     \n      }\r\
+    \n\r\
+    \n      #there were no active peers with such remote-address\r\
+    \n      #This is the most common case if the policy is non-established\r\
+    \n\r\
+    \n      :if (\$actPeerProcessed = 0) do={\r\
+    \n\r\
+    \n        #should not flush InstalledSA, because ot flushes the whole policies\r\
+    \n        #just make disable-enable cycle\r\
+    \n        \r\
+    \n        :set state (\"There were no active peers with \$dstIp destination IP, but policy is non-established.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :set state (\"Making disable-enable cycle for policy to clear InstalledSA\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :delay 2;\r\
+    \n\r\
+    \n        [set disabled=yes];\r\
+    \n        \r\
+    \n        #waiting for tunnel to come up, because Telegram notes goes through tunnel\r\
+    \n        :delay 5;\r\
+    \n\r\
+    \n        [set disabled=no];\r\
+    \n\r\
+    \n       :delay 2;\r\
+    \n\r\
+    \n        :local peerId (\$peerPoint -> \"id\");\r\
+    \n        :local peer \"\";\r\
+    \n\r\
+    \n        :if ([:typeof \$peerId] != \"nil\") do={\r\
+    \n          :set peer \"\$peerId\"\r\
+    \n        } else {\r\
+    \n          :set peer \"\$dstIp\"\r\
+    \n        }\r\
+    \n\r\
+    \n        :set punched (\$punched . \"\$peer\");\r\
+    \n\r\
+    \n      }      \r\
+    \n\r\
     \n    }\r\
     \n  }\r\
     \n}\r\
@@ -2038,7 +2085,6 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n}\r\
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
-    \n\r\
     \n"
 /system script add comment="A template to track hotspot users" dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
