@@ -88,17 +88,19 @@ $globalScriptBeforeRun $scriptname;
 
         :delay 2;
 
-        [set disabled=yes];
+        [set $vpnEndpoint disabled=yes];
         
         #waiting for tunnel to come up, because Telegram notes goes through tunnel
         :delay 5;
 
-        [set disabled=no];
+        [set $vpnEndpoint disabled=no];
 
-       :delay 2;
+       :delay 5;
 
         :local peerId ($peerPoint -> "id");
         :local peer "";
+
+        :put $peerId;        
 
         :if ([:typeof $peerId] != "nil") do={
           :set peer "$peerId"
