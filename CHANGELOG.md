@@ -1,4 +1,14 @@
-### Git Auto Save, Date: пятница,  2 августа 2019 г. 21:11:37 (MSK), New Files:  Modified Files: scripts/doIPSECPunch.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: четверг,  8 августа 2019 г. 18:28:49 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta16.rsc,  Removed Files: (HEAD -> _autobranch)
+>Thu, 8 Aug 2019 18:28:49 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: пятница,  2 августа 2019 г. 21:11:37 (MSK), New Files:  Modified Files: scripts/doIPSECPunch.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
 >Fri, 2 Aug 2019 21:11:37 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Git Auto Save, Date: четверг,  1 августа 2019 г. 22:19:39 (MSK), New Files:  Modified Files: scripts/doIPSECPunch.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: четверг,  1 августа 2019 г. 22:19:39 (MSK), New Files:  Modified Files: scripts/doIPSECPunch.rsc.txt,  Removed Files:
 >Thu, 1 Aug 2019 22:19:39 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)

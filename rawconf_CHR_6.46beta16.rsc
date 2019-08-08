@@ -1,4 +1,4 @@
-# jul/29/2019 18:28:20 by RouterOS 6.46beta16
+# aug/08/2019 18:28:20 by RouterOS 6.46beta16
 # software id = 
 #
 #
@@ -38,7 +38,7 @@
 /routing ospf instance set [ find default=yes ] distribute-default=always-as-type-2 name=routes-provider-mis router-id=10.255.255.1
 /snmp community set [ find default=yes ] addresses=0.0.0.0/0
 /snmp community add addresses=192.168.99.180/32,192.168.99.170/32 name=globus
-/system logging action add memory-lines=400 name=IpsecOnScreenLog target=memory
+/system logging action add memory-lines=600 name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
@@ -50,6 +50,7 @@
 /system logging action add name=L2TPOnScreenLog target=memory
 /system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
+/system logging action add disk-file-count=40 disk-file-name=tempIpsec.chr disk-lines-per-file=10000 name=tempIpsec target=disk
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /certificate scep-server add ca-cert=ca@CHR days-valid=365 path=/scep/grant request-lifetime=5m
@@ -214,7 +215,6 @@
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
 /system logging set 3 action=TerminalConsoleLog
-/system logging add action=IpsecOnScreenLog topics=ipsec,!packet
 /system logging add action=ErrorDiskLog topics=critical
 /system logging add action=ErrorDiskLog topics=error
 /system logging add action=ScriptsDiskLog topics=script
@@ -228,6 +228,8 @@
 /system logging add action=AuthDiskLog topics=account
 /system logging add action=CertificatesOnScreenLog topics=certificate
 /system logging add action=AuthDiskLog topics=manager
+/system logging add action=IpsecOnScreenLog topics=ipsec,!debug,!packet
+/system logging add action=tempIpsec disabled=yes topics=ipsec,!debug,!packet
 /system note set note="You are logged into: CHR\
     \n############### system health ###############\
     \nUptime:  2w6d00:00:10 d:h:m:s | CPU: 0%\
@@ -946,6 +948,7 @@
     \n\r\
     \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\r\
     \n    :local isTunnel [get value-name=tunnel \$vpnEndpoint]\r\
+    \n    :local peerPoint [get \$vpnEndpoint peer]\r\
     \n    :local dstIp;\r\
     \n\r\
     \n    :if (\$isTunnel) do={\r\
@@ -955,6 +958,11 @@
     \n    }\r\
     \n\r\
     \n    :if ((\$itsOk) and (\$ph2state != \"established\")) do={\r\
+    \n\r\
+    \n      :set state \"Non-established IPSEC policy found for destination IP \$dstIp. Checking active peers..\"\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n      :local actPeerProcessed 0;\r\
     \n\r\
     \n      /ip ipsec active-peers {\r\
     \n        :foreach actPeer in=[find remote-address=\$dstIp] do={\r\
@@ -970,7 +978,7 @@
     \n\r\
     \n          :do {\r\
     \n\r\
-    \n            :set state \"Non-established IPSEC policy found for \$peer endpoint. Going flush..\"\r\
+    \n            :set state \"Active peer \$peer found Non-established IPSEC policy. Kill it..\"\r\
     \n            \$globalNoteMe value=\$state;\r\
     \n\r\
     \n            [remove \$actPeer];\r\
@@ -982,7 +990,7 @@
     \n            :delay 10;\r\
     \n\r\
     \n            :set punched (\$punched . \"\$peer\");\r\
-    \n            \r\
+    \n          \r\
     \n          } on-error= {\r\
     \n\r\
     \n            :set state \"Error When \$state\"\r\
@@ -991,8 +999,52 @@
     \n            :set itsOk false;\r\
     \n            \r\
     \n          }\r\
+    \n\r\
+    \n          :set actPeerProcessed (\$actPeerProcessed + 1);\r\
     \n        }\r\
+    \n\r\
     \n      }\r\
+    \n\r\
+    \n      #there were no active peers with such remote-address\r\
+    \n      #This is the most common case if the policy is non-established\r\
+    \n\r\
+    \n      :if (\$actPeerProcessed = 0) do={\r\
+    \n\r\
+    \n        #should not flush InstalledSA, because ot flushes the whole policies\r\
+    \n        #just make disable-enable cycle\r\
+    \n        \r\
+    \n        :set state (\"There were no active peers with \$dstIp destination IP, but policy is non-established.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :set state (\"Making disable-enable cycle for policy to clear InstalledSA\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :delay 2;\r\
+    \n\r\
+    \n        [set \$vpnEndpoint disabled=yes];\r\
+    \n        \r\
+    \n        #waiting for tunnel to come up, because Telegram notes goes through tunnel\r\
+    \n        :delay 5;\r\
+    \n\r\
+    \n        [set \$vpnEndpoint disabled=no];\r\
+    \n\r\
+    \n       :delay 5;\r\
+    \n\r\
+    \n        :local peerId (\$peerPoint -> \"id\");\r\
+    \n        :local peer \"\";\r\
+    \n\r\
+    \n        :put \$peerId;        \r\
+    \n\r\
+    \n        :if ([:typeof \$peerId] != \"nil\") do={\r\
+    \n          :set peer \"\$peerId\"\r\
+    \n        } else {\r\
+    \n          :set peer \"\$dstIp\"\r\
+    \n        }\r\
+    \n\r\
+    \n        :set punched (\$punched . \"\$peer\");\r\
+    \n\r\
+    \n      }      \r\
+    \n\r\
     \n    }\r\
     \n  }\r\
     \n}\r\
@@ -1019,7 +1071,6 @@
     \n}\r\
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
-    \n\r\
     \n\r\
     \n"
 /tool bandwidth-server set authenticate=no
