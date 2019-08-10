@@ -1,4 +1,4 @@
-# aug/01/2019 22:16:41 by RouterOS 6.46beta16
+# aug/10/2019 21:00:02 by RouterOS 6.46beta16
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -129,7 +129,7 @@ set "wlan 5Ghz" enable-polling=no
 /snmp community set [ find default=yes ] addresses=192.168.99.180/32,192.168.99.170/32 authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 name=public
 /system logging action add name=IpsecOnScreenLog target=memory
-/system logging action add disk-file-count=10 disk-file-name=flash/ScriptsDiskLog name=ScriptsDiskLog target=disk
+/system logging action add disk-file-count=1 disk-file-name=flash/ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=flash/ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
 /system logging action add memory-lines=500 name=OnScreenLog target=memory
@@ -2037,17 +2037,19 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n        :delay 2;\r\
     \n\r\
-    \n        [set disabled=yes];\r\
+    \n        [set \$vpnEndpoint disabled=yes];\r\
     \n        \r\
     \n        #waiting for tunnel to come up, because Telegram notes goes through tunnel\r\
     \n        :delay 5;\r\
     \n\r\
-    \n        [set disabled=no];\r\
+    \n        [set \$vpnEndpoint disabled=no];\r\
     \n\r\
-    \n       :delay 2;\r\
+    \n       :delay 5;\r\
     \n\r\
     \n        :local peerId (\$peerPoint -> \"id\");\r\
     \n        :local peer \"\";\r\
+    \n\r\
+    \n        :put \$peerId;        \r\
     \n\r\
     \n        :if ([:typeof \$peerId] != \"nil\") do={\r\
     \n          :set peer \"\$peerId\"\r\
