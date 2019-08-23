@@ -1,4 +1,14 @@
-### Git Auto Save, Date: вторник, 20 августа 2019 г. 21:00:33 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: пятница, 23 августа 2019 г. 23:29:55 (MSK), New Files:  Modified Files: mobileconfigs/README.md,  Removed Files: (HEAD -> _autobranch)
+>Fri, 23 Aug 2019 23:29:55 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: вторник, 20 августа 2019 г. 21:00:33 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files: (mikrobackups/_autobranch)
 >Tue, 20 Aug 2019 21:00:33 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +18,7 @@
 
 
 
-### Git Auto Save, Date: воскресенье, 18 августа 2019 г. 18:28:50 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: воскресенье, 18 августа 2019 г. 18:28:50 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc,  Removed Files:
 >Sun, 18 Aug 2019 18:28:50 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -1418,7 +1428,7 @@
 
 
 
-### changelog added (Auto_Save)
+### changelog added
 >Wed, 3 Apr 2019 00:01:04 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)

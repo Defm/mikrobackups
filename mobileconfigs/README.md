@@ -1,0 +1,1 @@
+## shell script to sign *.mobileconfig files using Keychain-stored cert having code-sign key usage
