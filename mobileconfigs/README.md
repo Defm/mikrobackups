@@ -12,3 +12,4 @@ cd /path/to/my/ProfilesRepo
 ```bash
 sudo /path/to/the/script/SignProfile.sh jdoe.IMAP.mobileconfig jdoe.IMAP.signed.mobileconfig
 ```
+https://github.com/JeremyAgost/Hancock/tree/master
