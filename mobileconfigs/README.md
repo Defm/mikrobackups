@@ -5,4 +5,4 @@
 - sign it using [Hancock](https://github.com/JeremyAgost/Hancock/tree/master) tool 
   * you should put the CA and sign Cert to youre Keychain before <sup id="a1">[1](#f1)</sup>
 
-<b id="f1">1</b> you can generate code signing certificate with [doCertificatesIssuing](https://github.com/Defm/mikrobackups/blob/master/scripts/doCertificatesIssuing.rsc.txt) [↩](#a1)
+<sup id="f1">1</sup> you can generate code signing certificate with [doCertificatesIssuing](https://github.com/Defm/mikrobackups/blob/master/scripts/doCertificatesIssuing.rsc.txt) [↩](#a1)
