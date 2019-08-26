@@ -1,15 +1,7 @@
 
 # SignProfiles.sh
-- make the script executable
-```bash
-chmod +x SignProfiles.sh
-```
-- move to the folder containing the profiles you want to sign.
-```bash
-cd /path/to/my/ProfilesRepo
-```
-- Run the script as sudo
-```bash
-sudo /path/to/the/script/SignProfile.sh jdoe.IMAP.mobileconfig jdoe.IMAP.signed.mobileconfig
-```
-https://github.com/JeremyAgost/Hancock/tree/master
+- form your OSX/iOS *.mobileconfig VPN-ondemand IKEv2 profile using Apple Configurator 2
+- sign it using [Hancock](https://github.com/JeremyAgost/Hancock/tree/master) tool 
+  * you can generate code signing certificate with [doCertificatesIssuing](https://github.com/Defm/mikrobackups/blob/master/scripts/doCertificatesIssuing.rsc.txt) script
+  * you should put the Cert to youre Keychain before
+
