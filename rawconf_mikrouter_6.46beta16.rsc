@@ -1,4 +1,4 @@
-# sep/02/2019 15:16:41 by RouterOS 6.46beta16
+# sep/03/2019 22:01:19 by RouterOS 6.46beta16
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -289,7 +289,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip firewall address-list add address=8.8.4.4 comment="Add DNS Server to this List" list="DNS Allow"
 /ip firewall address-list add address=192.168.100.1 comment="Add DNS Server to this List" list="DNS Allow"
 /ip firewall address-list add address=4.2.2.2 comment="Add DNS Server to this List" list="DNS Allow"
-/ip firewall address-list add address=185.6.175.49 comment="Manual Black List" disabled=yes list="Black List"
+/ip firewall address-list add address=185.6.175.49 comment="Manual Black List" list="Black List"
 /ip firewall address-list add address=192.168.99.0/24 list="RDP Allow"
 /ip firewall address-list add address=192.168.99.0/24 list="SMB Allow"
 /ip firewall address-list add address=185.13.148.14 list="VPN server"
@@ -323,6 +323,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip firewall address-list add address=192.168.99.180 list=influxdb-service
 /ip firewall address-list add address=auntmia.com list=vpn-tunneled-sites
 /ip firewall address-list add address=clubseventeen.com list=vpn-tunneled-sites
+/ip firewall address-list add address=207.32.194.24 list=vpn-tunneled-sites
 /ip firewall address-list add address=109.252.109.62 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -373,12 +374,14 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip firewall filter add action=drop chain=router-services-wan comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
 /ip firewall filter add action=return chain=router-services-wan comment="Return from router-services-wan Chain"
 /ip firewall filter add action=jump chain=input comment="Check for ping flooding" jump-target=detect-ping-flood protocol=icmp
-/ip firewall filter add action=accept chain=detect-ping-flood comment="0:0 and limit for 5 pac/s" icmp-options=0:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=detect-ping-flood comment="3:3 and limit for 5 pac/s" icmp-options=3:3 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=detect-ping-flood comment="3:4 and limit for 5 pac/s" icmp-options=3:4 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 5 pac/s" icmp-options=8:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=detect-ping-flood comment="11:0 and limit for 5 pac/s" icmp-options=11:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="0:0 and limit for 5 pac/s Allow Ping" icmp-options=0:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="3:3 and limit for 5 pac/s Allow Traceroute" icmp-options=3:3 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="3:4 and limit for 5 pac/s Allow Path MTU Discovery" icmp-options=3:4 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 5 pac/s Allow Ping" icmp-options=8:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="11:0 and limit for 5 pac/s Allow Traceroute" icmp-options=11:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="0:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=0:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=8:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" log=yes log-prefix="#ICMP DROP" protocol=icmp
 /ip firewall filter add action=return chain=detect-ping-flood comment="Return from detect-ping-flood Chain"
 /ip firewall filter add action=log chain=forward comment=DUMMY1 log-prefix=#DUMMY1 src-address-list=dummy
 /ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Manually Added)" src-address-list="Black List"
@@ -558,6 +561,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log=yes log-prefix="#DROP UNKNOWN (INPUT)"
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=vpn-tunneled-sites new-connection-mark=vpn-l2tp passthrough=yes
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new dst-address-list=Telegram new-connection-mark=vpn-l2tp passthrough=yes
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=Telegram log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
@@ -667,8 +671,8 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:20 d:h:m:s | CPU: 60%\
-    \nRAM: 31284/131072M | Voltage: 23 v | Temp: 51c\
+    \nUptime:  00:00:22 d:h:m:s | CPU: 41%\
+    \nRAM: 30768/131072M | Voltage: 23 v | Temp: 51c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
