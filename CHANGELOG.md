@@ -1,4 +1,94 @@
-### Git Auto Save, Date: пятница,  2 августа 2019 г. 21:11:37 (MSK), New Files:  Modified Files: scripts/doIPSECPunch.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: пятница, 23 августа 2019 г. 23:33:30 (MSK), New Files:  Modified Files: CHANGELOG.md,  Removed Files: (HEAD -> _autobranch)
+>Fri, 23 Aug 2019 23:33:30 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Работа над профилями
+>Fri, 23 Aug 2019 23:33:29 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: пятница, 23 августа 2019 г. 23:29:55 (MSK), New Files:  Modified Files: mobileconfigs/README.md,  Removed Files: (mikrobackups/_autobranch)
+>Fri, 23 Aug 2019 23:29:55 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: вторник, 20 августа 2019 г. 21:00:33 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files:
+>Tue, 20 Aug 2019 21:00:33 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: воскресенье, 18 августа 2019 г. 18:28:50 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc,  Removed Files:
+>Sun, 18 Aug 2019 18:28:50 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: воскресенье, 11 августа 2019 г. 10:29:57 (MSK), New Files: rawconf_CHR_6.46beta28.rsc,  Modified Files:  Removed Files:
+>Sun, 11 Aug 2019 10:29:57 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: суббота, 10 августа 2019 г. 21:00:35 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files:
+>Sat, 10 Aug 2019 21:00:35 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: пятница,  9 августа 2019 г. 20:21:27 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta16.rsc,  Removed Files:
+>Fri, 9 Aug 2019 20:21:27 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: четверг,  8 августа 2019 г. 18:28:49 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta16.rsc,  Removed Files:
+>Thu, 8 Aug 2019 18:28:49 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: пятница,  2 августа 2019 г. 21:11:37 (MSK), New Files:  Modified Files: scripts/doIPSECPunch.rsc.txt,  Removed Files:
 >Fri, 2 Aug 2019 21:11:37 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +98,7 @@
 
 
 
-### Git Auto Save, Date: четверг,  1 августа 2019 г. 22:19:39 (MSK), New Files:  Modified Files: scripts/doIPSECPunch.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: четверг,  1 августа 2019 г. 22:19:39 (MSK), New Files:  Modified Files: scripts/doIPSECPunch.rsc.txt,  Removed Files:
 >Thu, 1 Aug 2019 22:19:39 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -1358,7 +1448,7 @@
 
 
 
-### changelog added (Auto_Save)
+### changelog added
 >Wed, 3 Apr 2019 00:01:04 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -1389,6 +1479,26 @@
 
 
 ### Initial conf
+>Tue, 2 Apr 2019 00:01:06 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### initial commit
+>Mon, 1 Apr 2019 22:50:59 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+al conf
 >Tue, 2 Apr 2019 00:01:06 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)

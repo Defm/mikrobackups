@@ -1,4 +1,4 @@
-# aug/09/2019 20:20:59 by RouterOS 6.46beta16
+# sep/04/2019 19:17:32 by RouterOS 6.46beta28
 # software id = 
 #
 #
@@ -50,7 +50,6 @@
 /system logging action add name=L2TPOnScreenLog target=memory
 /system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
-/system logging action add disk-file-count=40 disk-file-name=tempIpsec.chr disk-lines-per-file=10000 name=tempIpsec target=disk
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /certificate scep-server add ca-cert=ca@CHR days-valid=365 path=/scep/grant request-lifetime=5m
@@ -146,22 +145,26 @@
 /ip firewall filter add action=accept chain=detect-ping-flood comment="3:4 and limit for 5 pac/s" icmp-options=3:4 limit=5,5:packet protocol=icmp
 /ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 5 pac/s" icmp-options=8:0-255 limit=5,5:packet protocol=icmp
 /ip firewall filter add action=accept chain=detect-ping-flood comment="11:0 and limit for 5 pac/s" icmp-options=11:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=8:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="0:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=0:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" log=yes log-prefix="#ICMP DROP" protocol=icmp
 /ip firewall filter add action=return chain=detect-ping-flood comment="Return from detect-ping-flood Chain"
 /ip firewall filter add action=jump chain=input comment="Router remote control" jump-target="Router remote control" src-address-list=mis-remote-control
 /ip firewall filter add action=accept chain="Router remote control" comment="SSH (2222/TCP)" dst-port=2222 protocol=tcp
 /ip firewall filter add action=accept chain="Router remote control" comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
 /ip firewall filter add action=accept chain="Router remote control" comment=WEB port=80 protocol=tcp
+/ip firewall filter add action=accept chain="Router remote control" comment=FTP port=20,21 protocol=tcp
 /ip firewall filter add action=return chain="Router remote control" comment="Return from Router remote control"
 /ip firewall filter add action=accept chain=input comment="Simple Network Management Protocol(SNMP)  " port=161 protocol=udp
 /ip firewall filter add action=accept chain=input comment="Simple Network Management ProtocolTrap (SNMPTRAP)" port=162 protocol=tcp
 /ip firewall filter add action=accept chain=input comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " port=162 protocol=udp
 /ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (INPUT)"
 /ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new log-prefix="#ACCEPTED UNKNOWN (FWD)"
-/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log-prefix="#DROP UNKNOWN (INPUT)"
+/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log=yes log-prefix="#DROP UNKNOWN (INPUT)"
 /ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log-prefix="#DROP UNKNOWN (FWD)"
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" dst-address-list=tun-network new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" dst-address-list=vpn-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=vpn-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
 /ip firewall mangle add action=mark-packet chain=input comment="VPN Traffic" log-prefix="#VPN PCKT MARK" new-packet-mark="IPSEC PCKT" passthrough=yes protocol=ipsec-esp
@@ -173,7 +176,6 @@
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=mis-network log-prefix=#VPN src-address-list=mic-network
 /ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel
 /ip firewall nat add action=masquerade chain=srcnat comment="all cable allowed"
-/ip firewall service-port set ftp disabled=yes
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set irc disabled=yes
 /ip firewall service-port set h323 disabled=yes
@@ -193,7 +195,6 @@
 /ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range)" dst-address=109.252.0.0/17 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip route add check-gateway=ping comment=GLOBAL distance=10 gateway=185.13.148.1
 /ip service set telnet disabled=yes
-/ip service set ftp disabled=yes
 /ip service set ssh address=10.0.0.2/32 port=2222
 /ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
@@ -231,7 +232,6 @@
 /system logging add action=CertificatesOnScreenLog topics=certificate
 /system logging add action=AuthDiskLog topics=manager
 /system logging add action=IpsecOnScreenLog topics=ipsec,!debug,!packet
-/system logging add action=tempIpsec disabled=yes topics=ipsec,!debug,!packet
 /system note set note="You are logged into: CHR\
     \n############### system health ###############\
     \nUptime:  2w6d00:00:10 d:h:m:s | CPU: 0%\
