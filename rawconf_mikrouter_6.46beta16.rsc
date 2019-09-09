@@ -1,4 +1,4 @@
-# sep/04/2019 19:17:51 by RouterOS 6.46beta16
+# sep/09/2019 21:00:02 by RouterOS 6.46beta16
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -323,6 +323,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip firewall address-list add address=auntmia.com list=vpn-tunneled-sites
 /ip firewall address-list add address=clubseventeen.com list=vpn-tunneled-sites
 /ip firewall address-list add address=207.32.194.24 list=vpn-tunneled-sites
+/ip firewall address-list add address=speedtest.tele2.net list=vpn-tunneled-sites
 /ip firewall address-list add address=109.252.109.62 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -670,8 +671,8 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:22 d:h:m:s | CPU: 41%\
-    \nRAM: 30768/131072M | Voltage: 23 v | Temp: 51c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 100%\
+    \nRAM: 31232/131072M | Voltage: 23 v | Temp: 50c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
