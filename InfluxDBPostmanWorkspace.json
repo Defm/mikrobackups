@@ -1,0 +1,364 @@
+{
+	"info": {
+		"_postman_id": "ca411659-fe8f-479c-8cae-6b0c4ca2b64e",
+		"name": "influx",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "tables",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "mikrotik",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "mikrotik",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"disabled": false
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "pretty",
+							"value": "true",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "influxdb/write?db=mikroscripts&pretty=true",
+					"host": [
+						"influxdb"
+					],
+					"path": [
+						"write"
+					],
+					"query": [
+						{
+							"key": "db",
+							"value": "mikroscripts"
+						},
+						{
+							"key": "pretty",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "influxdb/ping",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "grafana",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "grafana",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "pretty",
+							"value": "true",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "influxdb/ping",
+					"host": [
+						"influxdb"
+					],
+					"path": [
+						"ping"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CREATE DATABASE",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "Defm",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "defmdefm",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"disabled": false
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "pretty",
+							"value": "true",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "influxdb/query?pretty=true&q=CREATE DATABASE mikroscripts",
+					"host": [
+						"influxdb"
+					],
+					"path": [
+						"query"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": "true"
+						},
+						{
+							"key": "q",
+							"value": "CREATE DATABASE mikroscripts"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CREATE USER",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "Defm",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "defmdefm",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"disabled": false
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "pretty",
+							"value": "true",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "influxdb/query?pretty=true&q=CREATE USER \"bash\" WITH PASSWORD 'bash'",
+					"host": [
+						"influxdb"
+					],
+					"path": [
+						"query"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": "true"
+						},
+						{
+							"key": "q",
+							"value": "CREATE USER \"bash\" WITH PASSWORD 'bash'"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "WRITE",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "mikrotik",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "mikrotik",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"disabled": false
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "pretty",
+							"value": "true",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "influxdb/write?db=mikroscripts&pretty=true",
+					"host": [
+						"influxdb"
+					],
+					"path": [
+						"write"
+					],
+					"query": [
+						{
+							"key": "db",
+							"value": "mikroscripts"
+						},
+						{
+							"key": "pretty",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GRANT WRITE ON",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "Defm",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "defmdefm",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"disabled": false
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "pretty",
+							"value": "true",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "influxdb/query?pretty=true&q=GRANT WRITE ON \"bashscripts\" TO \"bash\"",
+					"host": [
+						"influxdb"
+					],
+					"path": [
+						"query"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": "true"
+						},
+						{
+							"key": "q",
+							"value": "GRANT WRITE ON \"bashscripts\" TO \"bash\""
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "password",
+				"value": "grafana",
+				"type": "string"
+			},
+			{
+				"key": "username",
+				"value": "grafana",
+				"type": "string"
+			}
+		]
+	}
+}
