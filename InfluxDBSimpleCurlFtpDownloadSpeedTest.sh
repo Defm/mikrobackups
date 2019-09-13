@@ -57,7 +57,9 @@ set -o verbose
 # OUTS: None
 function script_trap_err() {
     local exit_code=1
-    local history_last_command=$(!!)
+    local history_last_command
+
+    history_last_command=$(!!)
 
     # Disable the error trap handler to prevent potential recursion
     trap - ERR
@@ -131,7 +133,7 @@ function trap_preCommand() {
     last_command=$current_command;
     current_command=$BASH_COMMAND;
 
-    echo @VARIABLE-TRACE> "$(basename ${BASH_SOURCE[0]})" "${LINENO[0]}" "${BASH_COMMAND}"
+    echo @VARIABLE-TRACE> "$(basename "${BASH_SOURCE[0]}")" "${LINENO[0]}" "${BASH_COMMAND}"
 
     if [ -z "$AT_PROMPT" ]; then
         return
@@ -527,8 +529,6 @@ function parse_params() {
 
 # CUSTOM CODE SECTION
 
-fileName="50MB.zip";
-
 
 # DESC: This is the main routine of our bash program
 # ARGS: $1 (required): Testing protocol, ftp or http
@@ -548,13 +548,13 @@ function speedTest() {
     verbose_print "Getting $filName ($reqMode) download speed" $ $bg_white
 
     set +e
-    curlResult=$(curl --silent --show-error --fail --connect-timeout 8 ${reqMode}://speedtest.tele2.net/${filName} --write-out "%{speed_download}" --output /dev/null | sed "s/\,/\./g" | tr -d '\n');
+    curlResult=$(curl --silent --show-error --fail --connect-timeout 8 "${reqMode}"://speedtest.tele2.net/"${filName}" --write-out "%{speed_download}" --output /dev/null | sed "s/\,/\./g" | tr -d '\n');
     set -e
 
     curlExitCode=$?;
 
     if test "$curlExitCode" -eq "0"; then
-        eval $replyVarName="'$curlResult'" #construct result variable and assign it's value
+        eval "$replyVarName"="$curlResult" #construct result variable and assign it's value
         verbose_print "Got $filName ($reqMode) download speed $curlResult kbps" $bg_white
         return 0;
     else
@@ -608,7 +608,7 @@ function mainLoop() {
 
             speedTest "$proto" "$size" "REPLY" 
 
-            writeStats "$proto" "$size" "VPN" $REPLY
+            # writeStats "$proto" "$size" "VPN" $REPLY
 
             pretty_print "Done speedtest $proto of $size"
 
@@ -646,7 +646,7 @@ function main() {
     colour_init
 
     check_binary "curl" "-1"
-    check_binary "bc" "-1"
+
 
     mainLoop "$@" 
 
@@ -654,5 +654,4 @@ function main() {
 
 # Make it rain
 main "$@"
-
 
