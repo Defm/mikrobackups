@@ -1,51 +1,51 @@
 #!/usr/bin/env bash
  
-# -- ABOUT THIS PROGRAM: ------------------------------------------------------
-#
-# Author:       Defm
-# Version:      1.0.0
-# Description:  simple Curl download speed test
-# Source:       https://github.com/Defm/mikrobackups/blob/master/InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
-#
-# -- INSTRUCTIONS: ------------------------------------------------------------
-#
-# Execute:
-#   $ chmod u+x InfluxDBSimpleCurlFtpDownloadSpeedTest.sh && ./InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
-#
-# Options:
-#   -h|--help                   Displays this help
-#   -v|--verbose                Displays verbose output
-#   -nc|--no-colour             Disables colour output
-#   -cr|--cron                  Run silently unless we encounter an error
-#
-# Alias:
-#   alias myalias="bash ~/path/to/script/InfluxDBSimpleCurlFtpDownloadSpeedTest.sh"
-#
-# Example:
-#   some example goes here
-#
-# Important:
-#   some important note goes here
-#
-# -- CHANGELOG: ---------------------------------------------------------------
-#
-#   PROGRAM:        InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
-#   DESCRIPTION:    First release
-#   VERSION:        1.0.0
-#   DATE:           xx/xx/xxxx
-#   AUTHOR:         Defm (defm.kopcap@gmail.com)
-#
-# -- TODO & FIXES: ------------------------------------------------------------
-#
-#   - some FIX or TODO here
-#
-# -----------------------------------------------------------------------------
+## -- ABOUT THIS PROGRAM: ------------------------------------------------------
+##
+## Author:       Defm
+## Version:      1.0.0
+## Description:  simple Curl download speed test
+## Source:       https://github.com/Defm/mikrobackups/blob/master/InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
+##
+## -- INSTRUCTIONS: ------------------------------------------------------------
+##
+## Execute:
+##   $ chmod u+x InfluxDBSimpleCurlFtpDownloadSpeedTest.sh && ./InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
+##
+## Options:
+##   -h|--help                   Displays this help
+##   -v|--verbose                Displays verbose output
+##   -nc|--no-colour             Disables colour output
+##   -cr|--cron                  Run silently unless we encounter an error
+##
+## Alias:
+##   alias myalias="bash ~/path/to/script/InfluxDBSimpleCurlFtpDownloadSpeedTest.sh"
+##
+## Example:
+##   some example goes here
+##
+## Important:
+##   some important note goes here
+##
+## -- CHANGELOG: ---------------------------------------------------------------
+##
+##   PROGRAM:        InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
+##   DESCRIPTION:    First release
+##   VERSION:        1.0.0
+##   DATE:           xx/xx/xxxx
+##   AUTHOR:         Defm (defm.kopcap@gmail.com)
+##
+## -- TODO & FIXES: ------------------------------------------------------------
+##
+##   - some FIX or TODO here
+##
+## -----------------------------------------------------------------------------
 
 # A better class of script...
 set -o errexit          # Exit on most errors (when any command fails)
 set -o errtrace         # Make sure any error trap is inherited
-set -o nounset          # Disallow expansion of unset variables
-set -o pipefail         # Use last non-zero exit code in a pipeline
+set -o nounset          # Exit script on use of an undefined variable
+set -o pipefail         # Makes pipeline return the exit status of the last command in the pipe that failed
 #set -o xtrace          # Trace the execution of the script (debug)
 set -o history          # enable !! command completion
 set -o histexpand
@@ -125,7 +125,7 @@ function script_trap_exit() {
 # DESC: Handler for debug (this will run before any command is executed.) the script
 # ARGS: None
 # OUTS: None
-function trap_preCommand() {
+function trap_pre_command() {
     
     # keep track of the last executed command
     # just set variables to be accessible
@@ -138,6 +138,7 @@ function trap_preCommand() {
     if [ -z "$AT_PROMPT" ]; then
         return
     fi
+    
     unset AT_PROMPT
 
     echo "Running PreCommand"
@@ -483,17 +484,14 @@ function run_as_root() {
 }
 
 
-# DESC: Usage help
+# DESC: Displays all lines in this script that start with '##'
 # ARGS: None
 # OUTS: None
 function script_usage() {
-    cat << EOF
-Usage:
-    -h|--help                  Displays this help
-    -v|--verbose               Displays verbose output
-    -nc|--no-colour             Disables colour output
-    -cr|--cron                  Run silently unless we encounter an error
-EOF
+
+    [ "$*" ] && echo "$(basename $0): $*"
+    sed -n '/^##/,/^$/s/^## \{0,1\}//p' "$0"
+
 }
 
 
@@ -526,9 +524,22 @@ function parse_params() {
     done
 }
 
+# DESC: initiating traps
+# ARGS: None
+# OUTS: None
+function register_traps() {
+  
+    trap script_trap_err ERR
+    trap script_trap_exit EXIT
+  
+    if [[ -n ${verbose-} ]]; then
+        # Trap function is defined inline so we get the correct line number
+        trap '(verbose_print "#[DEBUG] [$(basename ${BASH_SOURCE[0]}):${LINENO[0]}] ${BASH_COMMAND}" "${fg_red-}");' DEBUG
+    fi
+
+}
 
 # CUSTOM CODE SECTION
-
 
 # DESC: This is the main routine of our bash program
 # ARGS: $1 (required): Testing protocol, ftp or http
@@ -593,7 +604,7 @@ function writeStats() {
 # DESC: main infinite loop
 # ARGS: $@
 # OUTS:
-function mainLoop() {
+function main_loop() {
 
     local protocols=( [1]=ftp [2]=http )
     local sizes=( [1]=3MB.zip [2]=10MB.zip [3]=512KB.zip)
@@ -616,13 +627,13 @@ function mainLoop() {
 
     done
  
-    pretty_print "Waiting for next run (17min)..." $fg_yellow
-    pretty_print "Press CTRL+C to stop the script execution" $fg_yellow
+    pretty_print "Waiting for next run (17min)..." "${fg_yellow-}"
+    pretty_print "Press CTRL+C to stop the script execution" "${fg_yellow-}"
 
     sleep 17m;
 
     #recursion, infinite loop
-    mainLoop "$@" 
+    mainLoop ${@:-} 
 
     return 0;
 }
@@ -633,25 +644,23 @@ function mainLoop() {
 # ARGS: $@ (optional): Arguments provided to the script
 # OUTS: None
 function main() {
-    trap script_trap_err ERR
-    trap script_trap_exit EXIT
-  
-    if [[ -n ${verbose-} ]]; then
-        trap trap_preCommand DEBUG
-    fi
  
-    script_init "$@"
-    parse_params "$@"
+    script_init ${@:-}
+    parse_params ${@:-}
     cron_init
     colour_init
 
+    verbose_print 'Extended logging ON'
+
     check_binary "curl" "-1"
 
+    main_loop ${@:-} 
 
-    mainLoop "$@" 
-
- }
+}
 
 # Make it rain
-main "$@"
+
+register_traps
+
+main ${@:-}
 
