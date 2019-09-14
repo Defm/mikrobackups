@@ -1,4 +1,264 @@
-### Git Auto Save, Date: пятница, 23 августа 2019 г. 23:33:30 (MSK), New Files:  Modified Files: CHANGELOG.md,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: суббота, 14 сентября 2019 г. 17:09:57 (MSK), New Files:  Modified Files: CHANGELOG.md,  Removed Files: (HEAD -> _autobranch)
+>Sat, 14 Sep 2019 17:09:57 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Add Postman workspace for InfluxDB
+>Fri, 13 Sep 2019 18:07:17 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Cleanup (mikrobackups/_autobranch)
+>Fri, 13 Sep 2019 16:44:36 +0300
+
+>Author: Defm (aay8@europlan.ru)
+
+>Commiter: Defm (aay8@europlan.ru)
+
+
+
+
+### spellcheck passed
+>Fri, 13 Sep 2019 09:56:22 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+https://www.shellcheck.net/
+
+
+### Add files via upload
+>Fri, 13 Sep 2019 07:47:00 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Git Auto Save, Date: понедельник,  9 сентября 2019 г. 21:00:37 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files:
+>Mon, 9 Sep 2019 21:00:37 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: суббота,  7 сентября 2019 г. 18:28:51 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc,  Removed Files:
+>Sat, 7 Sep 2019 18:28:51 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: среда,  4 сентября 2019 г. 19:18:23 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files:
+>Wed, 4 Sep 2019 19:18:23 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: среда,  4 сентября 2019 г. 19:17:59 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc,  Removed Files:
+>Wed, 4 Sep 2019 19:17:59 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: вторник,  3 сентября 2019 г. 22:01:51 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files:
+>Tue, 3 Sep 2019 22:01:51 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник,  2 сентября 2019 г. 15:19:28 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc,  Removed Files:
+>Mon, 2 Sep 2019 15:19:28 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник,  2 сентября 2019 г. 15:17:13 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files:
+>Mon, 2 Sep 2019 15:17:13 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник,  2 сентября 2019 г. 15:15:16 (MSK), New Files:  Modified Files: README.md,  Removed Files:
+>Mon, 2 Sep 2019 15:15:16 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник,  2 сентября 2019 г. 15:15:05 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files:
+>Mon, 2 Sep 2019 15:15:05 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Update README.md
+>Tue, 27 Aug 2019 10:47:26 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Update README.md
+>Mon, 26 Aug 2019 14:13:36 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Update README.md
+>Mon, 26 Aug 2019 13:02:40 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Update README.md
+>Mon, 26 Aug 2019 12:49:06 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Update README.md
+>Mon, 26 Aug 2019 11:02:34 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Update README.md
+>Mon, 26 Aug 2019 10:55:36 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Delete SignProfiles.sh
+>Mon, 26 Aug 2019 10:30:06 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Update README.md
+>Mon, 26 Aug 2019 10:29:16 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Update README.md
+>Sun, 25 Aug 2019 01:05:09 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Update README.md
+>Sat, 24 Aug 2019 22:48:08 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Create README.md
+>Sat, 24 Aug 2019 22:26:06 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: GitHub (noreply@github.com)
+
+
+
+
+### Git Auto Save, Date: пятница, 23 августа 2019 г. 23:33:30 (MSK), New Files:  Modified Files: CHANGELOG.md,  Removed Files:
+>Fri, 23 Aug 2019 23:33:30 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: пятница, 23 августа 2019 г. 23:33:30 (MSK), New Files:  Modified Files: CHANGELOG.md,  Removed Files:
 >Fri, 23 Aug 2019 23:33:30 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -18,7 +278,7 @@
 
 
 
-### Git Auto Save, Date: пятница, 23 августа 2019 г. 23:29:55 (MSK), New Files:  Modified Files: mobileconfigs/README.md,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: пятница, 23 августа 2019 г. 23:29:55 (MSK), New Files:  Modified Files: mobileconfigs/README.md,  Removed Files:
 >Fri, 23 Aug 2019 23:29:55 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -1479,26 +1739,6 @@
 
 
 ### Initial conf
->Tue, 2 Apr 2019 00:01:06 +0300
-
->Author: Defm (defm.kopcap@gmail.com)
-
->Commiter: Defm (defm.kopcap@gmail.com)
-
-
-
-
-### initial commit
->Mon, 1 Apr 2019 22:50:59 +0300
-
->Author: Defm (defm.kopcap@gmail.com)
-
->Commiter: Defm (defm.kopcap@gmail.com)
-
-
-
-
-al conf
 >Tue, 2 Apr 2019 00:01:06 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
