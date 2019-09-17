@@ -1,4 +1,14 @@
-### Git Auto Save, Date: суббота, 14 сентября 2019 г. 17:09:57 (MSK), New Files:  Modified Files: CHANGELOG.md,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: вторник, 17 сентября 2019 г. 18:28:51 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc,  Removed Files: (HEAD -> _autobranch)
+>Tue, 17 Sep 2019 18:28:51 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: суббота, 14 сентября 2019 г. 17:09:57 (MSK), New Files:  Modified Files: CHANGELOG.md,  Removed Files: (mikrobackups/_autobranch)
 >Sat, 14 Sep 2019 17:09:57 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -18,7 +28,7 @@
 
 
 
-### Cleanup (mikrobackups/_autobranch)
+### Cleanup
 >Fri, 13 Sep 2019 16:44:36 +0300
 
 >Author: Defm (aay8@europlan.ru)
