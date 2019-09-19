@@ -1,4 +1,4 @@
-# sep/09/2019 21:00:02 by RouterOS 6.46beta16
+# sep/19/2019 21:00:02 by RouterOS 6.46beta16
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -114,6 +114,7 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
 /queue simple add comment=dtq,94:C6:91:94:98:DC, max-limit=10M/10M name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
 /queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP max-limit=10M/10M name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
+/queue simple add comment=dtq,84:85:06:33:8C:17,truth max-limit=10M/10M name="truth@guest dhcp (84:85:06:33:8C:17)" target=192.168.98.229/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -671,8 +672,8 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:20 d:h:m:s | CPU: 100%\
-    \nRAM: 31232/131072M | Voltage: 23 v | Temp: 50c\
+    \nUptime:  00:00:24 d:h:m:s | CPU: 77%\
+    \nRAM: 31544/131072M | Voltage: 23 v | Temp: 48c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
