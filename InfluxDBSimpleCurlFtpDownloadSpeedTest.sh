@@ -42,24 +42,25 @@
 ## -----------------------------------------------------------------------------
 
 # A better class of script...
+set -o xtrace           # Trace the execution of the script (prints command prior exec but after variables interpreting). Should be the very first operator.
 set -o errexit          # Exit on most errors (when any command fails)
 set -o errtrace         # Make sure any error trap is inherited
+set -o functrace        # DEBUG trap is inherited too
 set -o nounset          # Exit script on use of an undefined variable
 set -o pipefail         # Makes pipeline return the exit status of the last command in the pipe that failed
-#set -o xtrace          # Trace the execution of the script (debug)
-set -o history          # enable !! command completion
-set -o histexpand
-set -o verbose
+set -o history          # Save script commands to the history too
+set -o histexpand       # allows to use !! command to get last command from history
+#set -o verbose          # Prints any lines before the command (e.g. prior function definitions and comments)
 
 
 # DESC: Handler for unexpected errors
 # ARGS: $1 (optional): Exit code (defaults to 1)
 # OUTS: None
 function script_trap_err() {
-    local exit_code=1
+    local exit_code
     local history_last_command
 
-    history_last_command=$(!!)
+    history_last_command="cmd" #'$(!!)'
 
     # Disable the error trap handler to prevent potential recursion
     trap - ERR
@@ -85,7 +86,7 @@ function script_trap_err() {
     printf 'Script Path:            %s\n' "$script_path"
     printf 'Script Parameters:      %s\n' "$script_params"
     printf 'Script Exit Code:       %s\n' "$exit_code"
-    printf 'Script Last Command:    %s\n' "$last_command"
+    printf 'Script Last Command:    %s\n' "$history_last_command"
 
     # Print the script log if we have it. It's possible we may not if we
     # failed before we even called cron_init(). This can happen if bad
@@ -135,20 +136,20 @@ function trap_pre_command() {
 
     echo @VARIABLE-TRACE> "$(basename "${BASH_SOURCE[0]}")" "${LINENO[0]}" "${BASH_COMMAND}"
 
-    if [ -z "$AT_PROMPT" ]; then
-        return
-    fi
+ #   if [ -z "$AT_PROMPT" ]; then
+ #       return
+ #   fi
     
-    unset AT_PROMPT
+ #   unset AT_PROMPT
 
-    echo "Running PreCommand"
+  #  echo "Running PreCommand"
 }
 
 # DESC: This will run after the execution of the previous full command line
 # ARGS: None
 # OUTS: None
 FIRST_PROMPT=1
-function trap_PostCommand() {
+function trap_post_command() {
   AT_PROMPT=1
 
   if [ -n "$FIRST_PROMPT" ]; then
@@ -159,7 +160,9 @@ function trap_PostCommand() {
   # Do stuff.
   echo "Running PostCommand"
 }
-PROMPT_COMMAND="PostCommand"
+
+# special ENV variable to invoke right after shell command
+PROMPT_COMMAND='(trap_post_command)'
 
 
 # DESC: Exit script with the given message
@@ -206,6 +209,21 @@ function script_init() {
     readonly script_name="$(basename "$script_path")"
     readonly script_params="$*"
 
+    # verbose mode should be processed before any other params processed
+    local param
+    while [[ $# -gt 0 ]]; do
+        param="$1"
+        shift
+        case $param in
+            -v|--verbose)
+                verbose=true
+                ;;
+        esac
+    done
+
+
+    current_command=""
+    
     # Important to always set as we use it in the exit handler
     readonly ta_none="$(tput sgr0 2> /dev/null || true)"
 }
@@ -508,35 +526,20 @@ function parse_params() {
                 script_usage
                 exit 0
                 ;;
-            -v|--verbose)
-                verbose=true
-                ;;
             -nc|--no-colour)
                 no_colour=true
                 ;;
             -cr|--cron)
                 cron=true
                 ;;
-            *)
+             -v|--verbose)
+                #it has been processed earlier
+                ;;
+           *)
                 script_exit "Invalid parameter was provided: $param" 2
                 ;;
         esac
     done
-}
-
-# DESC: initiating traps
-# ARGS: None
-# OUTS: None
-function register_traps() {
-  
-    trap script_trap_err ERR
-    trap script_trap_exit EXIT
-  
-    if [[ -n ${verbose-} ]]; then
-        # Trap function is defined inline so we get the correct line number
-        trap '(verbose_print "#[DEBUG] [$(basename ${BASH_SOURCE[0]}):${LINENO[0]}] ${BASH_COMMAND}" "${fg_red-}");' DEBUG
-    fi
-
 }
 
 # CUSTOM CODE SECTION
@@ -556,7 +559,7 @@ function speedTest() {
 	local filName="$2";
     local replyVarName=$3;
     
-    verbose_print "Getting $filName ($reqMode) download speed" $ $bg_white
+    verbose_print "Testing $filName ($reqMode) download speed" $fg_white
 
     set +e
     curlResult=$(curl --silent --show-error --fail --connect-timeout 8 "${reqMode}"://speedtest.tele2.net/"${filName}" --write-out "%{speed_download}" --output /dev/null | sed "s/\,/\./g" | tr -d '\n');
@@ -566,10 +569,10 @@ function speedTest() {
 
     if test "$curlExitCode" -eq "0"; then
         eval "$replyVarName"="$curlResult" #construct result variable and assign it's value
-        verbose_print "Got $filName ($reqMode) download speed $curlResult kbps" $bg_white
+        verbose_print "Got $filName ($reqMode) download speed $curlResult kbps" $fg_white
         return 0;
     else
-        verbose_print "the curl command failed with: $curlExitCode" $bg_white
+        verbose_print "the curl command failed with: $curlExitCode" $fg_white
         return 190;
     fi
     
@@ -592,11 +595,11 @@ function writeStats() {
     local GW="$3";
     local dlSpeed="$4";
 
-    verbose_print "Sending $filName ($reqMode) speed stats to InfluxDB" $bg_white
+    verbose_print "Sending $filName ($reqMode) speed stats to InfluxDB" $fg_white
     
 	curl --user bash:bash --request POST --url 'http://influxdb/write?db=bashscripts' --data "SpeedStats,FileSize=$filName,mode=$reqMode,Gateway=$GW dlspeed=$dlSpeed"
 
-    verbose_print "Sent $filName ($reqMode) download speed $dlSpeed kbps to InfluxDB" $bg_white
+    verbose_print "Sent $filName ($reqMode) download speed $dlSpeed kbps to InfluxDB" $fg_white
 
     return 0;
 }
@@ -633,7 +636,7 @@ function main_loop() {
     sleep 17m;
 
     #recursion, infinite loop
-    mainLoop ${@:-} 
+    main_loop ${@:-} 
 
     return 0;
 }
@@ -644,14 +647,28 @@ function main_loop() {
 # ARGS: $@ (optional): Arguments provided to the script
 # OUTS: None
 function main() {
- 
+
+  
     script_init ${@:-}
-    parse_params ${@:-}
-    cron_init
+
     colour_init
+    cron_init 
 
-    verbose_print 'Extended logging ON'
+    trap '(script_trap_err "$?")' ERR
+    trap script_trap_exit EXIT
 
+    verbose_print 'Extended logging ON' "${fg_yellow-}"
+
+    if [[ -n ${verbose-} ]]; then
+        # Trap function is defined inline so we get the correct line number
+        #trap '(verbose_print "#[DEBUG] [$(basename ${BASH_SOURCE[0]}):${LINENO[0]}] ${BASH_COMMAND}" "${fg_red-}");' DEBUG
+        trap '(trap_pre_command)' DEBUG
+ 
+    fi
+
+    parse_params ${@:-}
+    
+ 
     check_binary "curl" "-1"
 
     main_loop ${@:-} 
@@ -659,8 +676,6 @@ function main() {
 }
 
 # Make it rain
-
-register_traps
 
 main ${@:-}
 
