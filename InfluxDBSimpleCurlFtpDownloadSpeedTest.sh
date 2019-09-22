@@ -42,7 +42,7 @@
 ## -----------------------------------------------------------------------------
 
 # A better class of script...
-set -o xtrace           # Trace the execution of the script (prints command prior exec but after variables interpreting). Should be the very first operator.
+#set -o xtrace           # Trace the execution of the script (prints command prior exec but after variables interpreting). Should be the very first operator.
 set -o errexit          # Exit on most errors (when any command fails)
 set -o errtrace         # Make sure any error trap is inherited
 set -o functrace        # DEBUG trap is inherited too
@@ -58,10 +58,7 @@ set -o histexpand       # allows to use !! command to get last command from hist
 # OUTS: None
 function script_trap_err() {
     local exit_code
-    local history_last_command
-
-    history_last_command="cmd" #'$(!!)'
-
+ 
     # Disable the error trap handler to prevent potential recursion
     trap - ERR
 
@@ -86,7 +83,7 @@ function script_trap_err() {
     printf 'Script Path:            %s\n' "$script_path"
     printf 'Script Parameters:      %s\n' "$script_params"
     printf 'Script Exit Code:       %s\n' "$exit_code"
-    printf 'Script Last Command:    %s\n' "$history_last_command"
+    printf 'Script Last Command:    %s\n' "$last_command"
 
     # Print the script log if we have it. It's possible we may not if we
     # failed before we even called cron_init(). This can happen if bad
@@ -124,25 +121,17 @@ function script_trap_exit() {
 }
 
 # DESC: Handler for debug (this will run before any command is executed.) the script
-# ARGS: None
+# ARGS: $1 (required): lsat command info
 # OUTS: None
-function trap_pre_command() {
+function script_trap_pre_command() {
     
     # keep track of the last executed command
     # just set variables to be accessible
 
-    last_command=$current_command;
-    current_command=$BASH_COMMAND;
+    last_command="$1";
 
-    echo @VARIABLE-TRACE> "$(basename "${BASH_SOURCE[0]}")" "${LINENO[0]}" "${BASH_COMMAND}"
+     verbose_print "script_trap_pre_command() with: $last_command" $fg_white
 
- #   if [ -z "$AT_PROMPT" ]; then
- #       return
- #   fi
-    
- #   unset AT_PROMPT
-
-  #  echo "Running PreCommand"
 }
 
 # DESC: This will run after the execution of the previous full command line
@@ -222,7 +211,7 @@ function script_init() {
     done
 
 
-    current_command=""
+    last_command=""
     
     # Important to always set as we use it in the exit handler
     readonly ta_none="$(tput sgr0 2> /dev/null || true)"
@@ -561,14 +550,14 @@ function speedTest() {
     
     verbose_print "Testing $filName ($reqMode) download speed" $fg_white
 
-    set +e
+    #set +e
     curlResult=$(curl --silent --show-error --fail --connect-timeout 8 "${reqMode}"://speedtest.tele2.net/"${filName}" --write-out "%{speed_download}" --output /dev/null | sed "s/\,/\./g" | tr -d '\n');
-    set -e
+    #set -e
 
     curlExitCode=$?;
 
     if test "$curlExitCode" -eq "0"; then
-        eval "$replyVarName"="$curlResult" #construct result variable and assign it's value
+        eval "$replyVarName"='$curlResult' #construct result variable and assign it's value
         verbose_print "Got $filName ($reqMode) download speed $curlResult kbps" $fg_white
         return 0;
     else
@@ -622,7 +611,7 @@ function main_loop() {
 
             speedTest "$proto" "$size" "REPLY" 
 
-            # writeStats "$proto" "$size" "VPN" $REPLY
+            writeStats "$proto" "$size" "VPN" $REPLY
 
             pretty_print "Done speedtest $proto of $size"
 
@@ -633,7 +622,7 @@ function main_loop() {
     pretty_print "Waiting for next run (17min)..." "${fg_yellow-}"
     pretty_print "Press CTRL+C to stop the script execution" "${fg_yellow-}"
 
-    sleep 17m;
+    sleep 12*20;
 
     #recursion, infinite loop
     main_loop ${@:-} 
@@ -660,10 +649,10 @@ function main() {
     verbose_print 'Extended logging ON' "${fg_yellow-}"
 
     if [[ -n ${verbose-} ]]; then
+        
         # Trap function is defined inline so we get the correct line number
-        #trap '(verbose_print "#[DEBUG] [$(basename ${BASH_SOURCE[0]}):${LINENO[0]}] ${BASH_COMMAND}" "${fg_red-}");' DEBUG
-        trap '(trap_pre_command)' DEBUG
- 
+        trap '(script_trap_pre_command "#[DEBUG] [$(basename ${BASH_SOURCE[0]}):${LINENO[0]}] ${BASH_COMMAND}" "${fg_red-}");' DEBUG
+        
     fi
 
     parse_params ${@:-}
