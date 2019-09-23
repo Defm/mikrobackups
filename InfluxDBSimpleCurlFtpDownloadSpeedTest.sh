@@ -9,7 +9,10 @@
 ##
 ## -- INSTRUCTIONS: ------------------------------------------------------------
 ##
-## Execute:
+## Execute as script:
+##   $ chmod u+x InfluxDBSimpleCurlFtpDownloadSpeedTest.sh && ./InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
+##
+## Execute as command:
 ##   $ chmod u+x InfluxDBSimpleCurlFtpDownloadSpeedTest.sh && ./InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
 ##
 ## Options:
@@ -43,15 +46,20 @@
 
 # A better class of script...
 #set -o xtrace           # Trace the execution of the script (prints command prior exec but after variables interpreting). Should be the very first operator.
-set -o errexit          # Exit on most errors (when any command fails)
-set -o errtrace         # Make sure any error trap is inherited
+set -o errexit          # Exit on most errors (when any command fails), append "|| true" if you expect an error
+set -o errtrace         # Make sure any error trap is inherited (exit on error inside any functions or subshells)
 set -o functrace        # DEBUG trap is inherited too
-set -o nounset          # Exit script on use of an undefined variable
-set -o pipefail         # Makes pipeline return the exit status of the last command in the pipe that failed
+set -o nounset          # Exit script on use of an undefined variable, use ${VAR:-} to use an undefined VAR
+set -o pipefail         # Makes pipeline return the exit status of the last command in the pipe that failed, 
 set -o history          # Save script commands to the history too
 set -o histexpand       # allows to use !! command to get last command from history
 #set -o verbose          # Prints any lines before the command (e.g. prior function definitions and comments)
 
+#== option variables ==#
+flagOptErr=0
+flagOptLog=0
+flagOptTimeLog=0
+flagOptIgnoreLock=0
 
 # DESC: Handler for unexpected errors
 # ARGS: $1 (optional): Exit code (defaults to 1)
@@ -665,6 +673,20 @@ function main() {
 }
 
 # Make it rain
+
+# Your logic goes here
+if [ $# == 0 ] ; then
+    echo $USAGE
+    exit 1;
+fi
+
+if [ "$#" -ne 1 ] && [ "$#" -ne 2 ];then
+    g_iExitCode=65
+    error 'Wrong parameter count'
+    usage
+else
+    message "Hello ${1}!"
+fi
 
 main ${@:-}
 
