@@ -9,7 +9,7 @@
 ##
 ## -- INSTRUCTIONS: ------------------------------------------------------------
 ##
-## Execute as script:
+## Direct script run:
 ##   $ chmod u+x InfluxDBSimpleCurlFtpDownloadSpeedTest.sh && ./InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
 ##
 ## Execute as command:
@@ -21,6 +21,9 @@
 ##   -nc|--no-colour             Disables colour output
 ##   -cr|--cron                  Run silently unless we encounter an error
 ##
+## Depends on:
+##  curl utility
+##  
 ## Alias:
 ##   alias myalias="bash ~/path/to/script/InfluxDBSimpleCurlFtpDownloadSpeedTest.sh"
 ##
@@ -558,9 +561,10 @@ function speedTest() {
     
     verbose_print "Testing $filName ($reqMode) download speed" $fg_white
 
-    #set +e
+    # Do not panic on curl errors, just skip
+    set +e
     curlResult=$(curl --silent --show-error --fail --connect-timeout 8 "${reqMode}"://speedtest.tele2.net/"${filName}" --write-out "%{speed_download}" --output /dev/null | sed "s/\,/\./g" | tr -d '\n');
-    #set -e
+    set -e
 
     curlExitCode=$?;
 
@@ -688,5 +692,6 @@ else
     message "Hello ${1}!"
 fi
 
+# Call the `_main` function after everything has been defined.
 main ${@:-}
 
