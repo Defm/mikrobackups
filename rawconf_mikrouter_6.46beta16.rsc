@@ -1,4 +1,4 @@
-# sep/19/2019 21:00:02 by RouterOS 6.46beta16
+# sep/29/2019 21:00:02 by RouterOS 6.46beta16
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -115,6 +115,7 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,94:C6:91:94:98:DC, max-limit=10M/10M name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
 /queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP max-limit=10M/10M name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
 /queue simple add comment=dtq,84:85:06:33:8C:17,truth max-limit=10M/10M name="truth@guest dhcp (84:85:06:33:8C:17)" target=192.168.98.229/32
+/queue simple add comment=dtq,B0:34:95:28:F5:15,iPad-Konohov max-limit=10M/10M name="iPad-Konohov@guest dhcp (B0:34:95:28:F5:15)" target=192.168.98.227/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
