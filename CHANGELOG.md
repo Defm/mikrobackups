@@ -1,4 +1,14 @@
-### Git Auto Save, Date: понедельник, 14 октября 2019 г. 17:09:48 (MSK), New Files:  Modified Files: scripts/doCertificatesIssuing.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: понедельник, 14 октября 2019 г. 17:09:57 (MSK), New Files:  Modified Files: scripts/doCollectSpeedStats.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+>Mon, 14 Oct 2019 17:09:57 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 14 октября 2019 г. 17:09:48 (MSK), New Files:  Modified Files: scripts/doCertificatesIssuing.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
 >Mon, 14 Oct 2019 17:09:48 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -58,7 +68,7 @@
 
 
 
-### fixx (mikrobackups/_autobranch)
+### fixx
 >Tue, 24 Sep 2019 18:17:35 +0300
 
 >Author: Defm (aay8@europlan.ru)

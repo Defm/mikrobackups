@@ -13,11 +13,11 @@ $globalScriptBeforeRun "doCollectSpeedStats";
 
 :local btServer 185.13.148.14;
 
-tool bandwidth-test protocol=tcp direction=transmit user=btest password=btest address=$btServer duration=5s do={
+tool bandwidth-test protocol=tcp direction=transmit user=btest password=btest address=$btServer duration=15s do={
 :set txAvg ($"tx-total-average" / 1048576 );
 }
 
-tool bandwidth-test protocol=tcp direction=receive user=btest password=btest address=$btServer duration=5s do={
+tool bandwidth-test protocol=tcp direction=receive user=btest password=btest address=$btServer duration=15s do={
 :set rxAvg ($"rx-total-average" / 1048576 );
 }
 
