@@ -1,4 +1,4 @@
-# oct/09/2019 21:00:02 by RouterOS 6.46beta16
+# oct/14/2019 17:02:00 by RouterOS 6.46beta16
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -153,7 +153,7 @@ set "wlan 5Ghz" enable-polling=no
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=asusGl disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set ca-certificate=ca@CHR certificate=mikrouter@CAPsMAN enabled=yes require-peer-certificate=yes upgrade-policy=require-same-version
+/caps-man manager set certificate=mikrouter@CAPsMAN enabled=yes require-peer-certificate=yes upgrade-policy=require-same-version
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
 /caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface=wan
 /caps-man manager interface add comment="Do CapsMan on private" disabled=no interface="main infrastructure"
@@ -609,7 +609,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
-/ip ipsec identity add auth-method=digital-signature certificate=mikrouter@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption remote-id=ignore
+/ip ipsec identity add auth-method=digital-signature certificate=mikrouter@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
@@ -671,8 +671,8 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:23 d:h:m:s | CPU: 100%\
-    \nRAM: 31584/131072M | Voltage: 23 v | Temp: 50c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 97%\
+    \nRAM: 30284/131072M | Voltage: 23 v | Temp: 52c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -1212,6 +1212,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n#clients\r\
     \n:local IDs [:toarray \"mikrouter,alx.iphone.rw.2019,glo.iphone.rw.2019,alx.mbp.rw.2019\"];\r\
+    \n:local fakeDomain \"myvpn.fake.org\"\r\
     \n\r\
     \n:local sysname [/system identity get name]\r\
     \n:local sysver [/system package get system version]\r\
@@ -1220,11 +1221,11 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
     \n## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
-    \n## :local COUNTRY \"RU\"\r\
-    \n## :local STATE \"MSC\"\r\
-    \n## :local LOC \"Moscow\"\r\
-    \n## :local ORG \"IKEv2 Home\"\r\
-    \n## :local OU \"IKEv2 Mikrotik\"\r\
+    \n#:local COUNTRY \"RU\"\r\
+    \n#:local STATE \"MSC\"\r\
+    \n#:local LOC \"Moscow\"\r\
+    \n#:local ORG \"IKEv2 Home\"\r\
+    \n#:local OU \"IKEv2 Mikrotik\"\r\
     \n\r\
     \n:local COUNTRY \"\"\r\
     \n:local STATE \"\"\r\
@@ -1248,49 +1249,52 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n  ## generate a CA certificate (that will be just a template while not signed)\r\
     \n  ## crl-sign allows to use SCEP\r\
-    \n  /certificate add name=\"ca.myvpn.local\" common-name=\"ca@\$sysname\" subject-alt-name=\"email:ca@myvpn.local\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"   \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
+    \n  /certificate add name=\"ca.\$fakeDomain\" common-name=\"ca@\$sysname\" subject-alt-name=\"DNS:ca.\$fakeDomain\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"ca.myvpn.local\" ca-crl-host=\"\$ServerIP\" name=\"ca@\$sysname\"\r\
+    \n  /certificate sign \"ca.\$fakeDomain\" ca-crl-host=\"\$ServerIP\" name=\"ca@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"ca@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"ca@\$sysname\"\r\
     \n\r\
+    \n  :local state \"Exporting CA as PEM...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  ## export the CA, as PEM\r\
+    \n  /certificate export-certificate \"ca@\$sysname\" type=pem\r\
+    \n  \r\
     \n  :local state \"SERVER certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n  ## generate a server certificate (that will be just a template while not signed)\r\
-    \n  /certificate add name=\"server.myvpn.local\" common-name=\"\$ServerIP\" subject-alt-name=\"IP:\$ServerIP\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n  /certificate add name=\"server.\$fakeDomain\" common-name=\"server@\$sysname\" subject-alt-name=\"IP:\$ServerIP,DNS:\$fakeDomain\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"server.myvpn.local\" ca=\"ca@\$sysname\" name=\"server@\$sysname\"\r\
+    \n  /certificate sign \"server.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"server@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"server@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"server@\$sysname\"\r\
     \n\r\
     \n  :local state \"CODE SIGN certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n  ## generate a code signing (apple IOS profiles) certificate (that will be just a template while not signed)\r\
-    \n  /certificate add name=\"sign.myvpn.local\" common-name=\"sign@\$sysname\" subject-alt-name=\"email:sign@myvpn.local\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n  /certificate add name=\"sign.\$fakeDomain\" common-name=\"sign@\$sysname\" subject-alt-name=\"DNS:sign.\$fakeDomain\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"sign.myvpn.local\" ca=\"ca@\$sysname\" name=\"sign@\$sysname\"\r\
+    \n  /certificate sign \"sign.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"sign@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"sign@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"sign@\$sysname\"\r\
     \n\r\
     \n  ## export the CA, code sign certificate, and private key\r\
     \n  /certificate export-certificate \"sign@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
@@ -1301,17 +1305,16 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
     \n    ## create a client certificate (that will be just a template while not signed)\r\
-    \n    /certificate add name=\"client.myvpn.local\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@myvpn.local\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n    ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n    /certificate add name=\"client.\$fakeDomain\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n    :local state \"Signing...\";\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    sign \"client.myvpn.local\" ca=\"ca@\$sysname\" name=\"\$USERNAME@\$sysname\"\r\
+    \n    /certificate sign \"client.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"\$USERNAME@\$sysname\"\r\
     \n\r\
     \n    :delay 6s\r\
     \n\r\
-    \n    set trusted=yes \"\$USERNAME@\$sysname\"\r\
+    \n    /certificate set trusted=yes \"\$USERNAME@\$sysname\"\r\
     \n\r\
     \n    ## export the CA, client certificate, and private key\r\
     \n    /certificate export-certificate \"\$USERNAME@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
@@ -1324,6 +1327,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n};\r\
+    \n\r\
     \n"
 /system script add comment="Checks device temperature and warns on overheat" dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
