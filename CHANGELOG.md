@@ -1,4 +1,14 @@
-### Git Auto Save, Date: понедельник, 14 октября 2019 г. 17:06:45 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc, rawconf_mikrouter_6.46beta16.rsc,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: понедельник, 14 октября 2019 г. 17:09:48 (MSK), New Files:  Modified Files: scripts/doCertificatesIssuing.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+>Mon, 14 Oct 2019 17:09:48 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 14 октября 2019 г. 17:06:45 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc, rawconf_mikrouter_6.46beta16.rsc,  Removed Files:
 >Mon, 14 Oct 2019 17:06:45 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -40,6 +50,46 @@
 
 ### Git Auto Save, Date: пятница, 27 сентября 2019 г. 18:28:49 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc,  Removed Files:
 >Fri, 27 Sep 2019 18:28:49 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### fixx (mikrobackups/_autobranch)
+>Tue, 24 Sep 2019 18:17:35 +0300
+
+>Author: Defm (aay8@europlan.ru)
+
+>Commiter: Defm (aay8@europlan.ru)
+
+
+
+
+### logic
+>Mon, 23 Sep 2019 17:47:11 +0300
+
+>Author: Defm (aay8@europlan.ru)
+
+>Commiter: Defm (aay8@europlan.ru)
+
+
+
+
+### Common Script arch development
+>Sun, 22 Sep 2019 20:50:02 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Fixx
+>Sun, 22 Sep 2019 18:55:34 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
 
