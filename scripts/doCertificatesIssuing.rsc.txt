@@ -4,6 +4,7 @@
 
 #clients
 :local IDs [:toarray "mikrouter,alx.iphone.rw.2019,glo.iphone.rw.2019,alx.mbp.rw.2019"];
+:local fakeDomain "myvpn.fake.org"
 
 :local sysname [/system identity get name]
 :local sysver [/system package get system version]
@@ -12,11 +13,11 @@
 $globalScriptBeforeRun $scriptname;
 
 ## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields
-## :local COUNTRY "RU"
-## :local STATE "MSC"
-## :local LOC "Moscow"
-## :local ORG "IKEv2 Home"
-## :local OU "IKEv2 Mikrotik"
+#:local COUNTRY "RU"
+#:local STATE "MSC"
+#:local LOC "Moscow"
+#:local ORG "IKEv2 Home"
+#:local OU "IKEv2 Mikrotik"
 
 :local COUNTRY ""
 :local STATE ""
@@ -40,49 +41,52 @@ $globalScriptBeforeRun $scriptname;
 
   ## generate a CA certificate (that will be just a template while not signed)
   ## crl-sign allows to use SCEP
-  /certificate add name="ca.myvpn.local" common-name="ca@$sysname" subject-alt-name="email:ca@myvpn.local"  key-usage=crl-sign,key-cert-sign country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"   \
-  ##  key-size="$KEYSIZE" days-valid=3650 
+  /certificate add name="ca.$fakeDomain" common-name="ca@$sysname" subject-alt-name="DNS:ca.$fakeDomain"  key-usage=crl-sign,key-cert-sign country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=3650 
 
   :local state "Signing...";
   $globalNoteMe value=$state;
 
-  sign "ca.myvpn.local" ca-crl-host="$ServerIP" name="ca@$sysname"
+  /certificate sign "ca.$fakeDomain" ca-crl-host="$ServerIP" name="ca@$sysname"
 
   :delay 6s
 
-  set trusted=yes "ca@$sysname"
+  /certificate set trusted=yes "ca@$sysname"
 
+  :local state "Exporting CA as PEM...";
+  $globalNoteMe value=$state;
+
+  ## export the CA, as PEM
+  /certificate export-certificate "ca@$sysname" type=pem
+  
   :local state "SERVER certificates generation...";
   $globalNoteMe value=$state;
 
   ## generate a server certificate (that will be just a template while not signed)
-  /certificate add name="server.myvpn.local" common-name="$ServerIP" subject-alt-name="IP:$ServerIP" key-usage=tls-server country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  \
-  ##  key-size="$KEYSIZE" days-valid=1095 
+  /certificate add name="server.$fakeDomain" common-name="server@$sysname" subject-alt-name="IP:$ServerIP,DNS:$fakeDomain" key-usage=tls-server country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365 
 
   :local state "Signing...";
   $globalNoteMe value=$state;
 
-  sign "server.myvpn.local" ca="ca@$sysname" name="server@$sysname"
+  /certificate sign "server.$fakeDomain" ca="ca@$sysname" name="server@$sysname"
 
   :delay 6s
 
-  set trusted=yes "server@$sysname"
+  /certificate set trusted=yes "server@$sysname"
 
   :local state "CODE SIGN certificates generation...";
   $globalNoteMe value=$state;
 
   ## generate a code signing (apple IOS profiles) certificate (that will be just a template while not signed)
-  /certificate add name="sign.myvpn.local" common-name="sign@$sysname" subject-alt-name="email:sign@myvpn.local" key-usage=code-sign,digital-signature country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  \
-  ##  key-size="$KEYSIZE" days-valid=1095 
+  /certificate add name="sign.$fakeDomain" common-name="sign@$sysname" subject-alt-name="DNS:sign.$fakeDomain" key-usage=code-sign,digital-signature country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365 
 
   :local state "Signing...";
   $globalNoteMe value=$state;
 
-  sign "sign.myvpn.local" ca="ca@$sysname" name="sign@$sysname"
+  /certificate sign "sign.$fakeDomain" ca="ca@$sysname" name="sign@$sysname"
 
   :delay 6s
 
-  set trusted=yes "sign@$sysname"
+  /certificate set trusted=yes "sign@$sysname"
 
   ## export the CA, code sign certificate, and private key
   /certificate export-certificate "sign@$sysname" export-passphrase="1234567890" type=pkcs12
@@ -93,17 +97,16 @@ $globalScriptBeforeRun $scriptname;
     $globalNoteMe value=$state;
 
     ## create a client certificate (that will be just a template while not signed)
-    /certificate add name="client.myvpn.local" common-name="$USERNAME@$sysname" subject-alt-name="email:$USERNAME@myvpn.local" key-usage=tls-client country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  \
-    ##  key-size="$KEYSIZE" days-valid=1095 
+    /certificate add name="client.$fakeDomain" common-name="$USERNAME@$sysname" subject-alt-name="email:$USERNAME@$fakeDomain" key-usage=tls-client country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365 
 
     :local state "Signing...";
     $globalNoteMe value=$state;
 
-    sign "client.myvpn.local" ca="ca@$sysname" name="$USERNAME@$sysname"
+    /certificate sign "client.$fakeDomain" ca="ca@$sysname" name="$USERNAME@$sysname"
 
     :delay 6s
 
-    set trusted=yes "$USERNAME@$sysname"
+    /certificate set trusted=yes "$USERNAME@$sysname"
 
     ## export the CA, client certificate, and private key
     /certificate export-certificate "$USERNAME@$sysname" export-passphrase="1234567890" type=pkcs12
@@ -116,4 +119,5 @@ $globalScriptBeforeRun $scriptname;
   $globalNoteMe value=$state;
 
 };
+
 
