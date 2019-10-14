@@ -9,7 +9,10 @@
 ##
 ## -- INSTRUCTIONS: ------------------------------------------------------------
 ##
-## Execute:
+## Direct script run:
+##   $ chmod u+x InfluxDBSimpleCurlFtpDownloadSpeedTest.sh && ./InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
+##
+## Execute as command:
 ##   $ chmod u+x InfluxDBSimpleCurlFtpDownloadSpeedTest.sh && ./InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
 ##
 ## Options:
@@ -18,6 +21,9 @@
 ##   -nc|--no-colour             Disables colour output
 ##   -cr|--cron                  Run silently unless we encounter an error
 ##
+## Depends on:
+##  curl utility
+##  
 ## Alias:
 ##   alias myalias="bash ~/path/to/script/InfluxDBSimpleCurlFtpDownloadSpeedTest.sh"
 ##
@@ -42,25 +48,28 @@
 ## -----------------------------------------------------------------------------
 
 # A better class of script...
-set -o errexit          # Exit on most errors (when any command fails)
-set -o errtrace         # Make sure any error trap is inherited
-set -o nounset          # Exit script on use of an undefined variable
-set -o pipefail         # Makes pipeline return the exit status of the last command in the pipe that failed
-#set -o xtrace          # Trace the execution of the script (debug)
-set -o history          # enable !! command completion
-set -o histexpand
-set -o verbose
+#set -o xtrace           # Trace the execution of the script (prints command prior exec but after variables interpreting). Should be the very first operator.
+set -o errexit          # Exit on most errors (when any command fails), append "|| true" if you expect an error
+set -o errtrace         # Make sure any error trap is inherited (exit on error inside any functions or subshells)
+set -o functrace        # DEBUG trap is inherited too
+set -o nounset          # Exit script on use of an undefined variable, use ${VAR:-} to use an undefined VAR
+set -o pipefail         # Makes pipeline return the exit status of the last command in the pipe that failed, 
+set -o history          # Save script commands to the history too
+set -o histexpand       # allows to use !! command to get last command from history
+#set -o verbose          # Prints any lines before the command (e.g. prior function definitions and comments)
 
+#== option variables ==#
+flagOptErr=0
+flagOptLog=0
+flagOptTimeLog=0
+flagOptIgnoreLock=0
 
 # DESC: Handler for unexpected errors
 # ARGS: $1 (optional): Exit code (defaults to 1)
 # OUTS: None
 function script_trap_err() {
-    local exit_code=1
-    local history_last_command
-
-    history_last_command=$(!!)
-
+    local exit_code
+ 
     # Disable the error trap handler to prevent potential recursion
     trap - ERR
 
@@ -123,32 +132,24 @@ function script_trap_exit() {
 }
 
 # DESC: Handler for debug (this will run before any command is executed.) the script
-# ARGS: None
+# ARGS: $1 (required): lsat command info
 # OUTS: None
-function trap_pre_command() {
+function script_trap_pre_command() {
     
     # keep track of the last executed command
     # just set variables to be accessible
 
-    last_command=$current_command;
-    current_command=$BASH_COMMAND;
+    last_command="$1";
 
-    echo @VARIABLE-TRACE> "$(basename "${BASH_SOURCE[0]}")" "${LINENO[0]}" "${BASH_COMMAND}"
+     verbose_print "script_trap_pre_command() with: $last_command" $fg_white
 
-    if [ -z "$AT_PROMPT" ]; then
-        return
-    fi
-    
-    unset AT_PROMPT
-
-    echo "Running PreCommand"
 }
 
 # DESC: This will run after the execution of the previous full command line
 # ARGS: None
 # OUTS: None
 FIRST_PROMPT=1
-function trap_PostCommand() {
+function trap_post_command() {
   AT_PROMPT=1
 
   if [ -n "$FIRST_PROMPT" ]; then
@@ -159,7 +160,9 @@ function trap_PostCommand() {
   # Do stuff.
   echo "Running PostCommand"
 }
-PROMPT_COMMAND="PostCommand"
+
+# special ENV variable to invoke right after shell command
+PROMPT_COMMAND='(trap_post_command)'
 
 
 # DESC: Exit script with the given message
@@ -206,6 +209,21 @@ function script_init() {
     readonly script_name="$(basename "$script_path")"
     readonly script_params="$*"
 
+    # verbose mode should be processed before any other params processed
+    local param
+    while [[ $# -gt 0 ]]; do
+        param="$1"
+        shift
+        case $param in
+            -v|--verbose)
+                verbose=true
+                ;;
+        esac
+    done
+
+
+    last_command=""
+    
     # Important to always set as we use it in the exit handler
     readonly ta_none="$(tput sgr0 2> /dev/null || true)"
 }
@@ -508,35 +526,20 @@ function parse_params() {
                 script_usage
                 exit 0
                 ;;
-            -v|--verbose)
-                verbose=true
-                ;;
             -nc|--no-colour)
                 no_colour=true
                 ;;
             -cr|--cron)
                 cron=true
                 ;;
-            *)
+             -v|--verbose)
+                #it has been processed earlier
+                ;;
+           *)
                 script_exit "Invalid parameter was provided: $param" 2
                 ;;
         esac
     done
-}
-
-# DESC: initiating traps
-# ARGS: None
-# OUTS: None
-function register_traps() {
-  
-    trap script_trap_err ERR
-    trap script_trap_exit EXIT
-  
-    if [[ -n ${verbose-} ]]; then
-        # Trap function is defined inline so we get the correct line number
-        trap '(verbose_print "#[DEBUG] [$(basename ${BASH_SOURCE[0]}):${LINENO[0]}] ${BASH_COMMAND}" "${fg_red-}");' DEBUG
-    fi
-
 }
 
 # CUSTOM CODE SECTION
@@ -556,8 +559,9 @@ function speedTest() {
 	local filName="$2";
     local replyVarName=$3;
     
-    verbose_print "Getting $filName ($reqMode) download speed" $ $bg_white
+    verbose_print "Testing $filName ($reqMode) download speed" $fg_white
 
+    # Do not panic on curl errors, just skip
     set +e
     curlResult=$(curl --silent --show-error --fail --connect-timeout 8 "${reqMode}"://speedtest.tele2.net/"${filName}" --write-out "%{speed_download}" --output /dev/null | sed "s/\,/\./g" | tr -d '\n');
     set -e
@@ -565,11 +569,11 @@ function speedTest() {
     curlExitCode=$?;
 
     if test "$curlExitCode" -eq "0"; then
-        eval "$replyVarName"="$curlResult" #construct result variable and assign it's value
-        verbose_print "Got $filName ($reqMode) download speed $curlResult kbps" $bg_white
+        eval "$replyVarName"='$curlResult' #construct result variable and assign it's value
+        verbose_print "Got $filName ($reqMode) download speed $curlResult kbps" $fg_white
         return 0;
     else
-        verbose_print "the curl command failed with: $curlExitCode" $bg_white
+        verbose_print "the curl command failed with: $curlExitCode" $fg_white
         return 190;
     fi
     
@@ -592,11 +596,11 @@ function writeStats() {
     local GW="$3";
     local dlSpeed="$4";
 
-    verbose_print "Sending $filName ($reqMode) speed stats to InfluxDB" $bg_white
+    verbose_print "Sending $filName ($reqMode) speed stats to InfluxDB" $fg_white
     
 	curl --user bash:bash --request POST --url 'http://influxdb/write?db=bashscripts' --data "SpeedStats,FileSize=$filName,mode=$reqMode,Gateway=$GW dlspeed=$dlSpeed"
 
-    verbose_print "Sent $filName ($reqMode) download speed $dlSpeed kbps to InfluxDB" $bg_white
+    verbose_print "Sent $filName ($reqMode) download speed $dlSpeed kbps to InfluxDB" $fg_white
 
     return 0;
 }
@@ -619,7 +623,7 @@ function main_loop() {
 
             speedTest "$proto" "$size" "REPLY" 
 
-            # writeStats "$proto" "$size" "VPN" $REPLY
+            writeStats "$proto" "$size" "VPN" $REPLY
 
             pretty_print "Done speedtest $proto of $size"
 
@@ -630,10 +634,10 @@ function main_loop() {
     pretty_print "Waiting for next run (17min)..." "${fg_yellow-}"
     pretty_print "Press CTRL+C to stop the script execution" "${fg_yellow-}"
 
-    sleep 17m;
+    sleep 12*20;
 
     #recursion, infinite loop
-    mainLoop ${@:-} 
+    main_loop ${@:-} 
 
     return 0;
 }
@@ -644,14 +648,28 @@ function main_loop() {
 # ARGS: $@ (optional): Arguments provided to the script
 # OUTS: None
 function main() {
- 
+
+  
     script_init ${@:-}
-    parse_params ${@:-}
-    cron_init
+
     colour_init
+    cron_init 
 
-    verbose_print 'Extended logging ON'
+    trap '(script_trap_err "$?")' ERR
+    trap script_trap_exit EXIT
 
+    verbose_print 'Extended logging ON' "${fg_yellow-}"
+
+    if [[ -n ${verbose-} ]]; then
+        
+        # Trap function is defined inline so we get the correct line number
+        trap '(script_trap_pre_command "#[DEBUG] [$(basename ${BASH_SOURCE[0]}):${LINENO[0]}] ${BASH_COMMAND}" "${fg_red-}");' DEBUG
+        
+    fi
+
+    parse_params ${@:-}
+    
+ 
     check_binary "curl" "-1"
 
     main_loop ${@:-} 
@@ -660,7 +678,20 @@ function main() {
 
 # Make it rain
 
-register_traps
+# Your logic goes here
+if [ $# == 0 ] ; then
+    echo $USAGE
+    exit 1;
+fi
 
+if [ "$#" -ne 1 ] && [ "$#" -ne 2 ];then
+    g_iExitCode=65
+    error 'Wrong parameter count'
+    usage
+else
+    message "Hello ${1}!"
+fi
+
+# Call the `_main` function after everything has been defined.
 main ${@:-}
 
