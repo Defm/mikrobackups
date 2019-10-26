@@ -629,7 +629,7 @@ function main_loop() {
 
         done
 
-    done
+    done 
  
     pretty_print "Waiting for next run (17min)..." "${fg_yellow-}"
     pretty_print "Press CTRL+C to stop the script execution" "${fg_yellow-}"
