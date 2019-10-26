@@ -1,4 +1,4 @@
-# sep/17/2019 18:28:20 by RouterOS 6.46beta28
+# oct/17/2019 18:28:20 by RouterOS 6.46beta28
 # software id = 
 #
 #
@@ -52,7 +52,7 @@
 /system logging action add name=CertificatesOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
-/certificate scep-server add ca-cert=ca@CHR days-valid=365 path=/scep/grant request-lifetime=5m
+/certificate scep-server add ca-cert=ca@CHR days-valid=365 next-ca-cert=ca@CHR path=/scep/grant request-lifetime=5m
 /interface bridge settings set allow-fast-path=no use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=neighbors
@@ -183,10 +183,10 @@
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
 /ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=MIC-INNER policy-template-group=inside-ipsec-encryption secret=123
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=alx.iphone.rw.2019@CHR remote-id=fqdn:alx.iphone.rw.2019@CHR
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=glo.iphone.rw.2019@CHR remote-id=fqdn:glo.iphone.rw.2019@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=ca@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=alx.iphone.rw.2019@CHR remote-id=fqdn:alx.iphone.rw.2019@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=*17 generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-id=fqdn:glo.iphone.rw.2019@CHR
 /ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=WIN policy-template-group=inside-ipsec-encryption secret=123
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override mode-config=common-setup peer=MIC-OUTER policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=common-setup peer=MIC-OUTER policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
 /ip ipsec policy set 0 disabled=yes
 /ip ipsec policy add comment="Roadwarrior IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption)" dst-address=10.10.10.8/29 group=roadwarrior-ipsec proposal="IPSEC IKEv2 VPN PHASE2 IOS/OSX" src-address=0.0.0.0/0 template=yes
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption)" dst-address=192.168.99.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/30 template=yes
@@ -485,6 +485,7 @@
     \n\r\
     \n#clients\r\
     \n:local IDs [:toarray \"mikrouter,alx.iphone.rw.2019,glo.iphone.rw.2019,alx.mbp.rw.2019\"];\r\
+    \n:local fakeDomain \"myvpn.fake.org\"\r\
     \n\r\
     \n:local sysname [/system identity get name]\r\
     \n:local sysver [/system package get system version]\r\
@@ -493,11 +494,11 @@
     \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
     \n## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
-    \n## :local COUNTRY \"RU\"\r\
-    \n## :local STATE \"MSC\"\r\
-    \n## :local LOC \"Moscow\"\r\
-    \n## :local ORG \"IKEv2 Home\"\r\
-    \n## :local OU \"IKEv2 Mikrotik\"\r\
+    \n#:local COUNTRY \"RU\"\r\
+    \n#:local STATE \"MSC\"\r\
+    \n#:local LOC \"Moscow\"\r\
+    \n#:local ORG \"IKEv2 Home\"\r\
+    \n#:local OU \"IKEv2 Mikrotik\"\r\
     \n\r\
     \n:local COUNTRY \"\"\r\
     \n:local STATE \"\"\r\
@@ -521,49 +522,52 @@
     \n\r\
     \n  ## generate a CA certificate (that will be just a template while not signed)\r\
     \n  ## crl-sign allows to use SCEP\r\
-    \n  /certificate add name=\"ca.myvpn.local\" common-name=\"ca@\$sysname\" subject-alt-name=\"email:ca@myvpn.local\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"   \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
+    \n  /certificate add name=\"ca.\$fakeDomain\" common-name=\"ca@\$sysname\" subject-alt-name=\"DNS:ca.\$fakeDomain\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"ca.myvpn.local\" ca-crl-host=\"\$ServerIP\" name=\"ca@\$sysname\"\r\
+    \n  /certificate sign \"ca.\$fakeDomain\" ca-crl-host=\"\$ServerIP\" name=\"ca@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"ca@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"ca@\$sysname\"\r\
     \n\r\
+    \n  :local state \"Exporting CA as PEM...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  ## export the CA, as PEM\r\
+    \n  /certificate export-certificate \"ca@\$sysname\" type=pem\r\
+    \n  \r\
     \n  :local state \"SERVER certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n  ## generate a server certificate (that will be just a template while not signed)\r\
-    \n  /certificate add name=\"server.myvpn.local\" common-name=\"\$ServerIP\" subject-alt-name=\"IP:\$ServerIP\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n  /certificate add name=\"server.\$fakeDomain\" common-name=\"server@\$sysname\" subject-alt-name=\"IP:\$ServerIP,DNS:\$fakeDomain\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"server.myvpn.local\" ca=\"ca@\$sysname\" name=\"server@\$sysname\"\r\
+    \n  /certificate sign \"server.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"server@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"server@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"server@\$sysname\"\r\
     \n\r\
     \n  :local state \"CODE SIGN certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n  ## generate a code signing (apple IOS profiles) certificate (that will be just a template while not signed)\r\
-    \n  /certificate add name=\"sign.myvpn.local\" common-name=\"sign@\$sysname\" subject-alt-name=\"email:sign@myvpn.local\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n  /certificate add name=\"sign.\$fakeDomain\" common-name=\"sign@\$sysname\" subject-alt-name=\"DNS:sign.\$fakeDomain\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"sign.myvpn.local\" ca=\"ca@\$sysname\" name=\"sign@\$sysname\"\r\
+    \n  /certificate sign \"sign.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"sign@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"sign@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"sign@\$sysname\"\r\
     \n\r\
     \n  ## export the CA, code sign certificate, and private key\r\
     \n  /certificate export-certificate \"sign@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
@@ -574,17 +578,16 @@
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
     \n    ## create a client certificate (that will be just a template while not signed)\r\
-    \n    /certificate add name=\"client.myvpn.local\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@myvpn.local\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n    ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n    /certificate add name=\"client.\$fakeDomain\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n    :local state \"Signing...\";\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    sign \"client.myvpn.local\" ca=\"ca@\$sysname\" name=\"\$USERNAME@\$sysname\"\r\
+    \n    /certificate sign \"client.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"\$USERNAME@\$sysname\"\r\
     \n\r\
     \n    :delay 6s\r\
     \n\r\
-    \n    set trusted=yes \"\$USERNAME@\$sysname\"\r\
+    \n    /certificate set trusted=yes \"\$USERNAME@\$sysname\"\r\
     \n\r\
     \n    ## export the CA, client certificate, and private key\r\
     \n    /certificate export-certificate \"\$USERNAME@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
@@ -597,6 +600,7 @@
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n};\r\
+    \n\r\
     \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\

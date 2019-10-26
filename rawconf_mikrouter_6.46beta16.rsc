@@ -1,4 +1,4 @@
-# sep/19/2019 21:00:02 by RouterOS 6.46beta16
+# oct/14/2019 17:02:00 by RouterOS 6.46beta16
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -100,7 +100,6 @@ set "wlan 5Ghz" enable-polling=no
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-mic
 /queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx max-limit=10M/10M name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
 /queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx max-limit=10M/10M name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
-/queue simple add comment=dtq,B0:34:95:2D:D6:85,ATV max-limit=10M/10M name="ATV@main dhcp (B0:34:95:2D:D6:85)" target=192.168.99.190/32
 /queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
 /queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx max-limit=10M/10M name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
 /queue simple add comment=dtq,08:00:27:17:3A:80, max-limit=10M/10M name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
@@ -114,7 +113,7 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx max-limit=10M/10M name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
 /queue simple add comment=dtq,94:C6:91:94:98:DC, max-limit=10M/10M name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
 /queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP max-limit=10M/10M name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
-/queue simple add comment=dtq,84:85:06:33:8C:17,truth max-limit=10M/10M name="truth@guest dhcp (84:85:06:33:8C:17)" target=192.168.98.229/32
+/queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV max-limit=10M/10M name="AlxATV@main dhcp (90:DD:5D:C8:46:AB)" target=192.168.99.190/32
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -149,12 +148,12 @@ set "wlan 5Ghz" enable-polling=no
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlx disabled=no mac-address=AC:61:EA:EA:CC:84 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneGl disabled=no mac-address=00:CD:FE:EC:B5:52 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=mbpAlx disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp=WiFi
-/caps-man access-list add action=accept allow-signal-out-of-range=10s ap-tx-limit=0 client-to-client-forwarding=yes comment=ATV disabled=no mac-address=B0:34:95:2D:D6:85 ssid-regexp="WiFi 2"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s ap-tx-limit=0 client-to-client-forwarding=yes comment=ATV disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlx disabled=no mac-address=54:E4:3A:B8:12:07 ssid-regexp="WiFi 2"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=asusGl disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set ca-certificate=ca@CHR certificate=mikrouter@CAPsMAN enabled=yes require-peer-certificate=yes upgrade-policy=require-same-version
+/caps-man manager set certificate=mikrouter@CAPsMAN enabled=yes require-peer-certificate=yes upgrade-policy=require-same-version
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
 /caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface=wan
 /caps-man manager interface add comment="Do CapsMan on private" disabled=no interface="main infrastructure"
@@ -212,7 +211,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip arp add address=192.168.99.90 interface="main infrastructure" mac-address=0C:60:76:72:6C:9B
 /ip arp add address=192.168.99.160 interface="main infrastructure" mac-address=78:31:C1:CF:9E:70
 /ip arp add address=192.168.100.7 interface=wan mac-address=6C:3B:6B:11:DA:18
-/ip arp add address=192.168.99.190 interface="main infrastructure" mac-address=B0:34:95:2D:D6:85
+/ip arp add address=192.168.99.190 interface="main infrastructure" mac-address=90:DD:5D:C8:46:AB
 /ip arp add address=192.168.99.170 interface="main infrastructure" mac-address=38:C9:86:51:D2:B3
 /ip arp add address=192.168.99.20 interface="main infrastructure" mac-address=08:00:27:17:3A:80
 /ip arp add address=192.168.99.130 interface="main infrastructure" mac-address=00:CD:FE:EC:B5:52
@@ -223,7 +222,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip cloud set ddns-enabled=yes
 /ip dhcp-server lease add address=192.168.99.140 always-broadcast=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.150 client-id=1:ac:61:ea:ea:cc:84 mac-address=AC:61:EA:EA:CC:84 server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.190 client-id=1:b0:34:95:2d:d6:85 mac-address=B0:34:95:2D:D6:85 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.190 mac-address=90:DD:5D:C8:46:AB server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.160 address-lists=osx-hosts client-id=1:78:31:c1:cf:9e:70 mac-address=78:31:C1:CF:9E:70 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.170 address-lists=osx-hosts mac-address=38:C9:86:51:D2:B3 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.20 mac-address=08:00:27:17:3A:80 server="main dhcp"
@@ -255,7 +254,6 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip dns static add address=192.168.97.1 name=chr.home
 /ip dns static add address=10.0.0.1 name=chr.home
 /ip dns static add address=192.168.100.1 name=gateway.home
-/ip dns static add address=192.168.99.190 comment="<AUTO:DHCP:main dhcp>" name=ATV.home ttl=5m
 /ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-UPPUU22.home ttl=5m
 /ip dns static add address=192.168.99.200 comment="<AUTO:DHCP:main dhcp>" name=LivingRoomWAP.home ttl=5m
 /ip dns static add address=192.168.99.170 comment="<AUTO:DHCP:main dhcp>" name=MbpAlx.home ttl=5m
@@ -263,6 +261,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
 /ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
+/ip dns static add address=192.168.99.190 comment="<AUTO:DHCP:main dhcp>" name=AlxATV.home ttl=5m
 /ip dns static add address=109.252.109.62 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
@@ -610,7 +609,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
-/ip ipsec identity add auth-method=digital-signature certificate=mikrouter@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption remote-id=ignore
+/ip ipsec identity add auth-method=digital-signature certificate=mikrouter@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
@@ -672,8 +671,8 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:24 d:h:m:s | CPU: 77%\
-    \nRAM: 31544/131072M | Voltage: 23 v | Temp: 48c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 97%\
+    \nRAM: 30284/131072M | Voltage: 23 v | Temp: 52c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -1213,6 +1212,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n#clients\r\
     \n:local IDs [:toarray \"mikrouter,alx.iphone.rw.2019,glo.iphone.rw.2019,alx.mbp.rw.2019\"];\r\
+    \n:local fakeDomain \"myvpn.fake.org\"\r\
     \n\r\
     \n:local sysname [/system identity get name]\r\
     \n:local sysver [/system package get system version]\r\
@@ -1221,11 +1221,11 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
     \n## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
-    \n## :local COUNTRY \"RU\"\r\
-    \n## :local STATE \"MSC\"\r\
-    \n## :local LOC \"Moscow\"\r\
-    \n## :local ORG \"IKEv2 Home\"\r\
-    \n## :local OU \"IKEv2 Mikrotik\"\r\
+    \n#:local COUNTRY \"RU\"\r\
+    \n#:local STATE \"MSC\"\r\
+    \n#:local LOC \"Moscow\"\r\
+    \n#:local ORG \"IKEv2 Home\"\r\
+    \n#:local OU \"IKEv2 Mikrotik\"\r\
     \n\r\
     \n:local COUNTRY \"\"\r\
     \n:local STATE \"\"\r\
@@ -1249,49 +1249,52 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n\r\
     \n  ## generate a CA certificate (that will be just a template while not signed)\r\
     \n  ## crl-sign allows to use SCEP\r\
-    \n  /certificate add name=\"ca.myvpn.local\" common-name=\"ca@\$sysname\" subject-alt-name=\"email:ca@myvpn.local\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"   \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
+    \n  /certificate add name=\"ca.\$fakeDomain\" common-name=\"ca@\$sysname\" subject-alt-name=\"DNS:ca.\$fakeDomain\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"ca.myvpn.local\" ca-crl-host=\"\$ServerIP\" name=\"ca@\$sysname\"\r\
+    \n  /certificate sign \"ca.\$fakeDomain\" ca-crl-host=\"\$ServerIP\" name=\"ca@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"ca@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"ca@\$sysname\"\r\
     \n\r\
+    \n  :local state \"Exporting CA as PEM...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  ## export the CA, as PEM\r\
+    \n  /certificate export-certificate \"ca@\$sysname\" type=pem\r\
+    \n  \r\
     \n  :local state \"SERVER certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n  ## generate a server certificate (that will be just a template while not signed)\r\
-    \n  /certificate add name=\"server.myvpn.local\" common-name=\"\$ServerIP\" subject-alt-name=\"IP:\$ServerIP\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n  /certificate add name=\"server.\$fakeDomain\" common-name=\"server@\$sysname\" subject-alt-name=\"IP:\$ServerIP,DNS:\$fakeDomain\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"server.myvpn.local\" ca=\"ca@\$sysname\" name=\"server@\$sysname\"\r\
+    \n  /certificate sign \"server.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"server@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"server@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"server@\$sysname\"\r\
     \n\r\
     \n  :local state \"CODE SIGN certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n  ## generate a code signing (apple IOS profiles) certificate (that will be just a template while not signed)\r\
-    \n  /certificate add name=\"sign.myvpn.local\" common-name=\"sign@\$sysname\" subject-alt-name=\"email:sign@myvpn.local\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n  /certificate add name=\"sign.\$fakeDomain\" common-name=\"sign@\$sysname\" subject-alt-name=\"DNS:sign.\$fakeDomain\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"sign.myvpn.local\" ca=\"ca@\$sysname\" name=\"sign@\$sysname\"\r\
+    \n  /certificate sign \"sign.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"sign@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"sign@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"sign@\$sysname\"\r\
     \n\r\
     \n  ## export the CA, code sign certificate, and private key\r\
     \n  /certificate export-certificate \"sign@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
@@ -1302,17 +1305,16 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
     \n    ## create a client certificate (that will be just a template while not signed)\r\
-    \n    /certificate add name=\"client.myvpn.local\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@myvpn.local\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n    ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n    /certificate add name=\"client.\$fakeDomain\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n    :local state \"Signing...\";\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    sign \"client.myvpn.local\" ca=\"ca@\$sysname\" name=\"\$USERNAME@\$sysname\"\r\
+    \n    /certificate sign \"client.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"\$USERNAME@\$sysname\"\r\
     \n\r\
     \n    :delay 6s\r\
     \n\r\
-    \n    set trusted=yes \"\$USERNAME@\$sysname\"\r\
+    \n    /certificate set trusted=yes \"\$USERNAME@\$sysname\"\r\
     \n\r\
     \n    ## export the CA, client certificate, and private key\r\
     \n    /certificate export-certificate \"\$USERNAME@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
@@ -1325,6 +1327,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter@CAPsMAN enabled=yes in
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n};\r\
+    \n\r\
     \n"
 /system script add comment="Checks device temperature and warns on overheat" dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
