@@ -16,11 +16,13 @@
 ##   $ chmod u+x InfluxDBSimpleCurlFtpDownloadSpeedTest.sh && ./InfluxDBSimpleCurlFtpDownloadSpeedTest.sh
 ##
 ## Options:
-##   -h|--help                   Displays this help
-##   -v|--verbose                Displays verbose output
-##   -nc|--no-colour             Disables colour output
-##   -cr|--cron                  Run silently unless we encounter an error
-##
+##  -t --temp  [arg] Location of tempfile. Default="/tmp/bar"
+##  -s --sleep [arg] Sleep time in minutes. Required. 
+##  -v               Enable verbose mode, print script as it is executed
+##  -d --debug       Enables debug mode
+##  -h --help        This page
+##  -n --no-color    Disable color output
+##  -1 --one         Do just one thing
 ## Depends on:
 ##  curl utility
 ##  
@@ -46,6 +48,9 @@
 ##   - some FIX or TODO here
 ##
 ## -----------------------------------------------------------------------------
+## Based on a template by BASH3 Boilerplate v2.3.0
+## http://bash3boilerplate.sh/#authors
+
 
 # A better class of script...
 #set -o xtrace           # Trace the execution of the script (prints command prior exec but after variables interpreting). Should be the very first operator.
@@ -58,488 +63,101 @@ set -o history          # Save script commands to the history too
 set -o histexpand       # allows to use !! command to get last command from history
 #set -o verbose          # Prints any lines before the command (e.g. prior function definitions and comments)
 
-#== option variables ==#
-flagOptErr=0
-flagOptLog=0
-flagOptTimeLog=0
-flagOptIgnoreLock=0
+if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
+  __i_am_main_script="0" # false
 
-# DESC: Handler for unexpected errors
-# ARGS: $1 (optional): Exit code (defaults to 1)
-# OUTS: None
-function script_trap_err() {
-    local exit_code
- 
-    # Disable the error trap handler to prevent potential recursion
-    trap - ERR
-
-    # Consider any further errors non-fatal to ensure we run to completion
-    set +o errexit
-    set +o pipefail
-
-    # Validate any provided exit code
-    if [[ ${1-} =~ ^[0-9]+$ ]]; then
-        exit_code="$1"
+  if [[ "${__usage+x}" ]]; then
+    if [[ "${BASH_SOURCE[1]}" = "${0}" ]]; then
+      __i_am_main_script="1" # true
     fi
 
-    # Output debug data if in Cron mode
-    # Restore original file output descriptors
-    if [[ -n ${script_output-} ]]; then
-        exec 1>&3 2>&4
+    __b3bp_external_usage="true"
+    __b3bp_tmp_source_idx=1
+  fi
+else
+  __i_am_main_script="1" # true
+  [[ "${__usage+x}" ]] && unset -v __usage
+  [[ "${__helptext+x}" ]] && unset -v __helptext
+fi
+
+# Set magic variables for current file, directory, os, etc.
+__dir="$(cd "$(dirname "${BASH_SOURCE[${__b3bp_tmp_source_idx:-0}]}")" && pwd)"
+__file="${__dir}/$(basename "${BASH_SOURCE[${__b3bp_tmp_source_idx:-0}]}")"
+__base="$(basename "${__file}" .sh)"
+# shellcheck disable=SC2034,SC2015
+__invocation="$(printf %q "${__file}")$( (($#)) && printf ' %q' "$@" || true)"
+
+# Define the environment variables (and their defaults) that this script depends on
+LOG_LEVEL="${LOG_LEVEL:-6}" # 7 = debug -> 0 = emergency
+NO_COLOR="${NO_COLOR:-}"    # true = disable color. otherwise autodetected
+
+
+### Functions
+##############################################################################
+
+function __b3bp_log () {
+  local log_level="${1}"
+  shift
+
+  # shellcheck disable=SC2034
+  local color_debug="\\x1b[35m"
+  # shellcheck disable=SC2034
+  local color_info="\\x1b[32m"
+  # shellcheck disable=SC2034
+  local color_notice="\\x1b[34m"
+  # shellcheck disable=SC2034
+  local color_warning="\\x1b[33m"
+  # shellcheck disable=SC2034
+  local color_error="\\x1b[31m"
+  # shellcheck disable=SC2034
+  local color_critical="\\x1b[1;31m"
+  # shellcheck disable=SC2034
+  local color_alert="\\x1b[1;33;41m"
+  # shellcheck disable=SC2034
+  local color_emergency="\\x1b[1;4;5;33;41m"
+
+  local colorvar="color_${log_level}"
+
+  local color="${!colorvar:-${color_error}}"
+  local color_reset="\\x1b[0m"
+
+  if [[ "${NO_COLOR:-}" = "true" ]] || { [[ "${TERM:-}" != "xterm"* ]] && [[ "${TERM:-}" != "screen"* ]]; } || [[ ! -t 2 ]]; then
+    if [[ "${NO_COLOR:-}" != "false" ]]; then
+      # Don't use colors on pipes or non-recognized terminals
+      color=""; color_reset=""
     fi
-
-    # Print basic debugging information
-    printf '%b\n' "$ta_none"
-    printf '***** Abnormal termination of script *****\n'
-    printf 'Script Path:            %s\n' "$script_path"
-    printf 'Script Parameters:      %s\n' "$script_params"
-    printf 'Script Exit Code:       %s\n' "$exit_code"
-    printf 'Script Last Command:    %s\n' "$last_command"
-
-    # Print the script log if we have it. It's possible we may not if we
-    # failed before we even called cron_init(). This can happen if bad
-    # parameters were passed to the script so we bailed out very early.
-    if [[ -n ${script_output-} ]]; then
-        printf 'Script Output:\n\n%s' "$(cat "$script_output")"
-    else
-        printf 'Script Output:          None (failed before log init)\n'
-    fi
-
-    # Exit with failure status
-    exit "$exit_code"
-}
-
-
-# DESC: Handler for exiting the script
-# ARGS: None
-# OUTS: None
-function script_trap_exit() {
- 
-    cd "$orig_cwd"
-
-    # Remove Cron mode script log
-    if [[ -n ${cron-} && -f ${script_output-} ]]; then
-        rm "$script_output"
-    fi
-
-    # Remove script execution lock
-    if [[ -d ${script_lock-} ]]; then
-        rmdir "$script_lock"
-    fi
-
-    # Restore terminal colours
-    printf '%b' "$ta_none"
-}
-
-# DESC: Handler for debug (this will run before any command is executed.) the script
-# ARGS: $1 (required): lsat command info
-# OUTS: None
-function script_trap_pre_command() {
-    
-    # keep track of the last executed command
-    # just set variables to be accessible
-
-    last_command="$1";
-
-     verbose_print "script_trap_pre_command() with: $last_command" $fg_white
-
-}
-
-# DESC: This will run after the execution of the previous full command line
-# ARGS: None
-# OUTS: None
-FIRST_PROMPT=1
-function trap_post_command() {
-  AT_PROMPT=1
-
-  if [ -n "$FIRST_PROMPT" ]; then
-    unset FIRST_PROMPT
-    return
   fi
 
-  # Do stuff.
-  echo "Running PostCommand"
+  # all remaining arguments are to be printed
+  local log_line=""
+
+  while IFS=$'\n' read -r log_line; do
+    echo -e "$(date +"%Y-%m-%d %H:%M:%S local") ${color}$(printf "[%9s]" "${log_level}")${color_reset} ${log_line}" 1>&2
+  done <<< "${@:-}"
 }
 
-# special ENV variable to invoke right after shell command
-PROMPT_COMMAND='(trap_post_command)'
+function emergency () {                                __b3bp_log emergency "${@}"; exit 1; }
+function alert ()     { [[ "${LOG_LEVEL:-0}" -ge 1 ]] && __b3bp_log alert "${@}"; true; }
+function critical ()  { [[ "${LOG_LEVEL:-0}" -ge 2 ]] && __b3bp_log critical "${@}"; true; }
+function error ()     { [[ "${LOG_LEVEL:-0}" -ge 3 ]] && __b3bp_log error "${@}"; true; }
+function warning ()   { [[ "${LOG_LEVEL:-0}" -ge 4 ]] && __b3bp_log warning "${@}"; true; }
+function notice ()    { [[ "${LOG_LEVEL:-0}" -ge 5 ]] && __b3bp_log notice "${@}"; true; }
+function info ()      { [[ "${LOG_LEVEL:-0}" -ge 6 ]] && __b3bp_log info "${@}"; true; }
+function debug ()     { [[ "${LOG_LEVEL:-0}" -ge 7 ]] && __b3bp_log debug "${@}"; true; }
 
+function help () {
+  echo "" 1>&2
+  echo " ${*}" 1>&2
+  echo "" 1>&2
+  echo "  ${__usage:-No usage available}" 1>&2
+  echo "" 1>&2
 
-# DESC: Exit script with the given message
-# ARGS: $1 (required): Message to print on exit
-#       $2 (optional): Exit code (defaults to 0)
-# OUTS: None
-function script_exit() {
-    if [[ $# -eq 1 ]]; then
-        printf '%s\n' "$1"
-        exit 0
-    fi
+  if [[ "${__helptext:-}" ]]; then
+    echo " ${__helptext}" 1>&2
+    echo "" 1>&2
+  fi
 
-    if [[ ${2-} =~ ^[0-9]+$ ]]; then
-        printf '%b\n' "$1"
-        # If we've been provided a non-zero exit code run the error trap
-        if [[ $2 -ne 0 ]]; then
-            script_trap_err "$2"
-        else
-            exit 0
-        fi
-    fi
-
-    script_exit 'Missing required argument to script_exit()!' 2
-}
-
-
-# DESC: Generic script initialisation
-# ARGS: $@ (optional): Arguments provided to the script
-# OUTS: $orig_cwd: The current working directory when the script was run
-#       $script_path: The full path to the script
-#       $script_dir: The directory path of the script
-#       $script_name: The file name of the script
-#       $script_params: The original parameters provided to the script
-#       $ta_none: The ANSI control code to reset all text attributes
-# NOTE: $script_path only contains the path that was used to call the script
-#       and will not resolve any symlinks which may be present in the path.
-#       You can use a tool like realpath to obtain the "true" path. The same
-#       caveat applies to both the $script_dir and $script_name variables.
-function script_init() {
-    # Useful paths
-    readonly orig_cwd="$PWD"
-    readonly script_path="${BASH_SOURCE[0]}"
-    readonly script_dir="$(dirname "$script_path")"
-    readonly script_name="$(basename "$script_path")"
-    readonly script_params="$*"
-
-    # verbose mode should be processed before any other params processed
-    local param
-    while [[ $# -gt 0 ]]; do
-        param="$1"
-        shift
-        case $param in
-            -v|--verbose)
-                verbose=true
-                ;;
-        esac
-    done
-
-
-    last_command=""
-    
-    # Important to always set as we use it in the exit handler
-    readonly ta_none="$(tput sgr0 2> /dev/null || true)"
-}
-
-
-# DESC: Initialise colour variables
-# ARGS: None
-# OUTS: Read-only variables with ANSI control codes
-# NOTE: If --no-colour was set the variables will be empty
-function colour_init() {
-    if [[ -z ${no_colour-} ]]; then
-        # Text attributes
-        readonly ta_bold="$(tput bold 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly ta_uscore="$(tput smul 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly ta_blink="$(tput blink 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly ta_reverse="$(tput rev 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly ta_conceal="$(tput invis 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-
-        # Foreground codes
-        readonly fg_black="$(tput setaf 0 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_blue="$(tput setaf 4 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_cyan="$(tput setaf 6 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_green="$(tput setaf 2 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_magenta="$(tput setaf 5 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_red="$(tput setaf 1 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_white="$(tput setaf 7 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly fg_yellow="$(tput setaf 3 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-
-        # Background codes
-        readonly bg_black="$(tput setab 0 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_blue="$(tput setab 4 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_cyan="$(tput setab 6 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_green="$(tput setab 2 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_magenta="$(tput setab 5 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_red="$(tput setab 1 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_white="$(tput setab 7 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-        readonly bg_yellow="$(tput setab 3 2> /dev/null || true)"
-        printf '%b' "$ta_none"
-    else
-        # Text attributes
-        readonly ta_bold=''
-        readonly ta_uscore=''
-        readonly ta_blink=''
-        readonly ta_reverse=''
-        readonly ta_conceal=''
-
-        # Foreground codes
-        readonly fg_black=''
-        readonly fg_blue=''
-        readonly fg_cyan=''
-        readonly fg_green=''
-        readonly fg_magenta=''
-        readonly fg_red=''
-        readonly fg_white=''
-        readonly fg_yellow=''
-
-        # Background codes
-        readonly bg_black=''
-        readonly bg_blue=''
-        readonly bg_cyan=''
-        readonly bg_green=''
-        readonly bg_magenta=''
-        readonly bg_red=''
-        readonly bg_white=''
-        readonly bg_yellow=''
-    fi
-}
-
-
-# DESC: Initialise Cron mode
-# ARGS: None
-# OUTS: $script_output: Path to the file stdout & stderr was redirected to
-function cron_init() {
-    if [[ -n ${cron-} ]]; then
-        # Redirect all output to a temporary file
-        readonly script_output="$(mktemp --tmpdir "$script_name".XXXXX)"
-        exec 3>&1 4>&2 1>"$script_output" 2>&1
-    fi
-}
-
-
-# DESC: Acquire script lock
-# ARGS: $1 (optional): Scope of script execution lock (system or user)
-# OUTS: $script_lock: Path to the directory indicating we have the script lock
-# NOTE: This lock implementation is extremely simple but should be reliable
-#       across all platforms. It does *not* support locking a script with
-#       symlinks or multiple hardlinks as there's no portable way of doing so.
-#       If the lock was acquired it's automatically released on script exit.
-function lock_init() {
-    local lock_dir
-    if [[ $1 = 'system' ]]; then
-        lock_dir="/tmp/$script_name.lock"
-    elif [[ $1 = 'user' ]]; then
-        lock_dir="/tmp/$script_name.$UID.lock"
-    else
-        script_exit 'Missing or invalid argument to lock_init()!' 2
-    fi
-
-    if mkdir "$lock_dir" 2> /dev/null; then
-        readonly script_lock="$lock_dir"
-        verbose_print "Acquired script lock: $script_lock"
-    else
-        script_exit "Unable to acquire script lock: $lock_dir" 2
-    fi
-}
-
-
-# DESC: Pretty print the provided string
-# ARGS: $1 (required): Message to print (defaults to a green foreground)
-#       $2 (optional): Colour to print the message with. This can be an ANSI
-#                      escape code or one of the prepopulated colour variables.
-#       $3 (optional): Set to any value to not append a new line to the message
-# OUTS: None
-function pretty_print() {
-    if [[ $# -lt 1 ]]; then
-        script_exit 'Missing required argument to pretty_print()!' 2
-    fi
-
-    if [[ -z ${no_colour-} ]]; then
-        if [[ -n ${2-} ]]; then
-            printf '%b' "$2"
-        else
-            printf '%b' "$fg_green"
-        fi
-    fi
-
-    # Print message & reset text attributes
-    if [[ -n ${3-} ]]; then
-        printf '%s%b' "$1" "$ta_none"
-    else
-        printf '%s%b\n' "$1" "$ta_none"
-    fi
-}
-
-
-# DESC: Only pretty_print() the provided string if verbose mode is enabled
-# ARGS: $@ (required): Passed through to pretty_print() function
-# OUTS: None
-function verbose_print() {
-    if [[ -n ${verbose-} ]]; then
-        pretty_print "$@"
-    fi
-}
-
-
-# DESC: Combines two path variables and removes any duplicates
-# ARGS: $1 (required): Path(s) to join with the second argument
-#       $2 (optional): Path(s) to join with the first argument
-# OUTS: $build_path: The constructed path
-# NOTE: Heavily inspired by: https://unix.stackexchange.com/a/40973
-function build_path() {
-    if [[ $# -lt 1 ]]; then
-        script_exit 'Missing required argument to build_path()!' 2
-    fi
-
-    local new_path path_entry temp_path
-
-    temp_path="$1:"
-    if [[ -n ${2-} ]]; then
-        temp_path="$temp_path$2:"
-    fi
-
-    new_path=
-    while [[ -n $temp_path ]]; do
-        path_entry="${temp_path%%:*}"
-        case "$new_path:" in
-            *:"$path_entry":*) ;;
-                            *) new_path="$new_path:$path_entry"
-                               ;;
-        esac
-        temp_path="${temp_path#*:}"
-    done
-
-    # shellcheck disable=SC2034
-    build_path="${new_path#:}"
-}
-
-
-# DESC: Check a binary exists in the search path
-# ARGS: $1 (required): Name of the binary to test for existence
-#       $2 (optional): Set to any value to treat failure as a fatal error
-# OUTS: None
-function check_binary() {
-    if [[ $# -lt 1 ]]; then
-        script_exit 'Missing required argument to check_binary()!' 2
-    fi
-
-    if ! command -v "$1" > /dev/null 2>&1; then
-        if [[ -n ${2-} ]]; then
-            script_exit "Missing dependency: Couldn't locate $1." 1
-        else
-            verbose_print "Missing dependency: $1" "${fg_red-}"
-            return 1
-        fi
-    fi
-
-    verbose_print "Found dependency: $1"
-    return 0
-}
-
-
-# DESC: Validate we have superuser access as root (via sudo if requested)
-# ARGS: $1 (optional): Set to any value to not attempt root access via sudo
-# OUTS: None
-function check_superuser() {
-    local superuser test_euid
-    if [[ $EUID -eq 0 ]]; then
-        superuser=true
-    elif [[ -z ${1-} ]]; then
-        if check_binary sudo; then
-            pretty_print 'Sudo: Updating cached credentials ...'
-            if ! sudo -v; then
-                verbose_print "Sudo: Couldn't acquire credentials ..." \
-                              "${fg_red-}"
-            else
-                test_euid="$(sudo -H -- "$BASH" -c 'printf "%s" "$EUID"')"
-                if [[ $test_euid -eq 0 ]]; then
-                    superuser=true
-                fi
-            fi
-        fi
-    fi
-
-    if [[ -z ${superuser-} ]]; then
-        verbose_print 'Unable to acquire superuser credentials.' "${fg_red-}"
-        return 1
-    fi
-
-    verbose_print 'Successfully acquired superuser credentials.'
-    return 0
-}
-
-
-# DESC: Run the requested command as root (via sudo if requested)
-# ARGS: $1 (optional): Set to zero to not attempt execution via sudo
-#       $@ (required): Passed through for execution as root user
-# OUTS: None
-function run_as_root() {
-    if [[ $# -eq 0 ]]; then
-        script_exit 'Missing required argument to run_as_root()!' 2
-    fi
-
-    local try_sudo
-    if [[ ${1-} =~ ^0$ ]]; then
-        try_sudo=true
-        shift
-    fi
-
-    if [[ $EUID -eq 0 ]]; then
-        "$@"
-    elif [[ -z ${try_sudo-} ]]; then
-        sudo -H -- "$@"
-    else
-        script_exit "Unable to run requested command as root: $*" 1
-    fi
-}
-
-
-# DESC: Displays all lines in this script that start with '##'
-# ARGS: None
-# OUTS: None
-function script_usage() {
-
-    [ "$*" ] && echo "$(basename $0): $*"
-    sed -n '/^##/,/^$/s/^## \{0,1\}//p' "$0"
-
-}
-
-
-# DESC: Parameter parser
-# ARGS: $@ (optional): Arguments provided to the script
-# OUTS: Variables indicating command-line parameters and options
-function parse_params() {
-    local param
-    while [[ $# -gt 0 ]]; do
-        param="$1"
-        shift
-        case $param in
-            -h|--help)
-                script_usage
-                exit 0
-                ;;
-            -nc|--no-colour)
-                no_colour=true
-                ;;
-            -cr|--cron)
-                cron=true
-                ;;
-             -v|--verbose)
-                #it has been processed earlier
-                ;;
-           *)
-                script_exit "Invalid parameter was provided: $param" 2
-                ;;
-        esac
-    done
+  exit 1
 }
 
 # CUSTOM CODE SECTION
@@ -552,16 +170,18 @@ function parse_params() {
 function speedTest() {
 
     if [[ $# -lt 3 ]]; then
-        script_exit 'Missing required argument to speedTest()!' 2
+        error 'Missing required argument to speedTest()!'
+        return 1
     fi
 
 	local reqMode="$1";
 	local filName="$2";
     local replyVarName=$3;
     
-    verbose_print "Testing $filName ($reqMode) download speed" $fg_white
+    debug "Testing $filName ($reqMode) download speed"
 
     # Do not panic on curl errors, just skip
+    # bytes per second
     set +e
     curlResult=$(curl --silent --show-error --fail --connect-timeout 8 "${reqMode}"://speedtest.tele2.net/"${filName}" --write-out "%{speed_download}" --output /dev/null | sed "s/\,/\./g" | tr -d '\n');
     set -e
@@ -570,10 +190,10 @@ function speedTest() {
 
     if test "$curlExitCode" -eq "0"; then
         eval "$replyVarName"='$curlResult' #construct result variable and assign it's value
-        verbose_print "Got $filName ($reqMode) download speed $curlResult kbps" $fg_white
+        info "Got $filName ($reqMode) download speed $curlResult bytes per second"
         return 0;
     else
-        verbose_print "the curl command failed with: $curlExitCode" $fg_white
+        info "the curl command failed with: $curlExitCode"
         return 190;
     fi
     
@@ -588,7 +208,8 @@ function speedTest() {
 function writeStats() {
 
     if [[ $# -lt 4 ]]; then
-        script_exit 'Missing required argument to writeStats()!' 2
+        error 'Missing required argument to writeStats()!'
+        return 1
     fi
 
 	local reqMode="$1";
@@ -596,13 +217,39 @@ function writeStats() {
     local GW="$3";
     local dlSpeed="$4";
 
-    verbose_print "Sending $filName ($reqMode) speed stats to InfluxDB" $fg_white
+    debug "Sending $filName ($reqMode) speed stats to InfluxDB"
     
+    # Do not panic on curl errors, just skip
+    set +e
 	curl --user bash:bash --request POST --url 'http://influxdb/write?db=bashscripts' --data "SpeedStats,FileSize=$filName,mode=$reqMode,Gateway=$GW dlspeed=$dlSpeed"
+    set -e
 
-    verbose_print "Sent $filName ($reqMode) download speed $dlSpeed kbps to InfluxDB" $fg_white
+    info "Sent $filName ($reqMode) download speed $dlSpeed bytes per second to InfluxDB"
 
     return 0;
+}
+
+# DESC: Check a binary exists in the search path
+# ARGS: $1 (required): Name of the binary to test for existence
+#       $2 (optional): Set to any value to treat failure as a fatal error
+# OUTS: None
+function check_binary() {
+    if [[ $# -lt 1 ]]; then
+        error 'Missing required argument to check_binary()!'
+        return 1
+    fi
+
+    if ! command -v "$1" > /dev/null 2>&1; then
+        if [[ -n ${2-} ]]; then
+            error "Missing dependency: Couldn't locate $1."
+            return 1
+        else
+            emergency "Missing dependency: $1"
+        fi
+    fi
+
+    notice "Found dependency: $1"
+    return 0
 }
 
 # DESC: main infinite loop
@@ -611,7 +258,7 @@ function writeStats() {
 function main_loop() {
 
     local protocols=( [1]=ftp [2]=http )
-    local sizes=( [1]=3MB.zip [2]=10MB.zip [3]=512KB.zip)
+    local sizes=( [1]=200MB.zip [2]=50MB.zip [3]=10MB.zip)
 
     for proto in ${protocols[*]}
     do
@@ -619,22 +266,22 @@ function main_loop() {
         for size in ${sizes[*]}
         do
 
-            pretty_print "Speedtest $proto of $size"
+            info "Speedtest $proto of $size"
 
             speedTest "$proto" "$size" "REPLY" 
 
             writeStats "$proto" "$size" "VPN" $REPLY
 
-            pretty_print "Done speedtest $proto of $size"
+            info "Done speedtest $proto of $size"
 
         done
 
     done 
  
-    pretty_print "Waiting for next run (17min)..." "${fg_yellow-}"
-    pretty_print "Press CTRL+C to stop the script execution" "${fg_yellow-}"
+    notice "Waiting for next run (10min)..."
+    notice "Press CTRL+C to stop the script execution"
 
-    sleep 12*20;
+    sleep 10m;
 
     #recursion, infinite loop
     main_loop ${@:-} 
@@ -642,56 +289,278 @@ function main_loop() {
     return 0;
 }
 
-#
+### Parse commandline options
+##############################################################################
 
-# DESC: Main control flow
-# ARGS: $@ (optional): Arguments provided to the script
-# OUTS: None
-function main() {
+# Commandline options. This defines the usage page, and is used to parse cli
+# opts & defaults from. The parsing is unforgiving so be precise in your syntax
+# - A short option must be preset for every long option; but every short option
+#   need not have a long option
+# - `--` is respected as the separator between options and arguments
+# - We do not bash-expand defaults, so setting '~/app' as a default will not resolve to ${HOME}.
+#   you can use bash variables to work around this (so use ${HOME} instead)
 
-  
-    script_init ${@:-}
+# shellcheck disable=SC2015
+[[ "${__usage+x}" ]] || read -r -d '' __usage <<-'EOF' || true # exits non-zero when EOF encountered
+  -t --temp  [arg] Location of tempfile. Default="/tmp/bar"
+  -s --sleep [arg] Sleep time in minutes. Required. 
+  -v               Enable verbose mode, print script as it is executed
+  -d --debug       Enables debug mode
+  -h --help        This page
+  -n --no-color    Disable color output
+  -1 --one         Do just one thing
+EOF
 
-    colour_init
-    cron_init 
+# shellcheck disable=SC2015
+[[ "${__helptext+x}" ]] || read -r -d '' __helptext <<-'EOF' || true # exits non-zero when EOF encountered
+ This is Bash3 Boilerplate's help text. Feel free to add any description of your
+ program or elaborate more on command-line arguments. This section is not
+ parsed and will be added as-is to the help.
+EOF
 
-    trap '(script_trap_err "$?")' ERR
-    trap script_trap_exit EXIT
+# Translate usage string -> getopts arguments, and set $arg_<flag> defaults
+while read -r __b3bp_tmp_line; do
+  if [[ "${__b3bp_tmp_line}" =~ ^- ]]; then
+    # fetch single character version of option string
+    __b3bp_tmp_opt="${__b3bp_tmp_line%% *}"
+    __b3bp_tmp_opt="${__b3bp_tmp_opt:1}"
 
-    verbose_print 'Extended logging ON' "${fg_yellow-}"
+    # fetch long version if present
+    __b3bp_tmp_long_opt=""
 
-    if [[ -n ${verbose-} ]]; then
-        
-        # Trap function is defined inline so we get the correct line number
-        trap '(script_trap_pre_command "#[DEBUG] [$(basename ${BASH_SOURCE[0]}):${LINENO[0]}] ${BASH_COMMAND}" "${fg_red-}");' DEBUG
-        
+    if [[ "${__b3bp_tmp_line}" = *"--"* ]]; then
+      __b3bp_tmp_long_opt="${__b3bp_tmp_line#*--}"
+      __b3bp_tmp_long_opt="${__b3bp_tmp_long_opt%% *}"
     fi
 
-    parse_params ${@:-}
-    
- 
-    check_binary "curl" "-1"
+    # map opt long name to+from opt short name
+    printf -v "__b3bp_tmp_opt_long2short_${__b3bp_tmp_long_opt//-/_}" '%s' "${__b3bp_tmp_opt}"
+    printf -v "__b3bp_tmp_opt_short2long_${__b3bp_tmp_opt}" '%s' "${__b3bp_tmp_long_opt//-/_}"
 
-    main_loop ${@:-} 
+    # check if option takes an argument
+    if [[ "${__b3bp_tmp_line}" =~ \[.*\] ]]; then
+      __b3bp_tmp_opt="${__b3bp_tmp_opt}:" # add : if opt has arg
+      __b3bp_tmp_init=""  # it has an arg. init with ""
+      printf -v "__b3bp_tmp_has_arg_${__b3bp_tmp_opt:0:1}" '%s' "1"
+    elif [[ "${__b3bp_tmp_line}" =~ \{.*\} ]]; then
+      __b3bp_tmp_opt="${__b3bp_tmp_opt}:" # add : if opt has arg
+      __b3bp_tmp_init=""  # it has an arg. init with ""
+      # remember that this option requires an argument
+      printf -v "__b3bp_tmp_has_arg_${__b3bp_tmp_opt:0:1}" '%s' "2"
+    else
+      __b3bp_tmp_init="0" # it's a flag. init with 0
+      printf -v "__b3bp_tmp_has_arg_${__b3bp_tmp_opt:0:1}" '%s' "0"
+    fi
+    __b3bp_tmp_opts="${__b3bp_tmp_opts:-}${__b3bp_tmp_opt}"
+  fi
 
+  [[ "${__b3bp_tmp_opt:-}" ]] || continue
+
+  if [[ "${__b3bp_tmp_line}" =~ ^Default= ]] || [[ "${__b3bp_tmp_line}" =~ \.\ *Default= ]]; then
+    # ignore default value if option does not have an argument
+    __b3bp_tmp_varname="__b3bp_tmp_has_arg_${__b3bp_tmp_opt:0:1}"
+
+    if [[ "${!__b3bp_tmp_varname}" != "0" ]]; then
+      __b3bp_tmp_init="${__b3bp_tmp_line##*Default=}"
+      __b3bp_tmp_re='^"(.*)"$'
+      if [[ "${__b3bp_tmp_init}" =~ ${__b3bp_tmp_re} ]]; then
+        __b3bp_tmp_init="${BASH_REMATCH[1]}"
+      else
+        __b3bp_tmp_re="^'(.*)'$"
+        if [[ "${__b3bp_tmp_init}" =~ ${__b3bp_tmp_re} ]]; then
+          __b3bp_tmp_init="${BASH_REMATCH[1]}"
+        fi
+      fi
+    fi
+  fi
+
+  if [[ "${__b3bp_tmp_line}" =~ ^Required\. ]] || [[ "${__b3bp_tmp_line}" =~ \.\ *Required\. ]]; then
+    # remember that this option requires an argument
+    printf -v "__b3bp_tmp_has_arg_${__b3bp_tmp_opt:0:1}" '%s' "2"
+  fi
+
+  printf -v "arg_${__b3bp_tmp_opt:0:1}" '%s' "${__b3bp_tmp_init}"
+done <<< "${__usage:-}"
+
+# run getopts only if options were specified in __usage
+if [[ "${__b3bp_tmp_opts:-}" ]]; then
+  # Allow long options like --this
+  __b3bp_tmp_opts="${__b3bp_tmp_opts}-:"
+
+  # Reset in case getopts has been used previously in the shell.
+  OPTIND=1
+
+  # start parsing command line
+  set +o nounset # unexpected arguments will cause unbound variables
+                 # to be dereferenced
+  # Overwrite $arg_<flag> defaults with the actual CLI options
+  while getopts "${__b3bp_tmp_opts}" __b3bp_tmp_opt; do
+    [[ "${__b3bp_tmp_opt}" = "?" ]] && help "Invalid use of script: ${*} "
+
+    if [[ "${__b3bp_tmp_opt}" = "-" ]]; then
+      # OPTARG is long-option-name or long-option=value
+      if [[ "${OPTARG}" =~ .*=.* ]]; then
+        # --key=value format
+        __b3bp_tmp_long_opt=${OPTARG/=*/}
+        # Set opt to the short option corresponding to the long option
+        __b3bp_tmp_varname="__b3bp_tmp_opt_long2short_${__b3bp_tmp_long_opt//-/_}"
+        printf -v "__b3bp_tmp_opt" '%s' "${!__b3bp_tmp_varname}"
+        OPTARG=${OPTARG#*=}
+      else
+        # --key value format
+        # Map long name to short version of option
+        __b3bp_tmp_varname="__b3bp_tmp_opt_long2short_${OPTARG//-/_}"
+        printf -v "__b3bp_tmp_opt" '%s' "${!__b3bp_tmp_varname}"
+        # Only assign OPTARG if option takes an argument
+        __b3bp_tmp_varname="__b3bp_tmp_has_arg_${__b3bp_tmp_opt}"
+        __b3bp_tmp_varvalue="${!__b3bp_tmp_varname}"
+        [[ "${__b3bp_tmp_varvalue}" != "0" ]] && __b3bp_tmp_varvalue="1"
+        printf -v "OPTARG" '%s' "${@:OPTIND:${__b3bp_tmp_varvalue}}"
+        # shift over the argument if argument is expected
+        ((OPTIND+=__b3bp_tmp_varvalue))
+      fi
+      # we have set opt/OPTARG to the short value and the argument as OPTARG if it exists
+    fi
+    __b3bp_tmp_varname="arg_${__b3bp_tmp_opt:0:1}"
+    __b3bp_tmp_default="${!__b3bp_tmp_varname}"
+
+    __b3bp_tmp_value="${OPTARG}"
+    if [[ -z "${OPTARG}" ]]; then
+      __b3bp_tmp_value=$((__b3bp_tmp_default + 1))
+    fi
+
+    printf -v "${__b3bp_tmp_varname}" '%s' "${__b3bp_tmp_value}"
+    debug "cli arg ${__b3bp_tmp_varname} = (${__b3bp_tmp_default}) -> ${!__b3bp_tmp_varname}"
+  done
+  set -o nounset # no more unbound variable references expected
+
+  shift $((OPTIND-1))
+
+  if [[ "${1:-}" = "--" ]] ; then
+    shift
+  fi
+fi
+
+
+### Automatic validation of required option arguments
+##############################################################################
+
+for __b3bp_tmp_varname in ${!__b3bp_tmp_has_arg_*}; do
+  # validate only options which required an argument
+  [[ "${!__b3bp_tmp_varname}" = "2" ]] || continue
+
+  __b3bp_tmp_opt_short="${__b3bp_tmp_varname##*_}"
+  __b3bp_tmp_varname="arg_${__b3bp_tmp_opt_short}"
+  [[ "${!__b3bp_tmp_varname}" ]] && continue
+
+  __b3bp_tmp_varname="__b3bp_tmp_opt_short2long_${__b3bp_tmp_opt_short}"
+  printf -v "__b3bp_tmp_opt_long" '%s' "${!__b3bp_tmp_varname}"
+  [[ "${__b3bp_tmp_opt_long:-}" ]] && __b3bp_tmp_opt_long=" (--${__b3bp_tmp_opt_long//_/-})"
+
+  help "Option -${__b3bp_tmp_opt_short}${__b3bp_tmp_opt_long:-} requires an argument"
+done
+
+
+### Cleanup Environment variables
+##############################################################################
+
+for __tmp_varname in ${!__b3bp_tmp_*}; do
+  unset -v "${__tmp_varname}"
+done
+
+unset -v __tmp_varname
+
+
+### Externally supplied __usage. Nothing else to do here
+##############################################################################
+
+if [[ "${__b3bp_external_usage:-}" = "true" ]]; then
+  unset -v __b3bp_external_usage
+  return
+fi
+
+
+### Signal trapping and backtracing
+##############################################################################
+
+function __b3bp_cleanup_before_exit () {
+  info "Cleaning up. Done"
 }
+trap __b3bp_cleanup_before_exit EXIT
 
-# Make it rain
+# requires `set -o errtrace`
+__b3bp_err_report() {
+    local error_code
+    error_code=${?}
+    error "Error in ${__file} in function ${1} on line ${2}"
+    exit ${error_code}
+}
+# Uncomment the following line for always providing an error backtrace
+# trap '__b3bp_err_report "${FUNCNAME:-.}" ${LINENO}' ERR
 
-# Your logic goes here
-if [ $# == 0 ] ; then
-    echo $USAGE
-    exit 1;
+
+### Command-line argument switches (like -d for debugmode, -h for showing helppage)
+##############################################################################
+
+# debug mode
+if [[ "${arg_d:?}" = "1" ]]; then
+  set -o xtrace
+  PS4='+(${BASH_SOURCE}:${LINENO}): ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+  LOG_LEVEL="7"
+  # Enable error backtracing
+  trap '__b3bp_err_report "${FUNCNAME:-.}" ${LINENO}' ERR
 fi
 
-if [ "$#" -ne 1 ] && [ "$#" -ne 2 ];then
-    g_iExitCode=65
-    error 'Wrong parameter count'
-    usage
-else
-    message "Hello ${1}!"
+# verbose mode
+if [[ "${arg_v:?}" = "1" ]]; then
+  set -o verbose
 fi
 
-# Call the `_main` function after everything has been defined.
-main ${@:-}
+# no color mode
+if [[ "${arg_n:?}" = "1" ]]; then
+  NO_COLOR="true"
+fi
 
+# help mode
+if [[ "${arg_h:?}" = "1" ]]; then
+  # Help exists with code 1
+  help "Help using ${0}"
+fi
+
+
+### Validation. Error out if the things required for your script are not present
+##############################################################################
+
+[[ "${arg_s:-}" ]]     || help      "Setting a sleep time is required"
+[[ "${LOG_LEVEL:-}" ]] || emergency "Cannot continue without LOG_LEVEL. "
+
+
+### Runtime
+##############################################################################
+
+check_binary "curl" "-1"
+
+main_loop ${@:-} 
+
+info "__i_am_main_script: ${__i_am_main_script}"
+info "__file: ${__file}"
+info "__dir: ${__dir}"
+info "__base: ${__base}"
+info "OSTYPE: ${OSTYPE}"
+
+info "arg_f: ${arg_f}"
+info "arg_d: ${arg_d}"
+info "arg_v: ${arg_v}"
+info "arg_h: ${arg_h}"
+
+info "$(echo -e "multiple lines example - line #1\\nmultiple lines example - line #2\\nimagine logging the output of 'ls -al /path/'")"
+
+# All of these go to STDERR, so you can use STDOUT for piping machine readable information to other software
+debug "Info useful to developers for debugging the application, not useful during operations."
+info "Normal operational messages - may be harvested for reporting, measuring throughput, etc. - no action required."
+notice "Events that are unusual but not error conditions - might be summarized in an email to developers or admins to spot potential problems - no immediate action required."
+warning "Warning messages, not an error, but indication that an error will occur if action is not taken, e.g. file system 85% full - each item must be resolved within a given time. This is a debug message"
+error "Non-urgent failures, these should be relayed to developers or admins; each item must be resolved within a given time."
+critical "Should be corrected immediately, but indicates failure in a primary system, an example is a loss of a backup ISP connection."
+alert "Should be corrected immediately, therefore notify staff who can fix the problem. An example would be the loss of a primary ISP connection."
+emergency "A \"panic\" condition usually affecting multiple apps/servers/sites. At this level it would usually notify all tech staff on call."
