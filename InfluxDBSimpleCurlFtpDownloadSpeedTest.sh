@@ -183,7 +183,7 @@ function speedTest() {
     # Do not panic on curl errors, just skip
     # bytes per second
     set +e
-    curlResult=$(curl --silent --show-error --fail --connect-timeout 8 "${reqMode}"://speedtest.tele2.net/"${filName}" --write-out "%{speed_download}" --output /dev/null | sed "s/\,/\./g" | tr -d '\n');
+    curlResult=$(curl --silent --show-error --fail --max-time 900 --connect-timeout 8 "${reqMode}"://speedtest.tele2.net/"${filName}" --write-out "%{speed_download}" --output /dev/null | sed "s/\,/\./g" | tr -d '\n');
     set -e
 
     curlExitCode=$?;
