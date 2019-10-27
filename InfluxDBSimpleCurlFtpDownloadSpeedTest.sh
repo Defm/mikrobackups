@@ -258,7 +258,7 @@ function check_binary() {
 function main_loop() {
 
     local protocols=( [1]=ftp [2]=http )
-    local sizes=( [1]=200MB.zip [2]=50MB.zip [3]=10MB.zip)
+    local sizes=( [1]=10MB.zip [2]=50MB.zip [3]=200MB.zip)
 
     for proto in ${protocols[*]}
     do
