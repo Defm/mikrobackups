@@ -281,7 +281,7 @@ function main_loop() {
     notice "Waiting for next run (10min)..."
     notice "Press CTRL+C to stop the script execution"
 
-    sleep 300;
+    sleep 60;
 
     #recursion, infinite loop
     main_loop ${@:-} 
