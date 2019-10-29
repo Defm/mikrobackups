@@ -221,7 +221,7 @@ function writeStats() {
     
     # Do not panic on curl errors, just skip
     set +e
-	curl --user bash:bash --request POST --url 'http://influxdb/write?db=bashscripts' --data "SpeedStats,FileSize=$filName,mode=$reqMode,Gateway=$GW dlspeed=$dlSpeed"
+	curl --user bash:bash --request POST --url 'http://minialx:8000/write?db=bashscripts' --data "SpeedStats,FileSize=$filName,mode=$reqMode,Gateway=$GW dlspeed=$dlSpeed"
     set -e
 
     info "Sent $filName ($reqMode) download speed $dlSpeed bytes per second to InfluxDB"
