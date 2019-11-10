@@ -1,4 +1,154 @@
-### Git Auto Save, Date: понедельник, 14 октября 2019 г. 17:09:57 (MSK), New Files:  Modified Files: scripts/doCollectSpeedStats.rsc.txt,  Removed Files: (HEAD -> _autobranch)
+### Git Auto Save, Date: воскресенье, 10 ноября 2019 г. 14:14:32 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files: (HEAD -> _autobranch)
+>Sun, 10 Nov 2019 14:14:32 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: воскресенье, 10 ноября 2019 г. 13:55:20 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc,  Removed Files: (mikrobackups/_autobranch)
+>Sun, 10 Nov 2019 13:55:20 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: пятница,  8 ноября 2019 г. 21:00:34 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files:
+>Fri, 8 Nov 2019 21:00:34 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: среда,  6 ноября 2019 г. 18:28:48 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc,  Removed Files:
+>Wed, 6 Nov 2019 18:28:48 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: среда, 30 октября 2019 г. 00:28:40 (MSK), New Files:  Modified Files: rawconf_mikrouter_6.46beta16.rsc,  Removed Files:
+>Wed, 30 Oct 2019 00:28:40 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### test
+>Tue, 29 Oct 2019 08:17:56 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Interval changed
+>Mon, 28 Oct 2019 21:48:48 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### more sleep
+>Sun, 27 Oct 2019 17:34:34 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Поменял порядок закачки
+>Sun, 27 Oct 2019 17:06:44 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Timeout expends
+>Sun, 27 Oct 2019 16:14:54 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Timeout added
+>Sun, 27 Oct 2019 12:17:55 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Speed test
+>Sat, 26 Oct 2019 23:48:38 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### dunno
+>Sat, 26 Oct 2019 23:47:11 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: суббота, 26 октября 2019 г. 22:49:50 (MSK), New Files:  Modified Files: InfluxDBPostmanWorkspace.json,  Removed Files:
+>Sat, 26 Oct 2019 22:49:50 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: четверг, 17 октября 2019 г. 18:28:51 (MSK), New Files:  Modified Files: rawconf_CHR_6.46beta28.rsc,  Removed Files:
+>Thu, 17 Oct 2019 18:28:51 +0300
+
+>Author: Defm (defm.kopcap@gmail.com)
+
+>Commiter: Defm (defm.kopcap@gmail.com)
+
+
+
+
+### Git Auto Save, Date: понедельник, 14 октября 2019 г. 17:09:57 (MSK), New Files:  Modified Files: scripts/doCollectSpeedStats.rsc.txt,  Removed Files:
 >Mon, 14 Oct 2019 17:09:57 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)
@@ -8,7 +158,7 @@
 
 
 
-### Git Auto Save, Date: понедельник, 14 октября 2019 г. 17:09:48 (MSK), New Files:  Modified Files: scripts/doCertificatesIssuing.rsc.txt,  Removed Files: (mikrobackups/_autobranch)
+### Git Auto Save, Date: понедельник, 14 октября 2019 г. 17:09:48 (MSK), New Files:  Modified Files: scripts/doCertificatesIssuing.rsc.txt,  Removed Files:
 >Mon, 14 Oct 2019 17:09:48 +0300
 
 >Author: Defm (defm.kopcap@gmail.com)

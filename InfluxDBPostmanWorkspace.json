@@ -344,6 +344,94 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "RET POLICY",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "defmdefm",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "Defm",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "influxdb/query?pretty=true&q=CREATE RETENTION POLICY \"FlushMonthly\" ON \"bashscripts\" DURATION 30d REPLICATION 1 DEFAULT",
+					"host": [
+						"influxdb"
+					],
+					"path": [
+						"query"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": "true"
+						},
+						{
+							"key": "q",
+							"value": "CREATE RETENTION POLICY \"FlushMonthly\" ON \"bashscripts\" DURATION 30d REPLICATION 1 DEFAULT"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "FLUSH",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "defmdefm",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "Defm",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "influxdb/query?pretty=true&db=bashscripts&q=DROP SERIES FROM SpeedStats",
+					"host": [
+						"influxdb"
+					],
+					"path": [
+						"query"
+					],
+					"query": [
+						{
+							"key": "pretty",
+							"value": "true"
+						},
+						{
+							"key": "db",
+							"value": "bashscripts"
+						},
+						{
+							"key": "q",
+							"value": "DROP SERIES FROM SpeedStats"
+						}
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"auth": {
