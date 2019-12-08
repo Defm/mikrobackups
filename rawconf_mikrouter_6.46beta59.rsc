@@ -1,4 +1,4 @@
-# nov/28/2019 21:00:02 by RouterOS 6.46beta59
+# dec/08/2019 21:00:02 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -106,17 +106,20 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,08:00:27:17:3A:80, disabled=yes name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
 /queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl disabled=yes name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
 /queue simple add comment=dtq,00:CD:FE:EC:B5:52, disabled=yes name="@guest dhcp (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
-/queue simple add comment=dtq,98:22:EF:26:FE:6E,DESKTOP-UPPUU22 disabled=yes name="DESKTOP-UPPUU22@main dhcp (98:22:EF:26:FE:6E)" target=192.168.99.70/32
+/queue simple add comment=dtq,98:22:EF:26:FE:6E,AsusGlo disabled=yes name="AsusGlo@main dhcp (98:22:EF:26:FE:6E)" target=192.168.99.70/32
 /queue simple add comment=dtq,98:22:EF:26:FE:6E, disabled=yes name="asusGl@guest dhcp (98:22:EF:26:FE:6E)" target=192.168.98.210/32
 /queue simple add comment=dtq,88:53:95:30:68:9F, disabled=yes name="@guest dhcp (88:53:95:30:68:9F)" target=192.168.98.228/32
 /queue simple add comment=dtq,AC:61:EA:EA:CC:84, disabled=yes name="@guest dhcp (AC:61:EA:EA:CC:84)" target=192.168.98.225/32
 /queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx disabled=yes name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" target=192.168.98.224/32
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx disabled=yes name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
 /queue simple add comment=dtq,94:C6:91:94:98:DC, disabled=yes name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
-/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP disabled=yes name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
 /queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGl name="iPhoneGl@guest dhcp (54:2B:8D:7F:83:A6)" target=192.168.98.226/32
-/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlx name="iPhoneAlx@guest dhcp (54:2B:8D:77:38:A0)" target=192.168.98.223/32
-/queue simple add comment=dtq,00:11:32:2C:A7:85,DiskStation name="DiskStation@main dhcp (00:11:32:2C:A7:85)" target=192.168.99.30/32
+/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@guest dhcp (54:2B:8D:77:38:A0)" target=192.168.98.223/32
+/queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="nas@main dhcp (00:11:32:2C:A7:85)" target=192.168.99.30/32
+/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" target=192.168.99.230/32
+/queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGLO name="iPhoneGLO@main dhcp (54:2B:8D:7F:83:A6)" target=192.168.99.240/32
+/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.2/32
+/queue simple add comment=dtq,08:00:27:1C:F3:07,openflixr name="openflixr@main dhcp (08:00:27:1C:F3:07)" target=192.168.99.10/32
 /queue tree add comment="FILE download control" disabled=yes name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -153,6 +156,8 @@ set "wlan 5Ghz" enable-polling=no
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=mbpAlx disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s ap-tx-limit=0 client-to-client-forwarding=yes comment=ATV disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlx disabled=no mac-address=54:E4:3A:B8:12:07 ssid-regexp="WiFi 2"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlxr disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneGlo disabled=no mac-address=54:2B:8D:7F:83:A6 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=asusGl disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
@@ -222,6 +227,9 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip arp add address=192.168.99.88 interface="main infrastructure" mac-address=94:C6:91:94:98:DC
 /ip arp add address=192.168.99.200 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:02
 /ip arp add address=192.168.99.30 interface="main infrastructure" mac-address=00:11:32:2C:A7:85
+/ip arp add address=192.168.99.230 interface="main infrastructure" mac-address=54:2B:8D:77:38:A0
+/ip arp add address=192.168.99.240 interface="main infrastructure" mac-address=54:2B:8D:7F:83:A6
+/ip arp add address=192.168.99.10 interface="main infrastructure" mac-address=08:00:27:1C:F3:07
 /ip cloud set ddns-enabled=yes
 /ip dhcp-server lease add address=192.168.99.140 always-broadcast=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.150 client-id=1:ac:61:ea:ea:cc:84 mac-address=AC:61:EA:EA:CC:84 server="main dhcp"
@@ -238,13 +246,19 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dhcp-server lease add address=192.168.98.224 block-access=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.180 address-lists=osx-hosts always-broadcast=yes mac-address=10:DD:B1:9E:19:5E server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.88 mac-address=94:C6:91:94:98:DC server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.200 mac-address=CC:2D:E0:E7:BE:02 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.2 mac-address=CC:2D:E0:E7:BE:02 server="main dhcp"
+/ip dhcp-server lease add address=192.168.98.223 block-access=yes client-id=1:54:2b:8d:77:38:a0 mac-address=54:2B:8D:77:38:A0 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.30 mac-address=00:11:32:2C:A7:85 server="main dhcp"
+/ip dhcp-server lease add address=192.168.98.226 block-access=yes client-id=1:54:2b:8d:7f:83:a6 mac-address=54:2B:8D:7F:83:A6 server="guest dhcp"
+/ip dhcp-server lease add address=192.168.99.230 client-id=1:54:2b:8d:77:38:a0 mac-address=54:2B:8D:77:38:A0 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.240 client-id=1:54:2b:8d:7f:83:a6 mac-address=54:2B:8D:7F:83:A6 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.10 mac-address=08:00:27:1C:F3:07 server="main dhcp"
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server network add address=192.168.99.0/26 caps-manager=192.168.99.1 comment="VIRTUAL MACHINES DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.64/26 caps-manager=192.168.99.1 comment="WINDOWS DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.128/26 caps-manager=192.168.99.1 comment="APPLE DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
-/ip dhcp-server network add address=192.168.99.192/26 caps-manager=192.168.99.1 comment="DNS/PROXY redirect DHCP leasing" gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
+/ip dhcp-server network add address=192.168.99.192/27 caps-manager=192.168.99.1 comment="DNS/PROXY redirect DHCP leasing" gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
+/ip dhcp-server network add address=192.168.99.224/27 caps-manager=192.168.99.1 comment="RESERVED space DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.100.1
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=192.168.99.1 name=mikrouter.home
@@ -258,8 +272,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.97.1 name=chr.home
 /ip dns static add address=10.0.0.1 name=chr.home
 /ip dns static add address=192.168.100.1 name=gateway.home
-/ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-UPPUU22.home ttl=5m
-/ip dns static add address=192.168.99.200 comment="<AUTO:DHCP:main dhcp>" name=LivingRoomWAP.home ttl=5m
+/ip dns static add address=192.168.99.2 comment="<AUTO:DHCP:main dhcp>" name=LivingRoomWAP.home ttl=5m
 /ip dns static add address=192.168.99.170 comment="<AUTO:DHCP:main dhcp>" name=MbpAlx.home ttl=5m
 /ip dns static add address=192.168.99.140 comment="<AUTO:DHCP:main dhcp>" name=iPadAlx.home ttl=5m
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
@@ -267,7 +280,11 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
 /ip dns static add address=192.168.99.190 comment="<AUTO:DHCP:main dhcp>" name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.99.30 comment="<AUTO:DHCP:main dhcp>" name=nas.home ttl=5m
-/ip dns static add address=109.252.109.62 name=ftpserver.org
+/ip dns static add address=192.168.99.230 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlxr.home ttl=5m
+/ip dns static add address=192.168.99.240 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGLO.home ttl=5m
+/ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=AsusGlo.home ttl=5m
+/ip dns static add address=192.168.99.10 comment="<AUTO:DHCP:main dhcp>" name=openflixr.home ttl=5m
+/ip dns static add address=109.252.109.83 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -329,7 +346,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=clubseventeen.com list=vpn-tunneled-sites
 /ip firewall address-list add address=207.32.194.24 list=vpn-tunneled-sites
 /ip firewall address-list add address=speedtest.tele2.net disabled=yes list=vpn-tunneled-sites
-/ip firewall address-list add address=109.252.109.62 list=external-ip
+/ip firewall address-list add address=109.252.109.83 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -564,28 +581,28 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new in-interface=wan log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
 /ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log-prefix="#DROP UNKNOWN (FWD)"
 /ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log-prefix="#DROP UNKNOWN (INPUT)"
-/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
-/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
-/ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1360 passthrough=yes protocol=tcp src-address-list="VPN network" tcp-flags=syn tcp-mss=1361-65535
-/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=vpn-tunneled-sites new-connection-mark=vpn-l2tp passthrough=yes
-/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new dst-address-list=Telegram new-connection-mark=vpn-l2tp passthrough=yes
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=Telegram log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=vpn-l2tp dst-address-list=vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=vpn-l2tp dst-address-list=Telegram log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
+/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" disabled=yes in-interface=all-ppp new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" disabled=yes new-mss=1360 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" disabled=yes new-mss=1360 passthrough=yes protocol=tcp src-address-list="VPN network" tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new disabled=yes dst-address-list=vpn-tunneled-sites new-connection-mark=vpn-l2tp passthrough=yes
+/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new disabled=yes dst-address-list=Telegram new-connection-mark=vpn-l2tp passthrough=yes
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" disabled=yes dst-address-list=vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" disabled=yes dst-address-list=Telegram log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=vpn-l2tp disabled=yes dst-address-list=vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=vpn-l2tp disabled=yes dst-address-list=Telegram log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
 /ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY disabled=yes
-/ip firewall mangle add action=mark-packet chain=input comment="VPN Traffic" log-prefix="#VPN PCKT MARK" new-packet-mark="IPSEC PCKT" passthrough=yes protocol=ipsec-esp
-/ip firewall mangle add action=mark-connection chain=prerouting comment="Provider mark" connection-mark=no-mark in-interface=wan new-connection-mark=MGTS passthrough=no
-/ip firewall mangle add action=mark-packet chain=prerouting comment=7z layer7-protocol=7Z log-prefix=#DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=bin layer7-protocol=BIN log-prefix=#DL_bin new-packet-mark=bin-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=iso layer7-protocol=ISO log-prefix=#DL_iso new-packet-mark=iso-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=exe layer7-protocol=EXE log-prefix=#DL_exe new-packet-mark=exe-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=mp3 layer7-protocol=MP3 log-prefix=#DL_mp3 new-packet-mark=mp3-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=pdf layer7-protocol=PDF log-prefix=#DL_pdf new-packet-mark=pdf-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=rar layer7-protocol=RAR log-prefix=#DL_rar new-packet-mark=rar-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=zip layer7-protocol=ZIP log-prefix=#DL_zip new-packet-mark=zip-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=add-src-to-address-list address-list=lan-routers address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:63
-/ip firewall mangle add action=add-src-to-address-list address-list=lan-routers address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:127
+/ip firewall mangle add action=mark-packet chain=input comment="VPN Traffic" disabled=yes log-prefix="#VPN PCKT MARK" new-packet-mark="IPSEC PCKT" passthrough=yes protocol=ipsec-esp
+/ip firewall mangle add action=mark-connection chain=prerouting comment="Provider mark" connection-mark=no-mark disabled=yes in-interface=wan new-connection-mark=MGTS passthrough=no
+/ip firewall mangle add action=mark-packet chain=prerouting comment=7z disabled=yes layer7-protocol=7Z log-prefix=#DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=bin disabled=yes layer7-protocol=BIN log-prefix=#DL_bin new-packet-mark=bin-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=iso disabled=yes layer7-protocol=ISO log-prefix=#DL_iso new-packet-mark=iso-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=exe disabled=yes layer7-protocol=EXE log-prefix=#DL_exe new-packet-mark=exe-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=mp3 disabled=yes layer7-protocol=MP3 log-prefix=#DL_mp3 new-packet-mark=mp3-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=pdf disabled=yes layer7-protocol=PDF log-prefix=#DL_pdf new-packet-mark=pdf-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=rar disabled=yes layer7-protocol=RAR log-prefix=#DL_rar new-packet-mark=rar-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=zip disabled=yes layer7-protocol=ZIP log-prefix=#DL_zip new-packet-mark=zip-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=add-src-to-address-list address-list=lan-routers address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" disabled=yes ttl=equal:63
+/ip firewall mangle add action=add-src-to-address-list address-list=lan-routers address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" disabled=yes ttl=equal:127
 /ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 log-prefix="#DNS Req" protocol=udp
 /ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 protocol=tcp
 /ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to GRAFANA (map to port 3000, local only)" dst-address-list=grafana-server dst-port=80 in-interface="main infrastructure" protocol=tcp src-address-list=Network to-addresses=192.168.99.180 to-ports=3000
@@ -677,8 +694,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:19 d:h:m:s | CPU: 2%\
-    \nRAM: 29888/131072M | Voltage: 23 v | Temp: 51c\
+    \nUptime:  00:00:19 d:h:m:s | CPU: 3%\
+    \nRAM: 29460/131072M | Voltage: 23 v | Temp: 49c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
