@@ -1,3 +1,4 @@
+
 :local sysname [/system identity get name];
 :local scriptname "doCreateTrafficAccountingQueues";
 :global globalScriptBeforeRun;
