@@ -5,17 +5,17 @@
 $globalScriptBeforeRun $scriptname;
 
 #directories have to exist!
-:local FTPRoot "/pub/git/"
+:local FTPRoot "/REPO/mikrobackups/"
 
 #This subdir will be created locally to put exported scripts in
 #and it must exist under $FTPRoot to upload scripts to
 :local SubDir "scripts/"
 
 :local FTPEnable true
-:local FTPServer "minialx.home"
+:local FTPServer "nas.home"
 :local FTPPort 21
-:local FTPUser "ftp"
-:local FTPPass ""
+:local FTPUser "git"
+:local FTPPass "git"
 
 :global globalNoteMe;
 :local itsOk true;
@@ -93,7 +93,8 @@ $globalScriptBeforeRun $scriptname;
           $globalNoteMe value="Done";
         } on-error={ 
           :set state "Error When Uploading '$buFile' to '$dst'";
-          $globalNoteMe value=$state; 
+          $globalNoteMe value=$state;
+          :set itsOk false;
         }
       }
     }
