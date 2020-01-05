@@ -1,4 +1,4 @@
-# dec/18/2019 21:00:02 by RouterOS 6.46beta59
+# jan/05/2020 14:32:11 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -98,27 +98,27 @@ set "wlan 5Ghz" enable-polling=no
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name="guest dhcp"
 /ppp profile add address-list=l2tp-active-clients interface-list=list-2tp-dynamic-tun local-address=10.0.0.2 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-mic
-/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx disabled=yes name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
-/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx disabled=yes name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
-/queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV disabled=yes name="AlxATV@main dhcp (90:DD:5D:C8:46:AB)" target=192.168.99.190/32
-/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx disabled=yes name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
-/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx disabled=yes name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
-/queue simple add comment=dtq,08:00:27:17:3A:80, disabled=yes name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
-/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl disabled=yes name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
-/queue simple add comment=dtq,00:CD:FE:EC:B5:52, disabled=yes name="@guest dhcp (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
-/queue simple add comment=dtq,98:22:EF:26:FE:6E,AsusGlo disabled=yes name="AsusGlo@main dhcp (98:22:EF:26:FE:6E)" target=192.168.99.70/32
-/queue simple add comment=dtq,98:22:EF:26:FE:6E, disabled=yes name="asusGl@guest dhcp (98:22:EF:26:FE:6E)" target=192.168.98.210/32
-/queue simple add comment=dtq,88:53:95:30:68:9F, disabled=yes name="@guest dhcp (88:53:95:30:68:9F)" target=192.168.98.228/32
-/queue simple add comment=dtq,AC:61:EA:EA:CC:84, disabled=yes name="@guest dhcp (AC:61:EA:EA:CC:84)" target=192.168.98.225/32
-/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx disabled=yes name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" target=192.168.98.224/32
-/queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx disabled=yes name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
-/queue simple add comment=dtq,94:C6:91:94:98:DC, disabled=yes name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
-/queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGl name="iPhoneGl@guest dhcp (54:2B:8D:7F:83:A6)" target=192.168.98.226/32
+/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
+/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
+/queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV@main dhcp (90:DD:5D:C8:46:AB)" target=192.168.99.190/32
+/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
+/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
+/queue simple add comment=dtq,08:00:27:17:3A:80, name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
+/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
+/queue simple add comment=dtq,00:CD:FE:EC:B5:52, name="@guest dhcp (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
+/queue simple add comment=dtq,98:22:EF:26:FE:6E,AsusGlo name="AsusGlo@main dhcp (98:22:EF:26:FE:6E)" target=192.168.99.70/32
+/queue simple add comment=dtq,98:22:EF:26:FE:6E, name="asusGl@guest dhcp (98:22:EF:26:FE:6E)" target=192.168.98.210/32
+/queue simple add comment=dtq,88:53:95:30:68:9F, name="@guest dhcp (88:53:95:30:68:9F)" target=192.168.98.228/32
+/queue simple add comment=dtq,AC:61:EA:EA:CC:84, name="@guest dhcp (AC:61:EA:EA:CC:84)" target=192.168.98.225/32
+/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" target=192.168.98.224/32
+/queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
+/queue simple add comment=dtq,94:C6:91:94:98:DC, name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
+/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.2/32
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@guest dhcp (54:2B:8D:77:38:A0)" target=192.168.98.223/32
 /queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="nas@main dhcp (00:11:32:2C:A7:85)" target=192.168.99.30/32
+/queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGl name="iPhoneGl@guest dhcp (54:2B:8D:7F:83:A6)" target=192.168.98.226/32
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" target=192.168.99.230/32
 /queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGLO name="iPhoneGLO@main dhcp (54:2B:8D:7F:83:A6)" target=192.168.99.240/32
-/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.2/32
 /queue simple add comment=dtq,08:00:27:1C:F3:07,openflixr name="openflixr@main dhcp (08:00:27:1C:F3:07)" target=192.168.99.10/32
 /queue simple add comment=dtq,2C:AE:2B:5A:C2:EC,android-51d1f790d1274a4f name="android-51d1f790d1274a4f@guest dhcp (2C:AE:2B:5A:C2:EC)" target=192.168.98.229/32
 /queue tree add comment="FILE download control" disabled=yes name="Total Bandwidth" parent=global queue=default
@@ -285,7 +285,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.240 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGLO.home ttl=5m
 /ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=AsusGlo.home ttl=5m
 /ip dns static add address=192.168.99.10 comment="<AUTO:DHCP:main dhcp>" name=openflixr.home ttl=5m
-/ip dns static add address=109.252.109.83 name=ftpserver.org
+/ip dns static add address=109.252.106.14 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -347,7 +347,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=clubseventeen.com list=vpn-tunneled-sites
 /ip firewall address-list add address=207.32.194.24 list=vpn-tunneled-sites
 /ip firewall address-list add address=speedtest.tele2.net disabled=yes list=vpn-tunneled-sites
-/ip firewall address-list add address=109.252.109.83 list=external-ip
+/ip firewall address-list add address=109.252.106.14 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -695,8 +695,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:19 d:h:m:s | CPU: 66%\
-    \nRAM: 29548/131072M | Voltage: 23 v | Temp: 51c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 67%\
+    \nRAM: 29868/131072M | Voltage: 23 v | Temp: 50c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -2625,30 +2625,29 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
-    \n\r\
+    \n:local state \"\";\r\
     \n:global globalScriptId;\r\
-    \n:local itsOk true;\r\
     \n\r\
     \n:do {\r\
     \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
     \n} on-error={\r\
-    \n  :local state \"FTP server looks like to be unreachable\";\r\
+    \n  :set state \"FTP server looks like to be unreachable\";\r\
     \n   \$globalNoteMe value=\$state;\r\
-    \n  :local itsOk false;    \r\
+    \n  :set itsOk false;    \r\
     \n}\r\
     \n\r\
     \n:if (\$itsOk) do={\r\
     \n  :do {\r\
-    \n    [/tool fetch dst-path=\"\$SubDir.FooFile\" url=\"http://127.0.0.1:80/mikrotik_logo.png\" keep-result=no];\r\
+    \n    [/tool fetch dst-path=\"\$SubDir.FooFile\" url=\"http://127.0.0.1:80/mikrotik_logo.png\" keep-result=yes];\r\
     \n  } on-error={ \r\
-    \n    :local state \"Error When Creating Local Scripts Directory\";\r\
+    \n    :set state \"Error When Creating Local Scripts Directory\";\r\
     \n    \$globalNoteMe value=\$state;\r\
-    \n    :local itsOk false;\r\
+    \n    :set itsOk false;\r\
     \n  }\r\
     \n}\r\
     \n\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :foreach scriptId in [/system script find] do={\r\
+    \n:foreach scriptId in [/system script find] do={\r\
+    \n  :if (\$itsOk) do={\r\
     \n\r\
     \n    :local scriptSource [/system script get \$scriptId source];\r\
     \n    :local theScript [/system script get \$scriptId name];\r\
@@ -2658,7 +2657,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    :set \$globalScriptId \$scriptId;\r\
     \n\r\
     \n    :if (\$scriptSourceLength >= 4096) do={\r\
-    \n      :local state \"Please keep care about '\$theScript' consistency - its size over 4096 bytes\";\r\
+    \n      :set state \"Please keep care about '\$theScript' consistency - its size over 4096 bytes\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n    }\r\
     \n\r\
@@ -2670,12 +2669,12 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n      #/file set \$path contents=\$scriptSource;\r\
     \n      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack\r\
     \n      /execute script=\":global globalScriptId; :put [/system script get \$globalScriptId source];\" file=\$path;\r\
-    \n      :local state \"Exported '\$theScript' to '\$path'\";\r\
+    \n      :set state \"Exported '\$theScript' to '\$path'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n    } on-error={ \r\
-    \n      :local state \"Error When Exporting '\$theScript' Script to '\$path'\";\r\
+    \n      :set state \"Error When Exporting '\$theScript' Script to '\$path'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
-    \n      :local itsOk false;\r\
+    \n      :set itsOk false;\r\
     \n    }\r\
     \n  }\r\
     \n}\r\
@@ -2694,12 +2693,12 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n      if (\$FTPEnable) do={\r\
     \n        :local dst \"\$FTPRoot\$buFile\";\r\
     \n        :do {\r\
-    \n          :local state \"Uploading \$buFile' to '\$dst'\";\r\
+    \n          :set state \"Uploading \$buFile' to '\$dst'\";\r\
     \n          \$globalNoteMe value=\$state;\r\
     \n          /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes;\r\
     \n          \$globalNoteMe value=\"Done\";\r\
     \n        } on-error={ \r\
-    \n          :local state \"Error When Uploading '\$buFile' to '\$dst'\";\r\
+    \n          :set state \"Error When Uploading '\$buFile' to '\$dst'\";\r\
     \n          \$globalNoteMe value=\$state; \r\
     \n        }\r\
     \n      }\r\
@@ -2728,6 +2727,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n:global globalTgMessage;\r\
     \n\$globalTgMessage value=\$inf;\r\
+    \n\r\
     \n\r\
     \n"
 /system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
