@@ -5,44 +5,43 @@
 $globalScriptBeforeRun $scriptname;
 
 #directories have to exist!
-:local FTPRoot "/pub/git/"
+:local FTPRoot "/REPO/mikrobackups/"
 
 #This subdir will be created locally to put exported scripts in
 #and it must exist under $FTPRoot to upload scripts to
 :local SubDir "scripts/"
 
 :local FTPEnable true
-:local FTPServer "minialx.home"
+:local FTPServer "nas.home"
 :local FTPPort 21
-:local FTPUser "ftp"
-:local FTPPass ""
+:local FTPUser "git"
+:local FTPPass "git"
 
 :global globalNoteMe;
 :local itsOk true;
-
+:local state "";
 :global globalScriptId;
-:local itsOk true;
 
 :do {
   :local smtpserv [:resolve "$FTPServer"];
 } on-error={
-  :local state "FTP server looks like to be unreachable";
+  :set state "FTP server looks like to be unreachable";
    $globalNoteMe value=$state;
-  :local itsOk false;    
+  :set itsOk false;    
 }
 
 :if ($itsOk) do={
   :do {
-    [/tool fetch dst-path="$SubDir.FooFile" url="http://127.0.0.1:80/mikrotik_logo.png" keep-result=no];
+    [/tool fetch dst-path="$SubDir.FooFile" url="http://127.0.0.1:80/mikrotik_logo.png" keep-result=yes];
   } on-error={ 
-    :local state "Error When Creating Local Scripts Directory";
+    :set state "Error When Creating Local Scripts Directory";
     $globalNoteMe value=$state;
-    :local itsOk false;
+    :set itsOk false;
   }
 }
 
-:if ($itsOk) do={
-  :foreach scriptId in [/system script find] do={
+:foreach scriptId in [/system script find] do={
+  :if ($itsOk) do={
 
     :local scriptSource [/system script get $scriptId source];
     :local theScript [/system script get $scriptId name];
@@ -52,7 +51,7 @@ $globalScriptBeforeRun $scriptname;
     :set $globalScriptId $scriptId;
 
     :if ($scriptSourceLength >= 4096) do={
-      :local state "Please keep care about '$theScript' consistency - its size over 4096 bytes";
+      :set state "Please keep care about '$theScript' consistency - its size over 4096 bytes";
       $globalNoteMe value=$state;
     }
 
@@ -64,12 +63,12 @@ $globalScriptBeforeRun $scriptname;
       #/file set $path contents=$scriptSource;
       # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack
       /execute script=":global globalScriptId; :put [/system script get $globalScriptId source];" file=$path;
-      :local state "Exported '$theScript' to '$path'";
+      :set state "Exported '$theScript' to '$path'";
       $globalNoteMe value=$state;
     } on-error={ 
-      :local state "Error When Exporting '$theScript' Script to '$path'";
+      :set state "Error When Exporting '$theScript' Script to '$path'";
       $globalNoteMe value=$state;
-      :local itsOk false;
+      :set itsOk false;
     }
   }
 }
@@ -88,13 +87,14 @@ $globalScriptBeforeRun $scriptname;
       if ($FTPEnable) do={
         :local dst "$FTPRoot$buFile";
         :do {
-          :local state "Uploading $buFile' to '$dst'";
+          :set state "Uploading $buFile' to '$dst'";
           $globalNoteMe value=$state;
           /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path=$dst mode=ftp upload=yes;
           $globalNoteMe value="Done";
         } on-error={ 
-          :local state "Error When Uploading '$buFile' to '$dst'";
-          $globalNoteMe value=$state; 
+          :set state "Error When Uploading '$buFile' to '$dst'";
+          $globalNoteMe value=$state;
+          :set itsOk false;
         }
       }
     }
@@ -122,5 +122,6 @@ $globalNoteMe value=$inf
 
 :global globalTgMessage;
 $globalTgMessage value=$inf;
+
 
 

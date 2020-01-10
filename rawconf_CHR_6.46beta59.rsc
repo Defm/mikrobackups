@@ -1,4 +1,4 @@
-# jun/29/2019 14:37:32 by RouterOS 6.45beta27
+# dec/26/2019 18:28:20 by RouterOS 6.46beta59
 # software id = 
 #
 #
@@ -15,8 +15,8 @@
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=roadwarrior-ipsec
 /ip ipsec policy group add name=outside-ipsec-encryption
-/ip ipsec profile add dh-group=modp1024 dpd-interval=20s dpd-maximum-failures=4 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
-/ip ipsec profile add dh-group=modp2048 dpd-interval=16s dpd-maximum-failures=2 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
+/ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
+/ip ipsec profile add dh-group=modp2048 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=WINDOWS
 /ip ipsec peer add address=10.0.0.2/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, traffic-only encryption)" local-address=10.0.0.1 name=MIC-INNER passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=109.252.0.0/17 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER passive=yes profile=ROUTEROS send-initial-contact=no
@@ -29,7 +29,7 @@
 /ip pool add name=vpn-clients ranges=10.0.0.2
 /ip pool add name=int-clients ranges=192.168.97.0/30
 /ip pool add name=rw-clients ranges=10.10.10.8/29
-/ip dhcp-server add add-arp=yes address-pool=int-clients disabled=no interface=wan name=internal
+/ip dhcp-server add add-arp=yes address-pool=int-clients bootp-support=none disabled=no interface=wan name=internal
 /ip ipsec mode-config add address-pool=vpn-clients address-prefix-length=30 name=common-setup static-dns=8.8.8.8 system-dns=no
 /ip ipsec mode-config add address-pool=rw-clients address-prefix-length=32 name=roadwarrior-setup
 /ppp profile add address-list=l2tp-active-clients dns-server=8.8.8.8,8.8.4.4 interface-list=l2tp-dynamic-tun local-address=10.0.0.1 name=l2tp-no-encrypt-site2site only-one=no remote-address=vpn-clients
@@ -38,7 +38,7 @@
 /routing ospf instance set [ find default=yes ] distribute-default=always-as-type-2 name=routes-provider-mis router-id=10.255.255.1
 /snmp community set [ find default=yes ] addresses=0.0.0.0/0
 /snmp community add addresses=192.168.99.180/32,192.168.99.170/32 name=globus
-/system logging action add memory-lines=400 name=IpsecOnScreenLog target=memory
+/system logging action add memory-lines=600 name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
@@ -52,7 +52,7 @@
 /system logging action add name=CertificatesOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
-#error exporting /interface bridge calea
+/certificate scep-server add ca-cert=ca@CHR days-valid=365 next-ca-cert=ca@CHR path=/scep/grant request-lifetime=5m
 /interface bridge settings set allow-fast-path=no use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=neighbors
@@ -83,7 +83,6 @@
 /ip firewall address-list add address=2ip.ru list=vpn-sites
 /ip firewall address-list add address=10.0.0.2 list=mic-network
 /ip firewall address-list add address=10.0.0.1 list=mis-network
-#error exporting /ip firewall calea
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Bandwidth test allow" port=2000 protocol=tcp
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -144,21 +143,26 @@
 /ip firewall filter add action=accept chain=detect-ping-flood comment="3:4 and limit for 5 pac/s" icmp-options=3:4 limit=5,5:packet protocol=icmp
 /ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 5 pac/s" icmp-options=8:0-255 limit=5,5:packet protocol=icmp
 /ip firewall filter add action=accept chain=detect-ping-flood comment="11:0 and limit for 5 pac/s" icmp-options=11:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=8:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=detect-ping-flood comment="0:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=0:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" log=yes log-prefix="#ICMP DROP" protocol=icmp
 /ip firewall filter add action=return chain=detect-ping-flood comment="Return from detect-ping-flood Chain"
 /ip firewall filter add action=jump chain=input comment="Router remote control" jump-target="Router remote control" src-address-list=mis-remote-control
 /ip firewall filter add action=accept chain="Router remote control" comment="SSH (2222/TCP)" dst-port=2222 protocol=tcp
 /ip firewall filter add action=accept chain="Router remote control" comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
+/ip firewall filter add action=accept chain="Router remote control" comment=WEB port=80 protocol=tcp
+/ip firewall filter add action=accept chain="Router remote control" comment=FTP port=20,21 protocol=tcp
 /ip firewall filter add action=return chain="Router remote control" comment="Return from Router remote control"
 /ip firewall filter add action=accept chain=input comment="Simple Network Management Protocol(SNMP)  " port=161 protocol=udp
 /ip firewall filter add action=accept chain=input comment="Simple Network Management ProtocolTrap (SNMPTRAP)" port=162 protocol=tcp
 /ip firewall filter add action=accept chain=input comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " port=162 protocol=udp
 /ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (INPUT)"
 /ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new log-prefix="#ACCEPTED UNKNOWN (FWD)"
-/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log-prefix="#DROP UNKNOWN (INPUT)"
+/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log=yes log-prefix="#DROP UNKNOWN (INPUT)"
 /ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log-prefix="#DROP UNKNOWN (FWD)"
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" dst-address-list=tun-network new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" dst-address-list=vpn-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=vpn-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
 /ip firewall mangle add action=mark-packet chain=input comment="VPN Traffic" log-prefix="#VPN PCKT MARK" new-packet-mark="IPSEC PCKT" passthrough=yes protocol=ipsec-esp
@@ -170,7 +174,6 @@
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=mis-network log-prefix=#VPN src-address-list=mic-network
 /ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel
 /ip firewall nat add action=masquerade chain=srcnat comment="all cable allowed"
-/ip firewall service-port set ftp disabled=yes
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set irc disabled=yes
 /ip firewall service-port set h323 disabled=yes
@@ -180,23 +183,21 @@
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
 /ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=MIC-INNER policy-template-group=inside-ipsec-encryption secret=123
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=alx.iphone.rw.2019@CHR remote-id=fqdn:alx.iphone.rw.2019@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=alx.iphone.rw.2019@CHR
 /ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=glo.iphone.rw.2019@CHR remote-id=fqdn:glo.iphone.rw.2019@CHR
 /ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=WIN policy-template-group=inside-ipsec-encryption secret=123
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override mode-config=common-setup peer=MIC-OUTER policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=common-setup peer=MIC-OUTER policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
 /ip ipsec policy set 0 disabled=yes
 /ip ipsec policy add comment="Roadwarrior IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption)" dst-address=10.10.10.8/29 group=roadwarrior-ipsec proposal="IPSEC IKEv2 VPN PHASE2 IOS/OSX" src-address=0.0.0.0/0 template=yes
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption)" dst-address=192.168.99.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/30 template=yes
 /ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range)" dst-address=109.252.0.0/17 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip route add check-gateway=ping comment=GLOBAL distance=10 gateway=185.13.148.1
 /ip service set telnet disabled=yes
-/ip service set ftp disabled=yes
-/ip service set www disabled=yes
 /ip service set ssh address=10.0.0.2/32 port=2222
 /ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
 /ip smb set allow-guests=no
-/ip ssh set allow-none-crypto=yes
+/ip ssh set allow-none-crypto=yes forwarding-enabled=remote
 /ip upnp set show-dummy-rule=no
 /ppp secret add local-address=10.0.0.1 name=vpn-remote-mic profile=l2tp-no-encrypt-site2site remote-address=10.0.0.2 service=l2tp
 /ppp secret add disabled=yes local-address=10.0.0.1 name=vpn-remote-alx profile=l2tp-no-encrypt-ios-rw remote-address=10.0.0.3 service=l2tp
@@ -215,7 +216,6 @@
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
 /system logging set 3 action=TerminalConsoleLog
-/system logging add action=IpsecOnScreenLog topics=ipsec,!packet
 /system logging add action=ErrorDiskLog topics=critical
 /system logging add action=ErrorDiskLog topics=error
 /system logging add action=ScriptsDiskLog topics=script
@@ -229,6 +229,7 @@
 /system logging add action=AuthDiskLog topics=account
 /system logging add action=CertificatesOnScreenLog topics=certificate
 /system logging add action=AuthDiskLog topics=manager
+/system logging add action=IpsecOnScreenLog topics=ipsec,!debug,!packet
 /system note set note="You are logged into: CHR\
     \n############### system health ###############\
     \nUptime:  2w6d00:00:10 d:h:m:s | CPU: 0%\
@@ -241,8 +242,8 @@
 /system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=nov/26/2017 start-time=18:28:18
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=21:40:49
 /system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=08:00:00
-/system scheduler add interval=1w3d name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/07/2019 start-time=09:00:00
+/system scheduler add name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,read,write,policy,test,password,sensitive source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\
     \n\r\
@@ -479,11 +480,12 @@
     \n}\r\
     \n"
 /system script add dont-require-permissions=yes name=doCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n# generates IPSEC certs: CA, server, code sign and clients\r\
+    \n# generates IPSEC certs: CA, server, IOS *.mobileconfig profile sign and clients\r\
     \n# i recommend to run it on server side\r\
     \n\r\
     \n#clients\r\
     \n:local IDs [:toarray \"mikrouter,alx.iphone.rw.2019,glo.iphone.rw.2019,alx.mbp.rw.2019\"];\r\
+    \n:local fakeDomain \"myvpn.fake.org\"\r\
     \n\r\
     \n:local sysname [/system identity get name]\r\
     \n:local sysver [/system package get system version]\r\
@@ -492,11 +494,11 @@
     \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
     \n## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
-    \n## :local COUNTRY \"RU\"\r\
-    \n## :local STATE \"MSC\"\r\
-    \n## :local LOC \"Moscow\"\r\
-    \n## :local ORG \"IKEv2 Home\"\r\
-    \n## :local OU \"IKEv2 Mikrotik\"\r\
+    \n#:local COUNTRY \"RU\"\r\
+    \n#:local STATE \"MSC\"\r\
+    \n#:local LOC \"Moscow\"\r\
+    \n#:local ORG \"IKEv2 Home\"\r\
+    \n#:local OU \"IKEv2 Mikrotik\"\r\
     \n\r\
     \n:local COUNTRY \"\"\r\
     \n:local STATE \"\"\r\
@@ -518,50 +520,54 @@
     \n  :local state \"CA certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  ## generate a CA certificate\r\
-    \n  /certificate add name=\"ca.myvpn.local\" common-name=\"ca@\$sysname\" subject-alt-name=\"email:ca@myvpn.local\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"   \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
+    \n  ## generate a CA certificate (that will be just a template while not signed)\r\
+    \n  ## crl-sign allows to use SCEP\r\
+    \n  /certificate add name=\"ca.\$fakeDomain\" common-name=\"ca@\$sysname\" subject-alt-name=\"DNS:ca.\$fakeDomain\"  key-usage=crl-sign,key-cert-sign country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=3650 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"ca.myvpn.local\" ca-crl-host=\"\$ServerIP\" name=\"ca@\$sysname\"\r\
+    \n  /certificate sign \"ca.\$fakeDomain\" ca-crl-host=\"\$ServerIP\" name=\"ca@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"ca@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"ca@\$sysname\"\r\
     \n\r\
+    \n  :local state \"Exporting CA as PEM...\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  ## export the CA, as PEM\r\
+    \n  /certificate export-certificate \"ca@\$sysname\" type=pem\r\
+    \n  \r\
     \n  :local state \"SERVER certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  ## generate a server certificate\r\
-    \n  /certificate add name=\"server.myvpn.local\" common-name=\"\$ServerIP\" subject-alt-name=\"IP:\$ServerIP\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n  ## generate a server certificate (that will be just a template while not signed)\r\
+    \n  /certificate add name=\"server.\$fakeDomain\" common-name=\"server@\$sysname\" subject-alt-name=\"IP:\$ServerIP,DNS:\$fakeDomain\" key-usage=tls-server country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"server.myvpn.local\" ca=\"ca@\$sysname\" name=\"server@\$sysname\"\r\
+    \n  /certificate sign \"server.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"server@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"server@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"server@\$sysname\"\r\
     \n\r\
     \n  :local state \"CODE SIGN certificates generation...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  ## generate a code signing (apple IOS profiles) certificate\r\
-    \n  /certificate add name=\"sign.myvpn.local\" common-name=\"sign@\$sysname\" subject-alt-name=\"email:sign@myvpn.local\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n  ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n  ## generate a code signing (apple IOS profiles) certificate (that will be just a template while not signed)\r\
+    \n  /certificate add name=\"sign.\$fakeDomain\" common-name=\"sign@\$sysname\" subject-alt-name=\"DNS:sign.\$fakeDomain\" key-usage=code-sign,digital-signature country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n  :local state \"Signing...\";\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  sign \"sign.myvpn.local\" ca=\"ca@\$sysname\" name=\"sign@\$sysname\"\r\
+    \n  /certificate sign \"sign.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"sign@\$sysname\"\r\
     \n\r\
     \n  :delay 6s\r\
     \n\r\
-    \n  set trusted=yes \"sign@\$sysname\"\r\
+    \n  /certificate set trusted=yes \"sign@\$sysname\"\r\
     \n\r\
     \n  ## export the CA, code sign certificate, and private key\r\
     \n  /certificate export-certificate \"sign@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
@@ -571,18 +577,17 @@
     \n    :local state \"CLIENT certificates generation...  \$USERNAME\";\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    ## create a client certificate\r\
-    \n    /certificate add name=\"client.myvpn.local\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@myvpn.local\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  \\\r\
-    \n    ##  key-size=\"\$KEYSIZE\" days-valid=1095 \r\
+    \n    ## create a client certificate (that will be just a template while not signed)\r\
+    \n    /certificate add name=\"client.\$fakeDomain\" common-name=\"\$USERNAME@\$sysname\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
     \n\r\
     \n    :local state \"Signing...\";\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    sign \"client.myvpn.local\" ca=\"ca@\$sysname\" name=\"\$USERNAME@\$sysname\"\r\
+    \n    /certificate sign \"client.\$fakeDomain\" ca=\"ca@\$sysname\" name=\"\$USERNAME@\$sysname\"\r\
     \n\r\
     \n    :delay 6s\r\
     \n\r\
-    \n    set trusted=yes \"\$USERNAME@\$sysname\"\r\
+    \n    /certificate set trusted=yes \"\$USERNAME@\$sysname\"\r\
     \n\r\
     \n    ## export the CA, client certificate, and private key\r\
     \n    /certificate export-certificate \"\$USERNAME@\$sysname\" export-passphrase=\"1234567890\" type=pkcs12\r\
@@ -595,6 +600,7 @@
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n};\r\
+    \n\r\
     \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
@@ -612,7 +618,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -677,7 +683,7 @@
     \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
     \n}\r\
     \n\r\
-    \n\$noteMe value=\$inf\r\
+    \n\$globalNoteMe value=\$inf\r\
     \n\r\
     \n:global globalTgMessage;\r\
     \n\$globalTgMessage value=\$inf;\r\
@@ -703,6 +709,8 @@
     \n:if (!any \$globalScriptBeforeRun) do={ \r\
     \n  :global globalScriptBeforeRun do={\r\
     \n\r\
+    \n    :global globalNoteMe;\r\
+    \n    \r\
     \n    :if ([:len \$1] > 0) do={\r\
     \n\r\
     \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\r\
@@ -736,6 +744,8 @@
     \n:if (!any \$globalTgMessage) do={ \r\
     \n  :global globalTgMessage do={\r\
     \n\r\
+    \n    :global globalNoteMe;\r\
+    \n\r\
     \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\r\
     \n    :local tGroupID \"-343674739\";\r\
     \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\r\
@@ -749,6 +759,7 @@
     \n      :local state (\"Telegram notify error\");\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n    };\r\
+    \n\r\
     \n  }\r\
     \n}\r\
     \n\r\
@@ -846,12 +857,18 @@
     \n\r\
     \n#wait some for all tunnels to come up after reboot and VPN to work\r\
     \n\r\
-    \n:delay 15s;\r\
+    \n:delay 25s;\r\
     \n\r\
-    \n:local rebootEvent \"%D0%9C%D0%B0%D1%80%D1%88%D1%80%D1%83%D1%82%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%20%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B5%D1%80%D0%B5%D0%B7%D0%B0%D0%B3%D1%80%D1%83%D0%B6%D0%B5%D0%BD\";\r\
-    \n:global TelegramMessage \"\$rebootEvent\";\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doStartupScript\";\r\
     \n\r\
-    \n/system script run doTelegramNotify;\r\
+    \n:local inf \"\$scriptname on \$sysname: system restart detected\" ;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n\$globalNoteMe value=\$inf;\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
     \n      \r\
     \n\r\
     \n\r\
@@ -935,6 +952,7 @@
     \n\r\
     \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\r\
     \n    :local isTunnel [get value-name=tunnel \$vpnEndpoint]\r\
+    \n    :local peerPoint [get \$vpnEndpoint peer]\r\
     \n    :local dstIp;\r\
     \n\r\
     \n    :if (\$isTunnel) do={\r\
@@ -944,6 +962,11 @@
     \n    }\r\
     \n\r\
     \n    :if ((\$itsOk) and (\$ph2state != \"established\")) do={\r\
+    \n\r\
+    \n      :set state \"Non-established IPSEC policy found for destination IP \$dstIp. Checking active peers..\"\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n      :local actPeerProcessed 0;\r\
     \n\r\
     \n      /ip ipsec active-peers {\r\
     \n        :foreach actPeer in=[find remote-address=\$dstIp] do={\r\
@@ -959,7 +982,7 @@
     \n\r\
     \n          :do {\r\
     \n\r\
-    \n            :set state \"Non-established IPSEC policy found for \$peer endpoint. Going flush..\"\r\
+    \n            :set state \"Active peer \$peer found Non-established IPSEC policy. Kill it..\"\r\
     \n            \$globalNoteMe value=\$state;\r\
     \n\r\
     \n            [remove \$actPeer];\r\
@@ -971,7 +994,7 @@
     \n            :delay 10;\r\
     \n\r\
     \n            :set punched (\$punched . \"\$peer\");\r\
-    \n            \r\
+    \n          \r\
     \n          } on-error= {\r\
     \n\r\
     \n            :set state \"Error When \$state\"\r\
@@ -980,8 +1003,52 @@
     \n            :set itsOk false;\r\
     \n            \r\
     \n          }\r\
+    \n\r\
+    \n          :set actPeerProcessed (\$actPeerProcessed + 1);\r\
     \n        }\r\
+    \n\r\
     \n      }\r\
+    \n\r\
+    \n      #there were no active peers with such remote-address\r\
+    \n      #This is the most common case if the policy is non-established\r\
+    \n\r\
+    \n      :if (\$actPeerProcessed = 0) do={\r\
+    \n\r\
+    \n        #should not flush InstalledSA, because ot flushes the whole policies\r\
+    \n        #just make disable-enable cycle\r\
+    \n        \r\
+    \n        :set state (\"There were no active peers with \$dstIp destination IP, but policy is non-established.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :set state (\"Making disable-enable cycle for policy to clear InstalledSA\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :delay 2;\r\
+    \n\r\
+    \n        [set \$vpnEndpoint disabled=yes];\r\
+    \n        \r\
+    \n        #waiting for tunnel to come up, because Telegram notes goes through tunnel\r\
+    \n        :delay 5;\r\
+    \n\r\
+    \n        [set \$vpnEndpoint disabled=no];\r\
+    \n\r\
+    \n       :delay 5;\r\
+    \n\r\
+    \n        :local peerId (\$peerPoint -> \"id\");\r\
+    \n        :local peer \"\";\r\
+    \n\r\
+    \n        :put \$peerId;        \r\
+    \n\r\
+    \n        :if ([:typeof \$peerId] != \"nil\") do={\r\
+    \n          :set peer \"\$peerId\"\r\
+    \n        } else {\r\
+    \n          :set peer \"\$dstIp\"\r\
+    \n        }\r\
+    \n\r\
+    \n        :set punched (\$punched . \"\$peer\");\r\
+    \n\r\
+    \n      }      \r\
+    \n\r\
     \n    }\r\
     \n  }\r\
     \n}\r\
@@ -1008,7 +1075,6 @@
     \n}\r\
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
-    \n\r\
     \n\r\
     \n"
 /tool bandwidth-server set authenticate=no

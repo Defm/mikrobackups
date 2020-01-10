@@ -1,4 +1,4 @@
-# nov/10/2019 14:14:01 by RouterOS 6.46beta16
+# jan/10/2020 21:21:39 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -98,24 +98,30 @@ set "wlan 5Ghz" enable-polling=no
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name="guest dhcp"
 /ppp profile add address-list=l2tp-active-clients interface-list=list-2tp-dynamic-tun local-address=10.0.0.2 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-mic
-/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx disabled=yes name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
-/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx disabled=yes name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
-/queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV disabled=yes name="AlxATV@main dhcp (90:DD:5D:C8:46:AB)" target=192.168.99.190/32
-/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx disabled=yes name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
-/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx disabled=yes name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
-/queue simple add comment=dtq,08:00:27:17:3A:80, disabled=yes name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
-/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl disabled=yes name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
-/queue simple add comment=dtq,00:CD:FE:EC:B5:52, disabled=yes name="@guest dhcp (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
-/queue simple add comment=dtq,98:22:EF:26:FE:6E,DESKTOP-UPPUU22 disabled=yes name="DESKTOP-UPPUU22@main dhcp (98:22:EF:26:FE:6E)" target=192.168.99.70/32
-/queue simple add comment=dtq,98:22:EF:26:FE:6E, disabled=yes name="asusGl@guest dhcp (98:22:EF:26:FE:6E)" target=192.168.98.210/32
-/queue simple add comment=dtq,88:53:95:30:68:9F, disabled=yes name="@guest dhcp (88:53:95:30:68:9F)" target=192.168.98.228/32
-/queue simple add comment=dtq,AC:61:EA:EA:CC:84, disabled=yes name="@guest dhcp (AC:61:EA:EA:CC:84)" target=192.168.98.225/32
-/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx disabled=yes name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" target=192.168.98.224/32
-/queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx disabled=yes name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
-/queue simple add comment=dtq,94:C6:91:94:98:DC, disabled=yes name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
-/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP disabled=yes name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.200/32
-/queue simple add comment=dtq,2C:AE:2B:5A:C2:EC,android-51d1f790d1274a4f name="android-51d1f790d1274a4f@guest dhcp (2C:AE:2B:5A:C2:EC)" target=192.168.98.227/32
-/queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
+/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
+/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
+/queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV@main dhcp (90:DD:5D:C8:46:AB)" target=192.168.99.190/32
+/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
+/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
+/queue simple add comment=dtq,08:00:27:17:3A:80, name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
+/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
+/queue simple add comment=dtq,00:CD:FE:EC:B5:52, name="@guest dhcp (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
+/queue simple add comment=dtq,98:22:EF:26:FE:6E,AsusGlo name="AsusGlo@main dhcp (98:22:EF:26:FE:6E)" target=192.168.99.70/32
+/queue simple add comment=dtq,98:22:EF:26:FE:6E, name="asusGl@guest dhcp (98:22:EF:26:FE:6E)" target=192.168.98.210/32
+/queue simple add comment=dtq,88:53:95:30:68:9F, name="@guest dhcp (88:53:95:30:68:9F)" target=192.168.98.228/32
+/queue simple add comment=dtq,AC:61:EA:EA:CC:84, name="@guest dhcp (AC:61:EA:EA:CC:84)" target=192.168.98.225/32
+/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" target=192.168.98.224/32
+/queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
+/queue simple add comment=dtq,94:C6:91:94:98:DC, name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
+/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.2/32
+/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@guest dhcp (54:2B:8D:77:38:A0)" target=192.168.98.223/32
+/queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="nas@main dhcp (00:11:32:2C:A7:85)" target=192.168.99.30/32
+/queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGl name="iPhoneGl@guest dhcp (54:2B:8D:7F:83:A6)" target=192.168.98.226/32
+/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" target=192.168.99.230/32
+/queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGLO name="iPhoneGLO@main dhcp (54:2B:8D:7F:83:A6)" target=192.168.99.240/32
+/queue simple add comment=dtq,08:00:27:1C:F3:07,openflixr name="openflixr@main dhcp (08:00:27:1C:F3:07)" target=192.168.99.10/32
+/queue simple add comment=dtq,2C:AE:2B:5A:C2:EC,android-51d1f790d1274a4f name="android-51d1f790d1274a4f@guest dhcp (2C:AE:2B:5A:C2:EC)" target=192.168.98.229/32
+/queue tree add comment="FILE download control" disabled=yes name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=ISO packet-mark=iso-mark parent="Total Bandwidth" queue=default
@@ -151,6 +157,8 @@ set "wlan 5Ghz" enable-polling=no
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=mbpAlx disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s ap-tx-limit=0 client-to-client-forwarding=yes comment=ATV disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlx disabled=no mac-address=54:E4:3A:B8:12:07 ssid-regexp="WiFi 2"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlxr disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneGlo disabled=no mac-address=54:2B:8D:7F:83:A6 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=asusGl disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
@@ -219,6 +227,10 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip arp add address=192.168.99.180 interface="main infrastructure" mac-address=10:DD:B1:9E:19:5E
 /ip arp add address=192.168.99.88 interface="main infrastructure" mac-address=94:C6:91:94:98:DC
 /ip arp add address=192.168.99.200 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:02
+/ip arp add address=192.168.99.30 interface="main infrastructure" mac-address=00:11:32:2C:A7:85
+/ip arp add address=192.168.99.230 interface="main infrastructure" mac-address=54:2B:8D:77:38:A0
+/ip arp add address=192.168.99.240 interface="main infrastructure" mac-address=54:2B:8D:7F:83:A6
+/ip arp add address=192.168.99.10 interface="main infrastructure" mac-address=08:00:27:1C:F3:07
 /ip cloud set ddns-enabled=yes
 /ip dhcp-server lease add address=192.168.99.140 always-broadcast=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.150 client-id=1:ac:61:ea:ea:cc:84 mac-address=AC:61:EA:EA:CC:84 server="main dhcp"
@@ -235,12 +247,19 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dhcp-server lease add address=192.168.98.224 block-access=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.180 address-lists=osx-hosts always-broadcast=yes mac-address=10:DD:B1:9E:19:5E server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.88 mac-address=94:C6:91:94:98:DC server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.200 mac-address=CC:2D:E0:E7:BE:02 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.2 mac-address=CC:2D:E0:E7:BE:02 server="main dhcp"
+/ip dhcp-server lease add address=192.168.98.223 block-access=yes client-id=1:54:2b:8d:77:38:a0 mac-address=54:2B:8D:77:38:A0 server="guest dhcp"
+/ip dhcp-server lease add address=192.168.99.30 mac-address=00:11:32:2C:A7:85 server="main dhcp"
+/ip dhcp-server lease add address=192.168.98.226 block-access=yes client-id=1:54:2b:8d:7f:83:a6 mac-address=54:2B:8D:7F:83:A6 server="guest dhcp"
+/ip dhcp-server lease add address=192.168.99.230 client-id=1:54:2b:8d:77:38:a0 mac-address=54:2B:8D:77:38:A0 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.240 client-id=1:54:2b:8d:7f:83:a6 mac-address=54:2B:8D:7F:83:A6 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.10 mac-address=08:00:27:1C:F3:07 server="main dhcp"
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server network add address=192.168.99.0/26 caps-manager=192.168.99.1 comment="VIRTUAL MACHINES DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.64/26 caps-manager=192.168.99.1 comment="WINDOWS DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.128/26 caps-manager=192.168.99.1 comment="APPLE DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
-/ip dhcp-server network add address=192.168.99.192/26 caps-manager=192.168.99.1 comment="DNS/PROXY redirect DHCP leasing" gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
+/ip dhcp-server network add address=192.168.99.192/27 caps-manager=192.168.99.1 comment="DNS/PROXY redirect DHCP leasing" gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
+/ip dhcp-server network add address=192.168.99.224/27 caps-manager=192.168.99.1 comment="RESERVED space DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.100.1
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=192.168.99.1 name=mikrouter.home
@@ -254,15 +273,19 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.97.1 name=chr.home
 /ip dns static add address=10.0.0.1 name=chr.home
 /ip dns static add address=192.168.100.1 name=gateway.home
-/ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=DESKTOP-UPPUU22.home ttl=5m
-/ip dns static add address=192.168.99.200 comment="<AUTO:DHCP:main dhcp>" name=LivingRoomWAP.home ttl=5m
+/ip dns static add address=192.168.99.2 comment="<AUTO:DHCP:main dhcp>" name=LivingRoomWAP.home ttl=5m
 /ip dns static add address=192.168.99.170 comment="<AUTO:DHCP:main dhcp>" name=MbpAlx.home ttl=5m
 /ip dns static add address=192.168.99.140 comment="<AUTO:DHCP:main dhcp>" name=iPadAlx.home ttl=5m
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
 /ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
 /ip dns static add address=192.168.99.190 comment="<AUTO:DHCP:main dhcp>" name=AlxATV.home ttl=5m
-/ip dns static add address=109.252.109.62 name=ftpserver.org
+/ip dns static add address=192.168.99.30 comment="<AUTO:DHCP:main dhcp>" name=nas.home ttl=5m
+/ip dns static add address=192.168.99.230 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlxr.home ttl=5m
+/ip dns static add address=192.168.99.240 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGLO.home ttl=5m
+/ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=AsusGlo.home ttl=5m
+/ip dns static add address=192.168.99.10 comment="<AUTO:DHCP:main dhcp>" name=openflixr.home ttl=5m
+/ip dns static add address=109.252.106.14 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -324,7 +347,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=clubseventeen.com list=vpn-tunneled-sites
 /ip firewall address-list add address=207.32.194.24 list=vpn-tunneled-sites
 /ip firewall address-list add address=speedtest.tele2.net disabled=yes list=vpn-tunneled-sites
-/ip firewall address-list add address=109.252.109.62 list=external-ip
+/ip firewall address-list add address=109.252.106.14 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -363,7 +386,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=add-src-to-address-list address-list="DNS Block" address-list-timeout=10h chain="DNS Amplification" comment="Add DNS Amplification to Blacklist" port=53 protocol=udp src-address-list="!DNS Allow"
 /ip firewall filter add action=drop chain="DNS Amplification" comment="Drop DNS Amplification" src-address-list="DNS Block"
 /ip firewall filter add action=return chain="DNS Amplification" comment="Return from DNS Amplification"
-/ip firewall filter add action=accept chain=input comment="Self fetch requests" log=yes log-prefix=WEB port=80 protocol=tcp
+/ip firewall filter add action=accept chain=input comment="Self fetch requests" log-prefix=WEB port=80 protocol=tcp
 /ip firewall filter add action=jump chain=input comment="Allow router services on the lan" in-interface="main infrastructure" jump-target=router-services-lan
 /ip firewall filter add action=accept chain=router-services-lan comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
 /ip firewall filter add action=accept chain=router-services-lan comment=SNMP port=161 protocol=udp
@@ -381,9 +404,9 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=accept chain=detect-ping-flood comment="11:0 and limit for 5 pac/s Allow Traceroute" icmp-options=11:0-255 limit=5,5:packet protocol=icmp
 /ip firewall filter add action=accept chain=detect-ping-flood comment="0:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=0:0-255 limit=50,5:packet protocol=icmp
 /ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=8:0-255 limit=50,5:packet protocol=icmp
-/ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" log=yes log-prefix="#ICMP DROP" protocol=icmp
+/ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" log-prefix="#ICMP DROP" protocol=icmp
 /ip firewall filter add action=return chain=detect-ping-flood comment="Return from detect-ping-flood Chain"
-/ip firewall filter add action=log chain=forward comment=DUMMY1 log-prefix=#DUMMY1 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY1 disabled=yes log-prefix=#DUMMY1 src-address-list=dummy
 /ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Manually Added)" src-address-list="Black List"
 /ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Manually Added)" src-address-list="Black List"
 /ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (SSH)" src-address-list="Black List (SSH)"
@@ -398,188 +421,189 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=passthrough chain=forward comment="Drop anyone in the LAN Port Scanner List" src-address-list=LAN-port-scanner
 /ip firewall filter add action=drop chain=input comment="Drop all Bogons" src-address-list=Bogons
 /ip firewall filter add action=drop chain=forward comment="Drop all Bogons" src-address-list=Bogons
-/ip firewall filter add action=log chain=forward comment=DUMMY2 log-prefix=#DUMMY2 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY2 disabled=yes log-prefix=#DUMMY2 src-address-list=dummy
 /ip firewall filter add action=jump chain=input comment="Jump to RFC SSH Chain" jump-target="RFC SSH Chain"
 /ip firewall filter add action=add-src-to-address-list address-list="Black List (SSH)" address-list-timeout=1w3d chain="RFC SSH Chain" comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new dst-port=22 protocol=tcp src-address-list="SSH Stage 3"
 /ip firewall filter add action=add-src-to-address-list address-list="SSH Stage 3" address-list-timeout=1m chain="RFC SSH Chain" comment="Add succesive attempts to SSH Stage 3" connection-state=new dst-port=22 protocol=tcp src-address-list="SSH Stage 2"
 /ip firewall filter add action=add-src-to-address-list address-list="SSH Stage 2" address-list-timeout=1m chain="RFC SSH Chain" comment="Add succesive attempts to SSH Stage 2" connection-state=new dst-port=22 protocol=tcp src-address-list="SSH Stage 1"
 /ip firewall filter add action=add-src-to-address-list address-list="SSH Stage 1" address-list-timeout=1m chain="RFC SSH Chain" comment="Add intial attempt to SSH Stage 1 List" connection-state=new dst-port=22 protocol=tcp
 /ip firewall filter add action=return chain="RFC SSH Chain" comment="Return From RFC SSH Chain"
-/ip firewall filter add action=log chain=forward comment=DUMMY3 log-prefix=#DUMMY3 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY3 disabled=yes log-prefix=#DUMMY3 src-address-list=dummy
 /ip firewall filter add action=jump chain=input comment="Jump to RFC Telnet Chain" jump-target="RFC Telnet Chain"
 /ip firewall filter add action=add-src-to-address-list address-list="Black List (Telnet)" address-list-timeout=1w3d chain="RFC Telnet Chain" comment="Transfer repeated attempts from Telnet Stage 3 to Black-List" connection-state=new dst-port=23 protocol=tcp src-address-list="Telnet Stage 3"
 /ip firewall filter add action=add-src-to-address-list address-list="Telnet Stage 3" address-list-timeout=1m chain="RFC Telnet Chain" comment="Add succesive attempts to Telnet Stage 3" connection-state=new dst-port=23 protocol=tcp src-address-list="Telnet Stage 2"
 /ip firewall filter add action=add-src-to-address-list address-list="Telnet Stage 1" address-list-timeout=1m chain="RFC Telnet Chain" comment="Add Intial attempt to Telnet Stage 1" connection-state=new dst-port=23 protocol=tcp
 /ip firewall filter add action=add-src-to-address-list address-list="Telnet Stage 2" address-list-timeout=1m chain="RFC Telnet Chain" comment="Add succesive attempts to Telnet Stage 2" connection-state=new dst-port=23 protocol=tcp src-address-list="Telnet Stage 1"
 /ip firewall filter add action=return chain="RFC Telnet Chain" comment="Return From RFC Telnet Chain"
-/ip firewall filter add action=log chain=forward comment=DUMMY4 log-prefix=#DUMMY4 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY4 disabled=yes log-prefix=#DUMMY4 src-address-list=dummy
 /ip firewall filter add action=jump chain=input comment="Jump to RFC Winbox Chain" jump-target="RFC Winbox Chain"
 /ip firewall filter add action=add-src-to-address-list address-list="Black List (Winbox)" address-list-timeout=1w3d chain="RFC Winbox Chain" comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new dst-port=8291 protocol=tcp src-address-list="Winbox Stage 3"
 /ip firewall filter add action=add-src-to-address-list address-list="Winbox Stage 3" address-list-timeout=1m chain="RFC Winbox Chain" comment="Add succesive attempts to Winbox Stage 3" connection-state=new dst-port=8291 protocol=tcp src-address-list="Winbox Stage 2"
 /ip firewall filter add action=add-src-to-address-list address-list="Winbox Stage 2" address-list-timeout=1m chain="RFC Winbox Chain" comment="Add succesive attempts to Winbox Stage 2" connection-state=new dst-port=8291 protocol=tcp src-address-list="Winbox Stage 1"
 /ip firewall filter add action=add-src-to-address-list address-list="Winbox Stage 1" address-list-timeout=1m chain="RFC Winbox Chain" comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp
 /ip firewall filter add action=return chain="RFC Winbox Chain" comment="Return From RFC Winbox Chain"
-/ip firewall filter add action=log chain=forward comment=DUMMY5 log-prefix=#DUMMY5 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY5 disabled=yes log-prefix=#DUMMY5 src-address-list=dummy
 /ip firewall filter add action=add-src-to-address-list address-list=WAN-port-scanner address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!WAN-port-scanner
 /ip firewall filter add action=add-src-to-address-list address-list=LAN-port-scanner address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!LAN-port-scanner
-/ip firewall filter add action=log chain=forward comment=DUMMY6 log-prefix=#DUMMY6 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY6 disabled=yes log-prefix=#DUMMY6 src-address-list=dummy
 /ip firewall filter add action=add-src-to-address-list address-list="WAN Highload" address-list-timeout=1h chain=input comment="WAN Highload" connection-limit=100,32 protocol=tcp
 /ip firewall filter add action=add-src-to-address-list address-list="LAN Highload" address-list-timeout=10h chain=forward comment="LAN Highload" connection-limit=100,32 protocol=tcp
-/ip firewall filter add action=jump chain=input comment="Jump to Virus Chain" disabled=yes jump-target=Virus
-/ip firewall filter add action=drop chain=Virus comment=Conficker disabled=yes dst-port=593 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment=Worm disabled=yes dst-port=1024-1030 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="ndm requester" disabled=yes dst-port=1363 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="ndm server" disabled=yes dst-port=1364 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="screen cast" disabled=yes dst-port=1368 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment=hromgrafx disabled=yes dst-port=1373 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop MyDoom" disabled=yes dst-port=1080 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment=cichlid disabled=yes dst-port=1377 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment=Worm disabled=yes dst-port=1433-1434 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop Dumaru.Y" disabled=yes dst-port=2283 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop Beagle" disabled=yes dst-port=2535 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop Beagle.C-K" disabled=yes dst-port=2745 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop MyDoom" disabled=yes dst-port=3127-3128 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop Backdoor OptixPro" disabled=yes dst-port=3410 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop Sasser" disabled=yes dst-port=5554 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment=Worm disabled=yes dst-port=4444 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment=Worm disabled=yes dst-port=4444 protocol=udp
-/ip firewall filter add action=drop chain=Virus comment="Drop Beagle.B" disabled=yes dst-port=8866 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop Dabber.A-B" disabled=yes dst-port=9898 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop Dumaru.Y" disabled=yes dst-port=10000 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop MyDoom.B" disabled=yes dst-port=10080 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop NetBus" disabled=yes dst-port=12345 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop Kuang2" disabled=yes dst-port=17300 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop SubSeven" disabled=yes dst-port=27374 protocol=tcp
-/ip firewall filter add action=drop chain=Virus comment="Drop PhatBot, Agobot, Gaobot" disabled=yes dst-port=65506 protocol=tcp
-/ip firewall filter add action=return chain=Virus comment="Return From Virus Chain" disabled=yes
-/ip firewall filter add action=log chain=forward comment=DUMMY7 disabled=yes log-prefix=#DUMMY7 src-address-list=dummy
-/ip firewall filter add action=jump chain=input comment="Jump to \"Manage Common Ports\" Chain" disabled=yes jump-target="Manage Common Ports"
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="\"All hosts on this subnet\" Broadcast" disabled=yes src-address=224.0.0.1
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="\"All routers on this subnet\" Broadcast" disabled=yes src-address=224.0.0.2
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="DVMRP (Distance Vector Multicast Routing Protocol)" disabled=yes src-address=224.0.0.4
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="OSPF - All OSPF Routers Broadcast" disabled=yes src-address=224.0.0.5
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="OSPF - OSPF DR Routers Broadcast" disabled=yes src-address=224.0.0.6
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="RIP Broadcast" disabled=yes src-address=224.0.0.9
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="EIGRP Broadcast" disabled=yes src-address=224.0.0.10
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="PIM Broadcast" disabled=yes src-address=224.0.0.13
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="VRRP Broadcast" disabled=yes src-address=224.0.0.18
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.19
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.20
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.21
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="IGMP Broadcast" disabled=yes src-address=224.0.0.22
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="GRE Protocol (Local Management)" disabled=yes protocol=gre
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPdata transfer" disabled=yes log-prefix=#FTP port=20 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPcontrol (command)" disabled=yes log-prefix=#FTP port=21 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPdata transfer  " disabled=yes log-prefix=#FTP port=20 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Secure Shell(SSH)" disabled=yes port=22 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Secure Shell(SSH)   " disabled=yes port=22 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment=Telnet disabled=yes port=23 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment=Telnet disabled=yes port=23 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Priv-mail: any privatemailsystem." disabled=yes port=24 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Priv-mail: any privatemailsystem.  " disabled=yes port=24 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple Mail Transfer Protocol(SMTP)" disabled=yes port=25 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple Mail Transfer Protocol(SMTP)  " disabled=yes port=25 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="TIME protocol" disabled=yes port=37 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="TIME protocol  " disabled=yes port=37 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="ARPA Host Name Server Protocol & WINS" disabled=yes port=42 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="ARPA Host Name Server Protocol  & WINS  " disabled=yes port=42 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="WHOIS protocol" disabled=yes port=43 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="WHOIS protocol" disabled=yes port=43 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Domain Name System (DNS)" disabled=yes port=53 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Domain Name System (DNS)" disabled=yes port=53 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Mail Transfer Protocol(RFC 780)" disabled=yes port=57 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="(BOOTP) Server & (DHCP)  " disabled=yes port=67 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="(BOOTP) Client & (DHCP)  " disabled=yes port=68 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Trivial File Transfer Protocol (TFTP)  " disabled=yes port=69 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Gopher protocol" disabled=yes port=70 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Finger protocol" disabled=yes port=79 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Hypertext Transfer Protocol (HTTP)" disabled=yes port=80 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="RemoteTELNETService protocol" disabled=yes port=107 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Post Office Protocolv2 (POP2)" disabled=yes port=109 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Post Office Protocolv3 (POP3)" disabled=yes port=110 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="IdentAuthentication Service/Identification Protocol" disabled=yes port=113 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Authentication Service (auth)  " disabled=yes port=113 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple File Transfer Protocol (SFTP)" disabled=yes port=115 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Network Time Protocol(NTP)" disabled=yes port=123 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Name Service" disabled=yes port=137 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Name Service  " disabled=yes port=137 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Datagram Service" disabled=yes port=138 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Datagram Service  " disabled=yes port=138 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Session Service" disabled=yes port=139 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Session Service  " disabled=yes port=139 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Internet Message Access Protocol (IMAP)" disabled=yes port=143 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Background File Transfer Program (BFTP)" disabled=yes port=152 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Background File Transfer Program (BFTP)  " disabled=yes port=152 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="SGMP,Simple Gateway Monitoring Protocol" disabled=yes port=153 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="SGMP,Simple Gateway Monitoring Protocol  " disabled=yes port=153 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="DMSP, Distributed Mail Service Protocol" disabled=yes port=158 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="DMSP, Distributed Mail Service Protocol  " disabled=yes port=158 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple Network Management Protocol(SNMP)  " disabled=yes port=161 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple Network Management ProtocolTrap (SNMPTRAP)" disabled=yes port=162 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " disabled=yes port=162 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="BGP (Border Gateway Protocol)" disabled=yes port=179 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Internet Message Access Protocol (IMAP), version 3" disabled=yes port=220 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Internet Message Access Protocol (IMAP), version 3" disabled=yes port=220 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="BGMP, Border Gateway Multicast Protocol" disabled=yes port=264 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="BGMP, Border Gateway Multicast Protocol  " disabled=yes port=264 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Lightweight Directory Access Protocol (LDAP)" disabled=yes port=389 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Lightweight Directory Access Protocol (LDAP)" disabled=yes port=389 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="SSTP TCP Port 443 (Local Management) & HTTPS" disabled=yes port=443 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Microsoft-DSActive Directory, Windows shares" disabled=yes port=445 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="L2TP/ IPSEC UDP Port 500 (Local Management)" disabled=yes port=500 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Modbus, Protocol" disabled=yes port=502 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Modbus, Protocol  " disabled=yes port=502 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Shell (Remote Shell, rsh, remsh)" disabled=yes port=514 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Syslog - used for system logging  " disabled=yes port=514 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Routing Information Protocol (RIP)  " disabled=yes port=520 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="e-mail message submission (SMTP)" disabled=yes port=587 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="LDP,Label Distribution Protocol" disabled=yes port=646 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="LDP,Label Distribution Protocol" disabled=yes port=646 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPS Protocol (data):FTP over TLS/SSL" disabled=yes port=989 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPS Protocol (data):FTP over TLS/SSL" disabled=yes port=989 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPS Protocol (control):FTP over TLS/SSL" disabled=yes port=990 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPS Protocol (control):FTP over TLS/SSL" disabled=yes port=990 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="TELNET protocol overTLS/SSL" disabled=yes port=992 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="TELNET protocol overTLS/SSL" disabled=yes port=992 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Internet Message Access Protocol over TLS/SSL (IMAPS)" disabled=yes port=993 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="Post Office Protocol3 over TLS/SSL (POP3S)" disabled=yes port=995 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="OVPN TCP Port 1194 (Local Management)" disabled=yes port=1194 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="PPTP Port 1723 (Local Management)" disabled=yes port=1723 protocol=tcp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="L2TP UDP Port 1701 (Local Management)" disabled=yes port=1701 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="L2TP UDP Port 4500 (Local Management)" disabled=yes port=4500 protocol=udp
-/ip firewall filter add action=accept chain="Manage Common Ports" comment="WINBOX TCP Port 8291 (Local Management)" disabled=yes port=8291 protocol=tcp
-/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" disabled=yes dst-port=137-138 log-prefix=#SMB protocol=udp src-address-list="SMB Allow"
-/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" disabled=yes dst-port=137,139 log-prefix=#SMB protocol=tcp src-address-list="SMB Allow"
-/ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related disabled=yes log-prefix="#ACCEPTED UNKNOWN (INPUT)"
-/ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new disabled=yes log-prefix="#ACCEPTED UNKNOWN (FWD)"
-/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related disabled=yes log-prefix="#ACCEPTED UNKNOWN (FWD)"
-/ip firewall filter add action=accept chain=input comment="Allow proxy on 8888" disabled=yes dst-port=8888 in-interface="main infrastructure" protocol=tcp
-/ip firewall filter add action=log chain=forward comment=DUMMY8 disabled=yes log-prefix=#DUMMY8 src-address-list=dummy
-/ip firewall filter add action=drop chain=input comment="Open proxy block" disabled=yes dst-port=8888 in-interface=wan protocol=tcp
-/ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new disabled=yes in-interface=wan log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
-/ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" disabled=yes log-prefix="#DROP UNKNOWN (FWD)"
-/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" disabled=yes log=yes log-prefix="#DROP UNKNOWN (INPUT)"
+/ip firewall filter add action=jump chain=input comment="Jump to Virus Chain" jump-target=Virus
+/ip firewall filter add action=drop chain=Virus comment=Conficker dst-port=593 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment=Worm dst-port=1024-1030 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="ndm requester" dst-port=1363 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="ndm server" dst-port=1364 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="screen cast" dst-port=1368 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment=hromgrafx dst-port=1373 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop MyDoom" dst-port=1080 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment=cichlid dst-port=1377 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment=Worm dst-port=1433-1434 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop Dumaru.Y" dst-port=2283 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop Beagle" dst-port=2535 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop Beagle.C-K" dst-port=2745 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop MyDoom" dst-port=3127-3128 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop Backdoor OptixPro" dst-port=3410 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop Sasser" dst-port=5554 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment=Worm dst-port=4444 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment=Worm dst-port=4444 protocol=udp
+/ip firewall filter add action=drop chain=Virus comment="Drop Beagle.B" dst-port=8866 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop Dabber.A-B" dst-port=9898 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop Dumaru.Y" dst-port=10000 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop MyDoom.B" dst-port=10080 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop NetBus" dst-port=12345 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop Kuang2" dst-port=17300 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop SubSeven" dst-port=27374 protocol=tcp
+/ip firewall filter add action=drop chain=Virus comment="Drop PhatBot, Agobot, Gaobot" dst-port=65506 protocol=tcp
+/ip firewall filter add action=return chain=Virus comment="Return From Virus Chain"
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY7 disabled=yes log-prefix=#DUMMY7 src-address-list=dummy
+/ip firewall filter add action=jump chain=input comment="Jump to \"Manage Common Ports\" Chain" jump-target="Manage Common Ports"
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="\"All hosts on this subnet\" Broadcast" src-address=224.0.0.1
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="\"All routers on this subnet\" Broadcast" src-address=224.0.0.2
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="DVMRP (Distance Vector Multicast Routing Protocol)" src-address=224.0.0.4
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="OSPF - All OSPF Routers Broadcast" src-address=224.0.0.5
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="OSPF - OSPF DR Routers Broadcast" src-address=224.0.0.6
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="RIP Broadcast" src-address=224.0.0.9
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="EIGRP Broadcast" src-address=224.0.0.10
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="PIM Broadcast" src-address=224.0.0.13
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="VRRP Broadcast" src-address=224.0.0.18
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="IS-IS Broadcast" src-address=224.0.0.19
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="IS-IS Broadcast" src-address=224.0.0.20
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="IS-IS Broadcast" src-address=224.0.0.21
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="IGMP Broadcast" src-address=224.0.0.22
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="GRE Protocol (Local Management)" protocol=gre
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPdata transfer" log-prefix=#FTP port=20 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPcontrol (command)" log-prefix=#FTP port=21 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPdata transfer  " log-prefix=#FTP port=20 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Secure Shell(SSH)" port=22 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Secure Shell(SSH)   " port=22 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment=Telnet port=23 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment=Telnet port=23 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Priv-mail: any privatemailsystem." port=24 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Priv-mail: any privatemailsystem.  " port=24 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple Mail Transfer Protocol(SMTP)" port=25 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple Mail Transfer Protocol(SMTP)  " port=25 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="TIME protocol" port=37 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="TIME protocol  " port=37 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="ARPA Host Name Server Protocol & WINS" port=42 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="ARPA Host Name Server Protocol  & WINS  " port=42 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="WHOIS protocol" port=43 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="WHOIS protocol" port=43 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Domain Name System (DNS)" port=53 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Domain Name System (DNS)" port=53 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Mail Transfer Protocol(RFC 780)" port=57 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="(BOOTP) Server & (DHCP)  " port=67 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="(BOOTP) Client & (DHCP)  " port=68 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Trivial File Transfer Protocol (TFTP)  " port=69 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Gopher protocol" port=70 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Finger protocol" port=79 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Hypertext Transfer Protocol (HTTP)" port=80 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="RemoteTELNETService protocol" port=107 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Post Office Protocolv2 (POP2)" port=109 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Post Office Protocolv3 (POP3)" port=110 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="IdentAuthentication Service/Identification Protocol" port=113 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Authentication Service (auth)  " port=113 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple File Transfer Protocol (SFTP)" port=115 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Network Time Protocol(NTP)" port=123 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Name Service" port=137 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Name Service  " port=137 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Datagram Service" port=138 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Datagram Service  " port=138 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Session Service" port=139 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="NetBIOSNetBIOS Session Service  " port=139 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Internet Message Access Protocol (IMAP)" port=143 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Background File Transfer Program (BFTP)" port=152 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Background File Transfer Program (BFTP)  " port=152 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="SGMP,Simple Gateway Monitoring Protocol" port=153 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="SGMP,Simple Gateway Monitoring Protocol  " port=153 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="DMSP, Distributed Mail Service Protocol" port=158 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="DMSP, Distributed Mail Service Protocol  " port=158 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple Network Management Protocol(SNMP)  " port=161 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple Network Management ProtocolTrap (SNMPTRAP)" port=162 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " port=162 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="BGP (Border Gateway Protocol)" port=179 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Internet Message Access Protocol (IMAP), version 3" port=220 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Internet Message Access Protocol (IMAP), version 3" port=220 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="BGMP, Border Gateway Multicast Protocol" port=264 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="BGMP, Border Gateway Multicast Protocol  " port=264 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Lightweight Directory Access Protocol (LDAP)" port=389 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Lightweight Directory Access Protocol (LDAP)" port=389 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="SSTP TCP Port 443 (Local Management) & HTTPS" port=443 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Microsoft-DSActive Directory, Windows shares" port=445 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="L2TP/ IPSEC UDP Port 500 (Local Management)" port=500 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Modbus, Protocol" port=502 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Modbus, Protocol  " port=502 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Shell (Remote Shell, rsh, remsh)" port=514 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Syslog - used for system logging  " port=514 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Routing Information Protocol (RIP)  " port=520 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="e-mail message submission (SMTP)" port=587 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="LDP,Label Distribution Protocol" port=646 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="LDP,Label Distribution Protocol" port=646 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPS Protocol (data):FTP over TLS/SSL" port=989 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPS Protocol (data):FTP over TLS/SSL" port=989 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPS Protocol (control):FTP over TLS/SSL" port=990 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="FTPS Protocol (control):FTP over TLS/SSL" port=990 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="TELNET protocol overTLS/SSL" port=992 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="TELNET protocol overTLS/SSL" port=992 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Internet Message Access Protocol over TLS/SSL (IMAPS)" port=993 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="Post Office Protocol3 over TLS/SSL (POP3S)" port=995 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="OVPN TCP Port 1194 (Local Management)" port=1194 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="PPTP Port 1723 (Local Management)" port=1723 protocol=tcp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="L2TP UDP Port 1701 (Local Management)" port=1701 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="L2TP UDP Port 4500 (Local Management)" port=4500 protocol=udp
+/ip firewall filter add action=accept chain="Manage Common Ports" comment="WINBOX TCP Port 8291 (Local Management)" port=8291 protocol=tcp
+/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" dst-port=137-138 log-prefix=#SMB protocol=udp src-address-list="SMB Allow"
+/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" dst-port=137,139 log-prefix=#SMB protocol=tcp src-address-list="SMB Allow"
+/ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (INPUT)"
+/ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new log-prefix="#ACCEPTED UNKNOWN (FWD)"
+/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
+/ip firewall filter add action=accept chain=input comment="Allow proxy on 8888" dst-port=8888 in-interface="main infrastructure" protocol=tcp
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY8 disabled=yes log-prefix=#DUMMY8 src-address-list=dummy
+/ip firewall filter add action=drop chain=input comment="Open proxy block" dst-port=8888 in-interface=wan protocol=tcp
+/ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new in-interface=wan log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
+/ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log-prefix="#DROP UNKNOWN (FWD)"
+/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log-prefix="#DROP UNKNOWN (INPUT)"
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1360 passthrough=yes protocol=tcp src-address-list="VPN network" tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=vpn-tunneled-sites new-connection-mark=vpn-l2tp passthrough=yes
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new dst-address-list=Telegram new-connection-mark=vpn-l2tp passthrough=yes
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=Telegram log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=Telegram log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=vpn-l2tp dst-address-list=vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=vpn-l2tp dst-address-list=Telegram log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
+/ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY
 /ip firewall mangle add action=mark-packet chain=input comment="VPN Traffic" log-prefix="#VPN PCKT MARK" new-packet-mark="IPSEC PCKT" passthrough=yes protocol=ipsec-esp
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Provider mark" connection-mark=no-mark in-interface=wan new-connection-mark=MGTS passthrough=no
-/ip firewall mangle add action=mark-packet chain=prerouting comment=7z disabled=yes layer7-protocol=7Z log-prefix=#DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=bin disabled=yes layer7-protocol=BIN log-prefix=#DL_bin new-packet-mark=bin-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=iso disabled=yes layer7-protocol=ISO log-prefix=#DL_iso new-packet-mark=iso-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=exe disabled=yes layer7-protocol=EXE log-prefix=#DL_exe new-packet-mark=exe-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=mp3 disabled=yes layer7-protocol=MP3 log-prefix=#DL_mp3 new-packet-mark=mp3-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=pdf disabled=yes layer7-protocol=PDF log-prefix=#DL_pdf new-packet-mark=pdf-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=rar disabled=yes layer7-protocol=RAR log-prefix=#DL_rar new-packet-mark=rar-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=zip disabled=yes layer7-protocol=ZIP log-prefix=#DL_zip new-packet-mark=zip-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=add-src-to-address-list address-list=lan-routers address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" disabled=yes ttl=equal:63
-/ip firewall mangle add action=add-src-to-address-list address-list=lan-routers address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" disabled=yes ttl=equal:127
+/ip firewall mangle add action=mark-packet chain=prerouting comment=7z layer7-protocol=7Z log-prefix=#DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=bin layer7-protocol=BIN log-prefix=#DL_bin new-packet-mark=bin-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=iso layer7-protocol=ISO log-prefix=#DL_iso new-packet-mark=iso-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=exe layer7-protocol=EXE log-prefix=#DL_exe new-packet-mark=exe-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=mp3 layer7-protocol=MP3 log-prefix=#DL_mp3 new-packet-mark=mp3-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=pdf layer7-protocol=PDF log-prefix=#DL_pdf new-packet-mark=pdf-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=rar layer7-protocol=RAR log-prefix=#DL_rar new-packet-mark=rar-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-packet chain=prerouting comment=zip layer7-protocol=ZIP log-prefix=#DL_zip new-packet-mark=zip-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=add-src-to-address-list address-list=lan-routers address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:63
+/ip firewall mangle add action=add-src-to-address-list address-list=lan-routers address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:127
 /ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 log-prefix="#DNS Req" protocol=udp
 /ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 protocol=tcp
 /ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to GRAFANA (map to port 3000, local only)" dst-address-list=grafana-server dst-port=80 in-interface="main infrastructure" protocol=tcp src-address-list=Network to-addresses=192.168.99.180 to-ports=3000
@@ -671,8 +695,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:22 d:h:m:s | CPU: 100%\
-    \nRAM: 30220/131072M | Voltage: 23 v | Temp: 49c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 67%\
+    \nRAM: 29868/131072M | Voltage: 23 v | Temp: 50c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -2366,13 +2390,13 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n#directories have to exist!\r\
     \n:local FTPEnable true\r\
-    \n:local FTPServer \"minialx.home\"\r\
+    \n:local FTPServer \"nas.home\"\r\
     \n:local FTPPort 21\r\
-    \n:local FTPUser \"ftp\"\r\
-    \n:local FTPPass \"\"\r\
-    \n:local FTPRoot \"/pub/\"\r\
+    \n:local FTPUser \"git\"\r\
+    \n:local FTPPass \"git\"\r\
+    \n:local FTPRoot \"/REPO/backups/\"\r\
     \n:local FTPGitEnable true\r\
-    \n:local FTPRawGitName \"/pub/git/rawconf_\$sysname_\$sysver.rsc\"\r\
+    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_\$sysver.rsc\"\r\
     \n\r\
     \n:local SMTPEnable true\r\
     \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\
@@ -2587,44 +2611,43 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
     \n#directories have to exist!\r\
-    \n:local FTPRoot \"/pub/git/\"\r\
+    \n:local FTPRoot \"/REPO/mikrobackups/\"\r\
     \n\r\
     \n#This subdir will be created locally to put exported scripts in\r\
     \n#and it must exist under \$FTPRoot to upload scripts to\r\
     \n:local SubDir \"scripts/\"\r\
     \n\r\
     \n:local FTPEnable true\r\
-    \n:local FTPServer \"minialx.home\"\r\
+    \n:local FTPServer \"nas.home\"\r\
     \n:local FTPPort 21\r\
-    \n:local FTPUser \"ftp\"\r\
-    \n:local FTPPass \"\"\r\
+    \n:local FTPUser \"git\"\r\
+    \n:local FTPPass \"git\"\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
-    \n\r\
+    \n:local state \"\";\r\
     \n:global globalScriptId;\r\
-    \n:local itsOk true;\r\
     \n\r\
     \n:do {\r\
     \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
     \n} on-error={\r\
-    \n  :local state \"FTP server looks like to be unreachable\";\r\
+    \n  :set state \"FTP server looks like to be unreachable\";\r\
     \n   \$globalNoteMe value=\$state;\r\
-    \n  :local itsOk false;    \r\
+    \n  :set itsOk false;    \r\
     \n}\r\
     \n\r\
     \n:if (\$itsOk) do={\r\
     \n  :do {\r\
-    \n    [/tool fetch dst-path=\"\$SubDir.FooFile\" url=\"http://127.0.0.1:80/mikrotik_logo.png\" keep-result=no];\r\
+    \n    [/tool fetch dst-path=\"\$SubDir.FooFile\" url=\"http://127.0.0.1:80/mikrotik_logo.png\" keep-result=yes];\r\
     \n  } on-error={ \r\
-    \n    :local state \"Error When Creating Local Scripts Directory\";\r\
+    \n    :set state \"Error When Creating Local Scripts Directory\";\r\
     \n    \$globalNoteMe value=\$state;\r\
-    \n    :local itsOk false;\r\
+    \n    :set itsOk false;\r\
     \n  }\r\
     \n}\r\
     \n\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :foreach scriptId in [/system script find] do={\r\
+    \n:foreach scriptId in [/system script find] do={\r\
+    \n  :if (\$itsOk) do={\r\
     \n\r\
     \n    :local scriptSource [/system script get \$scriptId source];\r\
     \n    :local theScript [/system script get \$scriptId name];\r\
@@ -2634,7 +2657,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    :set \$globalScriptId \$scriptId;\r\
     \n\r\
     \n    :if (\$scriptSourceLength >= 4096) do={\r\
-    \n      :local state \"Please keep care about '\$theScript' consistency - its size over 4096 bytes\";\r\
+    \n      :set state \"Please keep care about '\$theScript' consistency - its size over 4096 bytes\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n    }\r\
     \n\r\
@@ -2646,12 +2669,12 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n      #/file set \$path contents=\$scriptSource;\r\
     \n      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack\r\
     \n      /execute script=\":global globalScriptId; :put [/system script get \$globalScriptId source];\" file=\$path;\r\
-    \n      :local state \"Exported '\$theScript' to '\$path'\";\r\
+    \n      :set state \"Exported '\$theScript' to '\$path'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
     \n    } on-error={ \r\
-    \n      :local state \"Error When Exporting '\$theScript' Script to '\$path'\";\r\
+    \n      :set state \"Error When Exporting '\$theScript' Script to '\$path'\";\r\
     \n      \$globalNoteMe value=\$state;\r\
-    \n      :local itsOk false;\r\
+    \n      :set itsOk false;\r\
     \n    }\r\
     \n  }\r\
     \n}\r\
@@ -2670,13 +2693,14 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n      if (\$FTPEnable) do={\r\
     \n        :local dst \"\$FTPRoot\$buFile\";\r\
     \n        :do {\r\
-    \n          :local state \"Uploading \$buFile' to '\$dst'\";\r\
+    \n          :set state \"Uploading \$buFile' to '\$dst'\";\r\
     \n          \$globalNoteMe value=\$state;\r\
     \n          /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes;\r\
     \n          \$globalNoteMe value=\"Done\";\r\
     \n        } on-error={ \r\
-    \n          :local state \"Error When Uploading '\$buFile' to '\$dst'\";\r\
-    \n          \$globalNoteMe value=\$state; \r\
+    \n          :set state \"Error When Uploading '\$buFile' to '\$dst'\";\r\
+    \n          \$globalNoteMe value=\$state;\r\
+    \n          :set itsOk false;\r\
     \n        }\r\
     \n      }\r\
     \n    }\r\
@@ -2704,6 +2728,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n:global globalTgMessage;\r\
     \n\$globalTgMessage value=\$inf;\r\
+    \n\r\
     \n\r\
     \n"
 /system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\

@@ -1,3 +1,4 @@
+
 :local sysname [/system identity get name];
 :local scriptname "doCreateTrafficAccountingQueues";
 :global globalScriptBeforeRun;
@@ -78,7 +79,7 @@ $globalScriptBeforeRun $scriptname;
     :set qComment ($qCommentMark . "," . $dhcpMac . "," . $dhcpHost)
 
     # build command (queue names should be unique)
-    :local cmd "/queue simple add target=$dhcpIp max-limit=10M/10M comment=$qComment"
+    :local cmd "/queue simple add target=$dhcpIp comment=$qComment"
     :if ($dhcpComment != "") do={ 
       :set cmd "$cmd name=\"$dhcpComment@$dhcpServer ($dhcpMac)\"" 
     } else= {
