@@ -1,4 +1,4 @@
-# jan/05/2020 14:32:11 by RouterOS 6.46beta59
+# jan/10/2020 21:21:39 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -2390,13 +2390,13 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n#directories have to exist!\r\
     \n:local FTPEnable true\r\
-    \n:local FTPServer \"minialx.home\"\r\
+    \n:local FTPServer \"nas.home\"\r\
     \n:local FTPPort 21\r\
-    \n:local FTPUser \"ftp\"\r\
-    \n:local FTPPass \"\"\r\
-    \n:local FTPRoot \"/pub/\"\r\
+    \n:local FTPUser \"git\"\r\
+    \n:local FTPPass \"git\"\r\
+    \n:local FTPRoot \"/REPO/backups/\"\r\
     \n:local FTPGitEnable true\r\
-    \n:local FTPRawGitName \"/pub/git/rawconf_\$sysname_\$sysver.rsc\"\r\
+    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_\$sysver.rsc\"\r\
     \n\r\
     \n:local SMTPEnable true\r\
     \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\
@@ -2611,17 +2611,17 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
     \n#directories have to exist!\r\
-    \n:local FTPRoot \"/pub/git/\"\r\
+    \n:local FTPRoot \"/REPO/mikrobackups/\"\r\
     \n\r\
     \n#This subdir will be created locally to put exported scripts in\r\
     \n#and it must exist under \$FTPRoot to upload scripts to\r\
     \n:local SubDir \"scripts/\"\r\
     \n\r\
     \n:local FTPEnable true\r\
-    \n:local FTPServer \"minialx.home\"\r\
+    \n:local FTPServer \"nas.home\"\r\
     \n:local FTPPort 21\r\
-    \n:local FTPUser \"ftp\"\r\
-    \n:local FTPPass \"\"\r\
+    \n:local FTPUser \"git\"\r\
+    \n:local FTPPass \"git\"\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -2699,7 +2699,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n          \$globalNoteMe value=\"Done\";\r\
     \n        } on-error={ \r\
     \n          :set state \"Error When Uploading '\$buFile' to '\$dst'\";\r\
-    \n          \$globalNoteMe value=\$state; \r\
+    \n          \$globalNoteMe value=\$state;\r\
+    \n          :set itsOk false;\r\
     \n        }\r\
     \n      }\r\
     \n    }\r\
