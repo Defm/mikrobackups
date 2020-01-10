@@ -17,13 +17,13 @@ $globalScriptBeforeRun "doBackup";
 
 #directories have to exist!
 :local FTPEnable true
-:local FTPServer "minialx.home"
+:local FTPServer "nas.home"
 :local FTPPort 21
-:local FTPUser "ftp"
-:local FTPPass ""
-:local FTPRoot "/pub/"
+:local FTPUser "git"
+:local FTPPass "git"
+:local FTPRoot "/REPO/backups/"
 :local FTPGitEnable true
-:local FTPRawGitName "/pub/git/rawconf_$sysname_$sysver.rsc"
+:local FTPRawGitName "/REPO/mikrobackups/rawconf_$sysname_$sysver.rsc"
 
 :local SMTPEnable true
 :local SMTPAddress "defm.kopcap@gmail.com"
