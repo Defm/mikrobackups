@@ -64,8 +64,13 @@ $globalNoteMe value=$state;
 
 $globalNoteMe value=$inf
 
-:global globalTgMessage;
-$globalTgMessage value=$inf;
+:if (!$itsOk) do={
+  :set inf "$scriptname on $sysname: $state"  
+  
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+
+}
 
 
 

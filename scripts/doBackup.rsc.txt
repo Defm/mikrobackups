@@ -30,10 +30,7 @@ $globalScriptBeforeRun "doBackup";
 :local SMTPSubject ("$sysname Full Backup ($ds-$ts)")
 :local SMTPBody ("$sysname full Backup file see in attachment.\nRouterOS version: $sysver\nTime and Date stamp: ($ds-$ts) ")
 
-:local noteMe do={
-  :put "DEBUG: $value"
-  :log info message="$value"
-}
+:global globalNoteMe;
 
 :local itsOk true;
 
@@ -41,7 +38,7 @@ $globalScriptBeforeRun "doBackup";
   :local smtpserv [:resolve "$FTPServer"];
 } on-error={ 
   :set state "FTP server looks like to be unreachable"
-  $noteMe value=$state;
+  $globalNoteMe value=$state;
   :set itsOk false;
 }
 
@@ -51,7 +48,7 @@ $globalScriptBeforeRun "doBackup";
   :if ($encryptSysBackup = true) do={ /system backup save name=($fname.".backup") }
   :if ($encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=($fname.".backup") }
   :delay 2s;
-  $noteMe value="System Backup Finished"
+  $globalNoteMe value="System Backup Finished"
 }
 
 :if ($saveRawExport and $itsOk) do={
@@ -61,7 +58,7 @@ $globalScriptBeforeRun "doBackup";
      :if ($verboseRawExport = false) do={ /export terse file=($fname.".safe.rsc") }
      :delay 2s;
   }
-  $noteMe value="Raw configuration script export Finished"
+  $globalNoteMe value="Raw configuration script export Finished"
 }
 
 :delay 5s
@@ -75,12 +72,12 @@ $globalScriptBeforeRun "doBackup";
     if ($FTPEnable and $itsOk) do={
         :do {
         :local state "Uploading $buFile to FTP ($FTPRoot$buFile)"
-        $noteMe value=$state
+        $globalNoteMe value=$state
         /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRoot$buFile" mode=ftp upload=yes
-        $noteMe value="Done"
+        $globalNoteMe value="Done"
         } on-error={ 
           :set state "Error When $state"
-          $noteMe value=$state;
+          $globalNoteMe value=$state;
           :set itsOk false;
        }
 
@@ -88,12 +85,12 @@ $globalScriptBeforeRun "doBackup";
         if ($itsSRC and $FTPGitEnable and $itsOk) do={
             :do {
             :local state "Uploading $buFile to FTP (RAW, $FTPRawGitName)"
-            $noteMe value=$state
+            $globalNoteMe value=$state
             /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRawGitName" mode=ftp upload=yes
-            $noteMe value="Done"
+            $globalNoteMe value="Done"
             } on-error={ 
               :set state "Error When $state"
-              $noteMe value=$state;
+              $globalNoteMe value=$state;
               :set itsOk false;
            }
         }
@@ -102,7 +99,7 @@ $globalScriptBeforeRun "doBackup";
     if ($SMTPEnable and !$itsSRC and $itsOk) do={
         :do {
         :local state "Uploading $buFile to SMTP"
-        $noteMe value=$state
+        $globalNoteMe value=$state
 
         #email works in background, delay needed
         /tool e-mail send to=$SMTPAddress body=$SMTPBody subject=$SMTPSubject file=$buFile
@@ -115,18 +112,18 @@ $globalScriptBeforeRun "doBackup";
         if (!$emlResult) do={
 
           :set state "Error When $state"
-          $noteMe value=$state;
+          $globalNoteMe value=$state;
           :set itsOk false;
 
         } else={
 
-          $noteMe value="Done"
+          $globalNoteMe value="Done"
        
         }
 
         } on-error={ 
           :set state "Error When $state"
-          $noteMe value=$state;
+          $globalNoteMe value=$state;
           :set itsOk false;
        }
     }
@@ -146,8 +143,11 @@ $globalScriptBeforeRun "doBackup";
   :set inf "Error When $scriptname on $sysname: $state"  
 }
 
-$noteMe value=$inf
+$globalNoteMe value=$inf
 
-:global globalTgMessage;
-$globalTgMessage value=$inf;
+:if (!$itsOk) do={
 
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+  
+}
