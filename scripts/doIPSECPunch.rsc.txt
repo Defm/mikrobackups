@@ -129,6 +129,8 @@ $globalScriptBeforeRun $scriptname;
   $globalTgMessage value=$inf;
 }
 
+$globalNoteMe value=$inf
+
 :if (!$itsOk) do={
   :set inf "$scriptname on $sysname: $state"  
   
@@ -136,6 +138,4 @@ $globalScriptBeforeRun $scriptname;
   $globalTgMessage value=$inf;
 
 }
-
-$globalNoteMe value=$inf
 

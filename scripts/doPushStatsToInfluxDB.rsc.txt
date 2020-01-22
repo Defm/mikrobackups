@@ -125,6 +125,11 @@ $globalScriptBeforeRun $scriptname;
 
 $globalNoteMe value=$inf
 
-#don't spam
-#:global globalTgMessage;
-#$globalTgMessage value=$inf;
+:if (!$itsOk) do={
+  :set inf "$scriptname on $sysname: $state"  
+  
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+
+}
+

@@ -80,7 +80,9 @@ $globalScriptBeforeRun $scriptname;
 
 $globalNoteMe value=$inf
 
-:global globalTgMessage;
-$globalTgMessage value=$inf;
+:if (!$itsOk) do={
 
-
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+  
+}

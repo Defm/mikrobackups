@@ -1,4 +1,4 @@
-# jan/10/2020 21:21:39 by RouterOS 6.46beta59
+# jan/22/2020 22:13:27 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -695,8 +695,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:20 d:h:m:s | CPU: 67%\
-    \nRAM: 29868/131072M | Voltage: 23 v | Temp: 50c\
+    \nUptime:  00:00:22 d:h:m:s | CPU: 27%\
+    \nRAM: 30712/131072M | Voltage: 23 v | Temp: 49c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -2403,10 +2403,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\
     \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\
     \n\r\
-    \n:local noteMe do={\r\
-    \n  :put \"DEBUG: \$value\"\r\
-    \n  :log info message=\"\$value\"\r\
-    \n}\r\
+    \n:global globalNoteMe;\r\
     \n\r\
     \n:local itsOk true;\r\
     \n\r\
@@ -2414,7 +2411,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
     \n} on-error={ \r\
     \n  :set state \"FTP server looks like to be unreachable\"\r\
-    \n  \$noteMe value=\$state;\r\
+    \n  \$globalNoteMe value=\$state;\r\
     \n  :set itsOk false;\r\
     \n}\r\
     \n\r\
@@ -2424,7 +2421,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
     \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\
     \n  :delay 2s;\r\
-    \n  \$noteMe value=\"System Backup Finished\"\r\
+    \n  \$globalNoteMe value=\"System Backup Finished\"\r\
     \n}\r\
     \n\r\
     \n:if (\$saveRawExport and \$itsOk) do={\r\
@@ -2434,7 +2431,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\
     \n     :delay 2s;\r\
     \n  }\r\
-    \n  \$noteMe value=\"Raw configuration script export Finished\"\r\
+    \n  \$globalNoteMe value=\"Raw configuration script export Finished\"\r\
     \n}\r\
     \n\r\
     \n:delay 5s\r\
@@ -2448,12 +2445,12 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    if (\$FTPEnable and \$itsOk) do={\r\
     \n        :do {\r\
     \n        :local state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\
-    \n        \$noteMe value=\$state\r\
+    \n        \$globalNoteMe value=\$state\r\
     \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\
-    \n        \$noteMe value=\"Done\"\r\
+    \n        \$globalNoteMe value=\"Done\"\r\
     \n        } on-error={ \r\
     \n          :set state \"Error When \$state\"\r\
-    \n          \$noteMe value=\$state;\r\
+    \n          \$globalNoteMe value=\$state;\r\
     \n          :set itsOk false;\r\
     \n       }\r\
     \n\r\
@@ -2461,12 +2458,12 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\
     \n            :do {\r\
     \n            :local state \"Uploading \$buFile to FTP (RAW, \$FTPRawGitName)\"\r\
-    \n            \$noteMe value=\$state\r\
+    \n            \$globalNoteMe value=\$state\r\
     \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
-    \n            \$noteMe value=\"Done\"\r\
+    \n            \$globalNoteMe value=\"Done\"\r\
     \n            } on-error={ \r\
     \n              :set state \"Error When \$state\"\r\
-    \n              \$noteMe value=\$state;\r\
+    \n              \$globalNoteMe value=\$state;\r\
     \n              :set itsOk false;\r\
     \n           }\r\
     \n        }\r\
@@ -2475,7 +2472,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\
     \n        :do {\r\
     \n        :local state \"Uploading \$buFile to SMTP\"\r\
-    \n        \$noteMe value=\$state\r\
+    \n        \$globalNoteMe value=\$state\r\
     \n\r\
     \n        #email works in background, delay needed\r\
     \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile\r\
@@ -2488,18 +2485,18 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n        if (!\$emlResult) do={\r\
     \n\r\
     \n          :set state \"Error When \$state\"\r\
-    \n          \$noteMe value=\$state;\r\
+    \n          \$globalNoteMe value=\$state;\r\
     \n          :set itsOk false;\r\
     \n\r\
     \n        } else={\r\
     \n\r\
-    \n          \$noteMe value=\"Done\"\r\
+    \n          \$globalNoteMe value=\"Done\"\r\
     \n       \r\
     \n        }\r\
     \n\r\
     \n        } on-error={ \r\
     \n          :set state \"Error When \$state\"\r\
-    \n          \$noteMe value=\$state;\r\
+    \n          \$globalNoteMe value=\$state;\r\
     \n          :set itsOk false;\r\
     \n       }\r\
     \n    }\r\
@@ -2519,11 +2516,14 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
     \n}\r\
     \n\r\
-    \n\$noteMe value=\$inf\r\
+    \n\$globalNoteMe value=\$inf\r\
     \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
-    \n"
+    \n:if (!\$itsOk) do={\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
+    \n}"
 /system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doRandomGen\";\r\

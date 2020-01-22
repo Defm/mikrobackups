@@ -1,4 +1,4 @@
-# dec/26/2019 18:28:20 by RouterOS 6.46beta59
+# jan/15/2020 18:28:20 by RouterOS 6.46beta59
 # software id = 
 #
 #
@@ -69,6 +69,7 @@
 /ip dns set cache-max-ttl=1d
 /ip dns static add address=10.0.0.1 name=CHR
 /ip dns static add address=192.168.99.180 name=minialx.home
+/ip dns static add address=192.168.99.30 name=nas.home
 /ip dns static add address=192.168.99.1 name=mikrouter.home
 /ip firewall address-list add address=8.8.8.8 list=dns-accept
 /ip firewall address-list add address=192.168.97.0/30 list=mis-network
@@ -263,13 +264,13 @@
     \n\r\
     \n#directories have to exist!\r\
     \n:local FTPEnable true\r\
-    \n:local FTPServer \"minialx.home\"\r\
+    \n:local FTPServer \"nas.home\"\r\
     \n:local FTPPort 21\r\
-    \n:local FTPUser \"ftp\"\r\
-    \n:local FTPPass \"\"\r\
-    \n:local FTPRoot \"/pub/\"\r\
+    \n:local FTPUser \"git\"\r\
+    \n:local FTPPass \"git\"\r\
+    \n:local FTPRoot \"/REPO/backups/\"\r\
     \n:local FTPGitEnable true\r\
-    \n:local FTPRawGitName \"/pub/git/rawconf_\$sysname_\$sysver.rsc\"\r\
+    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_\$sysver.rsc\"\r\
     \n\r\
     \n:local SMTPEnable true\r\
     \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\
