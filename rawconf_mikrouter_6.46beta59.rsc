@@ -1,4 +1,4 @@
-# jan/22/2020 22:13:27 by RouterOS 6.46beta59
+# jan/25/2020 00:37:21 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -120,7 +120,7 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" target=192.168.99.230/32
 /queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGLO name="iPhoneGLO@main dhcp (54:2B:8D:7F:83:A6)" target=192.168.99.240/32
 /queue simple add comment=dtq,08:00:27:1C:F3:07,openflixr name="openflixr@main dhcp (08:00:27:1C:F3:07)" target=192.168.99.10/32
-/queue simple add comment=dtq,2C:AE:2B:5A:C2:EC,android-51d1f790d1274a4f name="android-51d1f790d1274a4f@guest dhcp (2C:AE:2B:5A:C2:EC)" target=192.168.98.229/32
+/queue simple add comment=dtq,20:82:C0:E2:65:B5,Mi4i-MiPhone name="Mi4i-MiPhone@guest dhcp (20:82:C0:E2:65:B5)" target=192.168.98.229/32
 /queue tree add comment="FILE download control" disabled=yes name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -162,7 +162,7 @@ set "wlan 5Ghz" enable-polling=no
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=asusGl disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set ca-certificate=auto certificate=auto enabled=yes require-peer-certificate=yes upgrade-policy=require-same-version
+/caps-man manager set ca-certificate=auto certificate=auto enabled=yes require-peer-certificate=yes upgrade-policy=suggest-same-version
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
 /caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface=wan
 /caps-man manager interface add comment="Do CapsMan on private" disabled=no interface="main infrastructure"
@@ -231,6 +231,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip arp add address=192.168.99.230 interface="main infrastructure" mac-address=54:2B:8D:77:38:A0
 /ip arp add address=192.168.99.240 interface="main infrastructure" mac-address=54:2B:8D:7F:83:A6
 /ip arp add address=192.168.99.10 interface="main infrastructure" mac-address=08:00:27:1C:F3:07
+/ip arp add address=192.168.99.2 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:02
 /ip cloud set ddns-enabled=yes
 /ip dhcp-server lease add address=192.168.99.140 always-broadcast=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.150 client-id=1:ac:61:ea:ea:cc:84 mac-address=AC:61:EA:EA:CC:84 server="main dhcp"
@@ -347,6 +348,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=clubseventeen.com list=vpn-tunneled-sites
 /ip firewall address-list add address=207.32.194.24 list=vpn-tunneled-sites
 /ip firewall address-list add address=speedtest.tele2.net disabled=yes list=vpn-tunneled-sites
+/ip firewall address-list add address=192.168.99.1 comment="Add DNS Server to this List" list="DNS Allow"
 /ip firewall address-list add address=109.252.106.14 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -668,6 +670,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -695,8 +698,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:22 d:h:m:s | CPU: 27%\
-    \nRAM: 30712/131072M | Voltage: 23 v | Temp: 49c\
+    \nUptime:  00:00:22 d:h:m:s | CPU: 100%\
+    \nRAM: 30884/131072M | Voltage: 23 v | Temp: 50c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -1638,8 +1641,13 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
     \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
+    \n  \r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n}\r\
     \n\r\
     \n\r\
     \n"
@@ -2110,6 +2118,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  \$globalTgMessage value=\$inf;\r\
     \n}\r\
     \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
     \n:if (!\$itsOk) do={\r\
     \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
     \n  \r\
@@ -2117,8 +2127,6 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  \$globalTgMessage value=\$inf;\r\
     \n\r\
     \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
     \n"
 /system script add comment="A template to track hotspot users" dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2369,8 +2377,13 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
     \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;"
+    \n:if (!\$itsOk) do={\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
+    \n}\r\
+    \n"
 /system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\
     \n\r\
@@ -2726,10 +2739,12 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
     \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
+    \n:if (!\$itsOk) do={\r\
     \n\r\
-    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
+    \n}\r\
     \n"
 /system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
@@ -2813,10 +2828,12 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
     \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
+    \n:if (!\$itsOk) do={\r\
     \n\r\
-    \n"
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
+    \n}"
 /system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doPushStatsToInfluxDB\";\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2944,9 +2961,14 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
     \n\r\
-    \n#don't spam\r\
-    \n#:global globalTgMessage;\r\
-    \n#\$globalTgMessage value=\$inf;"
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
+    \n  \r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n}\r\
+    \n"
 /system script add comment="This will check for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time. Will reboot the router when overload" dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doCPUHighLoadReboot\";\r\
