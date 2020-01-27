@@ -1,4 +1,4 @@
-# jan/25/2020 00:37:21 by RouterOS 6.46beta59
+# jan/27/2020 21:00:02 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -120,7 +120,6 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" target=192.168.99.230/32
 /queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGLO name="iPhoneGLO@main dhcp (54:2B:8D:7F:83:A6)" target=192.168.99.240/32
 /queue simple add comment=dtq,08:00:27:1C:F3:07,openflixr name="openflixr@main dhcp (08:00:27:1C:F3:07)" target=192.168.99.10/32
-/queue simple add comment=dtq,20:82:C0:E2:65:B5,Mi4i-MiPhone name="Mi4i-MiPhone@guest dhcp (20:82:C0:E2:65:B5)" target=192.168.98.229/32
 /queue tree add comment="FILE download control" disabled=yes name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -670,7 +669,6 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -698,8 +696,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:22 d:h:m:s | CPU: 100%\
-    \nRAM: 30884/131072M | Voltage: 23 v | Temp: 50c\
+    \nUptime:  00:00:19 d:h:m:s | CPU: 57%\
+    \nRAM: 30128/131072M | Voltage: 23 v | Temp: 22c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
