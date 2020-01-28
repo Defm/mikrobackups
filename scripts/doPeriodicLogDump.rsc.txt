@@ -90,15 +90,23 @@
 # Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry
    :if ($logEntryTime = $globalLastParseTime && $logEntryMessage = $globalLastParseMsg) do={
    } else={
-#   Set $globalParseVar, then run parser script
-      :set $globalParseVar {$logEntryTime ; $logEntryTopics; $logEntryMessage}
-      /system script run ($logParserScript)
 
-#   Update last parsed time, and last parsed message
-      :set $globalLastParseTime $logEntryTime
-      :set $globalLastParseMsg $logEntryMessage
+    # Do not track LOG config changes because we're doing it right there (in that script)
+    # and that will be a huge one-per-minute spam
+    :if ($logEntryMessage~"log action") do={
+
+  
+        } else={
+
+            # Set $globalParseVar, then run parser script
+            :set $globalParseVar {$logEntryTime ; $logEntryTopics; $logEntryMessage}
+            /system script run ($logParserScript)
+
+            # Update last parsed time, and last parsed message
+            :set $globalLastParseTime $logEntryTime
+            :set $globalLastParseMsg $logEntryMessage
+        }
    }
 
 # end foreach rule
 }
-
