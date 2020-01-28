@@ -9,7 +9,7 @@ $globalScriptBeforeRun $scriptname;
 :local maxTemp;
 :local currentTemp [/system health get temperature];
 
-:set maxTemp 55;
+:set maxTemp 60;
 
 #
 
