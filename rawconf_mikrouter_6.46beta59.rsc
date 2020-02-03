@@ -1,4 +1,4 @@
-# jan/27/2020 21:00:02 by RouterOS 6.46beta59
+# feb/03/2020 22:47:33 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -99,7 +99,7 @@ set "wlan 5Ghz" enable-polling=no
 /ppp profile add address-list=l2tp-active-clients interface-list=list-2tp-dynamic-tun local-address=10.0.0.2 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-mic
 /queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
-/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
+/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhone name="iPhone@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV@main dhcp (90:DD:5D:C8:46:AB)" target=192.168.99.190/32
 /queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
 /queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
@@ -276,7 +276,6 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.2 comment="<AUTO:DHCP:main dhcp>" name=LivingRoomWAP.home ttl=5m
 /ip dns static add address=192.168.99.170 comment="<AUTO:DHCP:main dhcp>" name=MbpAlx.home ttl=5m
 /ip dns static add address=192.168.99.140 comment="<AUTO:DHCP:main dhcp>" name=iPadAlx.home ttl=5m
-/ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
 /ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
 /ip dns static add address=192.168.99.190 comment="<AUTO:DHCP:main dhcp>" name=AlxATV.home ttl=5m
@@ -285,6 +284,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.240 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGLO.home ttl=5m
 /ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=AsusGlo.home ttl=5m
 /ip dns static add address=192.168.99.10 comment="<AUTO:DHCP:main dhcp>" name=openflixr.home ttl=5m
+/ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhone.home ttl=5m
 /ip dns static add address=109.252.106.14 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
@@ -1365,7 +1365,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:local maxTemp;\r\
     \n:local currentTemp [/system health get temperature];\r\
     \n\r\
-    \n:set maxTemp 55;\r\
+    \n:set maxTemp 60;\r\
     \n\r\
     \n#\r\
     \n\r\
@@ -1884,18 +1884,26 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n# Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry\r\
     \n   :if (\$logEntryTime = \$globalLastParseTime && \$logEntryMessage = \$globalLastParseMsg) do={\r\
     \n   } else={\r\
-    \n#   Set \$globalParseVar, then run parser script\r\
-    \n      :set \$globalParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\
-    \n      /system script run (\$logParserScript)\r\
     \n\r\
-    \n#   Update last parsed time, and last parsed message\r\
-    \n      :set \$globalLastParseTime \$logEntryTime\r\
-    \n      :set \$globalLastParseMsg \$logEntryMessage\r\
+    \n    # Do not track LOG config changes because we're doing it right there (in that script)\r\
+    \n    # and that will be a huge one-per-minute spam\r\
+    \n    :if (\$logEntryMessage~\"log action\") do={\r\
+    \n\r\
+    \n  \r\
+    \n        } else={\r\
+    \n\r\
+    \n            # Set \$globalParseVar, then run parser script\r\
+    \n            :set \$globalParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\
+    \n            /system script run (\$logParserScript)\r\
+    \n\r\
+    \n            # Update last parsed time, and last parsed message\r\
+    \n            :set \$globalLastParseTime \$logEntryTime\r\
+    \n            :set \$globalLastParseMsg \$logEntryMessage\r\
+    \n        }\r\
     \n   }\r\
     \n\r\
     \n# end foreach rule\r\
-    \n}\r\
-    \n"
+    \n}"
 /system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n#\$globalScriptBeforeRun \"doPeriodicLogParse\";\r\
@@ -2759,7 +2767,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
