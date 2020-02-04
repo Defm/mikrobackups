@@ -1,4 +1,4 @@
-# jan/15/2020 18:28:20 by RouterOS 6.46beta59
+# feb/04/2020 18:28:22 by RouterOS 6.46beta59
 # software id = 
 #
 #
@@ -171,6 +171,7 @@
 /ip firewall mangle add action=mark-connection chain=input comment="Mark IPsec" ipsec-policy=in,ipsec new-connection-mark=ipsec passthrough=yes
 /ip firewall mangle add action=mark-connection chain=forward comment="Mark IPsec" ipsec-policy=out,ipsec new-connection-mark=ipsec passthrough=yes
 /ip firewall mangle add action=mark-connection chain=forward comment="Mark IPsec" ipsec-policy=in,ipsec new-connection-mark=ipsec passthrough=yes
+/ip firewall nat add action=dst-nat chain=dstnat dst-port=8888 protocol=tcp to-addresses=192.168.99.1 to-ports=80
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=mic-network log-prefix=#VPN src-address-list=mis-network
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=mis-network log-prefix=#VPN src-address-list=mic-network
 /ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel
@@ -277,10 +278,7 @@
     \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\
     \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\
     \n\r\
-    \n:local noteMe do={\r\
-    \n  :put \"DEBUG: \$value\"\r\
-    \n  :log info message=\"\$value\"\r\
-    \n}\r\
+    \n:global globalNoteMe;\r\
     \n\r\
     \n:local itsOk true;\r\
     \n\r\
@@ -288,7 +286,7 @@
     \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
     \n} on-error={ \r\
     \n  :set state \"FTP server looks like to be unreachable\"\r\
-    \n  \$noteMe value=\$state;\r\
+    \n  \$globalNoteMe value=\$state;\r\
     \n  :set itsOk false;\r\
     \n}\r\
     \n\r\
@@ -298,7 +296,7 @@
     \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
     \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\
     \n  :delay 2s;\r\
-    \n  \$noteMe value=\"System Backup Finished\"\r\
+    \n  \$globalNoteMe value=\"System Backup Finished\"\r\
     \n}\r\
     \n\r\
     \n:if (\$saveRawExport and \$itsOk) do={\r\
@@ -308,7 +306,7 @@
     \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\
     \n     :delay 2s;\r\
     \n  }\r\
-    \n  \$noteMe value=\"Raw configuration script export Finished\"\r\
+    \n  \$globalNoteMe value=\"Raw configuration script export Finished\"\r\
     \n}\r\
     \n\r\
     \n:delay 5s\r\
@@ -322,12 +320,12 @@
     \n    if (\$FTPEnable and \$itsOk) do={\r\
     \n        :do {\r\
     \n        :local state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\
-    \n        \$noteMe value=\$state\r\
+    \n        \$globalNoteMe value=\$state\r\
     \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\
-    \n        \$noteMe value=\"Done\"\r\
+    \n        \$globalNoteMe value=\"Done\"\r\
     \n        } on-error={ \r\
     \n          :set state \"Error When \$state\"\r\
-    \n          \$noteMe value=\$state;\r\
+    \n          \$globalNoteMe value=\$state;\r\
     \n          :set itsOk false;\r\
     \n       }\r\
     \n\r\
@@ -335,12 +333,12 @@
     \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\
     \n            :do {\r\
     \n            :local state \"Uploading \$buFile to FTP (RAW, \$FTPRawGitName)\"\r\
-    \n            \$noteMe value=\$state\r\
+    \n            \$globalNoteMe value=\$state\r\
     \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
-    \n            \$noteMe value=\"Done\"\r\
+    \n            \$globalNoteMe value=\"Done\"\r\
     \n            } on-error={ \r\
     \n              :set state \"Error When \$state\"\r\
-    \n              \$noteMe value=\$state;\r\
+    \n              \$globalNoteMe value=\$state;\r\
     \n              :set itsOk false;\r\
     \n           }\r\
     \n        }\r\
@@ -349,7 +347,7 @@
     \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\
     \n        :do {\r\
     \n        :local state \"Uploading \$buFile to SMTP\"\r\
-    \n        \$noteMe value=\$state\r\
+    \n        \$globalNoteMe value=\$state\r\
     \n\r\
     \n        #email works in background, delay needed\r\
     \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile\r\
@@ -362,18 +360,18 @@
     \n        if (!\$emlResult) do={\r\
     \n\r\
     \n          :set state \"Error When \$state\"\r\
-    \n          \$noteMe value=\$state;\r\
+    \n          \$globalNoteMe value=\$state;\r\
     \n          :set itsOk false;\r\
     \n\r\
     \n        } else={\r\
     \n\r\
-    \n          \$noteMe value=\"Done\"\r\
+    \n          \$globalNoteMe value=\"Done\"\r\
     \n       \r\
     \n        }\r\
     \n\r\
     \n        } on-error={ \r\
     \n          :set state \"Error When \$state\"\r\
-    \n          \$noteMe value=\$state;\r\
+    \n          \$globalNoteMe value=\$state;\r\
     \n          :set itsOk false;\r\
     \n       }\r\
     \n    }\r\
@@ -393,11 +391,14 @@
     \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
     \n}\r\
     \n\r\
-    \n\$noteMe value=\$inf\r\
+    \n\$globalNoteMe value=\$inf\r\
     \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
+    \n:if (!\$itsOk) do={\r\
     \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
+    \n}\r\
     \n"
 /system script add dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -619,7 +620,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -686,10 +687,12 @@
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
     \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
+    \n:if (!\$itsOk) do={\r\
     \n\r\
-    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
+    \n}\r\
     \n"
 /system script add dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalNoteMe;\r\
@@ -834,8 +837,13 @@
     \n\r\
     \n\$globalNoteMe value=\$inf\r\
     \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
+    \n  \r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n}\r\
     \n\r\
     \n\r\
     \n\r\
@@ -1067,6 +1075,8 @@
     \n  \$globalTgMessage value=\$inf;\r\
     \n}\r\
     \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
     \n:if (!\$itsOk) do={\r\
     \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
     \n  \r\
@@ -1074,8 +1084,6 @@
     \n  \$globalTgMessage value=\$inf;\r\
     \n\r\
     \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
     \n\r\
     \n"
 /tool bandwidth-server set authenticate=no
