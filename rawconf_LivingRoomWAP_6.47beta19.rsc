@@ -1,4 +1,4 @@
-# jan/27/2020 21:00:02 by RouterOS 6.47beta19
+# feb/06/2020 21:00:02 by RouterOS 6.47beta19
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -90,7 +90,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
 /system logging add action=CAPSOnScreenLog topics=caps
 /system logging add action=FirewallOnScreenLog topics=firewall
 /system logging add action=CAPSOnScreenLog topics=wireless
-/system logging add action=ParseMemoryLog topics=info,system
+/system logging add action=ParseMemoryLog topics=info,system,!script
 /system ntp client set enabled=yes primary-ntp=195.151.98.66 secondary-ntp=46.254.216.9
 /system package update set channel=testing
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=mar/01/2018 start-time=15:55:00
@@ -98,7 +98,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
 /system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/10/2018 start-time=15:10:00
 /system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=23:30:00
 /system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=07:00:00
-/system scheduler add disabled=yes interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=11:31:24
+/system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=11:31:24
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=06:05:00
 /system scheduler add interval=1h name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=read,write,policy,password start-date=jan/30/2017 start-time=18:57:09
@@ -164,7 +164,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n\r\
     \n:beep frequency=500 length=500ms;\r\
     \n:delay 1000ms;"
-/system script add comment="Updates address-list that contains my external IP" dont-require-permissions=yes name=doUpdateExternalDNS owner=admin policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Updates address-list that contains my external IP" dont-require-permissions=yes name=doUpdateExternalDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local content\
     \n:local IPv4\
     \n:global LastIPv4\
@@ -268,7 +268,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n:local maxTemp;\r\
     \n:local currentTemp [/system health get temperature];\r\
     \n\r\
-    \n:set maxTemp 55;\r\
+    \n:set maxTemp 60;\r\
     \n\r\
     \n#\r\
     \n\r\
@@ -292,7 +292,8 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n :delay 800ms\r\
     \n\r\
     \n\r\
-    \n};"
+    \n};\r\
+    \n"
 /system script add comment="Runs at midnight to have less flashes at living room (swith off all LEDs)" dont-require-permissions=yes name=doLEDoff owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doLEDoff\";\r\
@@ -306,7 +307,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n\r\
     \n/system leds settings set all-leds-off=never;\r\
     \n"
-/system script add comment="Simple telegram notify script" dont-require-permissions=yes name=doTelegramNotify owner=admin policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Simple telegram notify script" dont-require-permissions=yes name=doTelegramNotify owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doTelegramNotify\";\r\
     \n\r\
@@ -328,7 +329,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
 /system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n#clear all global variables\r\
     \n/system script environment remove [find];"
-/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=admin policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time\r\
+/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time\r\
     \n/ip cloud force-update;\r\
     \n\r\
     \n:log warning \"Starting script: doStartupScript\";\r\
@@ -454,18 +455,26 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n# Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry\r\
     \n   :if (\$logEntryTime = \$globalLastParseTime && \$logEntryMessage = \$globalLastParseMsg) do={\r\
     \n   } else={\r\
-    \n#   Set \$globalParseVar, then run parser script\r\
-    \n      :set \$globalParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\
-    \n      /system script run (\$logParserScript)\r\
     \n\r\
-    \n#   Update last parsed time, and last parsed message\r\
-    \n      :set \$globalLastParseTime \$logEntryTime\r\
-    \n      :set \$globalLastParseMsg \$logEntryMessage\r\
+    \n    # Do not track LOG config changes because we're doing it right there (in that script)\r\
+    \n    # and that will be a huge one-per-minute spam\r\
+    \n    :if (\$logEntryMessage~\"log action\") do={\r\
+    \n\r\
+    \n  \r\
+    \n        } else={\r\
+    \n\r\
+    \n            # Set \$globalParseVar, then run parser script\r\
+    \n            :set \$globalParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\
+    \n            /system script run (\$logParserScript)\r\
+    \n\r\
+    \n            # Update last parsed time, and last parsed message\r\
+    \n            :set \$globalLastParseTime \$logEntryTime\r\
+    \n            :set \$globalLastParseMsg \$logEntryMessage\r\
+    \n        }\r\
     \n   }\r\
     \n\r\
     \n# end foreach rule\r\
-    \n}\r\
-    \n"
+    \n}"
 /system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n#\$globalScriptBeforeRun \"doPeriodicLogParse\";\r\
@@ -555,7 +564,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n# End check for configuration changes\r\
     \n\r\
     \n}"
-/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=admin policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalNoteMe;\r\
     \n\r\
     \n:if (!any \$globalNoteMe) do={ \r\
@@ -632,7 +641,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n\r\
     \n\r\
     \n"
-/system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=admin policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
+/system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\
     \n\r\
     \n:local sysname [/system identity get name]\r\
@@ -786,7 +795,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n  \r\
     \n}\r\
     \n"
-/system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=admin policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
+/system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doRandomGen\";\r\
     \n\r\
@@ -867,7 +876,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n\r\
     \n}\r\
     \n"
-/system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=admin policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doFreshTheScripts\";\r\
     \n:global globalScriptBeforeRun;\r\
@@ -882,7 +891,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\

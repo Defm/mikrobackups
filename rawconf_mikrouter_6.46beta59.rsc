@@ -1,4 +1,4 @@
-# jan/27/2020 21:00:02 by RouterOS 6.46beta59
+# feb/08/2020 12:15:01 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -99,7 +99,7 @@ set "wlan 5Ghz" enable-polling=no
 /ppp profile add address-list=l2tp-active-clients interface-list=list-2tp-dynamic-tun local-address=10.0.0.2 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-mic
 /queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
-/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhoneAlx name="iPhoneAlx@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
+/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhone name="iPhone@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV@main dhcp (90:DD:5D:C8:46:AB)" target=192.168.99.190/32
 /queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
 /queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
@@ -276,7 +276,6 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.2 comment="<AUTO:DHCP:main dhcp>" name=LivingRoomWAP.home ttl=5m
 /ip dns static add address=192.168.99.170 comment="<AUTO:DHCP:main dhcp>" name=MbpAlx.home ttl=5m
 /ip dns static add address=192.168.99.140 comment="<AUTO:DHCP:main dhcp>" name=iPadAlx.home ttl=5m
-/ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlx.home ttl=5m
 /ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
 /ip dns static add address=192.168.99.190 comment="<AUTO:DHCP:main dhcp>" name=AlxATV.home ttl=5m
@@ -285,6 +284,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.240 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGLO.home ttl=5m
 /ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=AsusGlo.home ttl=5m
 /ip dns static add address=192.168.99.10 comment="<AUTO:DHCP:main dhcp>" name=openflixr.home ttl=5m
+/ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhone.home ttl=5m
 /ip dns static add address=109.252.106.14 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
@@ -1365,7 +1365,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:local maxTemp;\r\
     \n:local currentTemp [/system health get temperature];\r\
     \n\r\
-    \n:set maxTemp 55;\r\
+    \n:set maxTemp 60;\r\
     \n\r\
     \n#\r\
     \n\r\
@@ -1792,109 +1792,129 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  }\r\
     \n}\r\
     \n"
-/system script add comment="Mikrotik system log dump, collects new entries once per minute. You should have 'ParseMemoryLog' buffer at your 'system-logging'. Calls 'doPeriodicLogParse' when new logs available" dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n#\$globalScriptBeforeRun \"doPeriodicLogDump\";\r\
-    \n\r\
-    \n# Script Name: Log-Parser\r\
-    \n# This script reads a specified log buffer.  At each log entry read,\r\
-    \n# the global variable 'globalParseVar' is set to \"<log entry time>,<log entry topics>,<log entry message>\"\r\
-    \n# then a parser action script is run.  The parser action script reads the global variable, and performs specified actions.\r\
-    \n# The log buffer is then cleared, so only new entries are read each time this script gets executed.\r\
-    \n\r\
-    \n# Set this to a \"memory\" action log buffer\r\
-    \n:local logBuffer \"ParseMemoryLog\"\r\
-    \n\r\
-    \n# Set to name of parser script to run against each log entry in buffer\r\
-    \n:local logParserScript \"doPeriodicLogParse\"\r\
-    \n\r\
-    \n# Internal processing below....\r\
-    \n# -----------------------------------\r\
-    \n:global globalParseVar \"\"\r\
-    \n:global globalLastParseTime\r\
-    \n:global globalLastParseMsg\r\
-    \n\r\
-    \n:local findindex\r\
-    \n:local property\r\
-    \n:local value\r\
-    \n:local logEntryTopics\r\
-    \n:local logEntryTime\r\
-    \n:local logEntryMessage\r\
-    \n:local curDate\r\
-    \n:local curMonth\r\
-    \n:local curDay\r\
-    \n:local curYear\r\
-    \n:local clearedbuf\r\
-    \n:local lines\r\
-    \n\r\
-    \n# Get current date settings\r\
-    \n:set \$curDate [/system clock get date]\r\
-    \n:set \$curMonth [:pick [:tostr \$curDate] 0 3]\r\
-    \n:set \$curDay [:pick [:tostr \$curDate] 4 6]\r\
-    \n:set \$curYear [:pick [:tostr \$curDate] 7 11]\r\
-    \n\r\
-    \n:set \$clearedbuf 0\r\
-    \n:foreach rule in=[/log print as-value where buffer=(\$logBuffer)] do={\r\
-    \n# Now all data is collected in memory..\r\
-    \n\r\
-    \n# Clear log buffer right away so new entries come in\r\
-    \n   :if (\$clearedbuf = 0) do={\r\
-    \n      /system logging action {\r\
-    \n         :set \$lines [get (\$logBuffer) memory-lines]\r\
-    \n         set (\$logBuffer) memory-lines 1\r\
-    \n         set (\$logBuffer) memory-lines \$lines\r\
-    \n      }\r\
-    \n      :set \$clearedbuf 1\r\
-    \n   }\r\
-    \n# End clear log buffer\r\
-    \n\r\
-    \n   :set \$logEntryTime \"\"\r\
-    \n   :set \$logEntryTopics \"\"\r\
-    \n   :set \$logEntryMessage \"\"\r\
-    \n\r\
-    \n# Get each log entry's properties\r\
-    \n   :local items {\$rule}\r\
-    \n   :foreach item in=[\$items] do={\r\
-    \n      :set \$logEntryTime (\$item->\"time\")\r\
-    \n      :set \$logEntryTopics (\$item->\"topics\")\r\
-    \n      :set \$logEntryMessage (\$item->\"message\")\r\
-    \n   }\r\
-    \n# end foreach item\r\
-    \n   }\r\
-    \n\r\
-    \n# Set \$logEntryTime to full time format (mmm/dd/yyyy HH:MM:SS)\r\
-    \n   :set \$findindex [:find [:tostr \$logEntryTime] \" \"]\r\
-    \n# If no spaces are found, only time is given (HH:MM:SS), insert mmm/dd/yyyy\r\
-    \n   :if ([:len \$findindex] = 0) do={\r\
-    \n      :set \$logEntryTime (\$curMonth . \"/\" . \$curDay . \"/\" . \$curYear . \" \" . \\\r\
-    \n                                    [:tostr \$logEntryTime])\r\
-    \n   }\r\
-    \n# Only (mmm/dd HH:MM:SS) is given, insert year\r\
-    \n   :if (\$findindex = 6) do={\r\
-    \n      :set \$logEntryTime ([:pick [:tostr \$logEntryTime] 0 \$findindex] . \"/\" . \$curYear . \\\r\
-    \n                                    [:pick [:tostr \$logEntryTime] \$findindex [:len [:tostr \$logEntryTime]]])\r\
-    \n   }\r\
-    \n# Only (mmm HH:MM:SS) is given, insert day and year\r\
-    \n   :if (\$findindex = 3) do={\r\
-    \n      :set \$logEntryTime ([:pick [:tostr \$logEntryTime] 0 \$findindex] . \"/\" . \$curDay . \"/\" . \$curYear . \\\r\
-    \n                                    [:pick [:tostr \$logEntryTime] \$findindex [:len [:tostr \$logEntryTime]]])\r\
-    \n   }\r\
-    \n# End set \$logEntryTime to full time format\r\
-    \n\r\
-    \n# Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry\r\
-    \n   :if (\$logEntryTime = \$globalLastParseTime && \$logEntryMessage = \$globalLastParseMsg) do={\r\
-    \n   } else={\r\
-    \n#   Set \$globalParseVar, then run parser script\r\
-    \n      :set \$globalParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\
-    \n      /system script run (\$logParserScript)\r\
-    \n\r\
-    \n#   Update last parsed time, and last parsed message\r\
-    \n      :set \$globalLastParseTime \$logEntryTime\r\
-    \n      :set \$globalLastParseMsg \$logEntryMessage\r\
-    \n   }\r\
-    \n\r\
-    \n# end foreach rule\r\
-    \n}\r\
+/system script add comment="Mikrotik system log dump, collects new entries once per minute. You should have 'ParseMemoryLog' buffer at your 'system-logging'. Calls 'doPeriodicLogParse' when new logs available" dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\r\
+    \n:global globalScriptBeforeRun;\r\r\
+    \n#\$globalScriptBeforeRun \"doPeriodicLogDump\";\r\r\
+    \n\r\r\
+    \n# Script Name: Log-Parser\r\r\
+    \n# This script reads a specified log buffer.  At each log entry read,\r\r\
+    \n# the global variable 'globalParseVar' is set to \"<log entry time>,<log entry topics>,<log entry message>\"\r\r\
+    \n# then a parser action script is run.  The parser action script reads the global variable, and performs specified actions.\r\r\
+    \n# The log buffer is then cleared, so only new entries are read each time this script gets executed.\r\r\
+    \n\r\r\
+    \n# Set this to a \"memory\" action log buffer\r\r\
+    \n:local logBuffer \"ParseMemoryLog\"\r\r\
+    \n\r\r\
+    \n# Set to name of parser script to run against each log entry in buffer\r\r\
+    \n:local logParserScript \"doPeriodicLogParse\"\r\r\
+    \n:local excludedMsgs [:toarray \"static dns entry, horsed\"];\r\r\
+    \n\r\r\
+    \n# Internal processing below....\r\r\
+    \n# -----------------------------------\r\r\
+    \n:global globalParseVar \"\"\r\r\
+    \n:global globalLastParseTime\r\r\
+    \n:global globalLastParseMsg\r\r\
+    \n:global globalNoteMe;\r\r\
+    \n\r\r\
+    \n:local findindex\r\r\
+    \n:local property\r\r\
+    \n:local value\r\r\
+    \n:local logEntryTopics\r\r\
+    \n:local logEntryTime\r\r\
+    \n:local logEntryMessage\r\r\
+    \n:local curDate\r\r\
+    \n:local curMonth\r\r\
+    \n:local curDay\r\r\
+    \n:local curYear\r\r\
+    \n:local clearedbuf\r\r\
+    \n:local lines\r\r\
+    \n\r\r\
+    \n# Get current date settings\r\r\
+    \n:set \$curDate [/system clock get date]\r\r\
+    \n:set \$curMonth [:pick [:tostr \$curDate] 0 3]\r\r\
+    \n:set \$curDay [:pick [:tostr \$curDate] 4 6]\r\r\
+    \n:set \$curYear [:pick [:tostr \$curDate] 7 11]\r\r\
+    \n\r\r\
+    \n:if ([:len [find key=brat in=\$list ]] > 0) do={:put \"Yes\"} else={:put \"No\"}\r\r\
+    \n\r\r\
+    \n:set \$clearedbuf 0\r\r\
+    \n:foreach rule in=[/log print as-value where buffer=(\$logBuffer)] do={\r\r\
+    \n# Now all data is collected in memory..\r\r\
+    \n\r\r\
+    \n# Clear log buffer right away so new entries come in\r\r\
+    \n   :if (\$clearedbuf = 0) do={\r\r\
+    \n      /system logging action {\r\r\
+    \n         :set \$lines [get (\$logBuffer) memory-lines]\r\r\
+    \n         set (\$logBuffer) memory-lines 1\r\r\
+    \n         set (\$logBuffer) memory-lines \$lines\r\r\
+    \n      }\r\r\
+    \n      :set \$clearedbuf 1\r\r\
+    \n   }\r\r\
+    \n# End clear log buffer\r\r\
+    \n\r\r\
+    \n   :set \$logEntryTime \"\"\r\r\
+    \n   :set \$logEntryTopics \"\"\r\r\
+    \n   :set \$logEntryMessage \"\"\r\r\
+    \n\r\r\
+    \n# Get each log entry's properties\r\r\
+    \n   :local items {\$rule}\r\r\
+    \n   :foreach item in=[\$items] do={\r\r\
+    \n      :set \$logEntryTime (\$item->\"time\")\r\r\
+    \n      :set \$logEntryTopics (\$item->\"topics\")\r\r\
+    \n      :set \$logEntryMessage (\$item->\"message\")\r\r\
+    \n   }\r\r\
+    \n# end foreach item\r\r\
+    \n   }\r\r\
+    \n\r\r\
+    \n# Set \$logEntryTime to full time format (mmm/dd/yyyy HH:MM:SS)\r\r\
+    \n   :set \$findindex [:find [:tostr \$logEntryTime] \" \"]\r\r\
+    \n# If no spaces are found, only time is given (HH:MM:SS), insert mmm/dd/yyyy\r\r\
+    \n   :if ([:len \$findindex] = 0) do={\r\r\
+    \n      :set \$logEntryTime (\$curMonth . \"/\" . \$curDay . \"/\" . \$curYear . \" \" . \\\r\r\
+    \n                                    [:tostr \$logEntryTime])\r\r\
+    \n   }\r\r\
+    \n# Only (mmm/dd HH:MM:SS) is given, insert year\r\r\
+    \n   :if (\$findindex = 6) do={\r\r\
+    \n      :set \$logEntryTime ([:pick [:tostr \$logEntryTime] 0 \$findindex] . \"/\" . \$curYear . \\\r\r\
+    \n                                    [:pick [:tostr \$logEntryTime] \$findindex [:len [:tostr \$logEntryTime]]])\r\r\
+    \n   }\r\r\
+    \n# Only (mmm HH:MM:SS) is given, insert day and year\r\r\
+    \n   :if (\$findindex = 3) do={\r\r\
+    \n      :set \$logEntryTime ([:pick [:tostr \$logEntryTime] 0 \$findindex] . \"/\" . \$curDay . \"/\" . \$curYear . \\\r\r\
+    \n                                    [:pick [:tostr \$logEntryTime] \$findindex [:len [:tostr \$logEntryTime]]])\r\r\
+    \n   }\r\r\
+    \n# End set \$logEntryTime to full time format\r\r\
+    \n\r\r\
+    \n# Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry\r\r\
+    \n   :if (\$logEntryTime = \$globalLastParseTime && \$logEntryMessage = \$globalLastParseMsg) do={\r\r\
+    \n   } else={\r\r\
+    \n\r\r\
+    \n   :local skip false;\r\r\
+    \n   :foreach i in=\$excludedMsgs do={\r\r\
+    \n       :if ( !\$skip and \$logEntryMessage~\$i ) do={\r\r\
+    \n         :set skip true;\r\r\
+    \n         :put \"log entry skipped due to setup: \$logEntryMessage\";  \r\r\
+    \n         }\r\r\
+    \n\r\r\
+    \n    # Do not track LOG config changes because we're doing it right there (in that script)\r\r\
+    \n    # and that will be a huge one-per-minute spam\r\r\
+    \n    :if ( \$skip or \$logEntryMessage~\"log action\") do={\r\r\
+    \n\r\r\
+    \n  \r\r\
+    \n        } else={\r\r\
+    \n\r\r\
+    \n            # Set \$globalParseVar, then run parser script\r\r\
+    \n            :set \$globalParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\r\
+    \n            /system script run (\$logParserScript)\r\r\
+    \n\r\r\
+    \n            # Update last parsed time, and last parsed message\r\r\
+    \n            :set \$globalLastParseTime \$logEntryTime\r\r\
+    \n            :set \$globalLastParseMsg \$logEntryMessage\r\r\
+    \n        }\r\r\
+    \n   }\r\r\
+    \n\r\r\
+    \n# end foreach rule\r\r\
+    \n}\r\r\
     \n"
 /system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2759,7 +2779,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript\"];\r\
+    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
