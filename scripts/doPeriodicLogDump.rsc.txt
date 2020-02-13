@@ -12,8 +12,9 @@
 :local logBuffer "ParseMemoryLog"
 
 # Set to name of parser script to run against each log entry in buffer
-:local logParserScript "doPeriodicLogParse"
-:local excludedMsgs [:toarray "static dns entry, horsed"];
+:local logParserScript "doPeriodicLogParse"
+# This changes are almost made by the other scripts, so skip them to avoid spam
+:local excludedMsgs [:toarray "static dns entry, simple queue, script settings, led settings"];
 
 # Internal processing below....
 # -----------------------------------
