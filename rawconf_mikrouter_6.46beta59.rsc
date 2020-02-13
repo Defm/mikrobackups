@@ -1,4 +1,4 @@
-# feb/08/2020 12:24:34 by RouterOS 6.46beta59
+# feb/13/2020 08:18:25 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -1806,8 +1806,9 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:local logBuffer \"ParseMemoryLog\"\r\r\
     \n\r\r\
     \n# Set to name of parser script to run against each log entry in buffer\r\r\
-    \n:local logParserScript \"doPeriodicLogParse\"\r\r\
-    \n:local excludedMsgs [:toarray \"static dns entry, horsed\"];\r\r\
+    \n:local logParserScript \"doPeriodicLogParse\"\r\
+    \n# This changes are almost made by the other scripts, so skip them to avoid spam\r\r\
+    \n:local excludedMsgs [:toarray \"static dns entry, simple queue, script settings, led settings\"];\r\r\
     \n\r\r\
     \n# Internal processing below....\r\r\
     \n# -----------------------------------\r\r\
