@@ -1,4 +1,4 @@
-# feb/06/2020 21:00:02 by RouterOS 6.47beta19
+# feb/16/2020 21:00:02 by RouterOS 6.47beta19
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -300,12 +300,14 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n\r\
     \n/system leds settings set all-leds-off=immediate\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Runs at morning to get flashes back (swith on all LEDs)" dont-require-permissions=yes name=doLEDon owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doLEDon\";\r\
     \n\r\
     \n/system leds settings set all-leds-off=never;\r\
+    \n\r\
     \n"
 /system script add comment="Simple telegram notify script" dont-require-permissions=yes name=doTelegramNotify owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -325,10 +327,12 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n} on-error= {\r\
     \n:log error (\"Telegram notify error\");\r\
     \n:put \"Telegram notify error\";\r\
-    \n};"
+    \n};\r\
+    \n"
 /system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n#clear all global variables\r\
-    \n/system script environment remove [find];"
+    \n/system script environment remove [find];\r\
+    \n"
 /system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time\r\
     \n/ip cloud force-update;\r\
     \n\r\
@@ -378,12 +382,15 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n\r\
     \n# Set to name of parser script to run against each log entry in buffer\r\
     \n:local logParserScript \"doPeriodicLogParse\"\r\
+    \n# This changes are almost made by the other scripts, so skip them to avoid spam\r\
+    \n:local excludedMsgs [:toarray \"static dns entry, simple queue, script settings, led settings\"];\r\
     \n\r\
     \n# Internal processing below....\r\
     \n# -----------------------------------\r\
     \n:global globalParseVar \"\"\r\
     \n:global globalLastParseTime\r\
     \n:global globalLastParseMsg\r\
+    \n:global globalNoteMe;\r\
     \n\r\
     \n:local findindex\r\
     \n:local property\r\
@@ -454,13 +461,22 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n\r\
     \n# Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry\r\
     \n   :if (\$logEntryTime = \$globalLastParseTime && \$logEntryMessage = \$globalLastParseMsg) do={\r\
+    \n   \r\
     \n   } else={\r\
     \n\r\
-    \n    # Do not track LOG config changes because we're doing it right there (in that script)\r\
-    \n    # and that will be a huge one-per-minute spam\r\
-    \n    :if (\$logEntryMessage~\"log action\") do={\r\
+    \n        :local skip false;\r\
+    \n        :foreach i in=\$excludedMsgs do={\r\
+    \n            :if ( !\$skip and \$logEntryMessage~\$i ) do={\r\
+    \n                :set skip true;\r\
+    \n                :put \"log entry skipped due to setup: \$logEntryMessage\";  \r\
+    \n                }\r\
+    \n        }\r\
     \n\r\
-    \n  \r\
+    \n        # Do not track LOG config changes because we're doing it right there (in that script)\r\
+    \n        # and that will be a huge one-per-minute spam\r\
+    \n        :if ( \$skip or \$logEntryMessage~\"log action\") do={\r\
+    \n\r\
+    \n    \r\
     \n        } else={\r\
     \n\r\
     \n            # Set \$globalParseVar, then run parser script\r\
@@ -474,7 +490,9 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n   }\r\
     \n\r\
     \n# end foreach rule\r\
-    \n}"
+    \n}\r\
+    \n\r\
+    \n"
 /system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n#\$globalScriptBeforeRun \"doPeriodicLogParse\";\r\
@@ -563,7 +581,8 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n\r\
     \n# End check for configuration changes\r\
     \n\r\
-    \n}"
+    \n}\r\
+    \n"
 /system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalNoteMe;\r\
     \n\r\
@@ -891,7 +910,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -1061,6 +1080,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n  /system reboot\r\
     \n  \r\
     \n}\r\
+    \n\r\
     \n\r\
     \n"
 /system script add comment="A very special script for CFG restore from *.rsc files (not from backup). This one should be placed at flash/perfectrestore.rsc, your config should be at flash/backup.rsc. Run 'Reset confuguration' with 'no default config', choose 'flash/perfectrestore.rsc' as 'run after reset. Pretty logs will be at flash/import.log and flash/perfectrestore.log" dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\

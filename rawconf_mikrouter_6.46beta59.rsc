@@ -1,4 +1,4 @@
-# feb/14/2020 08:21:47 by RouterOS 6.46beta59
+# feb/16/2020 21:00:02 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -120,7 +120,8 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" target=192.168.99.230/32
 /queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGLO name="iPhoneGLO@main dhcp (54:2B:8D:7F:83:A6)" target=192.168.99.240/32
 /queue simple add comment=dtq,08:00:27:1C:F3:07,openflixr name="openflixr@main dhcp (08:00:27:1C:F3:07)" target=192.168.99.10/32
-/queue simple add comment=dtq,20:82:C0:E2:65:B5,Mi4i-MiPhone name="Mi4i-MiPhone@guest dhcp (20:82:C0:E2:65:B5)" target=192.168.98.229/32
+/queue simple add comment=dtq,B0:34:95:28:F5:15,iPad-Konohov name="iPad-Konohov@guest dhcp (B0:34:95:28:F5:15)" target=192.168.98.222/32
+/queue simple add comment=dtq,B0:C1:9E:DD:59:3A, name="@guest dhcp (B0:C1:9E:DD:59:3A)" target=192.168.98.221/32
 /queue tree add comment="FILE download control" disabled=yes name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -2781,7 +2782,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
