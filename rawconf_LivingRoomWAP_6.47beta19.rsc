@@ -1,4 +1,4 @@
-# feb/26/2020 21:00:02 by RouterOS 6.47beta19
+# mar/07/2020 21:00:02 by RouterOS 6.47beta19
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -44,8 +44,8 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
 /ip cloud set ddns-enabled=yes
 /ip dhcp-client add disabled=no interface="main infrastructure"
 /ip dns set cache-max-ttl=1d query-server-timeout=3s
-/ip dns static add address=109.252.106.14 name=ftpserver.org
-/ip firewall address-list add address=109.252.106.14 list=external-ip
+/ip dns static add address=94.29.30.41 name=ftpserver.org
+/ip firewall address-list add address=94.29.30.41 list=external-ip
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set irc disabled=yes
 /ip firewall service-port set h323 disabled=yes

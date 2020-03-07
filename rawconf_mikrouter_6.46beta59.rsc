@@ -1,4 +1,4 @@
-# feb/26/2020 21:00:02 by RouterOS 6.46beta59
+# mar/07/2020 21:00:02 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -74,10 +74,11 @@ set "wlan 5Ghz" enable-polling=no
 /ip ipsec mode-config set [ find default=yes ] src-address-list=vpn-tunneled-sites
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=outside-ipsec-encryption
+/ip ipsec profile set [ find default=yes ] dh-group=modp1024
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
 /ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" exchange-mode=ike2 local-address=192.168.100.7 name=CHR-external profile=ROUTEROS
 /ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" local-address=10.0.0.2 name=CHR-internal profile=ROUTEROS
-/ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
+/ip ipsec proposal set [ find default=yes ] disabled=yes enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
 /ip ipsec proposal add auth-algorithms=sha256 enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip pool add name="dhcp pool" ranges=192.168.99.100-192.168.99.200
 /ip pool add name="guest pool" ranges=192.168.98.200-192.168.98.230
@@ -286,7 +287,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=AsusGlo.home ttl=5m
 /ip dns static add address=192.168.99.10 comment="<AUTO:DHCP:main dhcp>" name=openflixr.home ttl=5m
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhone.home ttl=5m
-/ip dns static add address=109.252.106.14 name=ftpserver.org
+/ip dns static add address=94.29.30.41 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -352,7 +353,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=hqporner.com list=vpn-tunneled-sites
 /ip firewall address-list add address=www.eporner.com list=vpn-tunneled-sites
 /ip firewall address-list add address=www.youjizz.com list=vpn-tunneled-sites
-/ip firewall address-list add address=109.252.106.14 list=external-ip
+/ip firewall address-list add address=94.29.30.41 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -641,7 +642,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip ipsec identity add auth-method=digital-signature certificate=mikrouter@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
 /ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/30 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" sa-dst-address=10.0.0.1 sa-src-address=10.0.0.2 src-address=192.168.99.0/24 tunnel=yes
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=deny dst-host=grafana redirect-to=192.168.99.180:3000
@@ -700,8 +701,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:19 d:h:m:s | CPU: 57%\
-    \nRAM: 30128/131072M | Voltage: 23 v | Temp: 22c\
+    \nUptime:  00:00:19 d:h:m:s | CPU: 90%\
+    \nRAM: 30576/131072M | Voltage: 23 v | Temp: 51c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
