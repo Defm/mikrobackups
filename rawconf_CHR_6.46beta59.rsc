@@ -1,4 +1,4 @@
-# feb/24/2020 18:28:20 by RouterOS 6.46beta59
+# mar/15/2020 18:28:20 by RouterOS 6.46beta59
 # software id = 
 #
 #
@@ -15,11 +15,13 @@
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=roadwarrior-ipsec
 /ip ipsec policy group add name=outside-ipsec-encryption
+/ip ipsec profile set [ find default=yes ] dh-group=modp1024
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
 /ip ipsec profile add dh-group=modp2048 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=WINDOWS
 /ip ipsec peer add address=10.0.0.2/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, traffic-only encryption)" local-address=10.0.0.1 name=MIC-INNER passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=109.252.0.0/17 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=94.29.0.0/17 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-RANGE-2 passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add comment="IPSEC IKEv2 VPN PHASE1 (IOS/OSX)" exchange-mode=ike2 local-address=185.13.148.14 name=RW passive=yes profile=IOS/OSX send-initial-contact=no
 /ip ipsec peer add comment="IPSEC IKEv2 VPN PHASE1 (WINDOWS)" name=WIN passive=yes profile=WINDOWS send-initial-contact=no
 /ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
@@ -189,10 +191,12 @@
 /ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=glo.iphone.rw.2019@CHR remote-id=fqdn:glo.iphone.rw.2019@CHR
 /ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=WIN policy-template-group=inside-ipsec-encryption secret=123
 /ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=common-setup peer=MIC-OUTER policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=common-setup peer=MIC-OUTER-IP-RANGE-2 policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
 /ip ipsec policy set 0 disabled=yes
 /ip ipsec policy add comment="Roadwarrior IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption)" dst-address=10.10.10.8/29 group=roadwarrior-ipsec proposal="IPSEC IKEv2 VPN PHASE2 IOS/OSX" src-address=0.0.0.0/0 template=yes
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption)" dst-address=192.168.99.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/30 template=yes
 /ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range)" dst-address=109.252.0.0/17 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
+/ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range 2)" dst-address=94.29.0.0/17 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip route add check-gateway=ping comment=GLOBAL distance=10 gateway=185.13.148.1
 /ip service set telnet disabled=yes
 /ip service set ssh address=10.0.0.2/32 port=2222
