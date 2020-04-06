@@ -1,4 +1,4 @@
-# mar/27/2020 21:00:02 by RouterOS 6.46beta59
+# apr/06/2020 21:00:02 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -104,7 +104,7 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV@main dhcp (90:DD:5D:C8:46:AB)" target=192.168.99.190/32
 /queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
 /queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
-/queue simple add comment=dtq,08:00:27:17:3A:80, name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
+/queue simple add comment=dtq,08:00:27:17:3A:80,AsusGlo name="AsusGlo@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
 /queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
 /queue simple add comment=dtq,00:CD:FE:EC:B5:52, name="@guest dhcp (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
 /queue simple add comment=dtq,98:22:EF:26:FE:6E,AsusGlo name="AsusGlo@main dhcp (98:22:EF:26:FE:6E)" target=192.168.99.70/32
@@ -121,7 +121,7 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" target=192.168.99.230/32
 /queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGLO name="iPhoneGLO@main dhcp (54:2B:8D:7F:83:A6)" target=192.168.99.240/32
 /queue simple add comment=dtq,08:00:27:1C:F3:07,openflixr name="openflixr@main dhcp (08:00:27:1C:F3:07)" target=192.168.99.10/32
-/queue simple add comment=dtq,20:82:C0:E2:65:B5,Mi4i-MiPhone name="Mi4i-MiPhone@guest dhcp (20:82:C0:E2:65:B5)" target=192.168.98.222/32
+/queue simple add comment=dtq,20:82:C0:E2:65:B5,Mi4i-MiPhone name="Mi4i-MiPhone@guest dhcp (20:82:C0:E2:65:B5)" target=192.168.98.229/32
 /queue tree add comment="FILE download control" disabled=yes name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -235,12 +235,12 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip arp add address=192.168.99.2 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:02
 /ip cloud set ddns-enabled=yes
 /ip dhcp-server lease add address=192.168.99.140 always-broadcast=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.150 client-id=1:ac:61:ea:ea:cc:84 mac-address=AC:61:EA:EA:CC:84 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.150 client-id=1:ac:61:ea:ea:cc:84 disabled=yes mac-address=AC:61:EA:EA:CC:84 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.190 mac-address=90:DD:5D:C8:46:AB server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.160 address-lists=osx-hosts client-id=1:78:31:c1:cf:9e:70 mac-address=78:31:C1:CF:9E:70 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.170 address-lists=osx-hosts mac-address=38:C9:86:51:D2:B3 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.20 mac-address=08:00:27:17:3A:80 server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.130 always-broadcast=yes client-id=1:0:cd:fe:ec:b5:52 mac-address=00:CD:FE:EC:B5:52 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.130 always-broadcast=yes client-id=1:0:cd:fe:ec:b5:52 disabled=yes mac-address=00:CD:FE:EC:B5:52 server="main dhcp"
 /ip dhcp-server lease add address=192.168.98.230 block-access=yes client-id=1:0:cd:fe:ec:b5:52 mac-address=00:CD:FE:EC:B5:52 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.70 client-id=1:98:22:ef:26:fe:6e mac-address=98:22:EF:26:FE:6E server="main dhcp"
 /ip dhcp-server lease add address=192.168.98.210 block-access=yes client-id=1:98:22:ef:26:fe:6e comment=asusGl mac-address=98:22:EF:26:FE:6E server="guest dhcp"
@@ -354,6 +354,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=www.eporner.com list=vpn-tunneled-sites
 /ip firewall address-list add address=www.youjizz.com list=vpn-tunneled-sites
 /ip firewall address-list add address=teenskitten.com list=vpn-tunneled-sites
+/ip firewall address-list add address=lostfilm.tv list=vpn-tunneled-sites
 /ip firewall address-list add address=94.29.30.41 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -702,8 +703,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:19 d:h:m:s | CPU: 26%\
-    \nRAM: 30236/131072M | Voltage: 23 v | Temp: 62c\
+    \nUptime:  00:00:19 d:h:m:s | CPU: 1%\
+    \nRAM: 29484/131072M | Voltage: 23 v | Temp: 63c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
