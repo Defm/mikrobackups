@@ -1,4 +1,4 @@
-# apr/06/2020 21:00:02 by RouterOS 6.46beta59
+# apr/16/2020 21:00:02 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -355,6 +355,10 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=www.youjizz.com list=vpn-tunneled-sites
 /ip firewall address-list add address=teenskitten.com list=vpn-tunneled-sites
 /ip firewall address-list add address=lostfilm.tv list=vpn-tunneled-sites
+/ip firewall address-list add address=pornhub.com list=vpn-tunneled-sites
+/ip firewall address-list add address=nnmclub.to list=vpn-tunneled-sites
+/ip firewall address-list add address=rutor.org list=vpn-tunneled-sites
+/ip firewall address-list add address=Fast-Torrent.ru list=vpn-tunneled-sites
 /ip firewall address-list add address=94.29.30.41 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -451,8 +455,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=add-src-to-address-list address-list="Winbox Stage 1" address-list-timeout=1m chain="RFC Winbox Chain" comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp
 /ip firewall filter add action=return chain="RFC Winbox Chain" comment="Return From RFC Winbox Chain"
 /ip firewall filter add action=passthrough chain=forward comment=DUMMY5 disabled=yes log-prefix=#DUMMY5 src-address-list=dummy
-/ip firewall filter add action=add-src-to-address-list address-list=WAN-port-scanner address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!WAN-port-scanner
-/ip firewall filter add action=add-src-to-address-list address-list=LAN-port-scanner address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!LAN-port-scanner
+/ip firewall filter add action=add-src-to-address-list address-list=WAN-port-scanner address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" disabled=yes protocol=tcp psd=40,3s,2,1 src-address-list=!WAN-port-scanner
+/ip firewall filter add action=add-src-to-address-list address-list=LAN-port-scanner address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" disabled=yes protocol=tcp psd=40,3s,2,1 src-address-list=!LAN-port-scanner
 /ip firewall filter add action=passthrough chain=forward comment=DUMMY6 disabled=yes log-prefix=#DUMMY6 src-address-list=dummy
 /ip firewall filter add action=add-src-to-address-list address-list="WAN Highload" address-list-timeout=1h chain=input comment="WAN Highload" connection-limit=100,32 protocol=tcp
 /ip firewall filter add action=add-src-to-address-list address-list="LAN Highload" address-list-timeout=10h chain=forward comment="LAN Highload" connection-limit=100,32 protocol=tcp
@@ -703,8 +707,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:19 d:h:m:s | CPU: 1%\
-    \nRAM: 29484/131072M | Voltage: 23 v | Temp: 63c\
+    \nUptime:  00:00:19 d:h:m:s | CPU: 100%\
+    \nRAM: 29644/131072M | Voltage: 23 v | Temp: 65c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
