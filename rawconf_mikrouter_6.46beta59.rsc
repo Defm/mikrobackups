@@ -1,4 +1,4 @@
-# feb/14/2020 08:21:47 by RouterOS 6.46beta59
+# may/24/2020 15:40:27 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -74,6 +74,7 @@ set "wlan 5Ghz" enable-polling=no
 /ip ipsec mode-config set [ find default=yes ] src-address-list=vpn-tunneled-sites
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=outside-ipsec-encryption
+/ip ipsec profile set [ find default=yes ] dh-group=modp1024
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
 /ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" exchange-mode=ike2 local-address=192.168.100.7 name=CHR-external profile=ROUTEROS
 /ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" local-address=10.0.0.2 name=CHR-internal profile=ROUTEROS
@@ -98,30 +99,17 @@ set "wlan 5Ghz" enable-polling=no
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name="guest dhcp"
 /ppp profile add address-list=l2tp-active-clients interface-list=list-2tp-dynamic-tun local-address=10.0.0.2 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-mic
-/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" target=192.168.99.140/32
-/queue simple add comment=dtq,AC:61:EA:EA:CC:84,iPhone name="iPhone@main dhcp (AC:61:EA:EA:CC:84)" target=192.168.99.150/32
-/queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV@main dhcp (90:DD:5D:C8:46:AB)" target=192.168.99.190/32
-/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" target=192.168.99.160/32
-/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" target=192.168.99.170/32
-/queue simple add comment=dtq,08:00:27:17:3A:80, name="@main dhcp (08:00:27:17:3A:80)" target=192.168.99.20/32
-/queue simple add comment=dtq,00:CD:FE:EC:B5:52,iPhoneGl name="iPhoneGl@main dhcp (00:CD:FE:EC:B5:52)" target=192.168.99.130/32
-/queue simple add comment=dtq,00:CD:FE:EC:B5:52, name="@guest dhcp (00:CD:FE:EC:B5:52)" target=192.168.98.230/32
-/queue simple add comment=dtq,98:22:EF:26:FE:6E,AsusGlo name="AsusGlo@main dhcp (98:22:EF:26:FE:6E)" target=192.168.99.70/32
-/queue simple add comment=dtq,98:22:EF:26:FE:6E, name="asusGl@guest dhcp (98:22:EF:26:FE:6E)" target=192.168.98.210/32
-/queue simple add comment=dtq,88:53:95:30:68:9F, name="@guest dhcp (88:53:95:30:68:9F)" target=192.168.98.228/32
-/queue simple add comment=dtq,AC:61:EA:EA:CC:84, name="@guest dhcp (AC:61:EA:EA:CC:84)" target=192.168.98.225/32
-/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" target=192.168.98.224/32
-/queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" target=192.168.99.180/32
-/queue simple add comment=dtq,94:C6:91:94:98:DC, name="@main dhcp (94:C6:91:94:98:DC)" target=192.168.99.88/32
-/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" target=192.168.99.2/32
-/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@guest dhcp (54:2B:8D:77:38:A0)" target=192.168.98.223/32
-/queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="nas@main dhcp (00:11:32:2C:A7:85)" target=192.168.99.30/32
-/queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGl name="iPhoneGl@guest dhcp (54:2B:8D:7F:83:A6)" target=192.168.98.226/32
-/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" target=192.168.99.230/32
-/queue simple add comment=dtq,54:2B:8D:7F:83:A6,iPhoneGLO name="iPhoneGLO@main dhcp (54:2B:8D:7F:83:A6)" target=192.168.99.240/32
-/queue simple add comment=dtq,08:00:27:1C:F3:07,openflixr name="openflixr@main dhcp (08:00:27:1C:F3:07)" target=192.168.99.10/32
-/queue simple add comment=dtq,20:82:C0:E2:65:B5,Mi4i-MiPhone name="Mi4i-MiPhone@guest dhcp (20:82:C0:E2:65:B5)" target=192.168.98.229/32
-/queue tree add comment="FILE download control" disabled=yes name="Total Bandwidth" parent=global queue=default
+/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx name="iPadAlx@main dhcp (54:E4:3A:B8:12:07)" queue=default/default target=192.168.99.140/32 total-queue=default
+/queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV@main dhcp (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.99.190/32 total-queue=default
+/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx@main dhcp (78:31:C1:CF:9E:70)" queue=default/default target=192.168.99.160/32 total-queue=default
+/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx@main dhcp (38:C9:86:51:D2:B3)" queue=default/default target=192.168.99.170/32 total-queue=default
+/queue simple add comment=dtq,54:E4:3A:B8:12:07,iPadAlx name="iPadAlx@guest dhcp (54:E4:3A:B8:12:07)" queue=default/default target=192.168.98.224/32 total-queue=default
+/queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" queue=default/default target=192.168.99.180/32 total-queue=default
+/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" queue=default/default target=192.168.99.2/32 total-queue=default
+/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@guest dhcp (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
+/queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="nas@main dhcp (00:11:32:2C:A7:85)" queue=default/default target=192.168.99.30/32 total-queue=default
+/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" queue=default/default target=192.168.99.150/32 total-queue=default
+/queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=ISO packet-mark=iso-mark parent="Total Bandwidth" queue=default
@@ -152,14 +140,10 @@ set "wlan 5Ghz" enable-polling=no
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlx disabled=no mac-address=AC:61:EA:EA:CC:84 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneGl disabled=no mac-address=00:CD:FE:EC:B5:52 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=mbpAlx disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s ap-tx-limit=0 client-to-client-forwarding=yes comment=ATV disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlx disabled=no mac-address=54:E4:3A:B8:12:07 ssid-regexp="WiFi 2"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlxr disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneGlo disabled=no mac-address=54:2B:8D:7F:83:A6 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=asusGl disabled=no mac-address=98:22:EF:26:FE:6E ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
 /caps-man manager set ca-certificate=auto certificate=auto enabled=yes require-peer-certificate=yes upgrade-policy=suggest-same-version
@@ -213,48 +197,26 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip address add address=10.255.255.2 comment="ospf router-id binding" interface="ospf loopback" network=10.255.255.2
 /ip address add address=172.16.0.16/30 comment="GRAFANA IP redirect" interface="ip mapping" network=172.16.0.16
 /ip address add address=172.16.0.17/30 comment="INFLUXDB IP redirect" interface="ip mapping" network=172.16.0.16
-/ip arp add address=192.168.99.80 interface="main infrastructure" mac-address=90:FB:A6:2B:02:16
-/ip arp add address=192.168.99.150 interface="main infrastructure" mac-address=AC:61:EA:EA:CC:84
 /ip arp add address=192.168.99.140 interface="main infrastructure" mac-address=54:E4:3A:B8:12:07
-/ip arp add address=192.168.99.90 interface="main infrastructure" mac-address=0C:60:76:72:6C:9B
 /ip arp add address=192.168.99.160 interface="main infrastructure" mac-address=78:31:C1:CF:9E:70
 /ip arp add address=192.168.100.7 interface=wan mac-address=6C:3B:6B:11:DA:18
 /ip arp add address=192.168.99.190 interface="main infrastructure" mac-address=90:DD:5D:C8:46:AB
 /ip arp add address=192.168.99.170 interface="main infrastructure" mac-address=38:C9:86:51:D2:B3
-/ip arp add address=192.168.99.20 interface="main infrastructure" mac-address=08:00:27:17:3A:80
-/ip arp add address=192.168.99.130 interface="main infrastructure" mac-address=00:CD:FE:EC:B5:52
-/ip arp add address=192.168.99.70 interface="main infrastructure" mac-address=98:22:EF:26:FE:6E
 /ip arp add address=192.168.99.180 interface="main infrastructure" mac-address=10:DD:B1:9E:19:5E
-/ip arp add address=192.168.99.88 interface="main infrastructure" mac-address=94:C6:91:94:98:DC
-/ip arp add address=192.168.99.200 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:02
 /ip arp add address=192.168.99.30 interface="main infrastructure" mac-address=00:11:32:2C:A7:85
-/ip arp add address=192.168.99.230 interface="main infrastructure" mac-address=54:2B:8D:77:38:A0
-/ip arp add address=192.168.99.240 interface="main infrastructure" mac-address=54:2B:8D:7F:83:A6
-/ip arp add address=192.168.99.10 interface="main infrastructure" mac-address=08:00:27:1C:F3:07
+/ip arp add address=192.168.99.150 interface="main infrastructure" mac-address=54:2B:8D:77:38:A0
 /ip arp add address=192.168.99.2 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:02
 /ip cloud set ddns-enabled=yes
 /ip dhcp-server lease add address=192.168.99.140 always-broadcast=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.150 client-id=1:ac:61:ea:ea:cc:84 mac-address=AC:61:EA:EA:CC:84 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.190 mac-address=90:DD:5D:C8:46:AB server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.160 address-lists=osx-hosts client-id=1:78:31:c1:cf:9e:70 mac-address=78:31:C1:CF:9E:70 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.170 address-lists=osx-hosts mac-address=38:C9:86:51:D2:B3 server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.20 mac-address=08:00:27:17:3A:80 server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.130 always-broadcast=yes client-id=1:0:cd:fe:ec:b5:52 mac-address=00:CD:FE:EC:B5:52 server="main dhcp"
-/ip dhcp-server lease add address=192.168.98.230 block-access=yes client-id=1:0:cd:fe:ec:b5:52 mac-address=00:CD:FE:EC:B5:52 server="guest dhcp"
-/ip dhcp-server lease add address=192.168.99.70 client-id=1:98:22:ef:26:fe:6e mac-address=98:22:EF:26:FE:6E server="main dhcp"
-/ip dhcp-server lease add address=192.168.98.210 block-access=yes client-id=1:98:22:ef:26:fe:6e comment=asusGl mac-address=98:22:EF:26:FE:6E server="guest dhcp"
-/ip dhcp-server lease add address=192.168.98.228 block-access=yes client-id=1:88:53:95:30:68:9f mac-address=88:53:95:30:68:9F server="guest dhcp"
-/ip dhcp-server lease add address=192.168.98.225 block-access=yes client-id=1:ac:61:ea:ea:cc:84 mac-address=AC:61:EA:EA:CC:84 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.98.224 block-access=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.180 address-lists=osx-hosts always-broadcast=yes mac-address=10:DD:B1:9E:19:5E server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.88 mac-address=94:C6:91:94:98:DC server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.2 mac-address=CC:2D:E0:E7:BE:02 server="main dhcp"
 /ip dhcp-server lease add address=192.168.98.223 block-access=yes client-id=1:54:2b:8d:77:38:a0 mac-address=54:2B:8D:77:38:A0 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.30 mac-address=00:11:32:2C:A7:85 server="main dhcp"
-/ip dhcp-server lease add address=192.168.98.226 block-access=yes client-id=1:54:2b:8d:7f:83:a6 mac-address=54:2B:8D:7F:83:A6 server="guest dhcp"
-/ip dhcp-server lease add address=192.168.99.230 client-id=1:54:2b:8d:77:38:a0 mac-address=54:2B:8D:77:38:A0 server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.240 client-id=1:54:2b:8d:7f:83:a6 mac-address=54:2B:8D:7F:83:A6 server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.10 mac-address=08:00:27:1C:F3:07 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.150 client-id=1:54:2b:8d:77:38:a0 mac-address=54:2B:8D:77:38:A0 server="main dhcp"
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server network add address=192.168.99.0/26 caps-manager=192.168.99.1 comment="VIRTUAL MACHINES DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.64/26 caps-manager=192.168.99.1 comment="WINDOWS DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
@@ -274,19 +236,13 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.97.1 name=chr.home
 /ip dns static add address=10.0.0.1 name=chr.home
 /ip dns static add address=192.168.100.1 name=gateway.home
+/ip dns static add address=192.168.99.190 comment="<AUTO:DHCP:main dhcp>" name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.99.2 comment="<AUTO:DHCP:main dhcp>" name=LivingRoomWAP.home ttl=5m
 /ip dns static add address=192.168.99.170 comment="<AUTO:DHCP:main dhcp>" name=MbpAlx.home ttl=5m
 /ip dns static add address=192.168.99.140 comment="<AUTO:DHCP:main dhcp>" name=iPadAlx.home ttl=5m
-/ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGl.home ttl=5m
+/ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlxr.home ttl=5m
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
-/ip dns static add address=192.168.99.190 comment="<AUTO:DHCP:main dhcp>" name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.99.30 comment="<AUTO:DHCP:main dhcp>" name=nas.home ttl=5m
-/ip dns static add address=192.168.99.230 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlxr.home ttl=5m
-/ip dns static add address=192.168.99.240 comment="<AUTO:DHCP:main dhcp>" name=iPhoneGLO.home ttl=5m
-/ip dns static add address=192.168.99.70 comment="<AUTO:DHCP:main dhcp>" name=AsusGlo.home ttl=5m
-/ip dns static add address=192.168.99.10 comment="<AUTO:DHCP:main dhcp>" name=openflixr.home ttl=5m
-/ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhone.home ttl=5m
-/ip dns static add address=109.252.106.14 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -349,7 +305,18 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=207.32.194.24 list=vpn-tunneled-sites
 /ip firewall address-list add address=speedtest.tele2.net disabled=yes list=vpn-tunneled-sites
 /ip firewall address-list add address=192.168.99.1 comment="Add DNS Server to this List" list="DNS Allow"
-/ip firewall address-list add address=109.252.106.14 list=external-ip
+/ip firewall address-list add address=hqporner.com list=vpn-tunneled-sites
+/ip firewall address-list add address=www.eporner.com list=vpn-tunneled-sites
+/ip firewall address-list add address=www.youjizz.com list=vpn-tunneled-sites
+/ip firewall address-list add address=teenskitten.com list=vpn-tunneled-sites
+/ip firewall address-list add address=lostfilm.tv list=vpn-tunneled-sites
+/ip firewall address-list add address=pornhub.com list=vpn-tunneled-sites
+/ip firewall address-list add address=nnmclub.to list=vpn-tunneled-sites
+/ip firewall address-list add address=rutor.org list=vpn-tunneled-sites
+/ip firewall address-list add address=Fast-Torrent.ru list=vpn-tunneled-sites
+/ip firewall address-list add address=rutor.info list=vpn-tunneled-sites
+/ip firewall address-list add address=hdreactor.net list=vpn-tunneled-sites
+/ip firewall address-list add address=94.29.30.41 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -697,8 +664,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=ParseMemoryLog topics=info,system
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:19 d:h:m:s | CPU: 57%\
-    \nRAM: 30128/131072M | Voltage: 23 v | Temp: 22c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 43%\
+    \nRAM: 29908/131072M | Voltage: 23 v | Temp: 51c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -2341,7 +2308,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    :set qComment (\$qCommentMark . \",\" . \$dhcpMac . \",\" . \$dhcpHost)\r\
     \n\r\
     \n    # build command (queue names should be unique)\r\
-    \n    :local cmd \"/queue simple add target=\$dhcpIp comment=\$qComment\"\r\
+    \n    :local cmd \"/queue simple add target=\$dhcpIp comment=\$qComment queue=default/default total-queue=default\"\r\
     \n    :if (\$dhcpComment != \"\") do={ \r\
     \n      :set cmd \"\$cmd name=\\\"\$dhcpComment@\$dhcpServer (\$dhcpMac)\\\"\" \r\
     \n    } else= {\r\
@@ -2781,7 +2748,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup, doEnvironmentSetup, doRandomGen, doFreshTheScripts, doCertificatesIssuing, doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\

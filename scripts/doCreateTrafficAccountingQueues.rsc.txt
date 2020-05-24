@@ -78,7 +78,7 @@ $globalScriptBeforeRun $scriptname;
     :set qComment ($qCommentMark . "," . $dhcpMac . "," . $dhcpHost)
 
     # build command (queue names should be unique)
-    :local cmd "/queue simple add target=$dhcpIp comment=$qComment"
+    :local cmd "/queue simple add target=$dhcpIp comment=$qComment queue=default/default total-queue=default"
     :if ($dhcpComment != "") do={ 
       :set cmd "$cmd name=\"$dhcpComment@$dhcpServer ($dhcpMac)\"" 
     } else= {
