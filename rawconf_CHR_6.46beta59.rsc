@@ -1,4 +1,4 @@
-# may/24/2020 18:28:20 by RouterOS 6.46beta59
+# jun/03/2020 01:53:43 by RouterOS 6.46beta59
 # software id = 
 #
 #
@@ -19,9 +19,9 @@
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
 /ip ipsec profile add dh-group=modp2048 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=WINDOWS
+/ip ipsec peer add address=91.79.193.47/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=10.0.0.2/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, traffic-only encryption)" local-address=10.0.0.1 name=MIC-INNER passive=yes profile=ROUTEROS send-initial-contact=no
-/ip ipsec peer add address=109.252.0.0/17 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER passive=yes profile=ROUTEROS send-initial-contact=no
-/ip ipsec peer add address=94.29.0.0/17 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-RANGE-2 passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=91.79.0.0/16 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, remotely updated via SSH)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-STATIC-IP-RANGE passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add comment="IPSEC IKEv2 VPN PHASE1 (IOS/OSX)" exchange-mode=ike2 local-address=185.13.148.14 name=RW passive=yes profile=IOS/OSX send-initial-contact=no
 /ip ipsec peer add comment="IPSEC IKEv2 VPN PHASE1 (WINDOWS)" name=WIN passive=yes profile=WINDOWS send-initial-contact=no
 /ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
@@ -52,8 +52,10 @@
 /system logging action add name=L2TPOnScreenLog target=memory
 /system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
+/system logging action add name=SSHOnscreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
+/user group add name=remote policy=ssh,read,write,winbox,!local,!telnet,!ftp,!reboot,!policy,!test,!password,!web,!sniff,!sensitive,!api,!romon,!dude,!tikapp
 /certificate scep-server add ca-cert=ca@CHR days-valid=365 next-ca-cert=ca@CHR path=/scep/grant request-lifetime=5m
 /interface bridge settings set allow-fast-path=no use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes
@@ -65,6 +67,7 @@
 /ip accounting set enabled=yes
 /ip address add address=192.168.97.1/30 comment="local IP" interface="main infrastructure" network=192.168.97.0
 /ip address add address=10.255.255.1 comment="ospf router-id binding" interface=ospf-loopback network=10.255.255.1
+/ip cloud set ddns-enabled=yes
 /ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=no interface=wan use-peer-ntp=no
 /ip dhcp-server network add address=10.0.0.0/30 dns-server=8.8.8.8,8.8.4.4 gateway=10.0.0.1
 /ip dhcp-server network add address=192.168.97.0/30 gateway=192.168.97.1
@@ -190,16 +193,16 @@
 /ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=alx.iphone.rw.2019@CHR
 /ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=glo.iphone.rw.2019@CHR remote-id=fqdn:glo.iphone.rw.2019@CHR
 /ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=WIN policy-template-group=inside-ipsec-encryption secret=123
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=common-setup peer=MIC-OUTER policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=common-setup peer=MIC-OUTER-IP-RANGE-2 policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=common-setup peer=MIC-OUTER-IP-REMOTE-CONTROLLABLE policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=common-setup peer=MIC-OUTER-STATIC-IP-RANGE policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
 /ip ipsec policy set 0 disabled=yes
 /ip ipsec policy add comment="Roadwarrior IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption)" dst-address=10.10.10.8/29 group=roadwarrior-ipsec proposal="IPSEC IKEv2 VPN PHASE2 IOS/OSX" src-address=0.0.0.0/0 template=yes
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption)" dst-address=192.168.99.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/30 template=yes
-/ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range)" dst-address=109.252.0.0/17 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
-/ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range 2)" dst-address=94.29.0.0/17 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
+/ip ipsec policy add comment=MIC-OUTER-IP-REMOTE-CONTROLLABLE dst-address=91.79.193.47/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
+/ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range 2)" dst-address=91.79.0.0/16 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip route add check-gateway=ping comment=GLOBAL distance=10 gateway=185.13.148.1
 /ip service set telnet disabled=yes
-/ip service set ssh address=10.0.0.2/32 port=2222
+/ip service set ssh port=2222
 /ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
 /ip smb set allow-guests=no
@@ -236,6 +239,7 @@
 /system logging add action=CertificatesOnScreenLog topics=certificate
 /system logging add action=AuthDiskLog topics=manager
 /system logging add action=IpsecOnScreenLog topics=ipsec,!debug,!packet
+/system logging add action=SSHOnscreenLog topics=ssh
 /system note set note="You are logged into: CHR\
     \n############### system health ###############\
     \nUptime:  2w6d00:00:10 d:h:m:s | CPU: 0%\
@@ -624,7 +628,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -771,7 +775,36 @@
     \n  }\r\
     \n}\r\
     \n\r\
-    \n\r\
+    \n:global globalIPSECPolicyUpdateViaSSH;\r\r\
+    \n\r\r\
+    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={ \r\r\
+    \n  :global globalIPSECPolicyUpdateViaSSH do={\r\r\
+    \n\r\r\
+    \n    :global globalRemoteIp;\r\r\
+    \n    :global globalNoteMe;\r\
+    \n\r\r\
+    \n    :if ([:len \$1] > 0) do={\r\r\
+    \n      :global globalRemoteIp (\"\$1\" . \"/32\"); \r\r\
+    \n    }\r\r\
+    \n\r\r\
+    \n    :if (!any \$globalRemoteIp) do={ \r\r\
+    \n      :global globalRemoteIp \"0.0.0.0/32\" \r\r\
+    \n    } else={\r\r\
+    \n    \r\r\
+    \n    }\r\r\
+    \n    \r\r\
+    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\r\r\
+    \n\r\r\
+    \n    :if (\$count > 0) do={\r\r\
+    \n  \r\
+    \n       :local state (\"Starting policies process... \$globalRemoteIp \");\r\
+    \n       \$globalNoteMe value=\$state;  \r\
+    \n       \r\
+    \n       /system script run doUpdatePoliciesRemotely;\r\r\
+    \n    \r\
+    \n     }\r\r\
+    \n  }\r\r\
+    \n}\r\
     \n\r\
     \n\r\
     \n"
@@ -1087,6 +1120,94 @@
     \n  :global globalTgMessage;\r\
     \n  \$globalTgMessage value=\$inf;\r\
     \n\r\
+    \n}\r\
+    \n\r\
+    \n"
+/system script add dont-require-permissions=yes name=doUpdatePoliciesRemotely owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doUpdatePoliciesRemotely\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n:local state \"\";\r\
+    \n\r\
+    \n:global globalRemoteIp;\r\
+    \n\r\
+    \n:do {\r\
+    \n    :if ([:len \$globalRemoteIp] > 0) do={\r\
+    \n\r\
+    \n    :local peerID \"MIC-OUTER-IP-REMOTE-CONTROLLABLE\";\r\
+    \n\r\
+    \n    /ip ipsec policy {\r\
+    \n        :foreach vpnEndpoint in=[find (!disabled and template and comment=\"\$peerID\")] do={\r\
+    \n        \r\
+    \n            :local dstIp;\r\
+    \n            :set dstIp [get value-name=dst-address \$vpnEndpoint];\r\
+    \n\r\
+    \n            :if ((\$itsOk) and (\$globalRemoteIp != \$dstIp )) do={\r\
+    \n\r\
+    \n                [set \$vpnEndpoint disabled=yes];\r\
+    \n\r\
+    \n                :set state \"IPSEC policy template found with wrong IP (\$dstIp). Going change it to (\$globalRemoteIp)\";\r\
+    \n                \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n                /ip ipsec peer {\r\
+    \n                    :foreach thePeer in=[find name=\$peerID] do={\r\
+    \n\r\
+    \n                        :if (\$itsOk) do={\r\
+    \n\r\
+    \n                            :set state \"Setting up peer remote address..\"\r\
+    \n                            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n                            [set \$thePeer disabled=yes];\r\
+    \n\r\
+    \n                            :delay 5;\r\
+    \n\r\
+    \n                            [set \$thePeer disabled=no address=\$globalRemoteIp];\r\
+    \n\r\
+    \n                          \r\
+    \n                        }\r\
+    \n\r\
+    \n                    }\r\
+    \n\r\
+    \n                }\r\
+    \n\r\
+    \n                :delay 5;\r\
+    \n                \r\
+    \n                [set \$vpnEndpoint dst-address=\$globalRemoteIp disabled=no];\r\
+    \n\r\
+    \n            }\r\
+    \n\r\
+    \n        }\r\
+    \n\r\
+    \n    }\r\
+    \n    \r\
+    \n    }\r\
+    \n} on-error= {\r\
+    \n    :local state (\"globalIPSECPolicyUpdateViaSSH error\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    :set itsOk false;\r\
+    \n};\r\
+    \n\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: policies refreshed Successfully\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
     \n}\r\
     \n\r\
     \n"
