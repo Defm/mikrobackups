@@ -1,40 +1,63 @@
 
+:local sysname [/system identity get name];
+:local scriptname "doUpdateExternalDNS";
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun $scriptname;
+
+:global globalNoteMe;
+:local itsOk true;
+:local state "";
+
 :local content
 :local IPv4
 :global LastIPv4
 
-# Getting my current IPv4 address
-
-# via web
-
-
-:global globalScriptBeforeRun;
-$globalScriptBeforeRun "doUpdateExternalDNS";
-
 # parsing the current IPv4 result
+/ip cloud force-update;
+:delay 7s;
 :set IPv4 [/ip cloud get public-address];
 
-:put "EXTERNAL IP: Current IPv4 = $IPv4";
-:log info "EXTERNAL IP: Current IPv4 = $IPv4";
 
 :if (($LastIPv4 != $IPv4) || ($force = true)) do={
-   :put "EXTERNAL IP: update needed!";
-   :log info "EXTERNAL IP: update needed!";
 
-    :log info "Address list updated: external-ip";
-   /ip firewall address-list remove [find list~"external-ip"];
-   /ip firewall address-list add list="external-ip" address=$IPv4;
+    :set state "External IP changed: current - ($IPv4), last - ($LastIPv4)";
+    $globalNoteMe value=$state;
+
+    /ip firewall address-list remove [find list~"external-ip"];
+    /ip firewall address-list add list="external-ip" address=$IPv4;
    
-   /ip dns static remove [/ip dns static find name=ftpserver.org];
-   
-   :log info "Address list updated: Static DNS of ftpserver.org";
-   /ip dns static add name=ftpserver.org address=$IPv4;
+    /ip dns static remove [/ip dns static find name=ftpserver.org];
+    /ip dns static add name=ftpserver.org address=$IPv4;
  
-   :set LastIPv4 $IPv4;
+    :set LastIPv4 $IPv4;
+ 
+    :local count [:len [/system script find name="doSuperviseCHRviaSSH"]];
+    :if ($count > 0) do={
+       
+        :set state "Refreshing VPN server (CHR) IPSEC policies";
+        $globalNoteMe value=$state;
+        /system script run doSuperviseCHRviaSSH;
     
-} else={
-   :put "EXTERNAL IP: no update needed!"
-   :log info "EXTERNAL IP: no update needed!"
+     }
+   
+}
+
+:local inf ""
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: external IP address change detected, refreshed"
+}
+
+:if (!$itsOk) do={
+  :set inf "Error When $scriptname on $sysname: $state"  
+}
+
+$globalNoteMe value=$inf
+
+:if (!$itsOk) do={
+
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+  
 }
 
 
