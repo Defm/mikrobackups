@@ -1,19 +1,97 @@
-# This script will set a password and identity on all accesspoints it can connect to
-# Intended for when you put up many capsman managed aps and want to secure them in one go.
-# The identity part can be commented or removed if not needed
-# Script will only work once, when there's no password on the AP
-{
-    :local Password "Coolpassword192"
+
+:local sysname [/system identity get name];
+:local scriptname "doSuperviseCHRviaSSH";
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun $scriptname;
+
+:global globalNoteMe;
+:local itsOk true;
+:local state "";
+
+:local exitCode 0;
+
+:local dst "185.13.148.14";
+:local port 2222;
+:local user "mikrouter";
+
+:do {
+   
+    :local wanIp [/ip cloud get public-address];
+    :local cmd ":global globalRemoteIp $wanIp/32";
+
+    #password-less (RSA keys) connection should be set up before
+    :local globalVarSetupResult ([/system ssh-exec address=$dst user=$user port=$port command=$cmd as-value]);
+    :local exitCode ([$globalVarSetupResult]->"exit-code");
+
+    :if ($exitCode != 0) do={
+
+        :set state "RPC: script parameter setup returns exit code ($exitCode)";
+        $globalNoteMe value=$state;
+        :set itsOk false;
+
+    } else={
+
+        :set state "RPC: script parameter is set to ($wanIp)";
+        $globalNoteMe value=$state;
     
-    :local Counter 0
-    :foreach neighbor in=[/ip neighbor find] do={
-        :local Platform [/ip neighbor get $neighbor platform]
-        :local IP [/ip neighbor get $neighbor address4]
-        
-        if ($Platform = "MikroTik") do={
-            :local Identity "AP$Counter"
-            /system ssh address=$IP user=admin src-address=10.0.0.2 port=2222 command="/system identity set name=$Identity"
-        }
-        :set Counter ($Counter + 1)
     }
+
+} on-error= {
+    :local state ("remote SSH session gets error");
+    $globalNoteMe value=$state;
+    :set itsOk false;
+};
+
+
+:if ($itsOk) do={
+
+    :do {
+    
+        :local wanIp [/ip cloud get public-address];
+        :local cmd "/system script run doUpdatePoliciesRemotely";
+
+        #password-less (RSA keys) connection should be set up before
+        :local globalInitResult ([/system ssh-exec address=$dst user=$user port=$port command=$cmd as-value]);
+        :local exitCode ([$globalInitResult]->"exit-code");
+
+        :if ($exitCode != 0) do={
+
+            :set state "RPC: script start returns exit code ($exitCode)";
+            $globalNoteMe value=$state;
+            :set itsOk false;
+
+        } else={
+
+            :local exitInfo ([$globalInitResult]->"output");
+            :set state "RPC: remote script 'doUpdatePoliciesRemotely' started with info: $exitInfo";
+            $globalNoteMe value=$state;
+        
+        }
+
+    } on-error= {
+        :local state ("remote SSH session gets error");
+        $globalNoteMe value=$state;
+        :set itsOk false;
+    };
+
 }
+
+:local inf ""
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: remote policies refreshed Successfully"
+}
+
+:if (!$itsOk) do={
+  :set inf "Error When $scriptname on $sysname: $state"  
+}
+
+$globalNoteMe value=$inf
+
+:if (!$itsOk) do={
+
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+  
+}
+
+

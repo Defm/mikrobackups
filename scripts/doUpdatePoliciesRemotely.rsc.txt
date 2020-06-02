@@ -1,0 +1,87 @@
+
+:local sysname [/system identity get name];
+:local scriptname "doUpdatePoliciesRemotely";
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun $scriptname;
+
+:global globalNoteMe;
+:local itsOk true;
+:local state "";
+
+:global globalRemoteIp;
+
+:do {
+    :if ([:len $globalRemoteIp] > 0) do={
+
+    :local peerID "MIC-OUTER-IP-REMOTE-CONTROLLABLE";
+
+    /ip ipsec policy {
+        :foreach vpnEndpoint in=[find (!disabled and template and comment="$peerID")] do={
+        
+            :local dstIp;
+            :set dstIp [get value-name=dst-address $vpnEndpoint];
+
+            :if (($itsOk) and ($globalRemoteIp != $dstIp )) do={
+
+                [set $vpnEndpoint disabled=yes];
+
+                :set state "IPSEC policy template found with wrong IP ($dstIp). Going change it to ($globalRemoteIp)";
+                $globalNoteMe value=$state;
+
+                /ip ipsec peer {
+                    :foreach thePeer in=[find name=$peerID] do={
+
+                        :if ($itsOk) do={
+
+                            :set state "Setting up peer remote address.."
+                            $globalNoteMe value=$state;
+
+                            [set $thePeer disabled=yes];
+
+                            :delay 5;
+
+                            [set $thePeer disabled=no address=$globalRemoteIp];
+
+                          
+                        }
+
+                    }
+
+                }
+
+                :delay 5;
+                
+                [set $vpnEndpoint dst-address=$globalRemoteIp disabled=no];
+
+            }
+
+        }
+
+    }
+    
+    }
+} on-error= {
+    :local state ("globalIPSECPolicyUpdateViaSSH error");
+    $globalNoteMe value=$state;
+    :set itsOk false;
+};
+
+
+:local inf ""
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: policies refreshed Successfully"
+}
+
+:if (!$itsOk) do={
+  :set inf "Error When $scriptname on $sysname: $state"  
+}
+
+$globalNoteMe value=$inf
+
+:if (!$itsOk) do={
+
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+  
+}
+
