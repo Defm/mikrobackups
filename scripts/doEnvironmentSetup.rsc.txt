@@ -71,6 +71,35 @@
   }
 }
 
-
+:global globalIPSECPolicyUpdateViaSSH;
+
+:if (!any $globalIPSECPolicyUpdateViaSSH) do={ 
+  :global globalIPSECPolicyUpdateViaSSH do={
+
+    :global globalRemoteIp;
+    :global globalNoteMe;
+
+    :if ([:len $1] > 0) do={
+      :global globalRemoteIp ("$1" . "/32"); 
+    }
+
+    :if (!any $globalRemoteIp) do={ 
+      :global globalRemoteIp "0.0.0.0/32" 
+    } else={
+    
+    }
+    
+    :local count [:len [/system script find name="doUpdatePoliciesRemotely"]];
+
+    :if ($count > 0) do={
+  
+       :local state ("Starting policies process... $globalRemoteIp ");
+       $globalNoteMe value=$state;  
+       
+       /system script run doUpdatePoliciesRemotely;
+    
+     }
+  }
+}
 
 

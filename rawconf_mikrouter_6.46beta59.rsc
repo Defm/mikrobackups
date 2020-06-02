@@ -1,4 +1,4 @@
-# may/24/2020 15:40:27 by RouterOS 6.46beta59
+# jun/03/2020 01:23:22 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -137,8 +137,10 @@ set "wlan 5Ghz" enable-polling=no
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
 /system logging action add name=CAPSOnScreenLog target=memory
 /system logging action add name=FirewallOnScreenLog target=memory
+/system logging action add name=SSHOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
+/user group add name=remote policy=ssh,read,write,!local,!telnet,!ftp,!reboot,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!api,!romon,!dude,!tikapp
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=mbpAlx disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s ap-tx-limit=0 client-to-client-forwarding=yes comment=ATV disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 5"
@@ -206,7 +208,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip arp add address=192.168.99.30 interface="main infrastructure" mac-address=00:11:32:2C:A7:85
 /ip arp add address=192.168.99.150 interface="main infrastructure" mac-address=54:2B:8D:77:38:A0
 /ip arp add address=192.168.99.2 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:02
-/ip cloud set ddns-enabled=yes
+/ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-server lease add address=192.168.99.140 always-broadcast=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.190 mac-address=90:DD:5D:C8:46:AB server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.160 address-lists=osx-hosts client-id=1:78:31:c1:cf:9e:70 mac-address=78:31:C1:CF:9E:70 server="main dhcp"
@@ -243,6 +245,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlxr.home ttl=5m
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
 /ip dns static add address=192.168.99.30 comment="<AUTO:DHCP:main dhcp>" name=nas.home ttl=5m
+/ip dns static add address=91.79.193.47 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -277,7 +280,6 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=10.0.0.0/30 list="VPN server"
 /ip firewall address-list add address=10.0.0.0/30 list="VPN network"
 /ip firewall address-list add address=nnmclub.me list=vpn-tunneled-sites
-/ip firewall address-list add address=2ip.ru list=vpn-tunneled-sites
 /ip firewall address-list add address=10.0.0.0/24 list=Network
 /ip firewall address-list add address=myexternalip.com list=vpn-tunneled-sites
 /ip firewall address-list add address=91.108.4.0/22 list=Telegram
@@ -316,7 +318,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=Fast-Torrent.ru list=vpn-tunneled-sites
 /ip firewall address-list add address=rutor.info list=vpn-tunneled-sites
 /ip firewall address-list add address=hdreactor.net list=vpn-tunneled-sites
-/ip firewall address-list add address=94.29.30.41 list=external-ip
+/ip firewall address-list add address=91.79.193.47 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -375,7 +377,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=8:0-255 limit=50,5:packet protocol=icmp
 /ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" log-prefix="#ICMP DROP" protocol=icmp
 /ip firewall filter add action=return chain=detect-ping-flood comment="Return from detect-ping-flood Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY1 disabled=yes log-prefix=#DUMMY1 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY1 log-prefix=#DUMMY1 src-address-list=dummy
 /ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Manually Added)" src-address-list="Black List"
 /ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Manually Added)" src-address-list="Black List"
 /ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (SSH)" src-address-list="Black List (SSH)"
@@ -390,31 +392,31 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=passthrough chain=forward comment="Drop anyone in the LAN Port Scanner List" src-address-list=LAN-port-scanner
 /ip firewall filter add action=drop chain=input comment="Drop all Bogons" src-address-list=Bogons
 /ip firewall filter add action=drop chain=forward comment="Drop all Bogons" src-address-list=Bogons
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY2 disabled=yes log-prefix=#DUMMY2 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY2 log-prefix=#DUMMY2 src-address-list=dummy
 /ip firewall filter add action=jump chain=input comment="Jump to RFC SSH Chain" jump-target="RFC SSH Chain"
 /ip firewall filter add action=add-src-to-address-list address-list="Black List (SSH)" address-list-timeout=1w3d chain="RFC SSH Chain" comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new dst-port=22 protocol=tcp src-address-list="SSH Stage 3"
 /ip firewall filter add action=add-src-to-address-list address-list="SSH Stage 3" address-list-timeout=1m chain="RFC SSH Chain" comment="Add succesive attempts to SSH Stage 3" connection-state=new dst-port=22 protocol=tcp src-address-list="SSH Stage 2"
 /ip firewall filter add action=add-src-to-address-list address-list="SSH Stage 2" address-list-timeout=1m chain="RFC SSH Chain" comment="Add succesive attempts to SSH Stage 2" connection-state=new dst-port=22 protocol=tcp src-address-list="SSH Stage 1"
 /ip firewall filter add action=add-src-to-address-list address-list="SSH Stage 1" address-list-timeout=1m chain="RFC SSH Chain" comment="Add intial attempt to SSH Stage 1 List" connection-state=new dst-port=22 protocol=tcp
 /ip firewall filter add action=return chain="RFC SSH Chain" comment="Return From RFC SSH Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY3 disabled=yes log-prefix=#DUMMY3 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY3 log-prefix=#DUMMY3 src-address-list=dummy
 /ip firewall filter add action=jump chain=input comment="Jump to RFC Telnet Chain" jump-target="RFC Telnet Chain"
 /ip firewall filter add action=add-src-to-address-list address-list="Black List (Telnet)" address-list-timeout=1w3d chain="RFC Telnet Chain" comment="Transfer repeated attempts from Telnet Stage 3 to Black-List" connection-state=new dst-port=23 protocol=tcp src-address-list="Telnet Stage 3"
 /ip firewall filter add action=add-src-to-address-list address-list="Telnet Stage 3" address-list-timeout=1m chain="RFC Telnet Chain" comment="Add succesive attempts to Telnet Stage 3" connection-state=new dst-port=23 protocol=tcp src-address-list="Telnet Stage 2"
 /ip firewall filter add action=add-src-to-address-list address-list="Telnet Stage 1" address-list-timeout=1m chain="RFC Telnet Chain" comment="Add Intial attempt to Telnet Stage 1" connection-state=new dst-port=23 protocol=tcp
 /ip firewall filter add action=add-src-to-address-list address-list="Telnet Stage 2" address-list-timeout=1m chain="RFC Telnet Chain" comment="Add succesive attempts to Telnet Stage 2" connection-state=new dst-port=23 protocol=tcp src-address-list="Telnet Stage 1"
 /ip firewall filter add action=return chain="RFC Telnet Chain" comment="Return From RFC Telnet Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY4 disabled=yes log-prefix=#DUMMY4 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY4 log-prefix=#DUMMY4 src-address-list=dummy
 /ip firewall filter add action=jump chain=input comment="Jump to RFC Winbox Chain" jump-target="RFC Winbox Chain"
 /ip firewall filter add action=add-src-to-address-list address-list="Black List (Winbox)" address-list-timeout=1w3d chain="RFC Winbox Chain" comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new dst-port=8291 protocol=tcp src-address-list="Winbox Stage 3"
 /ip firewall filter add action=add-src-to-address-list address-list="Winbox Stage 3" address-list-timeout=1m chain="RFC Winbox Chain" comment="Add succesive attempts to Winbox Stage 3" connection-state=new dst-port=8291 protocol=tcp src-address-list="Winbox Stage 2"
 /ip firewall filter add action=add-src-to-address-list address-list="Winbox Stage 2" address-list-timeout=1m chain="RFC Winbox Chain" comment="Add succesive attempts to Winbox Stage 2" connection-state=new dst-port=8291 protocol=tcp src-address-list="Winbox Stage 1"
 /ip firewall filter add action=add-src-to-address-list address-list="Winbox Stage 1" address-list-timeout=1m chain="RFC Winbox Chain" comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp
 /ip firewall filter add action=return chain="RFC Winbox Chain" comment="Return From RFC Winbox Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY5 disabled=yes log-prefix=#DUMMY5 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY5 log-prefix=#DUMMY5 src-address-list=dummy
 /ip firewall filter add action=add-src-to-address-list address-list=WAN-port-scanner address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!WAN-port-scanner
 /ip firewall filter add action=add-src-to-address-list address-list=LAN-port-scanner address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!LAN-port-scanner
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY6 disabled=yes log-prefix=#DUMMY6 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY6 log-prefix=#DUMMY6 src-address-list=dummy
 /ip firewall filter add action=add-src-to-address-list address-list="WAN Highload" address-list-timeout=1h chain=input comment="WAN Highload" connection-limit=100,32 protocol=tcp
 /ip firewall filter add action=add-src-to-address-list address-list="LAN Highload" address-list-timeout=10h chain=forward comment="LAN Highload" connection-limit=100,32 protocol=tcp
 /ip firewall filter add action=jump chain=input comment="Jump to Virus Chain" jump-target=Virus
@@ -444,7 +446,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=drop chain=Virus comment="Drop SubSeven" dst-port=27374 protocol=tcp
 /ip firewall filter add action=drop chain=Virus comment="Drop PhatBot, Agobot, Gaobot" dst-port=65506 protocol=tcp
 /ip firewall filter add action=return chain=Virus comment="Return From Virus Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY7 disabled=yes log-prefix=#DUMMY7 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY7 log-prefix=#DUMMY7 src-address-list=dummy
 /ip firewall filter add action=jump chain=input comment="Jump to \"Manage Common Ports\" Chain" jump-target="Manage Common Ports"
 /ip firewall filter add action=accept chain="Manage Common Ports" comment="\"All hosts on this subnet\" Broadcast" src-address=224.0.0.1
 /ip firewall filter add action=accept chain="Manage Common Ports" comment="\"All routers on this subnet\" Broadcast" src-address=224.0.0.2
@@ -546,7 +548,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new log-prefix="#ACCEPTED UNKNOWN (FWD)"
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
 /ip firewall filter add action=accept chain=input comment="Allow proxy on 8888" dst-port=8888 in-interface="main infrastructure" protocol=tcp
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY8 disabled=yes log-prefix=#DUMMY8 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY8 log-prefix=#DUMMY8 src-address-list=dummy
 /ip firewall filter add action=drop chain=input comment="Open proxy block" dst-port=8888 in-interface=wan protocol=tcp
 /ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new in-interface=wan log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
 /ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log-prefix="#DROP UNKNOWN (FWD)"
@@ -615,12 +617,11 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip route rule add action=unreachable comment="LAN/GUEST isolation" dst-address=192.168.99.0/24 src-address=192.168.98.0/24
 /ip route rule add comment=API.TELEGRAM.ORG dst-address=149.154.167.0/24 table=mark-telegram
 /ip service set telnet disabled=yes
-/ip service set ftp disabled=yes
 /ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
 /ip smb set allow-guests=no domain=HNW interfaces="main infrastructure"
 /ip smb shares set [ find default=yes ] directory=/pub disabled=yes
-/ip ssh set allow-none-crypto=yes forwarding-enabled=remote
+/ip ssh set forwarding-enabled=remote
 /ip tftp add real-filename=NAS/ req-filename=.*
 /ip traffic-flow set cache-entries=64k enabled=yes interfaces=wan
 /ip upnp set enabled=yes
@@ -637,6 +638,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -662,6 +664,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=FirewallOnScreenLog topics=firewall
 /system logging add action=CAPSOnScreenLog topics=wireless
 /system logging add action=ParseMemoryLog topics=info,system
+/system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
     \nUptime:  00:00:20 d:h:m:s | CPU: 43%\
@@ -672,7 +675,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system ntp client set enabled=yes primary-ntp=195.151.98.66 secondary-ntp=46.254.216.9
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system package update set channel=testing
-/system scheduler add interval=1h name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=read,write,policy,password start-date=jan/30/2017 start-time=18:57:09
+/system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=read,write,policy,password start-date=jan/30/2017 start-time=18:57:09
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=read,write start-date=feb/21/2017 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/21/2017 start-time=19:19:59
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=mar/01/2018 start-time=15:55:00
@@ -861,6 +864,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\$globalScriptBeforeRun \"doUpdateExternalDNS\";\r\
     \n\r\
     \n# parsing the current IPv4 result\
+    \n/ip cloud force-update;\r\
+    \n:delay 7s;\r\
     \n:set IPv4 [/ip cloud get public-address];\
     \n\
     \n:put \"EXTERNAL IP: Current IPv4 = \$IPv4\";\
@@ -1691,25 +1696,101 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n      \r\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doSuperviseCHRviaSSH owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# This script will set a password and identity on all accesspoints it can connect to\r\
-    \n# Intended for when you put up many capsman managed aps and want to secure them in one go.\r\
-    \n# The identity part can be commented or removed if not needed\r\
-    \n# Script will only work once, when there's no password on the AP\r\
-    \n{\r\
-    \n    :local Password \"Coolpassword192\"\r\
+/system script add dont-require-permissions=yes name=doSuperviseCHRviaSSH owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doSuperviseCHRviaSSH\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n:local state \"\";\r\
+    \n\r\
+    \n:local exitCode 0;\r\
+    \n\r\
+    \n:local dst \"185.13.148.14\";\r\
+    \n:local port 2222;\r\
+    \n:local user \"mikrouter\";\r\
+    \n\r\
+    \n:do {\r\
+    \n   \r\
+    \n    :local wanIp [/ip cloud get public-address];\r\
+    \n    :local cmd \":global globalRemoteIp \$wanIp/32\";\r\
+    \n\r\
+    \n    :local globalVarSetupResult ([/system ssh-exec address=\$dst user=\$user port=\$port command=\$cmd as-value]);\r\
+    \n    :local exitCode ([\$globalVarSetupResult]->\"exit-code\");\r\
+    \n\r\
+    \n    :if (\$exitCode != 0) do={\r\
+    \n\r\
+    \n        :set state \"RPC: script parameter setup returns exit code (\$exitCode)\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :set itsOk false;\r\
+    \n\r\
+    \n    } else={\r\
+    \n\r\
+    \n        :set state \"RPC: script parameter is set to (\$wanIp)\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
     \n    \r\
-    \n    :local Counter 0\r\
-    \n    :foreach neighbor in=[/ip neighbor find] do={\r\
-    \n        :local Platform [/ip neighbor get \$neighbor platform]\r\
-    \n        :local IP [/ip neighbor get \$neighbor address4]\r\
-    \n        \r\
-    \n        if (\$Platform = \"MikroTik\") do={\r\
-    \n            :local Identity \"AP\$Counter\"\r\
-    \n            /system ssh address=\$IP user=admin src-address=10.0.0.2 port=2222 command=\"/system identity set name=\$Identity\"\r\
-    \n        }\r\
-    \n        :set Counter (\$Counter + 1)\r\
     \n    }\r\
-    \n}"
+    \n\r\
+    \n} on-error= {\r\
+    \n    :local state (\"remote SSH session gets error\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    :set itsOk false;\r\
+    \n};\r\
+    \n\r\
+    \n\r\
+    \n:if (\$itsOk) do={\r\
+    \n\r\
+    \n    :do {\r\
+    \n    \r\
+    \n        :local wanIp [/ip cloud get public-address];\r\
+    \n        :local cmd \"/system script run doUpdatePoliciesRemotely\";\r\
+    \n\r\
+    \n        :local globalInitResult ([/system ssh-exec address=\$dst user=\$user port=\$port command=\$cmd as-value]);\r\
+    \n        :local exitCode ([\$globalInitResult]->\"exit-code\");\r\
+    \n\r\
+    \n        :if (\$exitCode != 0) do={\r\
+    \n\r\
+    \n            :set state \"RPC: script start returns exit code (\$exitCode)\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            :set itsOk false;\r\
+    \n\r\
+    \n        } else={\r\
+    \n\r\
+    \n            :local exitInfo ([\$globalInitResult]->\"output\");\r\
+    \n            :set state \"RPC: remote script 'doUpdatePoliciesRemotely' started with info: \$exitInfo\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n        \r\
+    \n        }\r\
+    \n\r\
+    \n    } on-error= {\r\
+    \n        :local state (\"remote SSH session gets error\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :set itsOk false;\r\
+    \n    };\r\
+    \n\r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: remote policies refreshed Successfully\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
+    \n}\r\
+    \n\r\
+    \n"
 /system script add comment="Tracks and notifies about firmware releases" dont-require-permissions=yes name=doTrackFirmwareUpdates owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doTrackFirmwareUpdates\";\r\
@@ -2225,7 +2306,36 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  }\r\
     \n}\r\
     \n\r\
-    \n\r\
+    \n:global globalIPSECPolicyUpdateViaSSH;\r\r\
+    \n\r\r\
+    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={ \r\r\
+    \n  :global globalIPSECPolicyUpdateViaSSH do={\r\r\
+    \n\r\r\
+    \n    :global globalRemoteIp;\r\r\
+    \n    :global globalNoteMe;\r\
+    \n\r\r\
+    \n    :if ([:len \$1] > 0) do={\r\r\
+    \n      :global globalRemoteIp (\"\$1\" . \"/32\"); \r\r\
+    \n    }\r\r\
+    \n\r\r\
+    \n    :if (!any \$globalRemoteIp) do={ \r\r\
+    \n      :global globalRemoteIp \"0.0.0.0/32\" \r\r\
+    \n    } else={\r\r\
+    \n    \r\r\
+    \n    }\r\r\
+    \n    \r\r\
+    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\r\r\
+    \n\r\r\
+    \n    :if (\$count > 0) do={\r\r\
+    \n  \r\
+    \n       :local state (\"Starting policies process... \$globalRemoteIp \");\r\
+    \n       \$globalNoteMe value=\$state;  \r\
+    \n       \r\
+    \n       /system script run doUpdatePoliciesRemotely;\r\r\
+    \n    \r\
+    \n     }\r\r\
+    \n  }\r\r\
+    \n}\r\
     \n\r\
     \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
@@ -2748,7 +2858,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -3127,6 +3237,93 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n#new startup scripts maybe restored so...\r\
     \n/system reboot\r\
     \n\r\
+    \n}\r\
+    \n"
+/system script add comment="A server-side script, that is called via global function using ssh-exec from another mikrotik-client to update it's IPSEC policy IP address" dont-require-permissions=yes name=doUpdatePoliciesRemotely owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doUpdatePoliciesRemotely\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n:local state \"\";\r\
+    \n\r\
+    \n:global globalRemoteIp;\r\
+    \n\r\
+    \n:do {\r\
+    \n    :if ([:len \$globalRemoteIp] > 0) do={\r\
+    \n\r\
+    \n    :local peerID \"MIC-OUTER-IP-REMOTE-CONTROLLABLE\";\r\
+    \n\r\
+    \n    /ip ipsec policy {\r\
+    \n        :foreach vpnEndpoint in=[find (!disabled and template and comment=\"\$peerID\")] do={\r\
+    \n        \r\
+    \n            :local dstIp;\r\
+    \n            :set dstIp [get value-name=dst-address \$vpnEndpoint];\r\
+    \n\r\
+    \n            :if ((\$itsOk) and (\$globalRemoteIp != \$dstIp )) do={\r\
+    \n\r\
+    \n                [set \$vpnEndpoint disabled=yes];\r\
+    \n\r\
+    \n                :set state \"IPSEC policy template found with wrong IP (\$dstIp). Going change it to (\$globalRemoteIp)\";\r\
+    \n                \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n                /ip ipsec peer {\r\
+    \n                    :foreach thePeer in=[find name=\$peerID] do={\r\
+    \n\r\
+    \n                        :if (\$itsOk) do={\r\
+    \n\r\
+    \n                            :set state \"Setting up peer remote address..\"\r\
+    \n                            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n                            [set \$thePeer disabled=yes];\r\
+    \n\r\
+    \n                            :delay 5;\r\
+    \n\r\
+    \n                            [set \$thePeer disabled=no address=\$globalRemoteIp];\r\
+    \n\r\
+    \n                          \r\
+    \n                        }\r\
+    \n\r\
+    \n                    }\r\
+    \n\r\
+    \n                }\r\
+    \n\r\
+    \n                :delay 5;\r\
+    \n                \r\
+    \n                [set \$vpnEndpoint dst-address=\$globalRemoteIp disabled=no];\r\
+    \n\r\
+    \n            }\r\
+    \n\r\
+    \n        }\r\
+    \n\r\
+    \n    }\r\
+    \n    \r\
+    \n    }\r\
+    \n} on-error= {\r\
+    \n    :local state (\"globalIPSECPolicyUpdateViaSSH error\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    :set itsOk false;\r\
+    \n};\r\
+    \n\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: policies refreshed Successfully\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
     \n}\r\
     \n"
 /tool bandwidth-server set enabled=no
