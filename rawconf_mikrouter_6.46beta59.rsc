@@ -1,4 +1,4 @@
-# jun/03/2020 15:52:10 by RouterOS 6.46beta59
+# jun/04/2020 22:58:28 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -109,6 +109,8 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@guest dhcp (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
 /queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="nas@main dhcp (00:11:32:2C:A7:85)" queue=default/default target=192.168.99.30/32 total-queue=default
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" queue=default/default target=192.168.99.150/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadAlxPro name="iPadAlxPro@main dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.99.130/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro(blocked)@guest dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.229/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -249,6 +251,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlxr.home ttl=5m
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
 /ip dns static add address=192.168.99.30 comment="<AUTO:DHCP:main dhcp>" name=nas.home ttl=5m
+/ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPadAlxPro.home ttl=5m
 /ip dns static add address=91.79.193.47 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
@@ -678,10 +681,10 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system ntp client set enabled=yes primary-ntp=195.151.98.66 secondary-ntp=46.254.216.9
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system package update set channel=testing
-/system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=read,write,policy,password start-date=jan/30/2017 start-time=18:57:09
-/system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=read,write start-date=feb/21/2017 start-time=15:31:13
+/system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jan/30/2017 start-time=18:57:09
+/system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/21/2017 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/21/2017 start-time=19:19:59
-/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=mar/01/2018 start-time=15:55:00
+/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
 /system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
 /system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/10/2018 start-time=15:10:00
 /system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=03:25:00
@@ -916,7 +919,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n}\r\
     \n\r\
     \n"
-/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=no name=doCoolConcole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConcole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doCoolConcole\";\r\
     \n\r\
@@ -985,7 +988,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n        :put \"IPSEC Policy Updater: 'WAN' Unable to update IPSEC address'\"\r\
     \n        :log info \"IPSEC Policy Updater: 'WAN' Unable to update IPSEC address'\"\r\
     \n}"
-/system script add comment="Just to note of fast-track activation" dont-require-permissions=no name=doFastTrackActivation owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="/ip settings set allow-fast-path=yes\r\
+/system script add comment="Just to note of fast-track activation" dont-require-permissions=yes name=doFastTrackActivation owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="/ip settings set allow-fast-path=yes\r\
     \n/ip firewall filter add chain=forward action=fasttrack-connection connection-state=established,related"
 /system script add comment="Some sound" dont-require-permissions=yes name=doWestminister owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -1002,7 +1005,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:delay 500ms\r\
     \n:beep length=480ms frequency=396\r\
     \n:delay 10000ms"
-/system script add comment="Loads a HUGE list of ads/spammers to DNS-static records. https://stopad.cgood.ru/" dont-require-permissions=no name=doAdblock owner=owner policy=read,write,policy source="## StopAD - Script for blocking advertisements, based on your defined hosts files\r\
+/system script add comment="Loads a HUGE list of ads/spammers to DNS-static records. https://stopad.cgood.ru/" dont-require-permissions=yes name=doAdblock owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="## StopAD - Script for blocking advertisements, based on your defined hosts files\r\
     \n## For changing any parameters, please, use this link: https://stopad.cgood.ru/\r\
     \n##\r\
     \n## @github    <https://github.com/tarampampam/mikrotik-hosts-parser>\r\
@@ -1492,7 +1495,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n/system leds settings set all-leds-off=never;\r\
     \n"
-/system script add comment="Just some sound" dont-require-permissions=no name=doBumerSound owner=owner policy=read,test source=":global globalScriptBeforeRun;\r\
+/system script add comment="Just some sound" dont-require-permissions=yes name=doBumerSound owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBumerSound\";\r\
     \n\r\
     \n:beep frequency=1300 length=400ms;\r\
@@ -1570,7 +1573,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:log error (\"Telegram notify error\");\r\
     \n:put \"Telegram notify error\";\r\
     \n};"
-/system script add comment="Netwatch handler both when OnUp and OnDown" dont-require-permissions=no name=doNetwatchHost owner=owner policy=reboot,read,write,test source="\r\
+/system script add comment="Netwatch handler both when OnUp and OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doNetwatchHost\";\r\
@@ -2765,7 +2768,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  \$globalTgMessage value=\$inf;\r\
     \n  \r\
     \n}"
-/system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
+/system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doRandomGen\";\r\
     \n\r\
