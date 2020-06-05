@@ -1,4 +1,4 @@
-# may/26/2020 21:00:02 by RouterOS 6.47beta19
+# jun/05/2020 21:00:02 by RouterOS 6.47beta19
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -656,7 +656,36 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n  }\r\
     \n}\r\
     \n\r\
-    \n\r\
+    \n:global globalIPSECPolicyUpdateViaSSH;\r\r\
+    \n\r\r\
+    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={ \r\r\
+    \n  :global globalIPSECPolicyUpdateViaSSH do={\r\r\
+    \n\r\r\
+    \n    :global globalRemoteIp;\r\r\
+    \n    :global globalNoteMe;\r\
+    \n\r\r\
+    \n    :if ([:len \$1] > 0) do={\r\r\
+    \n      :global globalRemoteIp (\"\$1\" . \"/32\"); \r\r\
+    \n    }\r\r\
+    \n\r\r\
+    \n    :if (!any \$globalRemoteIp) do={ \r\r\
+    \n      :global globalRemoteIp \"0.0.0.0/32\" \r\r\
+    \n    } else={\r\r\
+    \n    \r\r\
+    \n    }\r\r\
+    \n    \r\r\
+    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\r\r\
+    \n\r\r\
+    \n    :if (\$count > 0) do={\r\r\
+    \n  \r\
+    \n       :local state (\"Starting policies process... \$globalRemoteIp \");\r\
+    \n       \$globalNoteMe value=\$state;  \r\
+    \n       \r\
+    \n       /system script run doUpdatePoliciesRemotely;\r\r\
+    \n    \r\
+    \n     }\r\r\
+    \n  }\r\r\
+    \n}\r\
     \n\r\
     \n\r\
     \n"
@@ -910,7 +939,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
