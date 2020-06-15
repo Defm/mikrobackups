@@ -1,4 +1,4 @@
-# jun/05/2020 21:00:02 by RouterOS 6.47beta19
+# jun/15/2020 21:00:02 by RouterOS 6.47beta19
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -37,6 +37,7 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /interface bridge port add bridge="main infrastructure" interface="lan A"
 /ip firewall connection tracking set enabled=yes
 /ip settings set accept-source-route=yes
+/interface detect-internet set detect-interface-list=all
 /interface wireless cap
 # 
 set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz" lock-to-caps-man=yes
@@ -44,8 +45,8 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
 /ip cloud set ddns-enabled=yes
 /ip dhcp-client add disabled=no interface="main infrastructure"
 /ip dns set cache-max-ttl=1d query-server-timeout=3s
-/ip dns static add address=94.29.30.41 name=ftpserver.org
-/ip firewall address-list add address=94.29.30.41 list=external-ip
+/ip dns static add address=91.79.193.47 name=ftpserver.org
+/ip firewall address-list add address=91.79.193.47 list=external-ip
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set irc disabled=yes
 /ip firewall service-port set h323 disabled=yes

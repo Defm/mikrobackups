@@ -1,4 +1,4 @@
-# jun/05/2020 21:00:02 by RouterOS 6.46beta59
+# jun/15/2020 21:00:02 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -109,8 +109,8 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@guest dhcp (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
 /queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="nas@main dhcp (00:11:32:2C:A7:85)" queue=default/default target=192.168.99.30/32 total-queue=default
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" queue=default/default target=192.168.99.150/32 total-queue=default
-/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadAlxPro name="iPadAlxPro@main dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.99.130/32 total-queue=default
-/queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro(blocked)@guest dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.229/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.99.130/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro(blocked)@guest dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.229/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -251,8 +251,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlxr.home ttl=5m
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
 /ip dns static add address=192.168.99.30 comment="<AUTO:DHCP:main dhcp>" name=nas.home ttl=5m
-/ip dns static add address=91.79.193.47 name=ftpserver.org
 /ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPadProAlx.home ttl=5m
+/ip dns static add address=91.79.193.47 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -673,8 +673,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:20 d:h:m:s | CPU: 43%\
-    \nRAM: 29908/131072M | Voltage: 23 v | Temp: 51c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 69%\
+    \nRAM: 30716/131072M | Voltage: 23 v | Temp: 54c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
