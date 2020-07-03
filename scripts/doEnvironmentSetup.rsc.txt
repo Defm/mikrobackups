@@ -89,6 +89,9 @@
     
     }
     
+    :local state ("RPC... $value");
+    $globalNoteMe value=$state;
+
     :local count [:len [/system script find name="doUpdatePoliciesRemotely"]];
 
     :if ($count > 0) do={
@@ -103,3 +106,105 @@
 }
 
 
+#Example call
+#$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid="WiFi 5"  
+:global globalNewNetworkMember;
+
+:if (!any $globalNewNetworkMember) do={ 
+  :global globalNewNetworkMember do={
+    
+    :global globalNoteMe;
+
+    #to prevent connection
+    :local guestDHCP "guest dhcp";
+    #to allow connection
+    :local mainDHCP "main dhcp";
+
+    #when DHCP not using (add arp for leases)
+    :local arpInterface "main infrastructure";
+
+    :local state ("Adding new network member... ");
+    $globalNoteMe value=$state;
+
+    # incoming named params 
+    :local newIp [ :tostr $ip ];
+    :local newBlockedIp [ :tostr $gip ];
+    :local newMac [ :tostr $mac ];
+    :local comment [ :tostr $comm ];
+    :local ssid [ :tostr $ssid ];    
+
+    :if ([:len $newIp] > 0) do={
+
+        :if ([ :typeof [ :toip $newIp ] ] != "ip" ) do={
+
+            :local state ("Error: bad IP parameter passed - ($newIp)");
+            $globalNoteMe value=$state;
+            :return false;
+        }
+
+    } else={
+
+        :local state ("Error: bad IP parameter passed - ($newIp)");
+        $globalNoteMe value=$state;
+        :return false;
+    }
+
+    :do {
+
+        /ip dhcp-server lease remove [find address=$newIp];
+        /ip dhcp-server lease remove [find mac-address=$newMac];
+
+        :local state ("Adding DHCP configuration for ($newIp/$newMac) on $mainDHCP");
+        $globalNoteMe value=$state;
+
+        /ip dhcp-server lease add address=$newIp mac-address=$newMac server=$mainDHCP comment=$comment;
+
+    } on-error={
+        :local state ("Error: something fail on DHCP configuration 'allow' step for ($newIp/$newMac) on $mainDHCP");
+        $globalNoteMe value=$state;
+        :return false;
+    }
+
+    :do {
+
+        /ip dhcp-server lease remove [find address=$newBlockedIp];
+
+        :local state ("Adding DHCP configuration for ($newBlockedIp/$newMac) on $guestDHCP (preventing connections to guest network)");
+        $globalNoteMe value=$state;
+
+        /ip dhcp-server lease add address=$newBlockedIp block-access=yes mac-address=$newMac server=$guestDHCP comment=($comment . "(blocked)");
+
+    } on-error={
+        :local state ("Error: something fail on DHCP configuration 'block' step for ($newBlockedIp/$newMac) on $guestDHCP");
+        $globalNoteMe value=$state;
+        :return false;
+    }
+
+    :do {
+       
+        /ip arp remove [find address=$newIp];
+        /ip arp remove [find address=$newBlockedIp];
+        /ip arp remove [find mac-address=$newMac];
+
+        /ip arp add address=$newIp interface=$arpInterface mac-address=$newMac comment=$comment
+    } on-error={
+        :local state ("Error: something fail on ARP configuration step");
+        $globalNoteMe value=$state;
+        :return false;
+    }
+
+    :do {
+       
+        /caps-man access-list remove [find mac-address=$newMac];
+
+        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=$comment disabled=no mac-address=$newMac ssid-regexp=$ssid place-before=1
+    
+    } on-error={
+        :local state ("Error: something fail on CAPS configuration step");
+        $globalNoteMe value=$state;
+        :return false;
+    }
+
+    :return true;
+    }
+}

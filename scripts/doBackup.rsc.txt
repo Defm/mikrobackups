@@ -71,7 +71,7 @@ $globalScriptBeforeRun "doBackup";
     :local itsSRC ( $buFile ~".safe.rsc")
     if ($FTPEnable and $itsOk) do={
         :do {
-        :local state "Uploading $buFile to FTP ($FTPRoot$buFile)"
+        :set state "Uploading $buFile to FTP ($FTPRoot$buFile)"
         $globalNoteMe value=$state
         /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRoot$buFile" mode=ftp upload=yes
         $globalNoteMe value="Done"
@@ -84,7 +84,7 @@ $globalScriptBeforeRun "doBackup";
         #special ftp upload for git purposes
         if ($itsSRC and $FTPGitEnable and $itsOk) do={
             :do {
-            :local state "Uploading $buFile to FTP (RAW, $FTPRawGitName)"
+            :set state "Uploading $buFile to FTP (RAW, $FTPRawGitName)"
             $globalNoteMe value=$state
             /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRawGitName" mode=ftp upload=yes
             $globalNoteMe value="Done"
@@ -98,7 +98,7 @@ $globalScriptBeforeRun "doBackup";
     }
     if ($SMTPEnable and !$itsSRC and $itsOk) do={
         :do {
-        :local state "Uploading $buFile to SMTP"
+        :set state "Uploading $buFile to SMTP"
         $globalNoteMe value=$state
 
         #email works in background, delay needed

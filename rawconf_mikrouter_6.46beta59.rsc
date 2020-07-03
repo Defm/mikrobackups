@@ -1,4 +1,4 @@
-# jun/03/2020 01:23:22 by RouterOS 6.46beta59
+# jun/25/2020 21:00:02 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -109,6 +109,10 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@guest dhcp (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
 /queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="nas@main dhcp (00:11:32:2C:A7:85)" queue=default/default target=192.168.99.30/32 total-queue=default
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" queue=default/default target=192.168.99.150/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.99.130/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro(blocked)@guest dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.229/32 total-queue=default
+/queue simple add comment=dtq,08:00:27:17:3A:80,AsusGlo name="vBox-Windows7@main dhcp (08:00:27:17:3A:80)" queue=default/default target=192.168.99.10/32 total-queue=default
+/queue simple add comment=dtq,08:00:27:17:3A:80, name="vBox-Windows7(blocked)@guest dhcp (08:00:27:17:3A:80)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -142,6 +146,8 @@ set "wlan 5Ghz" enable-polling=no
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /user group add name=remote policy=ssh,read,write,!local,!telnet,!ftp,!reboot,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!api,!romon,!dude,!tikapp
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=vBox-Windows7 disabled=no mac-address=08:00:27:17:3A:80 ssid-regexp=""
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlxPro disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=mbpAlx disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s ap-tx-limit=0 client-to-client-forwarding=yes comment=ATV disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlx disabled=no mac-address=54:E4:3A:B8:12:07 ssid-regexp="WiFi 2"
@@ -208,8 +214,10 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip arp add address=192.168.99.30 interface="main infrastructure" mac-address=00:11:32:2C:A7:85
 /ip arp add address=192.168.99.150 interface="main infrastructure" mac-address=54:2B:8D:77:38:A0
 /ip arp add address=192.168.99.2 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:02
+/ip arp add address=192.168.99.130 comment=iPadAlxPro interface="main infrastructure" mac-address=50:DE:06:25:C2:FC
+/ip arp add address=192.168.99.10 comment=vBox-Windows7 interface="main infrastructure" mac-address=08:00:27:17:3A:80
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
-/ip dhcp-server lease add address=192.168.99.140 always-broadcast=yes client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.140 client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.190 mac-address=90:DD:5D:C8:46:AB server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.160 address-lists=osx-hosts client-id=1:78:31:c1:cf:9e:70 mac-address=78:31:C1:CF:9E:70 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.170 address-lists=osx-hosts mac-address=38:C9:86:51:D2:B3 server="main dhcp"
@@ -219,6 +227,10 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dhcp-server lease add address=192.168.98.223 block-access=yes client-id=1:54:2b:8d:77:38:a0 mac-address=54:2B:8D:77:38:A0 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.30 mac-address=00:11:32:2C:A7:85 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.150 client-id=1:54:2b:8d:77:38:a0 mac-address=54:2B:8D:77:38:A0 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.130 comment=iPadAlxPro mac-address=50:DE:06:25:C2:FC server="main dhcp"
+/ip dhcp-server lease add address=192.168.98.229 block-access=yes comment="iPadAlxPro(blocked)" mac-address=50:DE:06:25:C2:FC server="guest dhcp"
+/ip dhcp-server lease add address=192.168.99.10 comment=vBox-Windows7 mac-address=08:00:27:17:3A:80 server="main dhcp"
+/ip dhcp-server lease add address=192.168.98.231 block-access=yes comment="vBox-Windows7(blocked)" mac-address=08:00:27:17:3A:80 server="guest dhcp"
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server network add address=192.168.99.0/26 caps-manager=192.168.99.1 comment="VIRTUAL MACHINES DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.64/26 caps-manager=192.168.99.1 comment="WINDOWS DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
@@ -245,7 +257,9 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhoneAlxr.home ttl=5m
 /ip dns static add address=192.168.99.180 comment="<AUTO:DHCP:main dhcp>" name=miniAlx.home ttl=5m
 /ip dns static add address=192.168.99.30 comment="<AUTO:DHCP:main dhcp>" name=nas.home ttl=5m
+/ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPadProAlx.home ttl=5m
 /ip dns static add address=91.79.193.47 name=ftpserver.org
+/ip dns static add address=192.168.99.10 comment="<AUTO:DHCP:main dhcp>" name=AsusGlo.home ttl=5m
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -638,7 +652,6 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -667,18 +680,18 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:20 d:h:m:s | CPU: 43%\
-    \nRAM: 29908/131072M | Voltage: 23 v | Temp: 51c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 100%\
+    \nRAM: 30612/131072M | Voltage: 23 v | Temp: 54c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
 /system ntp client set enabled=yes primary-ntp=195.151.98.66 secondary-ntp=46.254.216.9
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system package update set channel=testing
-/system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=read,write,policy,password start-date=jan/30/2017 start-time=18:57:09
-/system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=read,write start-date=feb/21/2017 start-time=15:31:13
+/system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jan/30/2017 start-time=18:57:09
+/system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/21/2017 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/21/2017 start-time=19:19:59
-/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=mar/01/2018 start-time=15:55:00
+/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
 /system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
 /system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/10/2018 start-time=15:10:00
 /system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=03:25:00
@@ -851,48 +864,69 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:beep frequency=500 length=500ms;\r\
     \n:delay 1000ms;"
 /system script add comment="Updates address-list that contains my external IP" dont-require-permissions=yes name=doUpdateExternalDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:local content\
-    \n:local IPv4\
-    \n:global LastIPv4\
-    \n\
-    \n# Getting my current IPv4 address\
-    \n\
-    \n# via web\
-    \n\
-    \n\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doUpdateExternalDNS\";\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doUpdateExternalDNS\";\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
-    \n# parsing the current IPv4 result\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n:local state \"\";\r\
+    \n\r\
+    \n:local content\r\
+    \n:local IPv4\r\
+    \n:global LastIPv4\r\
+    \n\r\
+    \n# parsing the current IPv4 result\r\
     \n/ip cloud force-update;\r\
     \n:delay 7s;\r\
-    \n:set IPv4 [/ip cloud get public-address];\
-    \n\
-    \n:put \"EXTERNAL IP: Current IPv4 = \$IPv4\";\
-    \n:log info \"EXTERNAL IP: Current IPv4 = \$IPv4\";\
-    \n\
-    \n:if ((\$LastIPv4 != \$IPv4) || (\$force = true)) do={\
-    \n   :put \"EXTERNAL IP: update needed!\";\
-    \n   :log info \"EXTERNAL IP: update needed!\";\
-    \n\
-    \n    :log info \"Address list updated: external-ip\";\
-    \n   /ip firewall address-list remove [find list~\"external-ip\"];\
-    \n   /ip firewall address-list add list=\"external-ip\" address=\$IPv4;\
-    \n   \
-    \n   /ip dns static remove [/ip dns static find name=ftpserver.org];\
+    \n:set IPv4 [/ip cloud get public-address];\r\
+    \n\r\
+    \n\r\
+    \n:if ((\$LastIPv4 != \$IPv4) || (\$force = true)) do={\r\
+    \n\r\
+    \n    :set state \"External IP changed: current - (\$IPv4), last - (\$LastIPv4)\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    /ip firewall address-list remove [find list~\"external-ip\"];\r\
+    \n    /ip firewall address-list add list=\"external-ip\" address=\$IPv4;\r\
     \n   \r\
-    \n   :log info \"Address list updated: Static DNS of ftpserver.org\";\
-    \n   /ip dns static add name=ftpserver.org address=\$IPv4;\
-    \n \
-    \n   :set LastIPv4 \$IPv4;\
-    \n    \
-    \n} else={\
-    \n   :put \"EXTERNAL IP: no update needed!\"\
-    \n   :log info \"EXTERNAL IP: no update needed!\"\
-    \n}\
-    \n\
+    \n    /ip dns static remove [/ip dns static find name=ftpserver.org];\r\
+    \n    /ip dns static add name=ftpserver.org address=\$IPv4;\r\
+    \n \r\
+    \n    :set LastIPv4 \$IPv4;\r\
+    \n \r\
+    \n    :local count [:len [/system script find name=\"doSuperviseCHRviaSSH\"]];\r\
+    \n    :if (\$count > 0) do={\r\
+    \n       \r\
+    \n        :set state \"Refreshing VPN server (CHR) IPSEC policies\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /system script run doSuperviseCHRviaSSH;\r\
+    \n    \r\
+    \n     }\r\
+    \n   \r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: external IP address change detected, refreshed\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
+    \n}\r\
+    \n\r\
     \n"
-/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=no name=doCoolConcole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConcole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doCoolConcole\";\r\
     \n\r\
@@ -961,7 +995,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n        :put \"IPSEC Policy Updater: 'WAN' Unable to update IPSEC address'\"\r\
     \n        :log info \"IPSEC Policy Updater: 'WAN' Unable to update IPSEC address'\"\r\
     \n}"
-/system script add comment="Just to note of fast-track activation" dont-require-permissions=no name=doFastTrackActivation owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="/ip settings set allow-fast-path=yes\r\
+/system script add comment="Just to note of fast-track activation" dont-require-permissions=yes name=doFastTrackActivation owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="/ip settings set allow-fast-path=yes\r\
     \n/ip firewall filter add chain=forward action=fasttrack-connection connection-state=established,related"
 /system script add comment="Some sound" dont-require-permissions=yes name=doWestminister owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -978,7 +1012,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:delay 500ms\r\
     \n:beep length=480ms frequency=396\r\
     \n:delay 10000ms"
-/system script add comment="Loads a HUGE list of ads/spammers to DNS-static records. https://stopad.cgood.ru/" dont-require-permissions=no name=doAdblock owner=owner policy=read,write,policy source="## StopAD - Script for blocking advertisements, based on your defined hosts files\r\
+/system script add comment="Loads a HUGE list of ads/spammers to DNS-static records. https://stopad.cgood.ru/" dont-require-permissions=yes name=doAdblock owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="## StopAD - Script for blocking advertisements, based on your defined hosts files\r\
     \n## For changing any parameters, please, use this link: https://stopad.cgood.ru/\r\
     \n##\r\
     \n## @github    <https://github.com/tarampampam/mikrotik-hosts-parser>\r\
@@ -1468,7 +1502,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n/system leds settings set all-leds-off=never;\r\
     \n"
-/system script add comment="Just some sound" dont-require-permissions=no name=doBumerSound owner=owner policy=read,test source=":global globalScriptBeforeRun;\r\
+/system script add comment="Just some sound" dont-require-permissions=yes name=doBumerSound owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBumerSound\";\r\
     \n\r\
     \n:beep frequency=1300 length=400ms;\r\
@@ -1546,7 +1580,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:log error (\"Telegram notify error\");\r\
     \n:put \"Telegram notify error\";\r\
     \n};"
-/system script add comment="Netwatch handler both when OnUp and OnDown" dont-require-permissions=no name=doNetwatchHost owner=owner policy=reboot,read,write,test source="\r\
+/system script add comment="Netwatch handler both when OnUp and OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doNetwatchHost\";\r\
@@ -1696,7 +1730,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n      \r\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doSuperviseCHRviaSSH owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Updates remote VPN server (CHR) IPSEC policies for this mikrotik client via SSH when external IP changed" dont-require-permissions=yes name=doSuperviseCHRviaSSH owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doSuperviseCHRviaSSH\";\r\
     \n:global globalScriptBeforeRun;\r\
@@ -1717,6 +1751,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    :local wanIp [/ip cloud get public-address];\r\
     \n    :local cmd \":global globalRemoteIp \$wanIp/32\";\r\
     \n\r\
+    \n    #password-less (RSA keys) connection should be set up before\r\
     \n    :local globalVarSetupResult ([/system ssh-exec address=\$dst user=\$user port=\$port command=\$cmd as-value]);\r\
     \n    :local exitCode ([\$globalVarSetupResult]->\"exit-code\");\r\
     \n\r\
@@ -1747,6 +1782,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n        :local wanIp [/ip cloud get public-address];\r\
     \n        :local cmd \"/system script run doUpdatePoliciesRemotely\";\r\
     \n\r\
+    \n        #password-less (RSA keys) connection should be set up before\r\
     \n        :local globalInitResult ([/system ssh-exec address=\$dst user=\$user port=\$port command=\$cmd as-value]);\r\
     \n        :local exitCode ([\$globalInitResult]->\"exit-code\");\r\
     \n\r\
@@ -2324,6 +2360,9 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    \r\r\
     \n    }\r\r\
     \n    \r\r\
+    \n    :local state (\"RPC... \$value\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
     \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\r\r\
     \n\r\r\
     \n    :if (\$count > 0) do={\r\r\
@@ -2337,7 +2376,109 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  }\r\r\
     \n}\r\
     \n\r\
-    \n"
+    \n\r\
+    \n#Example call\r\
+    \n#\$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid=\"WiFi 5\"  \r\
+    \n:global globalNewNetworkMember;\r\
+    \n\r\
+    \n:if (!any \$globalNewNetworkMember) do={ \r\
+    \n  :global globalNewNetworkMember do={\r\
+    \n    \r\
+    \n    :global globalNoteMe;\r\
+    \n\r\
+    \n    #to prevent connection\r\
+    \n    :local guestDHCP \"guest dhcp\";\r\
+    \n    #to allow connection\r\
+    \n    :local mainDHCP \"main dhcp\";\r\
+    \n\r\
+    \n    #when DHCP not using (add arp for leases)\r\
+    \n    :local arpInterface \"main infrastructure\";\r\
+    \n\r\
+    \n    :local state (\"Adding new network member... \");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    # incoming named params \r\
+    \n    :local newIp [ :tostr \$ip ];\r\
+    \n    :local newBlockedIp [ :tostr \$gip ];\r\
+    \n    :local newMac [ :tostr \$mac ];\r\
+    \n    :local comment [ :tostr \$comm ];\r\
+    \n    :local ssid [ :tostr \$ssid ];    \r\
+    \n\r\
+    \n    :if ([:len \$newIp] > 0) do={\r\
+    \n\r\
+    \n        :if ([ :typeof [ :toip \$newIp ] ] != \"ip\" ) do={\r\
+    \n\r\
+    \n            :local state (\"Error: bad IP parameter passed - (\$newIp)\");\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            :return false;\r\
+    \n        }\r\
+    \n\r\
+    \n    } else={\r\
+    \n\r\
+    \n        :local state (\"Error: bad IP parameter passed - (\$newIp)\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        /ip dhcp-server lease remove [find address=\$newIp];\r\
+    \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\r\
+    \n\r\
+    \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n        :local state (\"Error: something fail on DHCP configuration 'allow' step for (\$newIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        /ip dhcp-server lease remove [find address=\$newBlockedIp];\r\
+    \n\r\
+    \n        :local state (\"Adding DHCP configuration for (\$newBlockedIp/\$newMac) on \$guestDHCP (preventing connections to guest network)\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n        :local state (\"Error: something fail on DHCP configuration 'block' step for (\$newBlockedIp/\$newMac) on \$guestDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n       \r\
+    \n        /ip arp remove [find address=\$newIp];\r\
+    \n        /ip arp remove [find address=\$newBlockedIp];\r\
+    \n        /ip arp remove [find mac-address=\$newMac];\r\
+    \n\r\
+    \n        /ip arp add address=\$newIp interface=\$arpInterface mac-address=\$newMac comment=\$comment\r\
+    \n    } on-error={\r\
+    \n        :local state (\"Error: something fail on ARP configuration step\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n       \r\
+    \n        /caps-man access-list remove [find mac-address=\$newMac];\r\
+    \n\r\
+    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\$ssid place-before=1\r\
+    \n    \r\
+    \n    } on-error={\r\
+    \n        :local state (\"Error: something fail on CAPS configuration step\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n    }\r\
+    \n\r\
+    \n    :return true;\r\
+    \n    }\r\
+    \n}"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2634,7 +2775,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  \$globalTgMessage value=\$inf;\r\
     \n  \r\
     \n}"
-/system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
+/system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doRandomGen\";\r\
     \n\r\
