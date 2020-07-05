@@ -1,4 +1,4 @@
-# jun/25/2020 21:00:02 by RouterOS 6.46beta59
+# jul/05/2020 21:00:02 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -2695,7 +2695,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\
     \n    if (\$FTPEnable and \$itsOk) do={\r\
     \n        :do {\r\
-    \n        :local state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\
+    \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\
     \n        \$globalNoteMe value=\$state\r\
     \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\
     \n        \$globalNoteMe value=\"Done\"\r\
@@ -2708,7 +2708,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n        #special ftp upload for git purposes\r\
     \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\
     \n            :do {\r\
-    \n            :local state \"Uploading \$buFile to FTP (RAW, \$FTPRawGitName)\"\r\
+    \n            :set state \"Uploading \$buFile to FTP (RAW, \$FTPRawGitName)\"\r\
     \n            \$globalNoteMe value=\$state\r\
     \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
     \n            \$globalNoteMe value=\"Done\"\r\
@@ -2722,7 +2722,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    }\r\
     \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\
     \n        :do {\r\
-    \n        :local state \"Uploading \$buFile to SMTP\"\r\
+    \n        :set state \"Uploading \$buFile to SMTP\"\r\
     \n        \$globalNoteMe value=\$state\r\
     \n\r\
     \n        #email works in background, delay needed\r\
