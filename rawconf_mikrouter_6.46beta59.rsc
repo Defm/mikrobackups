@@ -1,4 +1,4 @@
-# jul/15/2020 21:00:02 by RouterOS 6.46beta59
+# jul/25/2020 21:00:02 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
