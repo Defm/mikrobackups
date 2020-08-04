@@ -1,4 +1,4 @@
-# jul/25/2020 21:00:02 by RouterOS 6.47beta19
+# aug/04/2020 21:00:02 by RouterOS 6.47beta19
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
