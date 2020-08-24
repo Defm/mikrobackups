@@ -1,4 +1,4 @@
-# aug/14/2020 21:00:02 by RouterOS 6.46beta59
+# aug/24/2020 21:00:03 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -333,6 +333,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=rutor.info list=vpn-tunneled-sites
 /ip firewall address-list add address=hdreactor.net list=vpn-tunneled-sites
 /ip firewall address-list add address=37.190.116.144 list=external-ip
+/ip firewall address-list add address=www.yeezysupply.com list=vpn-tunneled-sites
+/ip firewall address-list add address=yeezysupply.com list=vpn-tunneled-sites
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -680,8 +682,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:20 d:h:m:s | CPU: 100%\
-    \nRAM: 30612/131072M | Voltage: 23 v | Temp: 54c\
+    \nUptime:  00:00:20 d:h:m:s | CPU: 76%\
+    \nRAM: 31100/131072M | Voltage: 23 v | Temp: 49c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
