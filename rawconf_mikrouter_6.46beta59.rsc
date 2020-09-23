@@ -1,4 +1,4 @@
-# sep/13/2020 21:00:03 by RouterOS 6.46beta59
+# sep/23/2020 21:00:02 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -682,8 +682,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:22 d:h:m:s | CPU: 100%\
-    \nRAM: 31612/131072M | Voltage: 23 v | Temp: 53c\
+    \nUptime:  00:00:21 d:h:m:s | CPU: 45%\
+    \nRAM: 30608/131072M | Voltage: 23 v | Temp: 46c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
