@@ -1,4 +1,4 @@
-# jun/23/2020 21:00:02 by RouterOS 6.46beta59
+# oct/13/2020 21:00:02 by RouterOS 6.46beta59
 # software id = 
 #
 #
@@ -19,7 +19,7 @@
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
 /ip ipsec profile add dh-group=modp2048 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=WINDOWS
-/ip ipsec peer add address=91.79.193.47/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=109.252.203.54/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=10.0.0.2/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, traffic-only encryption)" local-address=10.0.0.1 name=MIC-INNER passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=91.79.0.0/16 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, remotely updated via SSH)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-STATIC-IP-RANGE passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add comment="IPSEC IKEv2 VPN PHASE1 (IOS/OSX)" exchange-mode=ike2 local-address=185.13.148.14 name=RW passive=yes profile=IOS/OSX send-initial-contact=no
@@ -199,7 +199,7 @@
 /ip ipsec policy set 0 disabled=yes
 /ip ipsec policy add comment="Roadwarrior IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption)" dst-address=10.10.10.8/29 group=roadwarrior-ipsec proposal="IPSEC IKEv2 VPN PHASE2 IOS/OSX" src-address=0.0.0.0/0 template=yes
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption)" dst-address=192.168.99.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/30 template=yes
-/ip ipsec policy add comment=MIC-OUTER-IP-REMOTE-CONTROLLABLE dst-address=91.79.193.47/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
+/ip ipsec policy add comment=MIC-OUTER-IP-REMOTE-CONTROLLABLE dst-address=109.252.203.54/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range 2)" dst-address=91.79.0.0/16 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip route add check-gateway=ping comment=GLOBAL distance=10 gateway=185.13.148.1
 /ip service set telnet disabled=yes
@@ -250,7 +250,7 @@
     \n"
 /system ntp client set enabled=yes primary-ntp=195.151.98.66 secondary-ntp=46.254.216.9
 /system package update set channel=testing
-/system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=nov/26/2017 start-time=21:00:00
+/system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=aug/04/2020 start-time=21:00:00
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
 /system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/07/2019 start-time=09:00:00
@@ -328,7 +328,7 @@
     \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\
     \n    if (\$FTPEnable and \$itsOk) do={\r\
     \n        :do {\r\
-    \n        :local state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\
+    \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\
     \n        \$globalNoteMe value=\$state\r\
     \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\
     \n        \$globalNoteMe value=\"Done\"\r\
@@ -341,7 +341,7 @@
     \n        #special ftp upload for git purposes\r\
     \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\
     \n            :do {\r\
-    \n            :local state \"Uploading \$buFile to FTP (RAW, \$FTPRawGitName)\"\r\
+    \n            :set state \"Uploading \$buFile to FTP (RAW, \$FTPRawGitName)\"\r\
     \n            \$globalNoteMe value=\$state\r\
     \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
     \n            \$globalNoteMe value=\"Done\"\r\
@@ -355,7 +355,7 @@
     \n    }\r\
     \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\
     \n        :do {\r\
-    \n        :local state \"Uploading \$buFile to SMTP\"\r\
+    \n        :set state \"Uploading \$buFile to SMTP\"\r\
     \n        \$globalNoteMe value=\$state\r\
     \n\r\
     \n        #email works in background, delay needed\r\
@@ -794,6 +794,9 @@
     \n    \r\r\
     \n    }\r\r\
     \n    \r\r\
+    \n    :local state (\"RPC... \$value\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
     \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\r\r\
     \n\r\r\
     \n    :if (\$count > 0) do={\r\r\
@@ -808,6 +811,108 @@
     \n}\r\
     \n\r\
     \n\r\
+    \n#Example call\r\
+    \n#\$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid=\"WiFi 5\"  \r\
+    \n:global globalNewNetworkMember;\r\
+    \n\r\
+    \n:if (!any \$globalNewNetworkMember) do={ \r\
+    \n  :global globalNewNetworkMember do={\r\
+    \n    \r\
+    \n    :global globalNoteMe;\r\
+    \n\r\
+    \n    #to prevent connection\r\
+    \n    :local guestDHCP \"guest dhcp\";\r\
+    \n    #to allow connection\r\
+    \n    :local mainDHCP \"main dhcp\";\r\
+    \n\r\
+    \n    #when DHCP not using (add arp for leases)\r\
+    \n    :local arpInterface \"main infrastructure\";\r\
+    \n\r\
+    \n    :local state (\"Adding new network member... \");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    # incoming named params \r\
+    \n    :local newIp [ :tostr \$ip ];\r\
+    \n    :local newBlockedIp [ :tostr \$gip ];\r\
+    \n    :local newMac [ :tostr \$mac ];\r\
+    \n    :local comment [ :tostr \$comm ];\r\
+    \n    :local ssid [ :tostr \$ssid ];    \r\
+    \n\r\
+    \n    :if ([:len \$newIp] > 0) do={\r\
+    \n\r\
+    \n        :if ([ :typeof [ :toip \$newIp ] ] != \"ip\" ) do={\r\
+    \n\r\
+    \n            :local state (\"Error: bad IP parameter passed - (\$newIp)\");\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            :return false;\r\
+    \n        }\r\
+    \n\r\
+    \n    } else={\r\
+    \n\r\
+    \n        :local state (\"Error: bad IP parameter passed - (\$newIp)\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        /ip dhcp-server lease remove [find address=\$newIp];\r\
+    \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\r\
+    \n\r\
+    \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n        :local state (\"Error: something fail on DHCP configuration 'allow' step for (\$newIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        /ip dhcp-server lease remove [find address=\$newBlockedIp];\r\
+    \n\r\
+    \n        :local state (\"Adding DHCP configuration for (\$newBlockedIp/\$newMac) on \$guestDHCP (preventing connections to guest network)\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n        :local state (\"Error: something fail on DHCP configuration 'block' step for (\$newBlockedIp/\$newMac) on \$guestDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n       \r\
+    \n        /ip arp remove [find address=\$newIp];\r\
+    \n        /ip arp remove [find address=\$newBlockedIp];\r\
+    \n        /ip arp remove [find mac-address=\$newMac];\r\
+    \n\r\
+    \n        /ip arp add address=\$newIp interface=\$arpInterface mac-address=\$newMac comment=\$comment\r\
+    \n    } on-error={\r\
+    \n        :local state (\"Error: something fail on ARP configuration step\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n       \r\
+    \n        /caps-man access-list remove [find mac-address=\$newMac];\r\
+    \n\r\
+    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\$ssid place-before=1\r\
+    \n    \r\
+    \n    } on-error={\r\
+    \n        :local state (\"Error: something fail on CAPS configuration step\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n    }\r\
+    \n\r\
+    \n    :return true;\r\
+    \n    }\r\
+    \n}\r\
     \n"
 /system script add dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\

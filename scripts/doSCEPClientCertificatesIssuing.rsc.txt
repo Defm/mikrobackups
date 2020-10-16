@@ -1,0 +1,62 @@
+
+# generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it
+
+#clients
+:local IDs [:toarray "mikrouter.20-21"];
+:local fakeDomain "myvpn.fake.org"
+
+:local scepAlias "CHR"
+:local sysver [/system package get system version]
+:local scriptname "doSCEPClientCertificatesIssuing"
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun $scriptname;
+
+## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields
+#:local COUNTRY "RU"
+#:local STATE "MSC"
+#:local LOC "Moscow"
+#:local ORG "IKEv2 Home"
+#:local OU "IKEv2 Mikrotik"
+
+:local COUNTRY ""
+:local STATE ""
+:local LOC ""
+:local ORG ""
+:local OU ""
+
+:local KEYSIZE "2048"
+:local USERNAME "mikrouter"
+
+:local scepUrl "http://185.13.148.14/scep/grant";
+
+:global globalNoteMe;
+:local itsOk true;
+  
+  :foreach USERNAME in=$IDs do={
+
+    :local state "CLIENT TEMPLATE certificates generation...  $USERNAME";
+    $globalNoteMe value=$state;
+
+    ## create a client certificate (that will be just a template while not signed)
+    /certificate add name="$USERNAME@$scepAlias" common-name="$USERNAME@$scepAlias" subject-alt-name="email:$USERNAME@$fakeDomain" key-usage=tls-client country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365 
+
+    :local state "Pushing sign request...";
+    $globalNoteMe value=$state;
+
+    /certificate add-scep template="$USERNAME@$scepAlias" scep-url="$scepUrl"; 
+
+    :delay 6s
+
+   ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate
+
+    :local state "We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... Proceed to remote SCEP please";
+    $globalNoteMe value=$state;
+
+  };
+
+} on-error={
+
+  :local state "Certificates generation script FAILED";
+  $globalNoteMe value=$state;
+
+};
