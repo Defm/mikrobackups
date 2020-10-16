@@ -3,7 +3,7 @@
 # i recommend to run it on server side
 
 #clients
-:local IDs [:toarray "mikrouter,alx.iphone.rw.2019,glo.iphone.rw.2019,alx.mbp.rw.2019"];
+:local IDs [:toarray "alx.iphone.rw.20-21,alx.mbp.rw.20-21"];
 :local fakeDomain "myvpn.fake.org"
 
 :local sysname [/system identity get name]
