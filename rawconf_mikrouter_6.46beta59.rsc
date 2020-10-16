@@ -1,4 +1,4 @@
-# oct/13/2020 21:00:02 by RouterOS 6.46beta59
+# oct/16/2020 23:36:55 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -265,9 +265,9 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.30 comment="<AUTO:DHCP:main dhcp>" name=nas.home ttl=5m
 /ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPadProAlx.home ttl=5m
 /ip dns static add address=192.168.99.10 comment="<AUTO:DHCP:main dhcp>" name=AsusGlo.home ttl=5m
-/ip dns static add address=109.252.203.54 name=ftpserver.org
 /ip dns static add address=192.168.99.137 comment="<AUTO:DHCP:main dhcp>" name=NUC.home ttl=5m
 /ip dns static add address=187.141.12.170 name=www.inm.gob.mx
+/ip dns static add address=109.252.203.54 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -342,9 +342,9 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=hdreactor.net list=vpn-tunneled-sites
 /ip firewall address-list add address=www.yeezysupply.com list=vpn-tunneled-sites
 /ip firewall address-list add address=yeezysupply.com list=vpn-tunneled-sites
-/ip firewall address-list add address=109.252.203.54 list=external-ip
 /ip firewall address-list add list=inm.gob.mx
 /ip firewall address-list add address=187.141.12.170 list=vpn-tunneled-sites
+/ip firewall address-list add address=109.252.203.54 list=external-ip
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -630,7 +630,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
-/ip ipsec identity add auth-method=digital-signature certificate=mikrouter@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
+/ip ipsec identity add auth-method=digital-signature certificate=mikrouter.20-21@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
@@ -664,6 +664,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -692,8 +693,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:22 d:h:m:s | CPU: 88%\
-    \nRAM: 30944/131072M | Voltage: 23 v | Temp: 46c\
+    \nUptime:  00:00:22 d:h:m:s | CPU: 100%\
+    \nRAM: 31024/131072M | Voltage: 23 v | Temp: 51c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -1255,7 +1256,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n# i recommend to run it on server side\r\
     \n\r\
     \n#clients\r\
-    \n:local IDs [:toarray \"mikrouter,alx.iphone.rw.2019,glo.iphone.rw.2019,alx.mbp.rw.2019\"];\r\
+    \n:local IDs [:toarray \"alx.iphone.rw.20-21,alx.mbp.rw.20-21\"];\r\
     \n:local fakeDomain \"myvpn.fake.org\"\r\
     \n\r\
     \n:local sysname [/system identity get name]\r\
@@ -3479,6 +3480,68 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  \r\
     \n}\r\
     \n"
+/system script add comment="This script is a SCEP-client, it request the server to ptovide a new certificate" dont-require-permissions=yes name=doSCEPClientCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n# generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\r\
+    \n\r\
+    \n#clients\r\
+    \n:local IDs [:toarray \"mikrouter.20-21\"];\r\
+    \n:local fakeDomain \"myvpn.fake.org\"\r\
+    \n\r\
+    \n:local scepAlias \"CHR\"\r\
+    \n:local sysver [/system package get system version]\r\
+    \n:local scriptname \"doSCEPClientCertificatesIssuing\"\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
+    \n#:local COUNTRY \"RU\"\r\
+    \n#:local STATE \"MSC\"\r\
+    \n#:local LOC \"Moscow\"\r\
+    \n#:local ORG \"IKEv2 Home\"\r\
+    \n#:local OU \"IKEv2 Mikrotik\"\r\
+    \n\r\
+    \n:local COUNTRY \"\"\r\
+    \n:local STATE \"\"\r\
+    \n:local LOC \"\"\r\
+    \n:local ORG \"\"\r\
+    \n:local OU \"\"\r\
+    \n\r\
+    \n:local KEYSIZE \"2048\"\r\
+    \n:local USERNAME \"mikrouter\"\r\
+    \n\r\
+    \n:local scepUrl \"http://185.13.148.14/scep/grant\";\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n  \r\
+    \n  :foreach USERNAME in=\$IDs do={\r\
+    \n\r\
+    \n    :local state \"CLIENT TEMPLATE certificates generation...  \$USERNAME\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    ## create a client certificate (that will be just a template while not signed)\r\
+    \n    /certificate add name=\"\$USERNAME@\$scepAlias\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
+    \n\r\
+    \n    :local state \"Pushing sign request...\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    /certificate add-scep template=\"\$USERNAME@\$scepAlias\" scep-url=\"\$scepUrl\"; \r\
+    \n\r\
+    \n    :delay 6s\r\
+    \n\r\
+    \n   ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate\r\
+    \n\r\
+    \n    :local state \"We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... Proceed to remote SCEP please\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  };\r\
+    \n\r\
+    \n} on-error={\r\
+    \n\r\
+    \n  :local state \"Certificates generation script FAILED\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n};"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool mac-server set allowed-interface-list=none
