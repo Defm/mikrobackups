@@ -1,4 +1,4 @@
-# oct/16/2020 23:36:55 by RouterOS 6.46beta59
+# oct/23/2020 21:00:03 by RouterOS 6.46beta59
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -115,6 +115,7 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,08:00:27:17:3A:80, name="vBox-Windows7(blocked)@guest dhcp (08:00:27:17:3A:80)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,C0:3F:D5:62:21:54,NUC name="OpticWin@main dhcp (C0:3F:D5:62:21:54)" queue=default/default target=192.168.99.137/32 total-queue=default
 /queue simple add comment=dtq,C0:3F:D5:62:21:54, name="OpticWin(blocked)@guest dhcp (C0:3F:D5:62:21:54)" queue=default/default target=192.168.98.222/32 total-queue=default
+/queue simple add comment=dtq,B0:34:95:28:F5:15,iPad-Konohov name="iPad-Konohov@guest dhcp (B0:34:95:28:F5:15)" queue=default/default target=192.168.98.228/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -664,7 +665,6 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -693,8 +693,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:22 d:h:m:s | CPU: 100%\
-    \nRAM: 31024/131072M | Voltage: 23 v | Temp: 51c\
+    \nUptime:  00:00:21 d:h:m:s | CPU: 100%\
+    \nRAM: 30560/131072M | Voltage: 23 v | Temp: 52c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
