@@ -1,4 +1,4 @@
-# oct/13/2020 21:00:02 by RouterOS 6.46beta59
+# oct/23/2020 21:00:02 by RouterOS 6.46beta59
 # software id = 
 #
 #
@@ -61,6 +61,7 @@
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=neighbors
 /ip settings set accept-source-route=yes allow-fast-path=no rp-filter=loose
+/interface detect-internet set detect-interface-list=all
 /interface l2tp-server server set authentication=mschap2 default-profile=l2tp-no-encrypt-site2site enabled=yes ipsec-secret=123 max-mru=1418 max-mtu=1418
 /interface list member add comment="neighbors lookup" interface=tunnel list=neighbors
 /interface list member add comment="neighbors lookup" interface="main infrastructure" list=neighbors
@@ -191,11 +192,10 @@
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
 /ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=MIC-INNER policy-template-group=inside-ipsec-encryption secret=123
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=alx.iphone.rw.2019@CHR
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=glo.iphone.rw.2019@CHR remote-id=fqdn:glo.iphone.rw.2019@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=ca@CHR generate-policy=port-override match-by=certificate mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec remote-certificate=alx.iphone.rw.20-21@CHR
 /ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=WIN policy-template-group=inside-ipsec-encryption secret=123
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=common-setup peer=MIC-OUTER-IP-REMOTE-CONTROLLABLE policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override match-by=certificate mode-config=common-setup peer=MIC-OUTER-STATIC-IP-RANGE policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=ca@CHR generate-policy=port-override mode-config=common-setup peer=MIC-OUTER-IP-REMOTE-CONTROLLABLE policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter.20-21@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=ca@CHR generate-policy=port-override match-by=certificate mode-config=common-setup peer=MIC-OUTER-STATIC-IP-RANGE policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter.20-21@CHR
 /ip ipsec policy set 0 disabled=yes
 /ip ipsec policy add comment="Roadwarrior IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption)" dst-address=10.10.10.8/29 group=roadwarrior-ipsec proposal="IPSEC IKEv2 VPN PHASE2 IOS/OSX" src-address=0.0.0.0/0 template=yes
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption)" dst-address=192.168.99.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/30 template=yes
@@ -495,7 +495,7 @@
     \n# i recommend to run it on server side\r\
     \n\r\
     \n#clients\r\
-    \n:local IDs [:toarray \"mikrouter,alx.iphone.rw.2019,glo.iphone.rw.2019,alx.mbp.rw.2019\"];\r\
+    \n:local IDs [:toarray \"alx.iphone.rw.20-21,alx.mbp.rw.20-21\"];\r\
     \n:local fakeDomain \"myvpn.fake.org\"\r\
     \n\r\
     \n:local sysname [/system identity get name]\r\

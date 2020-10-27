@@ -1,4 +1,4 @@
-# oct/23/2020 21:00:03 by RouterOS 6.46beta59
+# oct/27/2020 14:14:03 by RouterOS 6.47.6
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -46,18 +46,18 @@
 /interface wireless
 # managed by CAPsMAN
 # channel: 2412/20/gn(15dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
-set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia3 default-authentication=no distance=indoors frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" preamble-mode=long security-profile=private ssid="WiFi 2Ghz PRIVATE" supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia3 default-authentication=no distance=indoors hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" preamble-mode=long security-profile=private ssid="WiFi 2Ghz PRIVATE" station-roaming=enabled supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5180/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
-set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=5ghz-n/ac channel-width=20/40/80mhz-Ceee country=russia3 default-authentication=no distance=indoors frequency=auto frequency-mode=regulatory-domain hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" preamble-mode=long security-profile=private ssid="WiFi 5Ghz PRIVATE" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
+# channel: 5180/20-Ce/ac/P(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode band=5ghz-n/ac channel-width=20/40/80mhz-Ceee country=russia3 default-authentication=no distance=indoors frequency=auto hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" preamble-mode=long security-profile=private ssid="WiFi 5Ghz PRIVATE" station-roaming=enabled wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless nstreme
 # managed by CAPsMAN
 # channel: 2412/20/gn(15dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
 set "wlan 2Ghz" enable-polling=no
 /interface wireless nstreme
 # managed by CAPsMAN
-# channel: 5180/20-Ce/ac(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5180/20-Ce/ac/P(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set "wlan 5Ghz" enable-polling=no
 /ip dhcp-server add authoritative=after-2sec-delay disabled=no interface="main infrastructure" lease-time=1d name="main dhcp"
 /ip dhcp-server option add code=15 name=DomainName value="s'home'"
@@ -115,14 +115,9 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,08:00:27:17:3A:80, name="vBox-Windows7(blocked)@guest dhcp (08:00:27:17:3A:80)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,C0:3F:D5:62:21:54,NUC name="OpticWin@main dhcp (C0:3F:D5:62:21:54)" queue=default/default target=192.168.99.137/32 total-queue=default
 /queue simple add comment=dtq,C0:3F:D5:62:21:54, name="OpticWin(blocked)@guest dhcp (C0:3F:D5:62:21:54)" queue=default/default target=192.168.98.222/32 total-queue=default
-/queue simple add comment=dtq,B0:34:95:28:F5:15,iPad-Konohov name="iPad-Konohov@guest dhcp (B0:34:95:28:F5:15)" queue=default/default target=192.168.98.228/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
-/queue tree add name=PDF packet-mark=pdf-mark parent="Total Bandwidth" queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
-/queue tree add name=ISO packet-mark=iso-mark parent="Total Bandwidth" queue=default
-/queue tree add name=MP3 packet-mark=mp3-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
-/queue tree add name=BIN packet-mark=bin-mark parent="Total Bandwidth" queue=default
 /queue tree add name=7Z packet-mark=7z-mark parent="Total Bandwidth" queue=default
 /queue tree add name=ZIP packet-mark=zip-mark parent="Total Bandwidth" queue=default
 /routing ospf area add area-id=0.0.0.1 default-cost=1 inject-summary-lsas=no name=local type=stub
@@ -147,6 +142,7 @@ set "wlan 5Ghz" enable-polling=no
 /system logging action add name=SSHOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
+/user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
 /user group add name=remote policy=ssh,read,write,!local,!telnet,!ftp,!reboot,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!api,!romon,!dude,!tikapp
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=OpticWin disabled=no mac-address=C0:3F:D5:62:21:54 ssid-regexp=""
@@ -168,8 +164,6 @@ set "wlan 5Ghz" enable-polling=no
 /caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn identity-regexp=mikrouter master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
 /caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac identity-regexp=mikrouter master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
-/certificate settings set crl-download=no crl-use=no
-/interface bridge filter add action=drop chain=forward comment="drop all dhcp requests over bridge" dst-port=67 ip-protocol=udp mac-protocol=ip
 /interface bridge port add bridge="main infrastructure" interface="lan D (master)"
 /interface bridge port add bridge="main infrastructure" interface="wlan 2Ghz"
 /interface bridge port add bridge="main infrastructure" interface="wlan 5Ghz"
@@ -592,14 +586,14 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY
 /ip firewall mangle add action=mark-packet chain=input comment="VPN Traffic" log-prefix="#VPN PCKT MARK" new-packet-mark="IPSEC PCKT" passthrough=yes protocol=ipsec-esp
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Provider mark" connection-mark=no-mark in-interface=wan new-connection-mark=MGTS passthrough=no
-/ip firewall mangle add action=mark-packet chain=prerouting comment=7z layer7-protocol=7Z log-prefix=#DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=bin layer7-protocol=BIN log-prefix=#DL_bin new-packet-mark=bin-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=iso layer7-protocol=ISO log-prefix=#DL_iso new-packet-mark=iso-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=exe layer7-protocol=EXE log-prefix=#DL_exe new-packet-mark=exe-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=mp3 layer7-protocol=MP3 log-prefix=#DL_mp3 new-packet-mark=mp3-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=pdf layer7-protocol=PDF log-prefix=#DL_pdf new-packet-mark=pdf-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=rar layer7-protocol=RAR log-prefix=#DL_rar new-packet-mark=rar-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-packet chain=prerouting comment=zip layer7-protocol=ZIP log-prefix=#DL_zip new-packet-mark=zip-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark layer7-protocol=7Z new-connection-mark=conn-7z-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=7z connection-mark=conn-7z-download layer7-protocol=7Z log-prefix=#DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-connection chain=prerouting comment="EXE DL CONN mark" connection-mark=no-mark layer7-protocol=EXE new-connection-mark=conn-exe-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=exe connection-mark=conn-exe-download layer7-protocol=EXE log-prefix=#DL_exe new-packet-mark=exe-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-connection chain=prerouting comment="RAR DL CONN mark" connection-mark=no-mark layer7-protocol=RAR new-connection-mark=conn-rar-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=rar connection-mark=conn-rar-download layer7-protocol=RAR log-prefix=#DL_rar new-packet-mark=rar-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-connection chain=prerouting comment="ZIP DL CONN mark" connection-mark=no-mark layer7-protocol=ZIP new-connection-mark=conn-zip-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=zip connection-mark=conn-zip-download layer7-protocol=ZIP log-prefix=#DL_zip new-packet-mark=zip-mark passthrough=yes protocol=tcp
 /ip firewall mangle add action=add-src-to-address-list address-list=lan-routers address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:63
 /ip firewall mangle add action=add-src-to-address-list address-list=lan-routers address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:127
 /ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 log-prefix="#DNS Req" protocol=udp
@@ -693,14 +687,13 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:21 d:h:m:s | CPU: 100%\
-    \nRAM: 30560/131072M | Voltage: 23 v | Temp: 52c\
+    \nUptime:  00:00:23 d:h:m:s | CPU: 100%\
+    \nRAM: 32364/131072M | Voltage: 23 v | Temp: 52c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
 /system ntp client set enabled=yes primary-ntp=195.151.98.66 secondary-ntp=46.254.216.9
 /system ntp server set broadcast=yes enabled=yes multicast=yes
-/system package update set channel=testing
 /system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jan/30/2017 start-time=18:57:09
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/21/2017 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/21/2017 start-time=19:19:59
