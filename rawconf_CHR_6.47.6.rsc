@@ -1,4 +1,4 @@
-# nov/22/2020 21:00:02 by RouterOS 6.47.6
+# dec/02/2020 21:00:02 by RouterOS 6.47.6
 # software id = 
 #
 #
