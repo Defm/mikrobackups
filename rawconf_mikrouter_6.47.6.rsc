@@ -1,4 +1,4 @@
-# dec/12/2020 21:00:03 by RouterOS 6.47.6
+# dec/22/2020 21:00:03 by RouterOS 6.47.6
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -117,6 +117,8 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,C0:3F:D5:62:21:54, name="OpticWin(blocked)@guest dhcp (C0:3F:D5:62:21:54)" queue=default/default target=192.168.98.222/32 total-queue=default
 /queue simple add comment=dtq,14:1F:BA:E5:22:D9, name="atol@main dhcp (14:1F:BA:E5:22:D9)" queue=default/default target=192.168.99.200/32 total-queue=default
 /queue simple add comment=dtq,14:1F:BA:E5:22:D9, name="atol(blocked)@guest dhcp (14:1F:BA:E5:22:D9)" queue=default/default target=192.168.98.200/32 total-queue=default
+/queue simple add comment=dtq,FC:F5:C4:79:ED:D8,Twinkly_79EDD9 name="Twinkle@main dhcp (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.99.135/32 total-queue=default
+/queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest dhcp (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.227/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -147,6 +149,7 @@ set "wlan 5Ghz" enable-polling=no
 /user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
 /user group add name=remote policy=ssh,read,write,!local,!telnet,!ftp,!reboot,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!api,!romon,!dude,!tikapp
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=Twinkle disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=atol disabled=no mac-address=14:1F:BA:E5:22:D9 ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=OpticWin disabled=no mac-address=C0:3F:D5:62:21:54 ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=vBox-Windows7 disabled=no mac-address=08:00:27:17:3A:80 ssid-regexp=""
@@ -220,6 +223,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip arp add address=192.168.99.10 comment=vBox-Windows7 interface="main infrastructure" mac-address=08:00:27:17:3A:80
 /ip arp add address=192.168.99.137 comment=OpticWin interface="main infrastructure" mac-address=C0:3F:D5:62:21:54
 /ip arp add address=192.168.99.200 comment=atol interface="main infrastructure" mac-address=14:1F:BA:E5:22:D9
+/ip arp add address=192.168.99.135 comment=Twinkle interface="main infrastructure" mac-address=FC:F5:C4:79:ED:D8
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-server lease add address=192.168.99.140 client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.190 mac-address=90:DD:5D:C8:46:AB server="main dhcp"
@@ -239,6 +243,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dhcp-server lease add address=192.168.98.222 block-access=yes comment="OpticWin(blocked)" mac-address=C0:3F:D5:62:21:54 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.200 comment=atol mac-address=14:1F:BA:E5:22:D9 server="main dhcp"
 /ip dhcp-server lease add address=192.168.98.200 block-access=yes comment="atol(blocked)" mac-address=14:1F:BA:E5:22:D9 server="guest dhcp"
+/ip dhcp-server lease add address=192.168.99.135 comment=Twinkle mac-address=FC:F5:C4:79:ED:D8 server="main dhcp"
+/ip dhcp-server lease add address=192.168.98.227 block-access=yes comment="Twinkle(blocked)" mac-address=FC:F5:C4:79:ED:D8 server="guest dhcp"
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server network add address=192.168.99.0/26 caps-manager=192.168.99.1 comment="VIRTUAL MACHINES DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.64/26 caps-manager=192.168.99.1 comment="WINDOWS DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
@@ -270,6 +276,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.137 comment="<AUTO:DHCP:main dhcp>" name=NUC.home ttl=5m
 /ip dns static add address=187.141.12.170 name=www.inm.gob.mx
 /ip dns static add address=109.252.203.170 name=ftpserver.org
+/ip dns static add address=192.168.99.135 comment="<AUTO:DHCP:main dhcp>" name=Twinkly79EDD9.home ttl=5m
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
