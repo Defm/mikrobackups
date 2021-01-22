@@ -1,0 +1,19 @@
+## CloudFlare DNS-over-HTTPS DoH script
+## Apply this script on your default configuration LAB router first
+## RouterOS 6.47++
+## Credits Nikita Tarikin nikita@tarikin.com
+## 03.06.2020
+
+# Check for valid installed certificate
+:do {
+    :do {/tool fetch https://cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem check-certificate=no} \
+        while=([/file print count-only where name="DigiCertGlobalRootCA.crt.pem"]=0);
+    :do {/certificate import file-name="DigiCertGlobalRootCA.crt.pem" passphrase="" name="DigiCertGlobalRootCA.crt.pem"} \
+        while=([/certificate print count-only where name="DigiCertGlobalRootCA.crt.pem"]=0);
+    :do {
+        # Change DNS servers
+        /ip dns set servers=
+        /ip dns set use-doh-server="https://1.1.1.1/dns-query" verify-doh-cert=yes
+
+      } while=([/certificate print count-only where fingerprint="4348a0e9444c78cb265e058d5e8944b4d84f9662bd26db257f8934a443c70161"]=0);
+} if=([/certificate print count-only where name="DigiCertGlobalRootCA.crt.pem"]=0);
