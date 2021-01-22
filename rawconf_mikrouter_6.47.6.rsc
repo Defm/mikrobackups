@@ -1,4 +1,4 @@
-# oct/27/2020 14:14:03 by RouterOS 6.47.6
+# jan/22/2021 12:42:48 by RouterOS 6.47.6
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -112,9 +112,14 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.99.130/32 total-queue=default
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro(blocked)@guest dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.229/32 total-queue=default
 /queue simple add comment=dtq,08:00:27:17:3A:80,AsusGlo name="vBox-Windows7@main dhcp (08:00:27:17:3A:80)" queue=default/default target=192.168.99.10/32 total-queue=default
-/queue simple add comment=dtq,08:00:27:17:3A:80, name="vBox-Windows7(blocked)@guest dhcp (08:00:27:17:3A:80)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,C0:3F:D5:62:21:54,NUC name="OpticWin@main dhcp (C0:3F:D5:62:21:54)" queue=default/default target=192.168.99.137/32 total-queue=default
 /queue simple add comment=dtq,C0:3F:D5:62:21:54, name="OpticWin(blocked)@guest dhcp (C0:3F:D5:62:21:54)" queue=default/default target=192.168.98.222/32 total-queue=default
+/queue simple add comment=dtq,14:1F:BA:E5:22:D9, name="atol@main dhcp (14:1F:BA:E5:22:D9)" queue=default/default target=192.168.99.200/32 total-queue=default
+/queue simple add comment=dtq,14:1F:BA:E5:22:D9, name="atol(blocked)@guest dhcp (14:1F:BA:E5:22:D9)" queue=default/default target=192.168.98.200/32 total-queue=default
+/queue simple add comment=dtq,FC:F5:C4:79:ED:D8,Twinkly_79EDD9 name="Twinkle@main dhcp (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.99.135/32 total-queue=default
+/queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest dhcp (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.227/32 total-queue=default
+/queue simple add comment=dtq,B0:34:95:50:A1:6A,AudioATV name="AudioATV@main dhcp (B0:34:95:50:A1:6A)" queue=default/default target=192.168.99.145/32 total-queue=default
+/queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest dhcp (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -145,6 +150,9 @@ set "wlan 5Ghz" enable-polling=no
 /user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
 /user group add name=remote policy=ssh,read,write,!local,!telnet,!ftp,!reboot,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!api,!romon,!dude,!tikapp
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=AudioATV disabled=no mac-address=B0:34:95:50:A1:6A ssid-regexp=""
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=Twinkle disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp=""
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=atol disabled=no mac-address=14:1F:BA:E5:22:D9 ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=OpticWin disabled=no mac-address=C0:3F:D5:62:21:54 ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=vBox-Windows7 disabled=no mac-address=08:00:27:17:3A:80 ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlxPro disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
@@ -172,7 +180,7 @@ set "wlan 5Ghz" enable-polling=no
 /interface bridge port add bridge="main infrastructure" interface="lan C"
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=list-neighbors-lookup
-/ip settings set accept-source-route=yes allow-fast-path=no rp-filter=loose tcp-syncookies=yes
+/ip settings set accept-source-route=yes rp-filter=loose tcp-syncookies=yes
 /interface detect-internet set detect-interface-list=all internet-interface-list=treated-as-INTERNET lan-interface-list=treated-as-LAN wan-interface-list=treated-as-WAN
 /interface list member add comment=MGTS interface=wan list=list-untrusted
 /interface list member add comment="GUEST WLAN" interface="guest infrastructure" list=list-guest-wireless
@@ -196,7 +204,8 @@ set "wlan 5Ghz" enable-polling=no
 # 
 set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz" lock-to-caps-man=yes
 /interface wireless snooper set receive-errors=yes
-/ip accounting set account-local-traffic=yes enabled=yes threshold=200
+/ip accounting set enabled=yes threshold=1600
+/ip accounting web-access set accessible-via-web=yes
 /ip address add address=192.168.99.1/24 comment="local IP" interface="main infrastructure" network=192.168.99.0
 /ip address add address=192.168.98.1/24 comment="local guest wifi" interface="guest infrastructure" network=192.168.98.0
 /ip address add address=192.168.100.7/24 comment=WAN interface=wan network=192.168.100.0
@@ -215,6 +224,9 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip arp add address=192.168.99.130 comment=iPadAlxPro interface="main infrastructure" mac-address=50:DE:06:25:C2:FC
 /ip arp add address=192.168.99.10 comment=vBox-Windows7 interface="main infrastructure" mac-address=08:00:27:17:3A:80
 /ip arp add address=192.168.99.137 comment=OpticWin interface="main infrastructure" mac-address=C0:3F:D5:62:21:54
+/ip arp add address=192.168.99.200 comment=atol interface="main infrastructure" mac-address=14:1F:BA:E5:22:D9
+/ip arp add address=192.168.99.135 comment=Twinkle interface="main infrastructure" mac-address=FC:F5:C4:79:ED:D8
+/ip arp add address=192.168.99.145 comment=AudioATV interface="main infrastructure" mac-address=B0:34:95:50:A1:6A
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-server lease add address=192.168.99.140 client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.190 mac-address=90:DD:5D:C8:46:AB server="main dhcp"
@@ -229,16 +241,21 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dhcp-server lease add address=192.168.99.130 comment=iPadAlxPro mac-address=50:DE:06:25:C2:FC server="main dhcp"
 /ip dhcp-server lease add address=192.168.98.229 block-access=yes comment="iPadAlxPro(blocked)" mac-address=50:DE:06:25:C2:FC server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.10 comment=vBox-Windows7 mac-address=08:00:27:17:3A:80 server="main dhcp"
-/ip dhcp-server lease add address=192.168.98.231 block-access=yes comment="vBox-Windows7(blocked)" mac-address=08:00:27:17:3A:80 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.137 comment=OpticWin mac-address=C0:3F:D5:62:21:54 server="main dhcp"
 /ip dhcp-server lease add address=192.168.98.222 block-access=yes comment="OpticWin(blocked)" mac-address=C0:3F:D5:62:21:54 server="guest dhcp"
+/ip dhcp-server lease add address=192.168.99.200 comment=atol mac-address=14:1F:BA:E5:22:D9 server="main dhcp"
+/ip dhcp-server lease add address=192.168.98.200 block-access=yes comment="atol(blocked)" mac-address=14:1F:BA:E5:22:D9 server="guest dhcp"
+/ip dhcp-server lease add address=192.168.99.135 comment=Twinkle mac-address=FC:F5:C4:79:ED:D8 server="main dhcp"
+/ip dhcp-server lease add address=192.168.98.227 block-access=yes comment="Twinkle(blocked)" mac-address=FC:F5:C4:79:ED:D8 server="guest dhcp"
+/ip dhcp-server lease add address=192.168.99.145 comment=AudioATV mac-address=B0:34:95:50:A1:6A server="main dhcp"
+/ip dhcp-server lease add address=192.168.98.231 block-access=yes comment="AudioATV(blocked)" mac-address=B0:34:95:50:A1:6A server="guest dhcp"
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server network add address=192.168.99.0/26 caps-manager=192.168.99.1 comment="VIRTUAL MACHINES DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.64/26 caps-manager=192.168.99.1 comment="WINDOWS DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.128/26 caps-manager=192.168.99.1 comment="APPLE DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.192/27 caps-manager=192.168.99.1 comment="DNS/PROXY redirect DHCP leasing" gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.224/27 caps-manager=192.168.99.1 comment="RESERVED space DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
-/ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.100.1
+/ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.100.1 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=192.168.99.1 name=mikrouter.home
 /ip dns static add address=10.0.0.2 name=mikrouter.home
@@ -262,7 +279,9 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.10 comment="<AUTO:DHCP:main dhcp>" name=AsusGlo.home ttl=5m
 /ip dns static add address=192.168.99.137 comment="<AUTO:DHCP:main dhcp>" name=NUC.home ttl=5m
 /ip dns static add address=187.141.12.170 name=www.inm.gob.mx
-/ip dns static add address=109.252.203.54 name=ftpserver.org
+/ip dns static add address=192.168.99.135 comment="<AUTO:DHCP:main dhcp>" name=Twinkly79EDD9.home ttl=5m
+/ip dns static add address=109.252.203.170 name=ftpserver.org
+/ip dns static add address=192.168.99.145 comment="<AUTO:DHCP:main dhcp>" name=AudioATV.home ttl=5m
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -339,7 +358,12 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=yeezysupply.com list=vpn-tunneled-sites
 /ip firewall address-list add list=inm.gob.mx
 /ip firewall address-list add address=187.141.12.170 list=vpn-tunneled-sites
-/ip firewall address-list add address=109.252.203.54 list=external-ip
+/ip firewall address-list add address=109.252.203.170 list=external-ip
+/ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
+/ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list="!VPN network"
+/ip firewall filter add action=fasttrack-connection chain=forward comment="FASTTRACK TCP / Except VPN" connection-state=established,related disabled=yes dst-address-list="!VPN network" protocol=tcp
+/ip firewall filter add action=fasttrack-connection chain=forward comment="FASTTRACK UDP / Except VPN" connection-state=established,related disabled=yes protocol=udp
+/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -361,8 +385,6 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=add-src-to-address-list address-list="RDP Stage2" address-list-timeout=1m chain="RDP staged control" connection-state=new dst-port=3389 protocol=tcp src-address-list="RDP Stage1"
 /ip firewall filter add action=add-src-to-address-list address-list="RDP Stage1" address-list-timeout=1m chain="RDP staged control" connection-state=new dst-port=3389 protocol=tcp src-address-list="!RDP Allow"
 /ip firewall filter add action=return chain="RDP staged control" comment="Return From RDP staged control"
-/ip firewall filter add action=drop chain=input comment="Drop Invalid Connections" connection-state=invalid in-interface-list=list-drop-invalid-connections
-/ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections" connection-state=invalid
 /ip firewall filter add action=jump chain=forward comment="jump to SMB shares control" jump-target="SMB shares control" src-address-list="!SMB Allow"
 /ip firewall filter add action=add-src-to-address-list address-list="SMB Shares" address-list-timeout=10h chain="SMB shares control" comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log-prefix=#SMB protocol=udp
 /ip firewall filter add action=add-src-to-address-list address-list="SMB Shares" address-list-timeout=10h chain="SMB shares control" comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log-prefix=#SMB protocol=tcp
@@ -398,7 +420,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=accept chain=detect-ping-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=8:0-255 limit=50,5:packet protocol=icmp
 /ip firewall filter add action=drop chain=detect-ping-flood comment="drop everything else" log-prefix="#ICMP DROP" protocol=icmp
 /ip firewall filter add action=return chain=detect-ping-flood comment="Return from detect-ping-flood Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY1 log-prefix=#DUMMY1 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY1 disabled=yes log-prefix=#DUMMY1 src-address-list=dummy
 /ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Manually Added)" src-address-list="Black List"
 /ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Manually Added)" src-address-list="Black List"
 /ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (SSH)" src-address-list="Black List (SSH)"
@@ -413,31 +435,31 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=passthrough chain=forward comment="Drop anyone in the LAN Port Scanner List" src-address-list=LAN-port-scanner
 /ip firewall filter add action=drop chain=input comment="Drop all Bogons" src-address-list=Bogons
 /ip firewall filter add action=drop chain=forward comment="Drop all Bogons" src-address-list=Bogons
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY2 log-prefix=#DUMMY2 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY2 disabled=yes log-prefix=#DUMMY2 src-address-list=dummy
 /ip firewall filter add action=jump chain=input comment="Jump to RFC SSH Chain" jump-target="RFC SSH Chain"
 /ip firewall filter add action=add-src-to-address-list address-list="Black List (SSH)" address-list-timeout=1w3d chain="RFC SSH Chain" comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new dst-port=22 protocol=tcp src-address-list="SSH Stage 3"
 /ip firewall filter add action=add-src-to-address-list address-list="SSH Stage 3" address-list-timeout=1m chain="RFC SSH Chain" comment="Add succesive attempts to SSH Stage 3" connection-state=new dst-port=22 protocol=tcp src-address-list="SSH Stage 2"
 /ip firewall filter add action=add-src-to-address-list address-list="SSH Stage 2" address-list-timeout=1m chain="RFC SSH Chain" comment="Add succesive attempts to SSH Stage 2" connection-state=new dst-port=22 protocol=tcp src-address-list="SSH Stage 1"
 /ip firewall filter add action=add-src-to-address-list address-list="SSH Stage 1" address-list-timeout=1m chain="RFC SSH Chain" comment="Add intial attempt to SSH Stage 1 List" connection-state=new dst-port=22 protocol=tcp
 /ip firewall filter add action=return chain="RFC SSH Chain" comment="Return From RFC SSH Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY3 log-prefix=#DUMMY3 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY3 disabled=yes log-prefix=#DUMMY3 src-address-list=dummy
 /ip firewall filter add action=jump chain=input comment="Jump to RFC Telnet Chain" jump-target="RFC Telnet Chain"
 /ip firewall filter add action=add-src-to-address-list address-list="Black List (Telnet)" address-list-timeout=1w3d chain="RFC Telnet Chain" comment="Transfer repeated attempts from Telnet Stage 3 to Black-List" connection-state=new dst-port=23 protocol=tcp src-address-list="Telnet Stage 3"
 /ip firewall filter add action=add-src-to-address-list address-list="Telnet Stage 3" address-list-timeout=1m chain="RFC Telnet Chain" comment="Add succesive attempts to Telnet Stage 3" connection-state=new dst-port=23 protocol=tcp src-address-list="Telnet Stage 2"
 /ip firewall filter add action=add-src-to-address-list address-list="Telnet Stage 1" address-list-timeout=1m chain="RFC Telnet Chain" comment="Add Intial attempt to Telnet Stage 1" connection-state=new dst-port=23 protocol=tcp
 /ip firewall filter add action=add-src-to-address-list address-list="Telnet Stage 2" address-list-timeout=1m chain="RFC Telnet Chain" comment="Add succesive attempts to Telnet Stage 2" connection-state=new dst-port=23 protocol=tcp src-address-list="Telnet Stage 1"
 /ip firewall filter add action=return chain="RFC Telnet Chain" comment="Return From RFC Telnet Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY4 log-prefix=#DUMMY4 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY4 disabled=yes log-prefix=#DUMMY4 src-address-list=dummy
 /ip firewall filter add action=jump chain=input comment="Jump to RFC Winbox Chain" jump-target="RFC Winbox Chain"
 /ip firewall filter add action=add-src-to-address-list address-list="Black List (Winbox)" address-list-timeout=1w3d chain="RFC Winbox Chain" comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new dst-port=8291 protocol=tcp src-address-list="Winbox Stage 3"
 /ip firewall filter add action=add-src-to-address-list address-list="Winbox Stage 3" address-list-timeout=1m chain="RFC Winbox Chain" comment="Add succesive attempts to Winbox Stage 3" connection-state=new dst-port=8291 protocol=tcp src-address-list="Winbox Stage 2"
 /ip firewall filter add action=add-src-to-address-list address-list="Winbox Stage 2" address-list-timeout=1m chain="RFC Winbox Chain" comment="Add succesive attempts to Winbox Stage 2" connection-state=new dst-port=8291 protocol=tcp src-address-list="Winbox Stage 1"
 /ip firewall filter add action=add-src-to-address-list address-list="Winbox Stage 1" address-list-timeout=1m chain="RFC Winbox Chain" comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp
 /ip firewall filter add action=return chain="RFC Winbox Chain" comment="Return From RFC Winbox Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY5 log-prefix=#DUMMY5 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY5 disabled=yes log-prefix=#DUMMY5 src-address-list=dummy
 /ip firewall filter add action=add-src-to-address-list address-list=WAN-port-scanner address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!WAN-port-scanner
 /ip firewall filter add action=add-src-to-address-list address-list=LAN-port-scanner address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!LAN-port-scanner
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY6 log-prefix=#DUMMY6 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY6 disabled=yes log-prefix=#DUMMY6 src-address-list=dummy
 /ip firewall filter add action=add-src-to-address-list address-list="WAN Highload" address-list-timeout=1h chain=input comment="WAN Highload" connection-limit=100,32 protocol=tcp
 /ip firewall filter add action=add-src-to-address-list address-list="LAN Highload" address-list-timeout=10h chain=forward comment="LAN Highload" connection-limit=100,32 protocol=tcp
 /ip firewall filter add action=jump chain=input comment="Jump to Virus Chain" jump-target=Virus
@@ -467,7 +489,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=drop chain=Virus comment="Drop SubSeven" dst-port=27374 protocol=tcp
 /ip firewall filter add action=drop chain=Virus comment="Drop PhatBot, Agobot, Gaobot" dst-port=65506 protocol=tcp
 /ip firewall filter add action=return chain=Virus comment="Return From Virus Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY7 log-prefix=#DUMMY7 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY7 disabled=yes log-prefix=#DUMMY7 src-address-list=dummy
 /ip firewall filter add action=jump chain=input comment="Jump to \"Manage Common Ports\" Chain" jump-target="Manage Common Ports"
 /ip firewall filter add action=accept chain="Manage Common Ports" comment="\"All hosts on this subnet\" Broadcast" src-address=224.0.0.1
 /ip firewall filter add action=accept chain="Manage Common Ports" comment="\"All routers on this subnet\" Broadcast" src-address=224.0.0.2
@@ -567,9 +589,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" dst-port=137,139 log-prefix=#SMB protocol=tcp src-address-list="SMB Allow"
 /ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (INPUT)"
 /ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new log-prefix="#ACCEPTED UNKNOWN (FWD)"
-/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
 /ip firewall filter add action=accept chain=input comment="Allow proxy on 8888" dst-port=8888 in-interface="main infrastructure" protocol=tcp
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY8 log-prefix=#DUMMY8 src-address-list=dummy
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY8 disabled=yes log-prefix=#DUMMY8 src-address-list=dummy
 /ip firewall filter add action=drop chain=input comment="Open proxy block" dst-port=8888 in-interface=wan protocol=tcp
 /ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new in-interface=wan log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
 /ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log-prefix="#DROP UNKNOWN (FWD)"
@@ -583,9 +604,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=Telegram log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=vpn-l2tp dst-address-list=vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=vpn-l2tp dst-address-list=Telegram log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
-/ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY
+/ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY disabled=yes
 /ip firewall mangle add action=mark-packet chain=input comment="VPN Traffic" log-prefix="#VPN PCKT MARK" new-packet-mark="IPSEC PCKT" passthrough=yes protocol=ipsec-esp
-/ip firewall mangle add action=mark-connection chain=prerouting comment="Provider mark" connection-mark=no-mark in-interface=wan new-connection-mark=MGTS passthrough=no
 /ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark layer7-protocol=7Z new-connection-mark=conn-7z-download passthrough=yes
 /ip firewall mangle add action=mark-packet chain=prerouting comment=7z connection-mark=conn-7z-download layer7-protocol=7Z log-prefix=#DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
 /ip firewall mangle add action=mark-connection chain=prerouting comment="EXE DL CONN mark" connection-mark=no-mark layer7-protocol=EXE new-connection-mark=conn-exe-download passthrough=yes
@@ -687,8 +707,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:23 d:h:m:s | CPU: 100%\
-    \nRAM: 32364/131072M | Voltage: 23 v | Temp: 52c\
+    \nUptime:  00:00:22 d:h:m:s | CPU: 89%\
+    \nRAM: 32008/131072M | Voltage: 23 v | Temp: 23c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -706,7 +726,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=07:00:00
 /system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=11:31:24
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
-/system scheduler add interval=1d name=doTrackFirmwareUpdates on-event="/system script run doTrackFirmwareUpdates" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=11:30:00
+/system scheduler add interval=1w name=doTrackFirmwareUpdates on-event="/system script run doTrackFirmwareUpdates" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=11:30:00
 /system scheduler add interval=1d name=doCreateTrafficAccountingQueues on-event="/system script run doCreateTrafficAccountingQueues" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=06:05:00
@@ -3535,6 +3555,25 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n};"
+/system script add dont-require-permissions=yes name=doSwitchDoHOn owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="## CloudFlare DNS-over-HTTPS DoH script\r\
+    \n## Apply this script on your default configuration LAB router first\r\
+    \n## RouterOS 6.47++\r\
+    \n## Credits Nikita Tarikin nikita@tarikin.com\r\
+    \n## 03.06.2020\r\
+    \n\r\
+    \n# Check for valid installed certificate\r\
+    \n:do {\r\
+    \n    :do {/tool fetch https://cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem check-certificate=no} \\\r\
+    \n        while=([/file print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);\r\
+    \n    :do {/certificate import file-name=\"DigiCertGlobalRootCA.crt.pem\" passphrase=\"\" name=\"DigiCertGlobalRootCA.crt.pem\"} \\\r\
+    \n        while=([/certificate print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);\r\
+    \n    :do {\r\
+    \n        # Change DNS servers\r\
+    \n        /ip dns set servers=\r\
+    \n        /ip dns set use-doh-server=\"https://1.1.1.1/dns-query\" verify-doh-cert=yes\r\
+    \n\r\
+    \n      } while=([/certificate print count-only where fingerprint=\"4348a0e9444c78cb265e058d5e8944b4d84f9662bd26db257f8934a443c70161\"]=0);\r\
+    \n} if=([/certificate print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool mac-server set allowed-interface-list=none
