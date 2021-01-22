@@ -1,4 +1,4 @@
-# jan/21/2021 21:00:03 by RouterOS 6.47.6
+# jan/22/2021 12:42:48 by RouterOS 6.47.6
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -255,7 +255,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dhcp-server network add address=192.168.99.128/26 caps-manager=192.168.99.1 comment="APPLE DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.192/27 caps-manager=192.168.99.1 comment="DNS/PROXY redirect DHCP leasing" gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.224/27 caps-manager=192.168.99.1 comment="RESERVED space DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
-/ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.100.1
+/ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.100.1 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=192.168.99.1 name=mikrouter.home
 /ip dns static add address=10.0.0.2 name=mikrouter.home
@@ -3555,6 +3555,25 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
     \n};"
+/system script add dont-require-permissions=yes name=doSwitchDoHOn owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="## CloudFlare DNS-over-HTTPS DoH script\r\
+    \n## Apply this script on your default configuration LAB router first\r\
+    \n## RouterOS 6.47++\r\
+    \n## Credits Nikita Tarikin nikita@tarikin.com\r\
+    \n## 03.06.2020\r\
+    \n\r\
+    \n# Check for valid installed certificate\r\
+    \n:do {\r\
+    \n    :do {/tool fetch https://cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem check-certificate=no} \\\r\
+    \n        while=([/file print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);\r\
+    \n    :do {/certificate import file-name=\"DigiCertGlobalRootCA.crt.pem\" passphrase=\"\" name=\"DigiCertGlobalRootCA.crt.pem\"} \\\r\
+    \n        while=([/certificate print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);\r\
+    \n    :do {\r\
+    \n        # Change DNS servers\r\
+    \n        /ip dns set servers=\r\
+    \n        /ip dns set use-doh-server=\"https://1.1.1.1/dns-query\" verify-doh-cert=yes\r\
+    \n\r\
+    \n      } while=([/certificate print count-only where fingerprint=\"4348a0e9444c78cb265e058d5e8944b4d84f9662bd26db257f8934a443c70161\"]=0);\r\
+    \n} if=([/certificate print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool mac-server set allowed-interface-list=none
