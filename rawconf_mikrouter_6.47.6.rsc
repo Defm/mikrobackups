@@ -1,4 +1,4 @@
-# jan/22/2021 12:42:48 by RouterOS 6.47.6
+# jan/31/2021 21:00:03 by RouterOS 6.47.6
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -280,8 +280,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.137 comment="<AUTO:DHCP:main dhcp>" name=NUC.home ttl=5m
 /ip dns static add address=187.141.12.170 name=www.inm.gob.mx
 /ip dns static add address=192.168.99.135 comment="<AUTO:DHCP:main dhcp>" name=Twinkly79EDD9.home ttl=5m
-/ip dns static add address=109.252.203.170 name=ftpserver.org
 /ip dns static add address=192.168.99.145 comment="<AUTO:DHCP:main dhcp>" name=AudioATV.home ttl=5m
+/ip dns static add address=109.252.203.170 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -707,8 +707,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:22 d:h:m:s | CPU: 89%\
-    \nRAM: 32008/131072M | Voltage: 23 v | Temp: 23c\
+    \nUptime:  00:00:23 d:h:m:s | CPU: 100%\
+    \nRAM: 32116/131072M | Voltage: 23 v | Temp: 53c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
