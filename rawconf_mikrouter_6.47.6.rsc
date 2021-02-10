@@ -1,4 +1,4 @@
-# jan/31/2021 21:00:03 by RouterOS 6.47.6
+# feb/10/2021 21:00:02 by RouterOS 6.47.6
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -107,12 +107,11 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx@main dhcp (10:DD:B1:9E:19:5E)" queue=default/default target=192.168.99.180/32 total-queue=default
 /queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP name="LivingRoomWAP@main dhcp (CC:2D:E0:E7:BE:02)" queue=default/default target=192.168.99.2/32 total-queue=default
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@guest dhcp (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
-/queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="nas@main dhcp (00:11:32:2C:A7:85)" queue=default/default target=192.168.99.30/32 total-queue=default
+/queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="NAS@main dhcp (00:11:32:2C:A7:85)" queue=default/default target=192.168.99.30/32 total-queue=default
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main dhcp (54:2B:8D:77:38:A0)" queue=default/default target=192.168.99.150/32 total-queue=default
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.99.130/32 total-queue=default
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro(blocked)@guest dhcp (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.229/32 total-queue=default
 /queue simple add comment=dtq,08:00:27:17:3A:80,AsusGlo name="vBox-Windows7@main dhcp (08:00:27:17:3A:80)" queue=default/default target=192.168.99.10/32 total-queue=default
-/queue simple add comment=dtq,C0:3F:D5:62:21:54,NUC name="OpticWin@main dhcp (C0:3F:D5:62:21:54)" queue=default/default target=192.168.99.137/32 total-queue=default
 /queue simple add comment=dtq,C0:3F:D5:62:21:54, name="OpticWin(blocked)@guest dhcp (C0:3F:D5:62:21:54)" queue=default/default target=192.168.98.222/32 total-queue=default
 /queue simple add comment=dtq,14:1F:BA:E5:22:D9, name="atol@main dhcp (14:1F:BA:E5:22:D9)" queue=default/default target=192.168.99.200/32 total-queue=default
 /queue simple add comment=dtq,14:1F:BA:E5:22:D9, name="atol(blocked)@guest dhcp (14:1F:BA:E5:22:D9)" queue=default/default target=192.168.98.200/32 total-queue=default
@@ -213,17 +212,17 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip address add address=172.16.0.16/30 comment="GRAFANA IP redirect" interface="ip mapping" network=172.16.0.16
 /ip address add address=172.16.0.17/30 comment="INFLUXDB IP redirect" interface="ip mapping" network=172.16.0.16
 /ip arp add address=192.168.99.140 interface="main infrastructure" mac-address=54:E4:3A:B8:12:07
-/ip arp add address=192.168.99.160 interface="main infrastructure" mac-address=78:31:C1:CF:9E:70
+/ip arp add address=192.168.99.160 comment="MbpAlx WiFi" interface="main infrastructure" mac-address=78:31:C1:CF:9E:70
 /ip arp add address=192.168.100.7 interface=wan mac-address=6C:3B:6B:11:DA:18
 /ip arp add address=192.168.99.190 interface="main infrastructure" mac-address=90:DD:5D:C8:46:AB
-/ip arp add address=192.168.99.170 interface="main infrastructure" mac-address=38:C9:86:51:D2:B3
+/ip arp add address=192.168.99.170 comment="MbpAlx LAN" interface="main infrastructure" mac-address=38:C9:86:51:D2:B3
 /ip arp add address=192.168.99.180 interface="main infrastructure" mac-address=10:DD:B1:9E:19:5E
 /ip arp add address=192.168.99.30 interface="main infrastructure" mac-address=00:11:32:2C:A7:85
 /ip arp add address=192.168.99.150 interface="main infrastructure" mac-address=54:2B:8D:77:38:A0
 /ip arp add address=192.168.99.2 interface="main infrastructure" mac-address=CC:2D:E0:E7:BE:02
 /ip arp add address=192.168.99.130 comment=iPadAlxPro interface="main infrastructure" mac-address=50:DE:06:25:C2:FC
 /ip arp add address=192.168.99.10 comment=vBox-Windows7 interface="main infrastructure" mac-address=08:00:27:17:3A:80
-/ip arp add address=192.168.99.137 comment=OpticWin interface="main infrastructure" mac-address=C0:3F:D5:62:21:54
+/ip arp add address=192.168.99.137 comment=OpticWin interface="main infrastructure" mac-address=C0:3F:D5:61:AF:56
 /ip arp add address=192.168.99.200 comment=atol interface="main infrastructure" mac-address=14:1F:BA:E5:22:D9
 /ip arp add address=192.168.99.135 comment=Twinkle interface="main infrastructure" mac-address=FC:F5:C4:79:ED:D8
 /ip arp add address=192.168.99.145 comment=AudioATV interface="main infrastructure" mac-address=B0:34:95:50:A1:6A
@@ -236,12 +235,12 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dhcp-server lease add address=192.168.99.180 address-lists=osx-hosts always-broadcast=yes mac-address=10:DD:B1:9E:19:5E server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.2 mac-address=CC:2D:E0:E7:BE:02 server="main dhcp"
 /ip dhcp-server lease add address=192.168.98.223 block-access=yes client-id=1:54:2b:8d:77:38:a0 mac-address=54:2B:8D:77:38:A0 server="guest dhcp"
-/ip dhcp-server lease add address=192.168.99.30 mac-address=00:11:32:2C:A7:85 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.30 comment=NAS mac-address=00:11:32:2C:A7:85 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.150 client-id=1:54:2b:8d:77:38:a0 mac-address=54:2B:8D:77:38:A0 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.130 comment=iPadAlxPro mac-address=50:DE:06:25:C2:FC server="main dhcp"
 /ip dhcp-server lease add address=192.168.98.229 block-access=yes comment="iPadAlxPro(blocked)" mac-address=50:DE:06:25:C2:FC server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.10 comment=vBox-Windows7 mac-address=08:00:27:17:3A:80 server="main dhcp"
-/ip dhcp-server lease add address=192.168.99.137 comment=OpticWin mac-address=C0:3F:D5:62:21:54 server="main dhcp"
+/ip dhcp-server lease add address=192.168.99.137 comment=OpticWin mac-address=C0:3F:D5:61:AF:56 server="main dhcp"
 /ip dhcp-server lease add address=192.168.98.222 block-access=yes comment="OpticWin(blocked)" mac-address=C0:3F:D5:62:21:54 server="guest dhcp"
 /ip dhcp-server lease add address=192.168.99.200 comment=atol mac-address=14:1F:BA:E5:22:D9 server="main dhcp"
 /ip dhcp-server lease add address=192.168.98.200 block-access=yes comment="atol(blocked)" mac-address=14:1F:BA:E5:22:D9 server="guest dhcp"
@@ -277,11 +276,11 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.30 comment="<AUTO:DHCP:main dhcp>" name=nas.home ttl=5m
 /ip dns static add address=192.168.99.130 comment="<AUTO:DHCP:main dhcp>" name=iPadProAlx.home ttl=5m
 /ip dns static add address=192.168.99.10 comment="<AUTO:DHCP:main dhcp>" name=AsusGlo.home ttl=5m
-/ip dns static add address=192.168.99.137 comment="<AUTO:DHCP:main dhcp>" name=NUC.home ttl=5m
 /ip dns static add address=187.141.12.170 name=www.inm.gob.mx
 /ip dns static add address=192.168.99.135 comment="<AUTO:DHCP:main dhcp>" name=Twinkly79EDD9.home ttl=5m
 /ip dns static add address=192.168.99.145 comment="<AUTO:DHCP:main dhcp>" name=AudioATV.home ttl=5m
-/ip dns static add address=109.252.203.170 name=ftpserver.org
+/ip dns static add address=109.252.203.109 name=ftpserver.org
+/ip dns static add address=192.168.99.137 comment="<AUTO:DHCP:main dhcp>" name=-.home ttl=5m
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -358,7 +357,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=yeezysupply.com list=vpn-tunneled-sites
 /ip firewall address-list add list=inm.gob.mx
 /ip firewall address-list add address=187.141.12.170 list=vpn-tunneled-sites
-/ip firewall address-list add address=109.252.203.170 list=external-ip
+/ip firewall address-list add address=109.252.203.109 list=external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list="!VPN network"
 /ip firewall filter add action=fasttrack-connection chain=forward comment="FASTTRACK TCP / Except VPN" connection-state=established,related disabled=yes dst-address-list="!VPN network" protocol=tcp
@@ -707,8 +706,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:23 d:h:m:s | CPU: 100%\
-    \nRAM: 32116/131072M | Voltage: 23 v | Temp: 53c\
+    \nUptime:  00:00:23 d:h:m:s | CPU: 47%\
+    \nRAM: 32208/131072M | Voltage: 23 v | Temp: 49c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
