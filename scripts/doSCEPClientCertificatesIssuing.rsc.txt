@@ -2,7 +2,7 @@
 # generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it
 
 #clients
-:local IDs [:toarray "mikrouter.20-21"];
+:local IDs [:toarray "alx.iphone.rw.2021"];
 :local fakeDomain "myvpn.fake.org"
 
 :local scepAlias "CHR"
