@@ -1,4 +1,4 @@
-# feb/20/2021 21:00:02 by RouterOS 6.47.6
+# may/31/2021 21:00:02 by RouterOS 6.47.6
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -28,7 +28,7 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /system logging action add name=L2TPOnScreenLog target=memory
 /system logging action add disk-file-name=flash/AuthDiskLog name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
-/system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
+/system logging action add memory-lines=1 name=ParseMemoryLog target=memory
 /system logging action add name=CAPSOnScreenLog target=memory
 /system logging action add name=FirewallOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
@@ -46,8 +46,8 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
 /ip cloud set ddns-enabled=yes
 /ip dhcp-client add disabled=no interface="main infrastructure"
 /ip dns set cache-max-ttl=1d query-server-timeout=3s
-/ip dns static add address=109.252.203.109 name=ftpserver.org
-/ip firewall address-list add address=109.252.203.109 list=external-ip
+/ip dns static add address=109.252.203.73 name=ftpserver.org
+/ip firewall address-list add address=109.252.203.73 list=external-ip
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set irc disabled=yes
 /ip firewall service-port set h323 disabled=yes
