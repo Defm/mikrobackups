@@ -1,4 +1,4 @@
-# may/31/2021 21:00:02 by RouterOS 6.47.6
+# jun/10/2021 21:00:03 by RouterOS 6.47.6
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -270,7 +270,7 @@ set caps-man-addresses=192.168.99.1 certificate=request discovery-interfaces="ma
     \n:local maxTemp;\r\
     \n:local currentTemp [/system health get temperature];\r\
     \n\r\
-    \n:set maxTemp 60;\r\
+    \n:set maxTemp 68;\r\
     \n\r\
     \n#\r\
     \n\r\

@@ -1,4 +1,4 @@
-# may/31/2021 21:00:03 by RouterOS 6.47.6
+# jun/10/2021 21:00:02 by RouterOS 6.47.6
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -710,8 +710,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:23 d:h:m:s | CPU: 86%\
-    \nRAM: 31240/131072M | Voltage: 23 v | Temp: 52c\
+    \nUptime:  00:00:22 d:h:m:s | CPU: 46%\
+    \nRAM: 30448/131072M | Voltage: 23 v | Temp: 50c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -1401,7 +1401,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n:local maxTemp;\r\
     \n:local currentTemp [/system health get temperature];\r\
     \n\r\
-    \n:set maxTemp 60;\r\
+    \n:set maxTemp 68;\r\
     \n\r\
     \n#\r\
     \n\r\
@@ -3500,7 +3500,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n# generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\r\
     \n\r\
     \n#clients\r\
-    \n:local IDs [:toarray \"mikrouter.20-21\"];\r\
+    \n:local IDs [:toarray \"alx.iphone.rw.2021\"];\r\
     \n:local fakeDomain \"myvpn.fake.org\"\r\
     \n\r\
     \n:local scepAlias \"CHR\"\r\
