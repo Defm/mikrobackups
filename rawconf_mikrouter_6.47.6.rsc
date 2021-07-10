@@ -1,4 +1,4 @@
-# jun/30/2021 21:00:02 by RouterOS 6.47.6
+# jul/10/2021 21:00:02 by RouterOS 6.47.6
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -283,7 +283,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.145 comment="<AUTO:DHCP:main dhcp>" name=AudioATV.home ttl=5m
 /ip dns static add address=192.168.99.137 comment="<AUTO:DHCP:main dhcp>" name=MATV.home ttl=5m
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhone.home ttl=5m
-/ip dns static add address=109.252.203.73 name=ftpserver.org
+/ip dns static add address=109.252.203.146 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=Bogons
@@ -360,7 +360,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall address-list add address=yeezysupply.com list=vpn-tunneled-sites
 /ip firewall address-list add list=inm.gob.mx
 /ip firewall address-list add address=187.141.12.170 list=vpn-tunneled-sites
-/ip firewall address-list add address=109.252.203.73 list=external-ip
+/ip firewall address-list add address=109.252.203.146 list=external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list="!VPN network"
 /ip firewall filter add action=fasttrack-connection chain=forward comment="FASTTRACK TCP / Except VPN" connection-state=established,related disabled=yes dst-address-list="!VPN network" protocol=tcp
@@ -627,7 +627,9 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list="VPN network" log-prefix=#VPN_NAT src-address-list=Network
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" dst-address-list=vpn-tunneled-sites log-prefix=#VPN_NAT
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=Network log-prefix=#VPN_NAT src-address-list="VPN network"
-/ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel
+/ip firewall nat
+# tunnel not ready
+add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel
 /ip firewall nat add action=netmap chain=dstnat comment="WINBOX pass through" dst-port=9999 in-interface=wan log-prefix=#WNBOX protocol=tcp to-addresses=192.168.99.1 to-ports=8291
 /ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX NAT loopback" dst-address-list=external-ip dst-address-type="" dst-port=8291 in-interface="main infrastructure" log-prefix=#LOOP protocol=tcp src-address-list=Network to-addresses=192.168.99.1 to-ports=8291
 /ip firewall nat add action=netmap chain=dstnat comment="WEB pass through" dst-port=8888 in-interface=wan log-prefix="#WEB EXT CTRL" protocol=tcp to-addresses=192.168.99.1 to-ports=80
@@ -650,7 +652,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip ipsec identity add auth-method=digital-signature certificate=mikrouter.20-21@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
 /ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/30 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" sa-dst-address=10.0.0.1 sa-src-address=10.0.0.2 src-address=192.168.99.0/24 tunnel=yes
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=deny dst-host=grafana redirect-to=192.168.99.180:3000
@@ -709,8 +711,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:23 d:h:m:s | CPU: 100%\
-    \nRAM: 31656/131072M | Voltage: 23 v | Temp: 54c\
+    \nUptime:  00:00:23 d:h:m:s | CPU: 45%\
+    \nRAM: 31712/131072M | Voltage: 23 v | Temp: 52c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
