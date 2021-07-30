@@ -1,4 +1,4 @@
-# jul/20/2021 21:00:02 by RouterOS 6.47.6
+# jul/30/2021 21:00:02 by RouterOS 6.47.6
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -121,7 +121,6 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest dhcp (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,C0:3F:D5:66:61:EF,MATV name="OpticWin@main dhcp (C0:3F:D5:66:61:EF)" queue=default/default target=192.168.99.137/32 total-queue=default
 /queue simple add comment=dtq,70:4D:7B:1E:4B:0E,android-72217cc9bffef01b name="android-72217cc9bffef01b@guest dhcp (70:4D:7B:1E:4B:0E)" queue=default/default target=192.168.98.225/32 total-queue=default
-/queue simple add comment=dtq,D2:24:8E:7B:74:E9, name="@guest dhcp (D2:24:8E:7B:74:E9)" queue=default/default target=192.168.98.228/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -710,8 +709,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:23 d:h:m:s | CPU: 42%\
-    \nRAM: 31600/131072M | Voltage: 23 v | Temp: 55c\
+    \nUptime:  00:00:23 d:h:m:s | CPU: 37%\
+    \nRAM: 31304/131072M | Voltage: 23 v | Temp: 52c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
