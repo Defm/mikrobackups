@@ -1,4 +1,4 @@
-# aug/19/2021 21:00:02 by RouterOS 6.47.6
+# aug/29/2021 21:00:02 by RouterOS 6.47.6
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -121,7 +121,8 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest dhcp (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,C0:3F:D5:66:61:EF,MATV name="OpticWin@main dhcp (C0:3F:D5:66:61:EF)" queue=default/default target=192.168.99.137/32 total-queue=default
 /queue simple add comment=dtq,70:4D:7B:1E:4B:0E,android-72217cc9bffef01b name="android-72217cc9bffef01b@guest dhcp (70:4D:7B:1E:4B:0E)" queue=default/default target=192.168.98.225/32 total-queue=default
-/queue simple add comment=dtq,94:17:00:3F:D1:72,M2006C3MNG-Redmi9CNF name="M2006C3MNG-Redmi9CNF@guest dhcp (94:17:00:3F:D1:72)" queue=default/default target=192.168.98.228/32 total-queue=default
+/queue simple add comment=dtq,48:8F:5A:D4:5F:68,MikroTik name="anna@main dhcp (48:8F:5A:D4:5F:68)" queue=default/default target=192.168.99.4/32 total-queue=default
+/queue simple add comment=dtq,48:8F:5A:D4:5F:69, name="anna(blocked)@guest dhcp (48:8F:5A:D4:5F:69)" queue=default/default target=192.168.98.232/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -152,6 +153,7 @@ set "wlan 5Ghz" enable-polling=no
 /user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
 /user group add name=remote policy=ssh,read,write,!local,!telnet,!ftp,!reboot,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!api,!romon,!dude,!tikapp
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=anna disabled=no mac-address=48:8F:5A:D4:5F:69 ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=AudioATV disabled=no mac-address=B0:34:95:50:A1:6A ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=Twinkle disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=atol disabled=no mac-address=14:1F:BA:E5:22:D9 ssid-regexp=""
@@ -229,6 +231,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip arp add address=192.168.99.200 comment=atol interface="main infrastructure" mac-address=14:1F:BA:E5:22:D9
 /ip arp add address=192.168.99.135 comment=Twinkle interface="main infrastructure" mac-address=FC:F5:C4:79:ED:D8
 /ip arp add address=192.168.99.145 comment=AudioATV interface="main infrastructure" mac-address=B0:34:95:50:A1:6A
+/ip arp add address=192.168.99.4 comment=anna interface="main infrastructure" mac-address=48:8F:5A:D4:5F:68
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-server lease add address=192.168.99.140 client-id=1:54:e4:3a:b8:12:7 mac-address=54:E4:3A:B8:12:07 server="main dhcp"
 /ip dhcp-server lease add address=192.168.99.190 mac-address=90:DD:5D:C8:46:AB server="main dhcp"
@@ -252,6 +255,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dhcp-server lease add address=192.168.99.145 comment=AudioATV mac-address=B0:34:95:50:A1:6A server="main dhcp"
 /ip dhcp-server lease add address=192.168.98.231 block-access=yes comment="AudioATV(blocked)" mac-address=B0:34:95:50:A1:6A server="guest dhcp"
 /ip dhcp-server lease add address=192.168.98.225 block-access=yes client-id=1:70:4d:7b:1e:4b:e mac-address=70:4D:7B:1E:4B:0E server="guest dhcp"
+/ip dhcp-server lease add address=192.168.99.4 comment=anna mac-address=48:8F:5A:D4:5F:68 server="main dhcp"
+/ip dhcp-server lease add address=192.168.98.232 block-access=yes comment="anna(blocked)" mac-address=48:8F:5A:D4:5F:69 server="guest dhcp"
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server network add address=192.168.99.0/26 caps-manager=192.168.99.1 comment="VIRTUAL MACHINES DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
 /ip dhcp-server network add address=192.168.99.64/26 caps-manager=192.168.99.1 comment="WINDOWS DHCP leasing" dhcp-option=DomainName dns-server=192.168.99.1,8.8.8.8 gateway=192.168.99.1 netmask=24 ntp-server=192.168.99.1
@@ -284,6 +289,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip dns static add address=192.168.99.145 comment="<AUTO:DHCP:main dhcp>" name=AudioATV.home ttl=5m
 /ip dns static add address=192.168.99.137 comment="<AUTO:DHCP:main dhcp>" name=MATV.home ttl=5m
 /ip dns static add address=192.168.99.150 comment="<AUTO:DHCP:main dhcp>" name=iPhone.home ttl=5m
+/ip dns static add address=192.168.99.4 comment="<AUTO:DHCP:main dhcp>" name=MikroTik.home ttl=5m
 /ip dns static add address=109.252.203.146 name=ftpserver.org
 /ip firewall address-list add address=192.168.99.0/24 list=Network
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=Bogons
@@ -710,8 +716,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:23 d:h:m:s | CPU: 100%\
-    \nRAM: 31308/131072M | Voltage: 23 v | Temp: 56c\
+    \nUptime:  00:00:21 d:h:m:s | CPU: 22%\
+    \nRAM: 30732/131072M | Voltage: 23 v | Temp: 52c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
