@@ -1,4 +1,4 @@
-# aug/29/2021 21:00:02 by RouterOS 6.47.6
+# sep/08/2021 21:00:02 by RouterOS 6.47.6
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -123,6 +123,9 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,70:4D:7B:1E:4B:0E,android-72217cc9bffef01b name="android-72217cc9bffef01b@guest dhcp (70:4D:7B:1E:4B:0E)" queue=default/default target=192.168.98.225/32 total-queue=default
 /queue simple add comment=dtq,48:8F:5A:D4:5F:68,MikroTik name="anna@main dhcp (48:8F:5A:D4:5F:68)" queue=default/default target=192.168.99.4/32 total-queue=default
 /queue simple add comment=dtq,48:8F:5A:D4:5F:69, name="anna(blocked)@guest dhcp (48:8F:5A:D4:5F:69)" queue=default/default target=192.168.98.232/32 total-queue=default
+/queue simple add comment=dtq,D2:24:8E:7B:74:E9, name="@guest dhcp (D2:24:8E:7B:74:E9)" queue=default/default target=192.168.98.221/32 total-queue=default
+/queue simple add comment=dtq,10:2C:6B:41:7C:06,Yandex.Station-2e0850 name="Yandex.Station-2e0850@guest dhcp (10:2C:6B:41:7C:06)" queue=default/default target=192.168.98.218/32 total-queue=default
+/queue simple add comment=dtq,5E:7A:91:3B:9E:7E, name="@guest dhcp (5E:7A:91:3B:9E:7E)" queue=default/default target=192.168.98.220/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -654,7 +657,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
-/ip ipsec identity add auth-method=digital-signature certificate=mikrouter.20-21@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
+/ip ipsec identity add auth-method=digital-signature certificate=*20 comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
@@ -716,8 +719,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
 /system logging add action=SSHOnScreenLog topics=ssh
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
-    \nUptime:  00:00:21 d:h:m:s | CPU: 22%\
-    \nRAM: 30732/131072M | Voltage: 23 v | Temp: 52c\
+    \nUptime:  00:00:23 d:h:m:s | CPU: 46%\
+    \nRAM: 31708/131072M | Voltage: 23 v | Temp: 49c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
@@ -2304,10 +2307,10 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n/ip firewall address-list add list=\$today address=\"log-in.\$time1.\$user.\$usermac.\$ipuser\"\r\
     \n"
-/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=no name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalNoteMe;\r\
     \n\r\
-    \n:if (!any \$globalNoteMe) do={ \r\
+    \n:if (!any \$globalNoteMe) do={\r\
     \n  :global globalNoteMe do={\r\
     \n\r\
     \n  ## outputs \$value using both :put and :log info\r\
@@ -2320,11 +2323,11 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n:global globalScriptBeforeRun;\r\
     \n\r\
-    \n:if (!any \$globalScriptBeforeRun) do={ \r\
+    \n:if (!any \$globalScriptBeforeRun) do={\r\
     \n  :global globalScriptBeforeRun do={\r\
     \n\r\
     \n    :global globalNoteMe;\r\
-    \n    \r\
+    \n\r\
     \n    :if ([:len \$1] > 0) do={\r\
     \n\r\
     \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\r\
@@ -2355,7 +2358,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n:global globalTgMessage;\r\
     \n\r\
-    \n:if (!any \$globalTgMessage) do={ \r\
+    \n:if (!any \$globalTgMessage) do={\r\
     \n  :global globalTgMessage do={\r\
     \n\r\
     \n    :global globalNoteMe;\r\
@@ -2377,48 +2380,44 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n  }\r\
     \n}\r\
     \n\r\
-    \n:global globalIPSECPolicyUpdateViaSSH;\r\r\
-    \n\r\r\
-    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={ \r\r\
-    \n  :global globalIPSECPolicyUpdateViaSSH do={\r\r\
-    \n\r\r\
-    \n    :global globalRemoteIp;\r\r\
+    \n:global globalIPSECPolicyUpdateViaSSH;\r\
+    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={\r\
+    \n  :global globalIPSECPolicyUpdateViaSSH do={\r\
+    \n\r\
+    \n    :global globalRemoteIp;\r\
     \n    :global globalNoteMe;\r\
-    \n\r\r\
-    \n    :if ([:len \$1] > 0) do={\r\r\
-    \n      :global globalRemoteIp (\"\$1\" . \"/32\"); \r\r\
-    \n    }\r\r\
-    \n\r\r\
-    \n    :if (!any \$globalRemoteIp) do={ \r\r\
-    \n      :global globalRemoteIp \"0.0.0.0/32\" \r\r\
-    \n    } else={\r\r\
-    \n    \r\r\
-    \n    }\r\r\
-    \n    \r\r\
+    \n\r\
+    \n    :if ([:len \$1] > 0) do={\r\
+    \n      :global globalRemoteIp (\"\$1\" . \"/32\");\r\
+    \n    }\r\
+    \n\r\
+    \n    :if (!any \$globalRemoteIp) do={\r\
+    \n      :global globalRemoteIp \"0.0.0.0/32\"\r\
+    \n    } else={\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
     \n    :local state (\"RPC... \$value\");\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\r\r\
-    \n\r\r\
-    \n    :if (\$count > 0) do={\r\r\
-    \n  \r\
+    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\r\
+    \n    :if (\$count > 0) do={\r\
     \n       :local state (\"Starting policies process... \$globalRemoteIp \");\r\
-    \n       \$globalNoteMe value=\$state;  \r\
-    \n       \r\
-    \n       /system script run doUpdatePoliciesRemotely;\r\r\
-    \n    \r\
-    \n     }\r\r\
-    \n  }\r\r\
+    \n       \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n       /system script run doUpdatePoliciesRemotely;\r\
+    \n\r\
+    \n     }\r\
+    \n  }\r\
     \n}\r\
     \n\r\
-    \n\r\
     \n#Example call\r\
-    \n#\$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid=\"WiFi 5\"  \r\
+    \n#\$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid=\"WiFi 5\"\r\
     \n:global globalNewNetworkMember;\r\
     \n\r\
-    \n:if (!any \$globalNewNetworkMember) do={ \r\
+    \n:if (!any \$globalNewNetworkMember) do={\r\
     \n  :global globalNewNetworkMember do={\r\
-    \n    \r\
+    \n\r\
     \n    :global globalNoteMe;\r\
     \n\r\
     \n    #to prevent connection\r\
@@ -2432,12 +2431,12 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    :local state (\"Adding new network member... \");\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    # incoming named params \r\
+    \n    # incoming named params\r\
     \n    :local newIp [ :tostr \$ip ];\r\
     \n    :local newBlockedIp [ :tostr \$gip ];\r\
     \n    :local newMac [ :tostr \$mac ];\r\
     \n    :local comment [ :tostr \$comm ];\r\
-    \n    :local ssid [ :tostr \$ssid ];    \r\
+    \n    :local ssid [ :tostr \$ssid ];\r\
     \n\r\
     \n    :if ([:len \$newIp] > 0) do={\r\
     \n\r\
@@ -2487,7 +2486,7 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    }\r\
     \n\r\
     \n    :do {\r\
-    \n       \r\
+    \n\r\
     \n        /ip arp remove [find address=\$newIp];\r\
     \n        /ip arp remove [find address=\$newBlockedIp];\r\
     \n        /ip arp remove [find mac-address=\$newMac];\r\
@@ -2500,11 +2499,11 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n    }\r\
     \n\r\
     \n    :do {\r\
-    \n       \r\
+    \n\r\
     \n        /caps-man access-list remove [find mac-address=\$newMac];\r\
     \n\r\
     \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\$ssid place-before=1\r\
-    \n    \r\
+    \n\r\
     \n    } on-error={\r\
     \n        :local state (\"Error: something fail on CAPS configuration step\");\r\
     \n        \$globalNoteMe value=\$state;\r\
@@ -2513,7 +2512,8 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n\r\
     \n    :return true;\r\
     \n    }\r\
-    \n}"
+    \n}\r\
+    \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
     \n:global globalScriptBeforeRun;\r\
@@ -3585,6 +3585,9 @@ set caps-man-addresses=192.168.99.1 certificate=request enabled=yes interfaces="
     \n} if=([/certificate print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
+/tool graphing set page-refresh=50
+/tool graphing interface add
+/tool graphing resource add
 /tool mac-server set allowed-interface-list=none
 /tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
 /tool netwatch add comment="miniAlx status check" down-script="\r\
