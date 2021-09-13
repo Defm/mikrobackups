@@ -207,7 +207,7 @@
 
 
 #Example call
-#$globalNewClientCert argClients="alx.iphone.rw.2021, alx.mini.rw.2021"
+#$globalNewClientCert argClients="alx.iphone.rw.2021, alx.mini.rw.2021" argUsage="tls-client,digital-signature,key-encipherment"
 :if (!any $globalNewClientCert) do={
   :global globalNewClientCert do={
 
@@ -217,6 +217,7 @@
 
     # incoming named params
     :local clients [ :tostr $argClients ];
+    :local prefs  [ :tostr $argUsage ];
 
     # scope global functions
     :global globalNoteMe;
@@ -250,17 +251,17 @@
       $globalNoteMe value=$state;
 
       ## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields
-      #:local COUNTRY "RU"
-      #:local STATE "MSC"
-      #:local LOC "Moscow"
-      #:local ORG "IKEv2 Home"
-      #:local OU "IKEv2 Mikrotik"
+      :local COUNTRY "RU"
+      :local STATE "MSC"
+      :local LOC "Moscow"
+      :local ORG "IKEv2 Home"
+      :local OU "IKEv2 Mikrotik"
 
-      :local COUNTRY ""
-      :local STATE ""
-      :local LOC ""
-      :local ORG ""
-      :local OU ""
+      # :local COUNTRY ""
+      # :local STATE ""
+      # :local LOC ""
+      # :local ORG ""
+      # :local OU ""
 
       :local KEYSIZE "2048"
       :local USERNAME "mikrouter"
@@ -275,7 +276,7 @@
         $globalNoteMe value=$state;
 
         ## create a client certificate (that will be just a template while not signed)
-        /certificate add name="$USERNAME@$scepAlias" common-name="$USERNAME@$scepAlias" subject-alt-name="email:$USERNAME@$fakeDomain" key-usage=tls-client country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365
+        /certificate add name="$USERNAME@$scepAlias" common-name="$USERNAME@$scepAlias" subject-alt-name="email:$USERNAME@$fakeDomain" key-usage=$prefs  country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365
 
         :local state "Pushing sign request...";
         $globalNoteMe value=$state;
