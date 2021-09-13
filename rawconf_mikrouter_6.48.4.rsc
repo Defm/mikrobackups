@@ -1,4 +1,4 @@
-# sep/13/2021 23:27:26 by RouterOS 6.48.4
+# sep/14/2021 00:32:28 by RouterOS 6.48.4
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -45,19 +45,15 @@
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
 /interface wireless
 # managed by CAPsMAN
-# channel: 2412/20/gn(15dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan1 ] adaptive-noise-immunity=ap-and-client-mode antenna-gain=2 band=2ghz-onlyn basic-rates-b="" channel-width=20/40mhz-Ce country=russia3 default-authentication=no distance=indoors hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 2Ghz" preamble-mode=long security-profile=private ssid="WiFi 2Ghz PRIVATE" station-roaming=enabled supported-rates-b="" wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5180/20-Ce/ac/P(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] adaptive-noise-immunity=ap-and-client-mode band=5ghz-n/ac channel-width=20/40/80mhz-Ceee country=russia3 default-authentication=no distance=indoors frequency=auto hw-protection-mode=rts-cts mode=ap-bridge multicast-helper=full name="wlan 5Ghz" preamble-mode=long security-profile=private ssid="WiFi 5Ghz PRIVATE" station-roaming=enabled wireless-protocol=802.11 wmm-support=enabled wps-mode=disabled
 /interface wireless nstreme
 # managed by CAPsMAN
-# channel: 2412/20/gn(15dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
 set "wlan 2Ghz" enable-polling=no
 /interface wireless nstreme
 # managed by CAPsMAN
-# channel: 5180/20-Ce/ac/P(13dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set "wlan 5Ghz" enable-polling=no
 /ip dhcp-server add authoritative=after-2sec-delay disabled=no interface="main infrastructure" lease-time=1d name="main dhcp"
 /ip dhcp-server option add code=15 name=DomainName value="s'home'"
@@ -168,7 +164,7 @@ set "wlan 5Ghz" enable-polling=no
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlxr disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set enabled=yes
+/caps-man manager set ca-certificate=ca@CHR enabled=yes
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
 /caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface=wan
 /caps-man manager interface add comment="Do CapsMan on private" disabled=no interface="main infrastructure"
@@ -692,6 +688,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=mikrouter
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -2517,7 +2514,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n\r\
     \n\r\
     \n#Example call\r\
-    \n#\$globalNewClientCert argClients=\"alx.iphone.rw.2021, alx.mini.rw.2021\"\r\
+    \n#\$globalNewClientCert argClients=\"alx.iphone.rw.2021, alx.mini.rw.2021\" argUsage=\"tls-client,digital-signature,key-encipherment\"\r\
     \n:if (!any \$globalNewClientCert) do={\r\
     \n  :global globalNewClientCert do={\r\
     \n\r\
@@ -2527,6 +2524,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n\r\
     \n    # incoming named params\r\
     \n    :local clients [ :tostr \$argClients ];\r\
+    \n    :local prefs  [ :tostr \$argUsage ];\r\
     \n\r\
     \n    # scope global functions\r\
     \n    :global globalNoteMe;\r\
@@ -2560,17 +2558,17 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n      \$globalNoteMe value=\$state;\r\
     \n\r\
     \n      ## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
-    \n      #:local COUNTRY \"RU\"\r\
-    \n      #:local STATE \"MSC\"\r\
-    \n      #:local LOC \"Moscow\"\r\
-    \n      #:local ORG \"IKEv2 Home\"\r\
-    \n      #:local OU \"IKEv2 Mikrotik\"\r\
+    \n      :local COUNTRY \"RU\"\r\
+    \n      :local STATE \"MSC\"\r\
+    \n      :local LOC \"Moscow\"\r\
+    \n      :local ORG \"IKEv2 Home\"\r\
+    \n      :local OU \"IKEv2 Mikrotik\"\r\
     \n\r\
-    \n      :local COUNTRY \"\"\r\
-    \n      :local STATE \"\"\r\
-    \n      :local LOC \"\"\r\
-    \n      :local ORG \"\"\r\
-    \n      :local OU \"\"\r\
+    \n      # :local COUNTRY \"\"\r\
+    \n      # :local STATE \"\"\r\
+    \n      # :local LOC \"\"\r\
+    \n      # :local ORG \"\"\r\
+    \n      # :local OU \"\"\r\
     \n\r\
     \n      :local KEYSIZE \"2048\"\r\
     \n      :local USERNAME \"mikrouter\"\r\
@@ -2585,7 +2583,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n        \$globalNoteMe value=\$state;\r\
     \n\r\
     \n        ## create a client certificate (that will be just a template while not signed)\r\
-    \n        /certificate add name=\"\$USERNAME@\$scepAlias\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\r\
+    \n        /certificate add name=\"\$USERNAME@\$scepAlias\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\r\
     \n\r\
     \n        :local state \"Pushing sign request...\";\r\
     \n        \$globalNoteMe value=\$state;\r\
