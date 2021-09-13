@@ -1,41 +1,43 @@
 
-:global globalNoteMe;
 
-:if (!any $globalNoteMe) do={ 
+:global globalNoteMe;
+:if (!any $globalNoteMe) do={
+
   :global globalNoteMe do={
 
   ## outputs $value using both :put and :log info
   ## example $outputInfo value="12345"
+
   :put "info: $value"
   :log info "$value"
 
   }
 }
 
-:global globalScriptBeforeRun;
 
-:if (!any $globalScriptBeforeRun) do={ 
+:global globalScriptBeforeRun;
+:if (!any $globalScriptBeforeRun) do={
   :global globalScriptBeforeRun do={
 
     :global globalNoteMe;
-    
     :if ([:len $1] > 0) do={
 
       :local currentTime ([/system clock get date] . " " . [/system clock get time]);
       :local scriptname "$1";
-
       :local count [:len [/system script job find script=$scriptname]];
 
       :if ($count > 0) do={
 
         :foreach counter in=[/system script job find script=$scriptname] do={
-
          #But ignoring scripts started right NOW
+
          :local thisScriptCallTime  [/system script job get $counter started];
          :if ($currentTime != $thisScriptCallTime) do={
+
            :local state "$scriptname already Running at $thisScriptCallTime - killing old script before continuing";
             $globalNoteMe value=$state;
             /system script job remove $counter;
+
           }
         }
       }
@@ -48,12 +50,10 @@
 }
 
 :global globalTgMessage;
-
-:if (!any $globalTgMessage) do={ 
+:if (!any $globalTgMessage) do={
   :global globalTgMessage do={
 
     :global globalNoteMe;
-
     :local tToken "798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M";
     :local tGroupID "-343674739";
     :local tURL "https://api.telegram.org/bot$tToken/sendMessage\?chat_id=$tGroupID";
@@ -67,86 +67,76 @@
       :local state ("Telegram notify error");
       $globalNoteMe value=$state;
     };
-
   }
 }
 
-:global globalIPSECPolicyUpdateViaSSH;
-
-:if (!any $globalIPSECPolicyUpdateViaSSH) do={ 
-  :global globalIPSECPolicyUpdateViaSSH do={
-
-    :global globalRemoteIp;
+:global globalIPSECPolicyUpdateViaSSH;
+:if (!any $globalIPSECPolicyUpdateViaSSH) do={
+  :global globalIPSECPolicyUpdateViaSSH do={
+
+    :global globalRemoteIp;
     :global globalNoteMe;
-
-    :if ([:len $1] > 0) do={
-      :global globalRemoteIp ("$1" . "/32"); 
-    }
-
-    :if (!any $globalRemoteIp) do={ 
-      :global globalRemoteIp "0.0.0.0/32" 
-    } else={
-    
-    }
-    
+
+    :if ([:len $1] > 0) do={
+      :global globalRemoteIp ("$1" . "/32");
+    }
+
+    :if (!any $globalRemoteIp) do={
+      :global globalRemoteIp "0.0.0.0/32"
+    } else={
+    }
+
     :local state ("RPC... $value");
     $globalNoteMe value=$state;
-
-    :local count [:len [/system script find name="doUpdatePoliciesRemotely"]];
-
-    :if ($count > 0) do={
-  
+    :local count [:len [/system script find name="doUpdatePoliciesRemotely"]];
+    :if ($count > 0) do={
        :local state ("Starting policies process... $globalRemoteIp ");
-       $globalNoteMe value=$state;  
-       
-       /system script run doUpdatePoliciesRemotely;
-    
-     }
-  }
+       $globalNoteMe value=$state;
+       /system script run doUpdatePoliciesRemotely;
+     }
+  }
 }
 
-
 #Example call
-#$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid="WiFi 5"  
+#$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid="WiFi 5"
 :global globalNewNetworkMember;
-
-:if (!any $globalNewNetworkMember) do={ 
+:if (!any $globalNewNetworkMember) do={
   :global globalNewNetworkMember do={
-    
+
     :global globalNoteMe;
 
     #to prevent connection
     :local guestDHCP "guest dhcp";
+
     #to allow connection
     :local mainDHCP "main dhcp";
 
     #when DHCP not using (add arp for leases)
     :local arpInterface "main infrastructure";
-
     :local state ("Adding new network member... ");
+
     $globalNoteMe value=$state;
 
-    # incoming named params 
+    # incoming named params
     :local newIp [ :tostr $ip ];
     :local newBlockedIp [ :tostr $gip ];
     :local newMac [ :tostr $mac ];
     :local comment [ :tostr $comm ];
-    :local ssid [ :tostr $ssid ];    
-
+    :local ssid [ :tostr $ssid ];
     :if ([:len $newIp] > 0) do={
-
         :if ([ :typeof [ :toip $newIp ] ] != "ip" ) do={
 
             :local state ("Error: bad IP parameter passed - ($newIp)");
             $globalNoteMe value=$state;
             :return false;
-        }
 
+        }
     } else={
 
         :local state ("Error: bad IP parameter passed - ($newIp)");
         $globalNoteMe value=$state;
         :return false;
+
     }
 
     :do {
@@ -156,55 +146,185 @@
 
         :local state ("Adding DHCP configuration for ($newIp/$newMac) on $mainDHCP");
         $globalNoteMe value=$state;
-
         /ip dhcp-server lease add address=$newIp mac-address=$newMac server=$mainDHCP comment=$comment;
 
     } on-error={
+
         :local state ("Error: something fail on DHCP configuration 'allow' step for ($newIp/$newMac) on $mainDHCP");
         $globalNoteMe value=$state;
         :return false;
+
     }
 
     :do {
 
         /ip dhcp-server lease remove [find address=$newBlockedIp];
-
         :local state ("Adding DHCP configuration for ($newBlockedIp/$newMac) on $guestDHCP (preventing connections to guest network)");
         $globalNoteMe value=$state;
-
         /ip dhcp-server lease add address=$newBlockedIp block-access=yes mac-address=$newMac server=$guestDHCP comment=($comment . "(blocked)");
 
     } on-error={
+
         :local state ("Error: something fail on DHCP configuration 'block' step for ($newBlockedIp/$newMac) on $guestDHCP");
         $globalNoteMe value=$state;
         :return false;
+
     }
 
     :do {
-       
+
         /ip arp remove [find address=$newIp];
         /ip arp remove [find address=$newBlockedIp];
         /ip arp remove [find mac-address=$newMac];
-
         /ip arp add address=$newIp interface=$arpInterface mac-address=$newMac comment=$comment
+
     } on-error={
+
         :local state ("Error: something fail on ARP configuration step");
         $globalNoteMe value=$state;
         :return false;
+
     }
 
     :do {
-       
-        /caps-man access-list remove [find mac-address=$newMac];
 
+        /caps-man access-list remove [find mac-address=$newMac];
         /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=$comment disabled=no mac-address=$newMac ssid-regexp=$ssid place-before=1
-    
+
     } on-error={
+
         :local state ("Error: something fail on CAPS configuration step");
         $globalNoteMe value=$state;
         :return false;
+
     }
 
     :return true;
-    }
+
+  }
 }
+
+
+
+#Example call
+#$globalNewClientCert argClients="alx.iphone.rw.2021, alx.mini.rw.2021"
+:if (!any $globalNewClientCert) do={
+  :global globalNewClientCert do={
+
+    # generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it
+    # This script is a SCEP-client, it request the server to provide a new certificate
+    # it ONLY form the request via API to remote SCEP server
+
+    # incoming named params
+    :local clients [ :tostr $argClients ];
+
+    # scope global functions
+    :global globalNoteMe;
+    :global globalScriptBeforeRun;
+
+    :if ([:len $clients] > 0) do={
+      :if ([ :typeof [ :tostr $clients ] ] != "str" ) do={
+
+          :local state ("Error: bad 'cients' parameter passed - ($clients)");
+          $globalNoteMe value=$state;
+          :return false;
+
+      }
+    } else={
+
+        :local state ("Error: bad 'cients' parameter passed - ($clients");
+        $globalNoteMe value=$state;
+        :return false;
+
+    }
+
+    :do {
+
+      #clients
+      :local IDs [:toarray "$clients"];
+      :local fakeDomain "myvpn.fake.org"
+      :local scepAlias "CHR"
+      :local sysver [/system package get system version]
+      :local state ("Started requests generation");
+
+      $globalNoteMe value=$state;
+
+      ## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields
+      #:local COUNTRY "RU"
+      #:local STATE "MSC"
+      #:local LOC "Moscow"
+      #:local ORG "IKEv2 Home"
+      #:local OU "IKEv2 Mikrotik"
+
+      :local COUNTRY ""
+      :local STATE ""
+      :local LOC ""
+      :local ORG ""
+      :local OU ""
+
+      :local KEYSIZE "2048"
+      :local USERNAME "mikrouter"
+
+      :local scepUrl "http://185.13.148.14/scep/grant";
+      :local itsOk true;
+
+      :foreach USERNAME in=$IDs do={
+
+        :local state "CLIENT TEMPLATE certificates generation...  $USERNAME";
+
+        $globalNoteMe value=$state;
+
+        ## create a client certificate (that will be just a template while not signed)
+        /certificate add name="$USERNAME@$scepAlias" common-name="$USERNAME@$scepAlias" subject-alt-name="email:$USERNAME@$fakeDomain" key-usage=tls-client country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365
+
+        :local state "Pushing sign request...";
+        $globalNoteMe value=$state;
+        /certificate add-scep template="$USERNAME@$scepAlias" scep-url="$scepUrl";
+
+        :delay 6s
+
+        ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate
+        :local state "We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... ";
+        $globalNoteMe value=$state;
+
+        :local state "Proceed to remote SCEP please, find this request and appove it. I'll wait 30 seconds";
+        $globalNoteMe value=$state;
+
+        :delay 30s
+
+        :local baseLength 5;
+        :for j from=1 to=$baseLength do={
+          :if ([ :len [ /certificate find where status="idle" name="$USERNAME@$scepAlias" ] ] > 0) do={
+
+            :local state "Got it at last. Exporting to file";
+            $globalNoteMe value=$state;
+
+            /certificate set trusted=yes "$USERNAME@$scepAlias"
+
+            ## export the CA, client certificate, and private key
+            /certificate export-certificate "$USERNAME@$scepAlias" export-passphrase="1234567890" type=pkcs12
+
+            :return true;
+
+          } else={
+
+            :local state "Waiting for mikrotik to download the certificate...";
+            $globalNoteMe value=$state;
+            :delay 8s
+
+          };
+        }
+      };
+
+      :return false;
+
+    } on-error={
+
+        :local state ("Error: something fail on SCEP certifcates issuing step");
+        $globalNoteMe value=$state;
+        :return false;
+
+    }
+  }
+}
+
