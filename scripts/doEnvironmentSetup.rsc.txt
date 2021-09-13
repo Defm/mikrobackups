@@ -263,6 +263,7 @@
       # :local ORG ""
       # :local OU ""
 
+
       :local KEYSIZE "2048"
       :local USERNAME "mikrouter"
 
@@ -276,7 +277,9 @@
         $globalNoteMe value=$state;
 
         ## create a client certificate (that will be just a template while not signed)
+
         /certificate add name="$USERNAME@$scepAlias" common-name="$USERNAME@$scepAlias" subject-alt-name="email:$USERNAME@$fakeDomain" key-usage=$prefs  country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365
+
 
         :local state "Pushing sign request...";
         $globalNoteMe value=$state;
