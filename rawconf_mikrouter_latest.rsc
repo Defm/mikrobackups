@@ -1,4 +1,4 @@
-# sep/15/2021 22:36:04 by RouterOS 6.48.4
+# sep/18/2021 21:00:02 by RouterOS 6.48.4
 # software id = YWI9-BU1V
 #
 # model = RouterBOARD 962UiGS-5HacT2HnT
@@ -125,6 +125,7 @@ set "wlan 5Ghz" enable-polling=no
 /queue simple add comment=dtq,48:8F:5A:D4:5F:69, name="anna(blocked)@guest dhcp (48:8F:5A:D4:5F:69)" queue=default/default target=192.168.98.232/32 total-queue=default
 /queue simple add comment=dtq,D2:24:8E:7B:74:E9, name="@guest dhcp (D2:24:8E:7B:74:E9)" queue=default/default target=192.168.98.221/32 total-queue=default
 /queue simple add comment=dtq,10:2C:6B:41:7C:06,Yandex.Station-2e0850 name="Yandex.Station-2e0850@guest dhcp (10:2C:6B:41:7C:06)" queue=default/default target=192.168.98.219/32 total-queue=default
+/queue simple add comment=dtq,94:17:00:3F:D1:72,M2006C3MNG-Redmi9CNF name="M2006C3MNG-Redmi9CNF@guest dhcp (94:17:00:3F:D1:72)" queue=default/default target=192.168.98.217/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -722,7 +723,7 @@ set caps-man-addresses=192.168.99.1 certificate=mikrouter.capsman.2021@CHR enabl
 /system note set note="You are logged into: mikrouter\
     \n############### system health ###############\
     \nUptime:  00:00:24 d:h:m:s | CPU: 100%\
-    \nRAM: 32824/131072M | Voltage: 23 v | Temp: 52c\
+    \nRAM: 33660/131072M | Voltage: 23 v | Temp: 52c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n"
