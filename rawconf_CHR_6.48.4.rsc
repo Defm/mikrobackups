@@ -1,4 +1,4 @@
-# sep/18/2021 21:00:02 by RouterOS 6.48.4
+# oct/17/2021 04:07:47 by RouterOS 6.48.4
 # software id = 
 #
 #
@@ -8,6 +8,7 @@
 /interface ethernet set [ find default-name=ether1 ] advertise=10M-half,10M-full,100M-half,100M-full,1000M-half,1000M-full arp=proxy-arp name=wan
 /interface l2tp-server add disabled=yes name=rw-alx user=vpn-user-alx
 /interface l2tp-server add name=tunnel user=vpn-remote-mic
+/interface l2tp-server add name=tunnel-anna user=vpn-remote-anna
 /interface list add comment="trusted interfaces" name=trusted
 /interface list add comment="neighbors allowed interfaces" name=neighbors
 /interface list add comment="includes l2tp client interfaces when UP" name=l2tp-dynamic-tun
@@ -19,16 +20,19 @@
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=WINDOWS
-/ip ipsec peer add address=109.252.203.146/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=109.252.203.146/32 comment="IPSEC IKEv2 VPN PHASE1 (ANNA, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=ANNA-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=10.0.0.3/32 comment="IPSEC IKEv2 VPN PHASE1 (ANNA, traffic-only encryption)" local-address=10.0.0.1 name=ANNA-INNER passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=10.0.0.2/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, traffic-only encryption)" local-address=10.0.0.1 name=MIC-INNER passive=yes profile=ROUTEROS send-initial-contact=no
-/ip ipsec peer add address=91.79.0.0/16 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, remotely updated via SSH)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-STATIC-IP-RANGE passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=6.6.6.6/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=91.79.0.0/16 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, remotely updated via SSH)" disabled=yes exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-STATIC-IP-RANGE passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=91.79.0.0/16 comment="IPSEC IKEv2 VPN PHASE1 (ANNA, outer-tunnel encryption, RSA, port-override, remotely updated via SSH)" disabled=yes exchange-mode=ike2 local-address=185.13.148.14 name=ANNA-OUTER-STATIC-IP-RANGE passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add comment="IPSEC IKEv2 VPN PHASE1 (IOS/OSX)" exchange-mode=ike2 local-address=185.13.148.14 name=RW passive=yes profile=IOS/OSX send-initial-contact=no
 /ip ipsec peer add comment="IPSEC IKEv2 VPN PHASE1 (WINDOWS)" name=WIN passive=yes profile=WINDOWS send-initial-contact=no
 /ip ipsec proposal set [ find default=yes ] disabled=yes enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
 /ip ipsec proposal add enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 WINDOWS" pfs-group=none
 /ip ipsec proposal add auth-algorithms=sha256 enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec proposal add auth-algorithms=sha256 enc-algorithms=aes-256-cbc lifetime=8h name="IPSEC IKEv2 VPN PHASE2 IOS/OSX" pfs-group=none
-/ip pool add name=vpn-clients ranges=10.0.0.2
+/ip pool add name=vpn-clients ranges=10.0.0.0/29
 /ip pool add name=int-clients ranges=192.168.97.0/30
 /ip pool add name=rw-clients ranges=10.10.10.8/29
 /ip dhcp-server add add-arp=yes address-pool=int-clients bootp-support=none disabled=no interface=wan name=internal
@@ -73,12 +77,12 @@
 /ip address add address=10.255.255.1 comment="ospf router-id binding" interface=ospf-loopback network=10.255.255.1
 /ip cloud set ddns-enabled=yes
 /ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=no interface=wan use-peer-ntp=no
-/ip dhcp-server network add address=10.0.0.0/30 dns-server=8.8.8.8,8.8.4.4 gateway=10.0.0.1
+/ip dhcp-server network add address=10.0.0.0/29 dns-server=8.8.8.8,8.8.4.4 gateway=10.0.0.1
 /ip dhcp-server network add address=192.168.97.0/30 gateway=192.168.97.1
 /ip dns set cache-max-ttl=1d
 /ip dns static add address=10.0.0.1 name=CHR
 /ip dns static add address=192.168.99.180 name=minialx.home
-/ip dns static add address=192.168.99.30 name=nas.home
+/ip dns static add address=192.168.90.40 name=nas.home
 /ip dns static add address=192.168.99.1 name=mikrouter.home
 /ip firewall address-list add address=8.8.8.8 list=dns-accept
 /ip firewall address-list add address=192.168.97.0/30 list=mis-network
@@ -86,12 +90,12 @@
 /ip firewall address-list add address=185.13.148.14 list=external-ip
 /ip firewall address-list add address=192.168.99.0/24 list=mic-network
 /ip firewall address-list add address=8.8.4.4 list=dns-accept
-/ip firewall address-list add address=10.0.0.0/30 list=tun-network
+/ip firewall address-list add address=10.0.0.0/29 list=tun-network
 /ip firewall address-list add address=192.168.99.0/24 list=mis-remote-control
 /ip firewall address-list add address=192.168.97.0/30 list=mis-remote-control
 /ip firewall address-list add address=0.0.0.0/0 list=mis-remote-control
 /ip firewall address-list add address=2ip.ru list=vpn-sites
-/ip firewall address-list add address=10.0.0.2 list=mic-network
+/ip firewall address-list add address=10.0.0.0/29 list=mic-network
 /ip firewall address-list add address=10.0.0.1 list=mis-network
 #error exporting /ip firewall calea
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
@@ -129,10 +133,10 @@
 /ip firewall filter add action=drop chain="Forward Blacklist" comment="Drop anyone in the LAN Port Scanner List" src-address-list=bh-lan-port-scan
 /ip firewall filter add action=return chain="Forward Blacklist" comment="Forward Blacklist"
 /ip firewall filter add action=jump chain=input comment="Jump to SSH Staged control" jump-target="SSH Staged control"
-/ip firewall filter add action=add-src-to-address-list address-list=bh-ssh address-list-timeout=none-dynamic chain="SSH Staged control" comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new dst-port=22 protocol=tcp src-address-list=ssh-staged-3
-/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-3 address-list-timeout=1m chain="SSH Staged control" comment="Add succesive attempts to SSH Stage 3" connection-state=new dst-port=22 protocol=tcp src-address-list=ssh-staged-2
-/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-2 address-list-timeout=1m chain="SSH Staged control" comment="Add succesive attempts to SSH Stage 2" connection-state=new dst-port=22 protocol=tcp src-address-list=ssh-staged-1
-/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-1 address-list-timeout=1m chain="SSH Staged control" comment="Add intial attempt to SSH Stage 1 List" connection-state=new dst-port=22 protocol=tcp
+/ip firewall filter add action=add-src-to-address-list address-list=bh-ssh address-list-timeout=none-dynamic chain="SSH Staged control" comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new dst-port=22,2222 protocol=tcp src-address-list=ssh-staged-3
+/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-3 address-list-timeout=1m chain="SSH Staged control" comment="Add succesive attempts to SSH Stage 3" connection-state=new dst-port=22,2222 protocol=tcp src-address-list=ssh-staged-2
+/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-2 address-list-timeout=1m chain="SSH Staged control" comment="Add succesive attempts to SSH Stage 2" connection-state=new dst-port=22,2222 protocol=tcp src-address-list=ssh-staged-1
+/ip firewall filter add action=add-src-to-address-list address-list=ssh-staged-1 address-list-timeout=1m chain="SSH Staged control" comment="Add intial attempt to SSH Stage 1 List" connection-state=new dst-port=22,2222 protocol=tcp
 /ip firewall filter add action=return chain="SSH Staged control" comment="Return From SSH Staged control"
 /ip firewall filter add action=jump chain=input comment="Jump to Winbox staged control" jump-target="Winbox staged control"
 /ip firewall filter add action=add-src-to-address-list address-list=bh-winbox address-list-timeout=none-dynamic chain="Winbox staged control" comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new dst-port=8291 protocol=tcp src-address-list=winbox-staged-3
@@ -183,9 +187,12 @@
 /ip firewall mangle add action=mark-connection chain=forward comment="Mark IPsec" ipsec-policy=in,ipsec new-connection-mark=ipsec passthrough=yes
 /ip firewall nat add action=dst-nat chain=dstnat dst-port=8888 protocol=tcp to-addresses=192.168.99.1 to-ports=80
 /ip firewall nat add action=dst-nat chain=dstnat comment="FTP pass through" dst-port=2121 protocol=tcp to-addresses=192.168.99.30 to-ports=21
+/ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX pass through" dst-port=9999 protocol=tcp to-addresses=192.168.99.1 to-ports=8291
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=mic-network log-prefix=#VPN src-address-list=mis-network
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=mis-network log-prefix=#VPN src-address-list=mic-network
-/ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel
+/ip firewall nat
+# tunnel not ready
+add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel
 /ip firewall nat add action=masquerade chain=srcnat comment="all cable allowed"
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set irc disabled=yes
@@ -196,14 +203,19 @@
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
 /ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=MIC-INNER policy-template-group=inside-ipsec-encryption secret=123
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec
+/ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR generate-policy=port-override mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec
 /ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=WIN policy-template-group=inside-ipsec-encryption secret=123
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override mode-config=common-setup peer=MIC-OUTER-IP-REMOTE-CONTROLLABLE policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter.ipsec.2021@CHR
-/ip ipsec identity add auth-method=digital-signature certificate=server@CHR generate-policy=port-override mode-config=common-setup peer=MIC-OUTER-STATIC-IP-RANGE policy-template-group=outside-ipsec-encryption
+/ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR generate-policy=port-override mode-config=common-setup peer=MIC-OUTER-IP-REMOTE-CONTROLLABLE policy-template-group=outside-ipsec-encryption remote-certificate=mikrouter.ipsec.2021@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR generate-policy=port-override mode-config=common-setup peer=MIC-OUTER-STATIC-IP-RANGE policy-template-group=outside-ipsec-encryption
+/ip ipsec identity add generate-policy=port-strict mode-config=common-setup peer=ANNA-INNER policy-template-group=inside-ipsec-encryption secret=123
+/ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR generate-policy=port-override mode-config=common-setup peer=ANNA-OUTER-IP-REMOTE-CONTROLLABLE policy-template-group=outside-ipsec-encryption remote-certificate=anna.ipsec.2021@CHR
+/ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR generate-policy=port-override mode-config=common-setup peer=ANNA-OUTER-STATIC-IP-RANGE policy-template-group=outside-ipsec-encryption
 /ip ipsec policy set 0 disabled=yes
 /ip ipsec policy add comment="Roadwarrior IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption)" dst-address=10.10.10.8/29 group=roadwarrior-ipsec proposal="IPSEC IKEv2 VPN PHASE2 IOS/OSX" src-address=0.0.0.0/0 template=yes
-/ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption)" dst-address=192.168.99.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/30 template=yes
-/ip ipsec policy add comment=MIC-OUTER-IP-REMOTE-CONTROLLABLE dst-address=109.252.203.146/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
+/ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption) MIKROUTER" dst-address=192.168.99.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/29 template=yes
+/ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption) ANNA" dst-address=192.168.90.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/29 template=yes
+/ip ipsec policy add comment=MIC-OUTER-IP-REMOTE-CONTROLLABLE dst-address=6.6.6.6/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
+/ip ipsec policy add comment=ANNA-OUTER-IP-REMOTE-CONTROLLABLE dst-address=109.252.203.146/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range 2)" dst-address=91.79.0.0/16 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip route add check-gateway=ping comment=GLOBAL distance=10 gateway=185.13.148.1
 /ip service set telnet disabled=yes
@@ -211,17 +223,18 @@
 /ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
 /ip smb set allow-guests=no
-/ip ssh set allow-none-crypto=yes forwarding-enabled=remote
+/ip ssh set allow-none-crypto=yes always-allow-password-login=yes forwarding-enabled=remote
 /ip upnp set show-dummy-rule=no
 /ppp secret add local-address=10.0.0.1 name=vpn-remote-mic profile=l2tp-no-encrypt-site2site remote-address=10.0.0.2 service=l2tp
-/ppp secret add disabled=yes local-address=10.0.0.1 name=vpn-remote-alx profile=l2tp-no-encrypt-ios-rw remote-address=10.0.0.3 service=l2tp
-/ppp secret add disabled=yes local-address=10.0.0.1 name=vpn-remote-glo profile=l2tp-no-encrypt-ios-rw remote-address=10.0.0.4 service=l2tp
+/ppp secret add disabled=yes local-address=10.0.0.1 name=vpn-remote-alx profile=l2tp-no-encrypt-ios-rw remote-address=10.0.0.8 service=l2tp
+/ppp secret add disabled=yes local-address=10.0.0.1 name=vpn-remote-glo profile=l2tp-no-encrypt-ios-rw remote-address=10.0.0.9 service=l2tp
+/ppp secret add local-address=10.0.0.1 name=vpn-remote-anna profile=l2tp-no-encrypt-site2site remote-address=10.0.0.3 service=l2tp
 /routing filter add action=discard chain=ospf-in comment="discard intra area routes" ospf-type=intra-area
 /routing filter add action=accept chain=ospf-in comment="set pref source" set-pref-src=10.0.0.1
 /routing filter add action=accept chain=ospf-in comment="set default remote route mark" prefix-length=0 set-pref-src=10.0.0.1 set-route-comment=GLOBAL set-routing-mark=mark-site-over-vpn
 /routing ospf nbma-neighbor add address=10.255.255.2
-/routing ospf network add area=backbone network=10.0.0.0/30
-/routing ospf network add area=local network=192.168.97.0/30
+/routing ospf network add area=backbone network=10.0.0.0/29
+/routing ospf network add area=local network=192.168.97.0/29
 /routing ospf network add area=backbone network=10.255.255.1/32
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-community=globus trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
@@ -251,7 +264,7 @@
     \nRAM: 65092/1015808M | Voltage: NIL | Temp: NIL\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 1\
-    \n"
+    \n" show-at-login=no
 /system ntp client set enabled=yes primary-ntp=195.151.98.66 secondary-ntp=46.254.216.9
 /system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=aug/04/2020 start-time=21:00:00
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
@@ -706,340 +719,355 @@
     \n  \r\
     \n}\r\
     \n"
-/system script add dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n\
-    \n:global globalNoteMe;\
-    \n:if (!any \$globalNoteMe) do={\
-    \n\
-    \n  :global globalNoteMe do={\
-    \n\
-    \n  ## outputs \$value using both :put and :log info\
-    \n  ## example \$outputInfo value=\"12345\"\
-    \n\
-    \n  :put \"info: \$value\"\
-    \n  :log info \"\$value\"\
-    \n\
-    \n  }\
-    \n}\
-    \n\
-    \n\
-    \n:global globalScriptBeforeRun;\
-    \n:if (!any \$globalScriptBeforeRun) do={\
-    \n  :global globalScriptBeforeRun do={\
-    \n\
-    \n    :global globalNoteMe;\
-    \n    :if ([:len \$1] > 0) do={\
-    \n\
-    \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\
-    \n      :local scriptname \"\$1\";\
-    \n      :local count [:len [/system script job find script=\$scriptname]];\
-    \n\
-    \n      :if (\$count > 0) do={\
-    \n\
-    \n        :foreach counter in=[/system script job find script=\$scriptname] do={\
-    \n         #But ignoring scripts started right NOW\
-    \n\
-    \n         :local thisScriptCallTime  [/system script job get \$counter started];\
-    \n         :if (\$currentTime != \$thisScriptCallTime) do={\
-    \n\
-    \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n            /system script job remove \$counter;\
-    \n\
-    \n          }\
-    \n        }\
-    \n      }\
-    \n\
-    \n      :local state \"Starting script: \$scriptname\";\
-    \n      \$globalNoteMe value=\$state;\
-    \n\
-    \n    }\
-    \n  }\
-    \n}\
-    \n\
-    \n:global globalTgMessage;\
-    \n:if (!any \$globalTgMessage) do={\
-    \n  :global globalTgMessage do={\
-    \n\
-    \n    :global globalNoteMe;\
-    \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
-    \n    :local tGroupID \"-343674739\";\
-    \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
-    \n\
-    \n    :local state (\"Sending telegram message... \$value\");\
-    \n    \$globalNoteMe value=\$state;\
-    \n\
-    \n    :do {\
-    \n      /tool fetch http-method=post mode=https url=\"\$tURL\" http-data=\"text=\$value\" keep-result=no;\
-    \n    } on-error= {\
-    \n      :local state (\"Telegram notify error\");\
-    \n      \$globalNoteMe value=\$state;\
-    \n    };\
-    \n  }\
-    \n}\
-    \n\
-    \n:global globalIPSECPolicyUpdateViaSSH;\
-    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={\
-    \n  :global globalIPSECPolicyUpdateViaSSH do={\
-    \n\
-    \n    :global globalRemoteIp;\
-    \n    :global globalNoteMe;\
-    \n\
-    \n    :if ([:len \$1] > 0) do={\
-    \n      :global globalRemoteIp (\"\$1\" . \"/32\");\
-    \n    }\
-    \n\
-    \n    :if (!any \$globalRemoteIp) do={\
-    \n      :global globalRemoteIp \"0.0.0.0/32\"\
-    \n    } else={\
-    \n    }\
-    \n\
-    \n    :local state (\"RPC... \$value\");\
-    \n    \$globalNoteMe value=\$state;\
-    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\
-    \n    :if (\$count > 0) do={\
-    \n       :local state (\"Starting policies process... \$globalRemoteIp \");\
-    \n       \$globalNoteMe value=\$state;\
-    \n       /system script run doUpdatePoliciesRemotely;\
-    \n     }\
-    \n  }\
-    \n}\
-    \n\
-    \n#Example call\
-    \n#\$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid=\"WiFi 5\"\
-    \n:global globalNewNetworkMember;\
-    \n:if (!any \$globalNewNetworkMember) do={\
-    \n  :global globalNewNetworkMember do={\
-    \n\
-    \n    :global globalNoteMe;\
-    \n\
-    \n    #to prevent connection\
-    \n    :local guestDHCP \"guest dhcp\";\
-    \n\
-    \n    #to allow connection\
-    \n    :local mainDHCP \"main dhcp\";\
-    \n\
-    \n    #when DHCP not using (add arp for leases)\
-    \n    :local arpInterface \"main infrastructure\";\
-    \n    :local state (\"Adding new network member... \");\
-    \n\
-    \n    \$globalNoteMe value=\$state;\
-    \n\
-    \n    # incoming named params\
-    \n    :local newIp [ :tostr \$ip ];\
-    \n    :local newBlockedIp [ :tostr \$gip ];\
-    \n    :local newMac [ :tostr \$mac ];\
-    \n    :local comment [ :tostr \$comm ];\
-    \n    :local ssid [ :tostr \$ssid ];\
-    \n    :if ([:len \$newIp] > 0) do={\
-    \n        :if ([ :typeof [ :toip \$newIp ] ] != \"ip\" ) do={\
-    \n\
-    \n            :local state (\"Error: bad IP parameter passed - (\$newIp)\");\
-    \n            \$globalNoteMe value=\$state;\
-    \n            :return false;\
-    \n\
-    \n        }\
-    \n    } else={\
-    \n\
-    \n        :local state (\"Error: bad IP parameter passed - (\$newIp)\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :do {\
-    \n\
-    \n        /ip dhcp-server lease remove [find address=\$newIp];\
-    \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\
-    \n\
-    \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\
-    \n\
-    \n    } on-error={\
-    \n\
-    \n        :local state (\"Error: something fail on DHCP configuration 'allow' step for (\$newIp/\$newMac) on \$mainDHCP\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :do {\
-    \n\
-    \n        /ip dhcp-server lease remove [find address=\$newBlockedIp];\
-    \n        :local state (\"Adding DHCP configuration for (\$newBlockedIp/\$newMac) on \$guestDHCP (preventing connections to guest network)\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\
-    \n\
-    \n    } on-error={\
-    \n\
-    \n        :local state (\"Error: something fail on DHCP configuration 'block' step for (\$newBlockedIp/\$newMac) on \$guestDHCP\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :do {\
-    \n\
-    \n        /ip arp remove [find address=\$newIp];\
-    \n        /ip arp remove [find address=\$newBlockedIp];\
-    \n        /ip arp remove [find mac-address=\$newMac];\
-    \n        /ip arp add address=\$newIp interface=\$arpInterface mac-address=\$newMac comment=\$comment\
-    \n\
-    \n    } on-error={\
-    \n\
-    \n        :local state (\"Error: something fail on ARP configuration step\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :do {\
-    \n\
-    \n        /caps-man access-list remove [find mac-address=\$newMac];\
-    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\$ssid place-before=1\
-    \n\
-    \n    } on-error={\
-    \n\
-    \n        :local state (\"Error: something fail on CAPS configuration step\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :return true;\
-    \n\
-    \n  }\
-    \n}\
-    \n\
-    \n\
-    \n\
-    \n#Example call\
-    \n#\$globalNewClientCert argClients=\"alx.iphone.rw.2021, alx.mini.rw.2021\" argUsage=\"tls-client,digital-signature,key-encipherment\"\
-    \n:if (!any \$globalNewClientCert) do={\
-    \n  :global globalNewClientCert do={\
-    \n\
-    \n    # generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\
-    \n    # This script is a SCEP-client, it request the server to provide a new certificate\
-    \n    # it ONLY form the request via API to remote SCEP server\
-    \n\
-    \n    # incoming named params\
-    \n    :local clients [ :tostr \$argClients ];\
-    \n    :local prefs  [ :tostr \$argUsage ];\
-    \n\
-    \n    # scope global functions\
-    \n    :global globalNoteMe;\
-    \n    :global globalScriptBeforeRun;\
-    \n\
-    \n    :if ([:len \$clients] > 0) do={\
-    \n      :if ([ :typeof [ :tostr \$clients ] ] != \"str\" ) do={\
-    \n\
-    \n          :local state (\"Error: bad 'cients' parameter passed - (\$clients)\");\
-    \n          \$globalNoteMe value=\$state;\
-    \n          :return false;\
-    \n\
-    \n      }\
-    \n    } else={\
-    \n\
-    \n        :local state (\"Error: bad 'cients' parameter passed - (\$clients\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :do {\
-    \n\
-    \n      #clients\
-    \n      :local IDs [:toarray \"\$clients\"];\
-    \n      :local fakeDomain \"myvpn.fake.org\"\
-    \n      :local scepAlias \"CHR\"\
-    \n      :local sysver [/system package get system version]\
-    \n      :local state (\"Started requests generation\");\
-    \n\
-    \n      \$globalNoteMe value=\$state;\
-    \n\
-    \n      ## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\
-    \n      :local COUNTRY \"RU\"\
-    \n      :local STATE \"MSC\"\
-    \n      :local LOC \"Moscow\"\
-    \n      :local ORG \"IKEv2 Home\"\
-    \n      :local OU \"IKEv2 Mikrotik\"\
-    \n\
-    \n      # :local COUNTRY \"\"\
-    \n      # :local STATE \"\"\
-    \n      # :local LOC \"\"\
-    \n      # :local ORG \"\"\
-    \n      # :local OU \"\"\
-    \n\
-    \n\
-    \n      :local KEYSIZE \"2048\"\
-    \n      :local USERNAME \"mikrouter\"\
-    \n\
-    \n      :local scepUrl \"http://185.13.148.14/scep/grant\";\
-    \n      :local itsOk true;\
-    \n\
-    \n      :foreach USERNAME in=\$IDs do={\
-    \n\
-    \n        :local state \"CLIENT TEMPLATE certificates generation...  \$USERNAME\";\
-    \n\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n        ## create a client certificate (that will be just a template while not signed)\
-    \n\
-    \n        /certificate add name=\"\$USERNAME@\$scepAlias\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\
-    \n\
-    \n\
-    \n        :local state \"Pushing sign request...\";\
-    \n        \$globalNoteMe value=\$state;\
-    \n        /certificate add-scep template=\"\$USERNAME@\$scepAlias\" scep-url=\"\$scepUrl\";\
-    \n\
-    \n        :delay 6s\
-    \n\
-    \n        ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate\
-    \n        :local state \"We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... \";\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n        :local state \"Proceed to remote SCEP please, find this request and appove it. I'll wait 30 seconds\";\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n        :delay 30s\
-    \n\
-    \n        :local baseLength 5;\
-    \n        :for j from=1 to=\$baseLength do={\
-    \n          :if ([ :len [ /certificate find where status=\"idle\" name=\"\$USERNAME@\$scepAlias\" ] ] > 0) do={\
-    \n\
-    \n            :local state \"Got it at last. Exporting to file\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n            /certificate set trusted=yes \"\$USERNAME@\$scepAlias\"\
-    \n\
-    \n            ## export the CA, client certificate, and private key\
-    \n            /certificate export-certificate \"\$USERNAME@\$scepAlias\" export-passphrase=\"1234567890\" type=pkcs12\
-    \n\
-    \n            :return true;\
-    \n\
-    \n          } else={\
-    \n\
-    \n            :local state \"Waiting for mikrotik to download the certificate...\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n            :delay 8s\
-    \n\
-    \n          };\
-    \n        }\
-    \n      };\
-    \n\
-    \n      :return false;\
-    \n\
-    \n    } on-error={\
-    \n\
-    \n        :local state (\"Error: something fail on SCEP certifcates issuing step\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n  }\
-    \n}\
-    \n\
+/system script add dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:if (!any \$globalNoteMe) do={\r\
+    \n\r\
+    \n  :global globalNoteMe do={\r\
+    \n\r\
+    \n  ## outputs \$value using both :put and :log info\r\
+    \n  ## example \$outputInfo value=\"12345\"\r\
+    \n\r\
+    \n  :put \"info: \$value\"\r\
+    \n  :log info \"\$value\"\r\
+    \n\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n:if (!any \$globalScriptBeforeRun) do={\r\
+    \n  :global globalScriptBeforeRun do={\r\
+    \n\r\
+    \n    :global globalNoteMe;\r\
+    \n    :if ([:len \$1] > 0) do={\r\
+    \n\r\
+    \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\r\
+    \n      :local scriptname \"\$1\";\r\
+    \n      :local count [:len [/system script job find script=\$scriptname]];\r\
+    \n\r\
+    \n      :if (\$count > 0) do={\r\
+    \n\r\
+    \n        :foreach counter in=[/system script job find script=\$scriptname] do={\r\
+    \n         #But ignoring scripts started right NOW\r\
+    \n\r\
+    \n         :local thisScriptCallTime  [/system script job get \$counter started];\r\
+    \n         :if (\$currentTime != \$thisScriptCallTime) do={\r\
+    \n\r\
+    \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            /system script job remove \$counter;\r\
+    \n\r\
+    \n          }\r\
+    \n        }\r\
+    \n      }\r\
+    \n\r\
+    \n      :local state \"Starting script: \$scriptname\";\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n:if (!any \$globalTgMessage) do={\r\
+    \n  :global globalTgMessage do={\r\
+    \n\r\
+    \n    :global globalNoteMe;\r\
+    \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\r\
+    \n    :local tGroupID \"-343674739\";\r\
+    \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\r\
+    \n\r\
+    \n    :local state (\"Sending telegram message... \$value\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    :do {\r\
+    \n      /tool fetch http-method=post mode=https url=\"\$tURL\" http-data=\"text=\$value\" keep-result=no;\r\
+    \n    } on-error= {\r\
+    \n      :local state (\"Telegram notify error\");\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n    };\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:global globalIPSECPolicyUpdateViaSSH;\r\
+    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={\r\
+    \n  :global globalIPSECPolicyUpdateViaSSH do={\r\
+    \n\r\
+    \n    :global globalRemoteIp;\r\
+    \n    :global globalNoteMe;\r\
+    \n\r\
+    \n    :if ([:len \$1] > 0) do={\r\
+    \n      :global globalRemoteIp (\"\$1\" . \"/32\");\r\
+    \n    }\r\
+    \n\r\
+    \n    :if (!any \$globalRemoteIp) do={\r\
+    \n      :global globalRemoteIp \"0.0.0.0/32\"\r\
+    \n    } else={\r\
+    \n    }\r\
+    \n\r\
+    \n    :local state (\"RPC... \$value\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\r\
+    \n    :if (\$count > 0) do={\r\
+    \n       :local state (\"Starting policies process... \$globalRemoteIp \");\r\
+    \n       \$globalNoteMe value=\$state;\r\
+    \n       /system script run doUpdatePoliciesRemotely;\r\
+    \n     }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n#Example call\r\
+    \n#\$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid=\"WiFi 5\"\r\
+    \n:global globalNewNetworkMember;\r\
+    \n:if (!any \$globalNewNetworkMember) do={\r\
+    \n  :global globalNewNetworkMember do={\r\
+    \n\r\
+    \n    :global globalNoteMe;\r\
+    \n\r\
+    \n    #to prevent connection\r\
+    \n    :local guestDHCP \"guest dhcp\";\r\
+    \n\r\
+    \n    #to allow connection\r\
+    \n    :local mainDHCP \"main dhcp\";\r\
+    \n\r\
+    \n    #when DHCP not using (add arp for leases)\r\
+    \n    :local arpInterface \"main infrastructure\";\r\
+    \n    :local state (\"Adding new network member... \");\r\
+    \n\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    # incoming named params\r\
+    \n    :local newIp [ :tostr \$ip ];\r\
+    \n    :local newBlockedIp [ :tostr \$gip ];\r\
+    \n    :local newMac [ :tostr \$mac ];\r\
+    \n    :local comment [ :tostr \$comm ];\r\
+    \n    :local ssid [ :tostr \$ssid ];\r\
+    \n    :if ([:len \$newIp] > 0) do={\r\
+    \n        :if ([ :typeof [ :toip \$newIp ] ] != \"ip\" ) do={\r\
+    \n\r\
+    \n            :local state (\"Error: bad IP parameter passed - (\$newIp)\");\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            :return false;\r\
+    \n\r\
+    \n        }\r\
+    \n    } else={\r\
+    \n\r\
+    \n        :local state (\"Error: bad IP parameter passed - (\$newIp)\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        /ip dhcp-server lease remove [find address=\$newIp];\r\
+    \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\r\
+    \n\r\
+    \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n\r\
+    \n        :local state (\"Error: something fail on DHCP configuration 'allow' step for (\$newIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        /ip dhcp-server lease remove [find address=\$newBlockedIp];\r\
+    \n        :local state (\"Adding DHCP configuration for (\$newBlockedIp/\$newMac) on \$guestDHCP (preventing connections to guest network)\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n\r\
+    \n        :local state (\"Error: something fail on DHCP configuration 'block' step for (\$newBlockedIp/\$newMac) on \$guestDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        /ip arp remove [find address=\$newIp];\r\
+    \n        /ip arp remove [find address=\$newBlockedIp];\r\
+    \n        /ip arp remove [find mac-address=\$newMac];\r\
+    \n        /ip arp add address=\$newIp interface=\$arpInterface mac-address=\$newMac comment=\$comment\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n\r\
+    \n        :local state (\"Error: something fail on ARP configuration step\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        /caps-man access-list remove [find mac-address=\$newMac];\r\
+    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\$ssid place-before=1\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n\r\
+    \n        :local state (\"Error: something fail on CAPS configuration step\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :return true;\r\
+    \n\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n\r\
+    \n#Example call\r\
+    \n#\$globalNewClientCert argClients=\"alx.iphone.rw.2021, alx.mini.rw.2021\" argUsage=\"tls-client,digital-signature,key-encipherment\"\r\
+    \n#\$globalNewClientCert argClients=\"182.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\"\r\
+    \n:if (!any \$globalNewClientCert) do={\r\
+    \n  :global globalNewClientCert do={\r\
+    \n\r\
+    \n    # generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\r\
+    \n    # This script is a SCEP-client, it request the server to provide a new certificate\r\
+    \n    # it ONLY form the request via API to remote SCEP server\r\
+    \n\r\
+    \n    # incoming named params\r\
+    \n    :local clients [ :tostr \$argClients ];\r\
+    \n    :local prefs  [ :tostr \$argUsage ];\r\
+    \n    :local asIp  \$argBindAsIP ;\r\
+    \n\r\
+    \n    # scope global functions\r\
+    \n    :global globalNoteMe;\r\
+    \n    :global globalScriptBeforeRun;\r\
+    \n\r\
+    \n    :if ([:len \$clients] > 0) do={\r\
+    \n      :if ([ :typeof [ :tostr \$clients ] ] != \"str\" ) do={\r\
+    \n\r\
+    \n          :local state (\"Error: bad 'cients' parameter passed - (\$clients)\");\r\
+    \n          \$globalNoteMe value=\$state;\r\
+    \n          :return false;\r\
+    \n\r\
+    \n      }\r\
+    \n    } else={\r\
+    \n\r\
+    \n        :local state (\"Error: bad 'cients' parameter passed - (\$clients\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n      #clients\r\
+    \n      :local IDs [:toarray \"\$clients\"];\r\
+    \n      :local fakeDomain \"myvpn.fake.org\"\r\
+    \n      :local scepAlias \"CHR\"\r\
+    \n      :local sysver [/system package get system version]\r\
+    \n      :local state (\"Started requests generation\");\r\
+    \n\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n      ## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
+    \n      :local COUNTRY \"RU\"\r\
+    \n      :local STATE \"MSC\"\r\
+    \n      :local LOC \"Moscow\"\r\
+    \n      :local ORG \"IKEv2 Home\"\r\
+    \n      :local OU \"IKEv2 Mikrotik\"\r\
+    \n\r\
+    \n      # :local COUNTRY \"\"\r\
+    \n      # :local STATE \"\"\r\
+    \n      # :local LOC \"\"\r\
+    \n      # :local ORG \"\"\r\
+    \n      # :local OU \"\"\r\
+    \n\r\
+    \n\r\
+    \n      :local KEYSIZE \"2048\"\r\
+    \n      :local USERNAME \"mikrouter\"\r\
+    \n\r\
+    \n      :local scepUrl \"http://185.13.148.14/scep/grant\";\r\
+    \n      :local itsOk true;\r\
+    \n\r\
+    \n      :local tname \"\";\r\
+    \n      :foreach USERNAME in=\$IDs do={\r\
+    \n\r\
+    \n        ## create a client certificate (that will be just a template while not signed)\r\
+    \n        :if (  [:len \$asIp ] > 0 ) do={\r\
+    \n\r\
+    \n                :local state \"CLIENT TEMPLATE certificates generation as IP...  \$USERNAME\";\r\
+    \n                \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n                :set tname \"S.\$USERNAME@\$scepAlias\";\r\
+    \n\r\
+    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\r\
+    \n\r\
+    \n            } else={\r\
+    \n\r\
+    \n                :local state \"CLIENT TEMPLATE certificates generation as EMAIL...  \$USERNAME\";\r\
+    \n                \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n                :set tname \"C.\$USERNAME@\$scepAlias\";\r\
+    \n\r\
+    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\r\
+    \n\r\
+    \n            }\r\
+    \n\r\
+    \n        :local state \"Pushing sign request...\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /certificate add-scep template=\"\$tname\" scep-url=\"\$scepUrl\";\r\
+    \n\r\
+    \n        :delay 6s\r\
+    \n\r\
+    \n        ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate\r\
+    \n        :local state \"We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... \";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :local state \"Proceed to remote SCEP please, find this request and appove it. I'll wait 30 seconds\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :delay 30s\r\
+    \n\r\
+    \n        :local baseLength 5;\r\
+    \n        :for j from=1 to=\$baseLength do={\r\
+    \n          :if ([ :len [ /certificate find where status=\"idle\" name=\"\$tname\" ] ] > 0) do={\r\
+    \n\r\
+    \n            :local state \"Got it at last. Exporting to file\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            /certificate set trusted=yes \"\$tname\"\r\
+    \n\r\
+    \n            ## export the CA, client certificate, and private key\r\
+    \n            /certificate export-certificate \"\$tname\" export-passphrase=\"1234567890\" type=pkcs12\r\
+    \n\r\
+    \n            :return true;\r\
+    \n\r\
+    \n          } else={\r\
+    \n\r\
+    \n            :local state \"Waiting for mikrotik to download the certificate...\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            :delay 8s\r\
+    \n\r\
+    \n          };\r\
+    \n        }\r\
+    \n      };\r\
+    \n\r\
+    \n      :return false;\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n\r\
+    \n        :local state (\"Error: something fail on SCEP certifcates issuing step\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
@@ -1366,12 +1394,15 @@
     \n:local itsOk true;\r\
     \n:local state \"\";\r\
     \n\r\
+    \n# variables should be set before via remote SSH call\r\
     \n:global globalRemoteIp;\r\
+    \n:global globalPolicyComment;\r\
+    \n\r\
     \n\r\
     \n:do {\r\
     \n    :if ([:len \$globalRemoteIp] > 0) do={\r\
     \n\r\
-    \n    :local peerID \"MIC-OUTER-IP-REMOTE-CONTROLLABLE\";\r\
+    \n    :local peerID \$globalPolicyComment;\r\
     \n\r\
     \n    /ip ipsec policy {\r\
     \n        :foreach vpnEndpoint in=[find (!disabled and template and comment=\"\$peerID\")] do={\r\
@@ -1442,7 +1473,6 @@
     \n  \$globalTgMessage value=\$inf;\r\
     \n  \r\
     \n}\r\
-    \n\r\
     \n"
 /tool bandwidth-server set authenticate=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
