@@ -1,4 +1,4 @@
-# oct/04/2021 17:37:41 by RouterOS 6.48.4
+# oct/17/2021 03:59:43 by RouterOS 6.48.4
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
@@ -99,19 +99,21 @@
     \n\r\
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
 /ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
-/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-mic
-/queue simple add comment=dtq,90:DD:5D:C8:46:AB, name="AlxATV@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.190/32 total-queue=default
-/queue simple add comment=dtq,78:31:C1:CF:9E:70, name="MbpAlx (wireless)@main-dhcp-server (78:31:C1:CF:9E:70)" queue=default/default target=192.168.90.160/32 total-queue=default
-/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx (wire)@main-dhcp-server (38:C9:86:51:D2:B3)" queue=default/default target=192.168.90.170/32 total-queue=default
+/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
 /queue simple add comment=dtq,54:2B:8D:77:38:A0, name="iPhoneAlxr(blocked)@guest-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
-/queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="NAS@main-dhcp-server (00:11:32:2C:A7:85)" queue=default/default target=192.168.90.30/32 total-queue=default
-/queue simple add comment=dtq,54:2B:8D:77:38:A0, name="iPhoneAlxr@main-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.90.150/32 total-queue=default
-/queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
+/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.90.150/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
 /queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro(blocked)@guest-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.229/32 total-queue=default
-/queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle@main-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.90.135/32 total-queue=default
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.227/32 total-queue=default
-/queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.145/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
+/queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
+/queue simple add comment=dtq,B0:34:95:50:A1:6A,AudioATV name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
+/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP name="LivingRoomWap@main-dhcp-server (CC:2D:E0:E7:BE:02)" queue=default/default target=192.168.90.10/32 total-queue=default
+/queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx (wire)@main-dhcp-server (10:DD:B1:9E:19:5E)" queue=default/default target=192.168.90.70/32 total-queue=default
+/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx (wireless)@main-dhcp-server (78:31:C1:CF:9E:70)" queue=default/default target=192.168.90.80/32 total-queue=default
+/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx (wire)@main-dhcp-server (38:C9:86:51:D2:B3)" queue=default/default target=192.168.90.90/32 total-queue=default
+/queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="NAS@main-dhcp-server (00:11:32:2C:A7:85)" queue=default/default target=192.168.90.40/32 total-queue=default
+/queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle@main-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.90.170/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -119,8 +121,8 @@
 /queue tree add name=ZIP packet-mark=zip-mark parent="Total Bandwidth" queue=default
 /routing ospf area add area-id=0.0.0.1 default-cost=1 inject-summary-lsas=no name=local type=stub
 /routing ospf instance set [ find default=yes ] name=routes-provider-mic router-id=10.255.255.2
-/snmp community set [ find default=yes ] addresses=192.168.90.180/32,192.168.90.170/32 authentication-protocol=SHA1 encryption-protocol=AES name=globus
-/snmp community add addresses=::/0 name=public
+/snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
+/snmp community add addresses=::/0 disabled=yes name=public
 /system logging action add name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=flash/ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=flash/ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
@@ -167,9 +169,10 @@
 /interface bridge port add bridge=main-infrastructure-br interface="lan B"
 /interface bridge port add bridge=main-infrastructure-br interface="lan C"
 /interface bridge port add bridge=main-infrastructure-br interface="lan I"
+/interface bridge settings set allow-fast-path=no
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=list-neighbors-lookup
-/ip settings set accept-source-route=yes rp-filter=loose tcp-syncookies=yes
+/ip settings set accept-source-route=yes allow-fast-path=no rp-filter=loose tcp-syncookies=yes
 /interface detect-internet set detect-interface-list=all internet-interface-list=list-autodetect-INTERNET lan-interface-list=list-autodetect-LAN wan-interface-list=list-autodetect-WAN
 /interface list member add comment="MGTS, GPON via Huavei" interface="wan A" list=list-untrusted
 /interface list member add comment="GUEST WLAN" interface=guest-infrastructure-br list=list-guest-wireless
@@ -188,15 +191,15 @@
 /ip address add address=172.16.0.17/30 comment="INFLUXDB IP redirect" interface=ip-mapping-br network=172.16.0.16
 /ip address add address=192.168.100.7/24 comment="wan via MGTS edge router" interface="wan A" network=192.168.100.0
 /ip arp add address=192.168.90.80 comment="MbpAlx (wireless)" interface=main-infrastructure-br mac-address=78:31:C1:CF:9E:70
-/ip arp add address=192.168.90.190 comment="AlxATV (wireless)" interface=main-infrastructure-br mac-address=90:DD:5D:C8:46:AB
+/ip arp add address=192.168.90.200 comment="AlxATV (wireless)" interface=main-infrastructure-br mac-address=90:DD:5D:C8:46:AB
 /ip arp add address=192.168.90.90 comment="MbpAlx (wire)" interface=main-infrastructure-br mac-address=38:C9:86:51:D2:B3
 /ip arp add address=192.168.90.40 comment=NAS interface=main-infrastructure-br mac-address=00:11:32:2C:A7:85
 /ip arp add address=192.168.90.150 comment=iPhoneAlxr interface=main-infrastructure-br mac-address=54:2B:8D:77:38:A0
 /ip arp add address=192.168.90.130 comment=iPadAlxPro interface=main-infrastructure-br mac-address=50:DE:06:25:C2:FC
 /ip arp add address=192.168.100.7 interface="wan A" mac-address=48:8F:5A:D4:5F:68
 /ip arp add address=192.168.90.10 comment=LiwingRoomWAP interface=main-infrastructure-br mac-address=CC:2D:E0:E7:BE:02
-/ip arp add address=192.168.90.70 comment="miniAlx (wire)" interface="wan A" mac-address=10:DD:B1:9E:19:5E
-/ip arp add address=192.168.90.210 comment=AudioATV interface="wan A" mac-address=B0:34:95:50:A1:6A
+/ip arp add address=192.168.90.70 comment="miniAlx (wire)" interface=main-infrastructure-br mac-address=10:DD:B1:9E:19:5E
+/ip arp add address=192.168.90.210 comment=AudioATV interface=main-infrastructure-br mac-address=B0:34:95:50:A1:6A
 /ip arp add address=192.168.90.170 comment=Twinkle interface=main-infrastructure-br mac-address=FC:F5:C4:79:ED:D8
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-server lease add address=192.168.90.200 comment="AlxATV (wireless)" mac-address=90:DD:5D:C8:46:AB server=main-dhcp-server
@@ -218,19 +221,21 @@
 /ip dhcp-server network add address=192.168.90.64/26 caps-manager=192.168.90.1 comment="Mac, Pc" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.128/27 caps-manager=192.168.90.1 comment="Phones, tablets" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.160/27 caps-manager=192.168.90.1 comment="IoT, intercom" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
-/ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
+/ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dns-server=8.8.8.8 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server vendor-class-id add address-pool=pool-vendor name=vendor-mikrotik-caps server=main-dhcp-server vid=mikrotik-cap
-/ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=8.8.8.8
+/ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.90.1,8.8.8.8
 /ip dns static add address=192.168.90.1 name=anna.home
 /ip dns static add address=10.0.0.3 name=anna.home
 /ip dns static add address=192.168.90.1 name=anna
 /ip dns static add address=192.168.90.1 name=time.windows.com
 /ip dns static add address=172.16.0.17 name=influxdb
 /ip dns static add address=172.16.0.17 name=influxdb.home
+/ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
 /ip dns static add address=172.16.0.16 name=grafana
 /ip dns static add address=172.16.0.16 name=grafana.home
+/ip dns static add cname=minialx.home name=grafanasvc.home type=CNAME
 /ip dns static add address=192.168.97.1 name=chr.home
 /ip dns static add address=10.0.0.1 name=chr.home
 /ip dns static add address=192.168.100.1 name=gateway.home
@@ -239,6 +244,10 @@
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m
 /ip dns static add address=192.168.90.70 comment=<AUTO:DHCP:main-dhcp-server> name=miniAlx.home ttl=5m
 /ip dns static add address=192.168.90.40 comment=<AUTO:DHCP:main-dhcp-server> name=nas.home ttl=5m
+/ip dns static add address=192.168.90.200 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
+/ip dns static add address=192.168.90.210 comment=<AUTO:DHCP:main-dhcp-server> name=AudioATV.home ttl=5m
+/ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
+/ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add address=109.252.203.146 name=ftpserver.org
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
@@ -272,21 +281,12 @@
 /ip firewall address-list add address=185.13.148.14 list=alist-fw-vpn-server-addr
 /ip firewall address-list add address=rutracker.org list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.97.0/24 list=alist-fw-vpn-subnets
-/ip firewall address-list add address=10.0.0.0/30 list=alist-fw-vpn-server-addr
-/ip firewall address-list add address=10.0.0.0/30 list=alist-fw-vpn-subnets
+/ip firewall address-list add address=10.0.0.0/29 list=alist-fw-vpn-server-addr
+/ip firewall address-list add address=10.0.0.0/29 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=nnmclub.me list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=10.0.0.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=10.0.0.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=myexternalip.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=91.108.4.0/22 list=alist-fw-telegram-servers
-/ip firewall address-list add address=91.108.8.0/22 list=alist-fw-telegram-servers
-/ip firewall address-list add address=91.108.12.0/22 list=alist-fw-telegram-servers
-/ip firewall address-list add address=91.108.16.0/22 list=alist-fw-telegram-servers
-/ip firewall address-list add address=91.108.56.0/22 list=alist-fw-telegram-servers
-/ip firewall address-list add address=149.154.160.0/22 list=alist-fw-telegram-servers
-/ip firewall address-list add address=149.154.164.0/22 list=alist-fw-telegram-servers
-/ip firewall address-list add address=149.154.168.0/22 list=alist-fw-telegram-servers
-/ip firewall address-list add address=149.154.172.0/22 list=alist-fw-telegram-servers
 /ip firewall address-list add address=serverfault.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=172.16.0.16/30 list=alist-fw-local-subnets
 /ip firewall address-list add address=172.16.0.16/30 list=alist-nat-local-subnets
@@ -294,10 +294,10 @@
 /ip firewall address-list add address=xhamster.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=ru.xhamster.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=telegram.org list=alist-fw-telegram-servers
-/ip firewall address-list add address=172.16.0.16 list=alist-nat-grafana-server
-/ip firewall address-list add address=192.168.90.180 list=alist-nat-grafana-service
-/ip firewall address-list add address=172.16.0.17 list=alist-nat-influxdb-server
-/ip firewall address-list add address=192.168.90.180 list=alist-nat-influxdb-service
+/ip firewall address-list add address=grafana.home list=alist-nat-grafana-server
+/ip firewall address-list add address=grafanasvc.home list=alist-nat-grafana-service
+/ip firewall address-list add address=influxdb.home list=alist-nat-influxdb-server
+/ip firewall address-list add address=influxdbsvc.home list=alist-nat-influxdb-service
 /ip firewall address-list add address=auntmia.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=clubseventeen.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=speedtest.tele2.net disabled=yes list=alist-mangle-vpn-tunneled-sites
@@ -308,7 +308,6 @@
 /ip firewall address-list add address=rutor.org list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=rutor.info list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=hdreactor.net list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add list=inm.gob.mx
 /ip firewall address-list add address=109.252.203.146 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
@@ -556,7 +555,6 @@
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY
-/ip firewall mangle add action=mark-packet chain=input comment="VPN Traffic" log-prefix="#VPN PCKT MARK" new-packet-mark=pmark-ipsec passthrough=yes protocol=ipsec-esp
 /ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark layer7-protocol=7Z new-connection-mark=conn-7z-download passthrough=yes
 /ip firewall mangle add action=mark-packet chain=prerouting comment=7z connection-mark=conn-7z-download layer7-protocol=7Z log-prefix=~~~DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
 /ip firewall mangle add action=mark-connection chain=prerouting comment="EXE DL CONN mark" connection-mark=no-mark layer7-protocol=EXE new-connection-mark=conn-exe-download passthrough=yes
@@ -569,10 +567,10 @@
 /ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:127
 /ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 log-prefix="#DNS Req" protocol=udp
 /ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 protocol=tcp
-/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to GRAFANA (map to port 3000, local only)" dst-address-list=alist-nat-grafana-server dst-port=80 in-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.180 to-ports=3000
-/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to GRAFANA  (local only)" dst-address-list=alist-nat-grafana-service dst-port=3000 out-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets
-/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to INFLUXDB (map to port 8000, local only)" dst-address-list=alist-nat-influxdb-server dst-port=80 in-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.180 to-ports=8000
-/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to INFLUXDB  (local only)" dst-address-list=alist-nat-influxdb-service dst-port=8000 out-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets
+/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to GRAFANA (map to port 3000, local only)" dst-address-list=alist-nat-grafana-server dst-port=80 in-interface=main-infrastructure-br log=yes log-prefix="~~~GRAFANA REDIRECT" protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.70 to-ports=3000
+/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to GRAFANA  (local only)" dst-address-list=alist-nat-grafana-service dst-port=3000 log=yes log-prefix="~~~ GRAFANA BACK" out-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets
+/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to INFLUXDB (map to port 8000, local only)" dst-address-list=alist-nat-influxdb-server dst-port=80 in-interface=main-infrastructure-br log=yes log-prefix=~~~INFLUX protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.70 to-ports=8000
+/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to INFLUXDB  (local only)" dst-address-list=alist-nat-influxdb-service dst-port=8000 log=yes log-prefix="~~~~~~~~INFLUX BACK" out-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_NAT src-address-list=alist-nat-local-subnets
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix=~~~VPN_NAT
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=alist-nat-local-subnets log-prefix=~~~VPN_NAT src-address-list=alist-fw-vpn-subnets
@@ -600,7 +598,7 @@
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
-/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/30 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
+/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=deny dst-host=grafana redirect-to=192.168.90.180:3000
 /ip proxy access add action=deny dst-host=influxdb redirect-to=192.168.90.180:8000
@@ -613,7 +611,7 @@
 /ip service set api-ssl disabled=yes
 /ip smb set allow-guests=no domain=HNW interfaces=main-infrastructure-br
 /ip smb shares set [ find default=yes ] disabled=yes
-/ip ssh set forwarding-enabled=remote
+/ip ssh set allow-none-crypto=yes forwarding-enabled=remote
 /ip tftp add real-filename=NAS/ req-filename=.*
 /ip traffic-flow set cache-entries=64k enabled=yes interfaces="wan A"
 /ip upnp set enabled=yes
@@ -625,7 +623,7 @@
 /routing filter add action=accept chain=ospf-in comment="set pref source" set-pref-src=10.0.0.3
 /routing ospf nbma-neighbor add address=10.255.255.1
 /routing ospf network add area=local network=192.168.90.0/24
-/routing ospf network add area=backbone network=10.0.0.0/30
+/routing ospf network add area=backbone network=10.0.0.0/29
 /routing ospf network add area=backbone network=10.255.255.2/32
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
@@ -659,8 +657,8 @@
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system note set note="You are logged into: anna\
     \n############### system health ###############\
-    \nUptime:  00:00:10 d:h:m:s | CPU: 18%\
-    \nRAM: 50964/1048576M | Voltage: 24 v | Temp: 43c\
+    \nUptime:  00:00:10 d:h:m:s | CPU: 15%\
+    \nRAM: 51992/1048576M | Voltage: 24 v | Temp: 42c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n" show-at-login=no
@@ -1522,72 +1520,124 @@
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
-    \n:local state \"\";\r\
+    \n:local state \"n/d\";\r\
     \n\r\
     \n:local exitCode 0;\r\
     \n\r\
-    \n:local dst \"185.13.148.14\";\r\
-    \n:local port 2222;\r\
-    \n:local user \"mikrouter\";\r\
+    \n:local callSSH do={\r\
+    \n\r\
+    \n    # reading params\r\
+    \n    :local cmd \$1;\r\
+    \n\r\
+    \n    # ssh server attr\r\
+    \n    :local dst \"185.13.148.14\";\r\
+    \n    :local port 2222;\r\
+    \n    :local user \"mikrouter\";\r\
+    \n\r\
+    \n    :local errorDef \"\";\r\
+    \n\r\
+    \n    :do {\r\
+    \n \r\
+    \n        #password-less (RSA keys) connection should be set up before\r\
+    \n        :local callResult ([/system ssh-exec address=\$dst user=\$user port=\$port command=\$cmd as-value]);\r\
+    \n        :local exitCode ([\$callResult]->\"exit-code\");\r\
+    \n\r\
+    \n        :if (\$exitCode != 0) do={\r\
+    \n\r\
+    \n            :set errorDef \"RPC: script parameter setup returns exit code (\$exitCode)\";\r\
+    \n\r\
+    \n        } else={\r\
+    \n\r\
+    \n            # success\r\
+    \n\r\
+    \n        }\r\
+    \n\r\
+    \n    } on-error= {\r\
+    \n        :set errorDef \"Remote SSH session gets unexperted error\";\r\
+    \n    };\r\
+    \n\r\
+    \n    :return \$errorDef;\r\
+    \n\r\
+    \n};\r\
     \n\r\
     \n:do {\r\
-    \n   \r\
-    \n    :local wanIp [/ip cloud get public-address];\r\
-    \n    :local cmd \":global globalRemoteIp \$wanIp/32\";\r\
+    \n    \r\
+    \n    :local policyComment [/ip dns static get value-name=text [find where type=TXT and name=\"special-remote-CHR-ipsec-policy-comment\"]]\r\
+    \n    :local remoteCommand \":global globalPolicyComment \$policyComment\";\r\
     \n\r\
-    \n    #password-less (RSA keys) connection should be set up before\r\
-    \n    :local globalVarSetupResult ([/system ssh-exec address=\$dst user=\$user port=\$port command=\$cmd as-value]);\r\
-    \n    :local exitCode ([\$globalVarSetupResult]->\"exit-code\");\r\
+    \n    :set state \"Calling --- \$remoteCommand\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n    :if (\$exitCode != 0) do={\r\
+    \n    :local errorDef [\$callSSH \$remoteCommand];\r\
     \n\r\
-    \n        :set state \"RPC: script parameter setup returns exit code (\$exitCode)\";\r\
+    \n    :if ([:len \$errorDef] > 0) do={\r\
+    \n\r\
+    \n        :set state \$errorDef;\r\
     \n        \$globalNoteMe value=\$state;\r\
     \n        :set itsOk false;\r\
     \n\r\
     \n    } else={\r\
     \n\r\
-    \n        :set state \"RPC: script parameter is set to (\$wanIp)\";\r\
+    \n        :set state \"RPC: set remote preferred policy comment variable: (\$policyComment) - Ok\";\r\
     \n        \$globalNoteMe value=\$state;\r\
     \n    \r\
     \n    }\r\
     \n\r\
-    \n} on-error= {\r\
-    \n    :local state (\"remote SSH session gets error\");\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    :set itsOk false;\r\
     \n};\r\
-    \n\r\
     \n\r\
     \n:if (\$itsOk) do={\r\
     \n\r\
     \n    :do {\r\
-    \n    \r\
+    \n        \r\
     \n        :local wanIp [/ip cloud get public-address];\r\
-    \n        :local cmd \"/system script run doUpdatePoliciesRemotely\";\r\
+    \n        :local remoteCommand \":global globalRemoteIp \$wanIp/32\";\r\
     \n\r\
-    \n        #password-less (RSA keys) connection should be set up before\r\
-    \n        :local globalInitResult ([/system ssh-exec address=\$dst user=\$user port=\$port command=\$cmd as-value]);\r\
-    \n        :local exitCode ([\$globalInitResult]->\"exit-code\");\r\
+    \n        :set state \"Calling --- \$remoteCommand\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n       \r\
+    \n        :local errorDef [\$callSSH \$remoteCommand];\r\
     \n\r\
-    \n        :if (\$exitCode != 0) do={\r\
+    \n        :if ([:len \$errorDef] > 0) do={\r\
     \n\r\
-    \n            :set state \"RPC: script start returns exit code (\$exitCode)\";\r\
+    \n            :set state \$errorDef;\r\
     \n            \$globalNoteMe value=\$state;\r\
     \n            :set itsOk false;\r\
     \n\r\
     \n        } else={\r\
     \n\r\
-    \n            :local exitInfo ([\$globalInitResult]->\"output\");\r\
-    \n            :set state \"RPC: remote script 'doUpdatePoliciesRemotely' started with info: \$exitInfo\";\r\
+    \n            :set state \"RPC: set remote preferred policy IP variable: (\$wanIp) - Ok\";\r\
     \n            \$globalNoteMe value=\$state;\r\
     \n        \r\
     \n        }\r\
     \n\r\
-    \n    } on-error= {\r\
-    \n        :local state (\"remote SSH session gets error\");\r\
+    \n    };\r\
+    \n\r\
+    \n}\r\
+    \n\r\
+    \n:if (\$itsOk) do={\r\
+    \n\r\
+    \n    :do {\r\
+    \n        \r\
+    \n        :local remoteCommand \"/system script run doUpdatePoliciesRemotely\";\r\
+    \n\r\
+    \n        :set state \"Calling --- \$remoteCommand\";\r\
     \n        \$globalNoteMe value=\$state;\r\
-    \n        :set itsOk false;\r\
+    \n       \r\
+    \n        :local errorDef [\$callSSH \$remoteCommand];\r\
+    \n\r\
+    \n        :if ([:len \$errorDef] > 0) do={\r\
+    \n\r\
+    \n            :set state \$errorDef;\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            :set itsOk false;\r\
+    \n\r\
+    \n        } else={\r\
+    \n\r\
+    \n            :set state \"RPC: call remote script: doUpdatePoliciesRemotely - Ok\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n        \r\
+    \n        }\r\
+    \n\r\
     \n    };\r\
     \n\r\
     \n}\r\
@@ -2153,7 +2203,7 @@
     \n}\r\
     \n\r\
     \n#Example call\r\
-    \n#\$globalNewNetworkMember ip=192.168.90.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid=\"WiFi 5\"\r\
+    \n#\$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid=\"WiFi 5\"\r\
     \n:global globalNewNetworkMember;\r\
     \n:if (!any \$globalNewNetworkMember) do={\r\
     \n  :global globalNewNetworkMember do={\r\
@@ -2161,13 +2211,13 @@
     \n    :global globalNoteMe;\r\
     \n\r\
     \n    #to prevent connection\r\
-    \n    :local guestDHCP \"guest-dhcp-server\";\r\
+    \n    :local guestDHCP \"guest dhcp\";\r\
     \n\r\
     \n    #to allow connection\r\
-    \n    :local mainDHCP \"main-dhcp-server\";\r\
+    \n    :local mainDHCP \"main dhcp\";\r\
     \n\r\
     \n    #when DHCP not using (add arp for leases)\r\
-    \n    :local arpInterface \"main-infrastructure-br\";\r\
+    \n    :local arpInterface \"main infrastructure\";\r\
     \n    :local state (\"Adding new network member... \");\r\
     \n\r\
     \n    \$globalNoteMe value=\$state;\r\
@@ -2263,6 +2313,7 @@
     \n\r\
     \n#Example call\r\
     \n#\$globalNewClientCert argClients=\"alx.iphone.rw.2021, alx.mini.rw.2021\" argUsage=\"tls-client,digital-signature,key-encipherment\"\r\
+    \n#\$globalNewClientCert argClients=\"182.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\"\r\
     \n:if (!any \$globalNewClientCert) do={\r\
     \n  :global globalNewClientCert do={\r\
     \n\r\
@@ -2273,6 +2324,7 @@
     \n    # incoming named params\r\
     \n    :local clients [ :tostr \$argClients ];\r\
     \n    :local prefs  [ :tostr \$argUsage ];\r\
+    \n    :local asIp  \$argBindAsIP ;\r\
     \n\r\
     \n    # scope global functions\r\
     \n    :global globalNoteMe;\r\
@@ -2318,24 +2370,40 @@
     \n      # :local ORG \"\"\r\
     \n      # :local OU \"\"\r\
     \n\r\
+    \n\r\
     \n      :local KEYSIZE \"2048\"\r\
-    \n      :local USERNAME \"anna\"\r\
+    \n      :local USERNAME \"mikrouter\"\r\
     \n\r\
     \n      :local scepUrl \"http://185.13.148.14/scep/grant\";\r\
     \n      :local itsOk true;\r\
     \n\r\
+    \n      :local tname \"\";\r\
     \n      :foreach USERNAME in=\$IDs do={\r\
     \n\r\
-    \n        :local state \"CLIENT TEMPLATE certificates generation...  \$USERNAME\";\r\
-    \n\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n\r\
     \n        ## create a client certificate (that will be just a template while not signed)\r\
-    \n        /certificate add name=\"\$USERNAME@\$scepAlias\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\r\
+    \n        :if (  [:len \$asIp ] > 0 ) do={\r\
+    \n\r\
+    \n                :local state \"CLIENT TEMPLATE certificates generation as IP...  \$USERNAME\";\r\
+    \n                \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n                :set tname \"S.\$USERNAME@\$scepAlias\";\r\
+    \n\r\
+    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\r\
+    \n\r\
+    \n            } else={\r\
+    \n\r\
+    \n                :local state \"CLIENT TEMPLATE certificates generation as EMAIL...  \$USERNAME\";\r\
+    \n                \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n                :set tname \"C.\$USERNAME@\$scepAlias\";\r\
+    \n\r\
+    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\r\
+    \n\r\
+    \n            }\r\
     \n\r\
     \n        :local state \"Pushing sign request...\";\r\
     \n        \$globalNoteMe value=\$state;\r\
-    \n        /certificate add-scep template=\"\$USERNAME@\$scepAlias\" scep-url=\"\$scepUrl\";\r\
+    \n        /certificate add-scep template=\"\$tname\" scep-url=\"\$scepUrl\";\r\
     \n\r\
     \n        :delay 6s\r\
     \n\r\
@@ -2350,15 +2418,15 @@
     \n\r\
     \n        :local baseLength 5;\r\
     \n        :for j from=1 to=\$baseLength do={\r\
-    \n          :if ([ :len [ /certificate find where status=\"idle\" name=\"\$USERNAME@\$scepAlias\" ] ] > 0) do={\r\
+    \n          :if ([ :len [ /certificate find where status=\"idle\" name=\"\$tname\" ] ] > 0) do={\r\
     \n\r\
     \n            :local state \"Got it at last. Exporting to file\";\r\
     \n            \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n            /certificate set trusted=yes \"\$USERNAME@\$scepAlias\"\r\
+    \n            /certificate set trusted=yes \"\$tname\"\r\
     \n\r\
     \n            ## export the CA, client certificate, and private key\r\
-    \n            /certificate export-certificate \"\$USERNAME@\$scepAlias\" export-passphrase=\"1234567890\" type=pkcs12\r\
+    \n            /certificate export-certificate \"\$tname\" export-passphrase=\"1234567890\" type=pkcs12\r\
     \n\r\
     \n            :return true;\r\
     \n\r\
@@ -2383,6 +2451,7 @@
     \n    }\r\
     \n  }\r\
     \n}\r\
+    \n\r\
     \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
@@ -2977,7 +3046,8 @@
     \n  \$globalTgMessage value=\$inf;\r\
     \n  \r\
     \n}"
-/system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
+/system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doPushStatsToInfluxDB\";\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \$scriptname;\r\
@@ -2986,8 +3056,8 @@
     \n:local queueCommentMark \"dtq\";\r\
     \n\r\
     \n#influxDB service URL (beware about port when /fetch)\r\
-    \n:local tURL \"http://192.168.90.180/write\\\?db=mikroscripts\"\r\
-    \n:local tPingURL \"http://192.168.90.180/ping\"\r\
+    \n:local tURL \"http://influxdbsvc.home/write\\\?db=mikroscripts\"\r\
+    \n:local tPingURL \"http://influxdbsvc.home/ping\"\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
     \n\r\
@@ -3295,12 +3365,15 @@
     \n:local itsOk true;\r\
     \n:local state \"\";\r\
     \n\r\
+    \n# variables should be set before via remote SSH call\r\
     \n:global globalRemoteIp;\r\
+    \n:global globalPolicyComment;\r\
+    \n\r\
     \n\r\
     \n:do {\r\
     \n    :if ([:len \$globalRemoteIp] > 0) do={\r\
     \n\r\
-    \n    :local peerID \"MIC-OUTER-IP-REMOTE-CONTROLLABLE\";\r\
+    \n    :local peerID \$globalPolicyComment;\r\
     \n\r\
     \n    /ip ipsec policy {\r\
     \n        :foreach vpnEndpoint in=[find (!disabled and template and comment=\"\$peerID\")] do={\r\
@@ -3471,5 +3544,5 @@
     \n\r\
     \n:global NetwatchHostName \"miniAlx\";\r\
     \n/system script run doNetwatchHost;"
-/tool sniffer set filter-interface=tunnel filter-operator-between-entries=and streaming-enabled=yes streaming-server=192.168.90.170
+/tool sniffer set filter-interface=ip-mapping-br filter-operator-between-entries=and streaming-server=192.168.90.170
 /tool user-manager database set db-path=flash/user-manager
