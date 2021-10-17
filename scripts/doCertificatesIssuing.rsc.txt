@@ -26,7 +26,7 @@ $globalScriptBeforeRun $scriptname;
 :local OU ""
 
 :local KEYSIZE "2048"
-:local USERNAME "mikrouter"
+:local USERNAME "anna"
 
 :local MaskedServerIP [/ip address get [find where interface=wan] address];
 :local ServerIP ( [:pick "$MaskedServerIP" 0 [:find "$MaskedServerIP" "/" -1]] ) ;

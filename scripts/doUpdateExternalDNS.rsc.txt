@@ -23,8 +23,8 @@ $globalScriptBeforeRun $scriptname;
     :set state "External IP changed: current - ($IPv4), last - ($LastIPv4)";
     $globalNoteMe value=$state;
 
-    /ip firewall address-list remove [find list~"external-ip"];
-    /ip firewall address-list add list="external-ip" address=$IPv4;
+    /ip firewall address-list remove [find list~"alist-nat-external-ip"];
+    /ip firewall address-list add list="alist-nat-external-ip" address=$IPv4;
    
     /ip dns static remove [/ip dns static find name=ftpserver.org];
     /ip dns static add name=ftpserver.org address=$IPv4;

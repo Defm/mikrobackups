@@ -8,12 +8,15 @@ $globalScriptBeforeRun $scriptname;
 :local itsOk true;
 :local state "";
 
+# variables should be set before via remote SSH call
 :global globalRemoteIp;
+:global globalPolicyComment;
+
 
 :do {
     :if ([:len $globalRemoteIp] > 0) do={
 
-    :local peerID "MIC-OUTER-IP-REMOTE-CONTROLLABLE";
+    :local peerID $globalPolicyComment;
 
     /ip ipsec policy {
         :foreach vpnEndpoint in=[find (!disabled and template and comment="$peerID")] do={
