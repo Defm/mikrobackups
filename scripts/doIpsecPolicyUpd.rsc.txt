@@ -1,5 +1,5 @@
 :local PolicyComment "UBUNTU VPN traffic"
-:local WANip [/ip address get [find interface="wan"] address] 
+:local WANip [/ip address get [find interface="wan A"] address] 
 :local shortWANip ( [:pick "$WANip" 0 [:find "$WANip" "/" -1]] ) 
 
 :do {

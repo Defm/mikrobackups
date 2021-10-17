@@ -25,7 +25,7 @@ $globalScriptBeforeRun $scriptname;
 :local OU ""
 
 :local KEYSIZE "2048"
-:local USERNAME "mikrouter"
+:local USERNAME "anna"
 
 :local scepUrl "http://185.13.148.14/scep/grant";
 

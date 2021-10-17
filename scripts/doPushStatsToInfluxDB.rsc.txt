@@ -1,3 +1,4 @@
+
 :local sysname [/system identity get name];
 :local scriptname "doPushStatsToInfluxDB";
 :global globalScriptBeforeRun;
@@ -7,8 +8,8 @@ $globalScriptBeforeRun $scriptname;
 :local queueCommentMark "dtq";
 
 #influxDB service URL (beware about port when /fetch)
-:local tURL "http://192.168.99.180/write\?db=mikroscripts"
-:local tPingURL "http://192.168.99.180/ping"
+:local tURL "http://influxdbsvc.home/write\?db=mikroscripts"
+:local tPingURL "http://influxdbsvc.home/ping"
 :global globalNoteMe;
 :local itsOk true;
 

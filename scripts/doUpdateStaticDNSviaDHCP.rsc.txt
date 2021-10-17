@@ -7,7 +7,7 @@ $globalScriptBeforeRun "doUpdateStaticDNSviaDHCP";
 #
 
 # Name of the DHCP server instance:
-:local dhcpServer "main dhcp"
+:local dhcpServer "main-dhcp-server"
 
 # DNS zone suffix:
 :local dnsSuffix ".home"

@@ -39,8 +39,8 @@ $doStartBeep
 
   /certificate import file-name=flash/ca@CHR.p12 passphrase=1234567890
   /certificate set [find common-name=ca@CHR] name=ca@CHR
-  /certificate import file-name=flash/mikrouter@CHR.p12 passphrase=1234567890
-  /certificate set [find common-name=mikrouter@CHR] name=mikrouter@CHR
+  /certificate import file-name=flash/anna@CHR.p12 passphrase=1234567890
+  /certificate set [find common-name=anna@CHR] name=anna@CHR
 
   :local write2file ":import file-name=$targetfile verbose=yes"
 

@@ -38,11 +38,11 @@ delay 3;
 
 :local extWANip "";
 
-:if ( [/ip firewall address-list find list~"external-ip" ] = "") do={
+:if ( [/ip firewall address-list find list~"alist-nat-external-ip" ] = "") do={
         :put "reserve password generator Script: cant fine ext wan ip address"
         :log warning "reserve password generator Script: cant find ext wan ip address"
         } else={
-            :foreach j in=[/ip firewall address-list find list~"external-ip"] do={
+            :foreach j in=[/ip firewall address-list find list~"alist-nat-external-ip"] do={
 		:set extWANip ($extWANip  . [/ip firewall address-list get $j address])
             }
         }

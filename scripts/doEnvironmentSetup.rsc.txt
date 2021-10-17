@@ -208,6 +208,7 @@
 
 #Example call
 #$globalNewClientCert argClients="alx.iphone.rw.2021, alx.mini.rw.2021" argUsage="tls-client,digital-signature,key-encipherment"
+#$globalNewClientCert argClients="182.13.148.14" argUsage="tls-server" argBindAsIP="any"
 :if (!any $globalNewClientCert) do={
   :global globalNewClientCert do={
 
@@ -218,6 +219,7 @@
     # incoming named params
     :local clients [ :tostr $argClients ];
     :local prefs  [ :tostr $argUsage ];
+    :local asIp  $argBindAsIP ;
 
     # scope global functions
     :global globalNoteMe;
@@ -270,20 +272,33 @@
       :local scepUrl "http://185.13.148.14/scep/grant";
       :local itsOk true;
 
+      :local tname "";
       :foreach USERNAME in=$IDs do={
 
-        :local state "CLIENT TEMPLATE certificates generation...  $USERNAME";
-
-        $globalNoteMe value=$state;
-
         ## create a client certificate (that will be just a template while not signed)
+        :if (  [:len $asIp ] > 0 ) do={
 
-        /certificate add name="$USERNAME@$scepAlias" common-name="$USERNAME@$scepAlias" subject-alt-name="email:$USERNAME@$fakeDomain" key-usage=$prefs  country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365
+                :local state "CLIENT TEMPLATE certificates generation as IP...  $USERNAME";
+                $globalNoteMe value=$state;
 
+                :set tname "S.$USERNAME@$scepAlias";
+
+                /certificate add name="$tname" common-name="$USERNAME@$scepAlias" subject-alt-name="IP:$USERNAME,DNS:$fakeDomain" key-usage=$prefs country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365;
+
+            } else={
+
+                :local state "CLIENT TEMPLATE certificates generation as EMAIL...  $USERNAME";
+                $globalNoteMe value=$state;
+
+                :set tname "C.$USERNAME@$scepAlias";
+
+                /certificate add name="$tname" common-name="$USERNAME@$scepAlias" subject-alt-name="email:$USERNAME@$fakeDomain" key-usage=$prefs  country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365
+
+            }
 
         :local state "Pushing sign request...";
         $globalNoteMe value=$state;
-        /certificate add-scep template="$USERNAME@$scepAlias" scep-url="$scepUrl";
+        /certificate add-scep template="$tname" scep-url="$scepUrl";
 
         :delay 6s
 
@@ -298,15 +313,15 @@
 
         :local baseLength 5;
         :for j from=1 to=$baseLength do={
-          :if ([ :len [ /certificate find where status="idle" name="$USERNAME@$scepAlias" ] ] > 0) do={
+          :if ([ :len [ /certificate find where status="idle" name="$tname" ] ] > 0) do={
 
             :local state "Got it at last. Exporting to file";
             $globalNoteMe value=$state;
 
-            /certificate set trusted=yes "$USERNAME@$scepAlias"
+            /certificate set trusted=yes "$tname"
 
             ## export the CA, client certificate, and private key
-            /certificate export-certificate "$USERNAME@$scepAlias" export-passphrase="1234567890" type=pkcs12
+            /certificate export-certificate "$tname" export-passphrase="1234567890" type=pkcs12
 
             :return true;
 
@@ -331,4 +346,5 @@
     }
   }
 }
+
 
