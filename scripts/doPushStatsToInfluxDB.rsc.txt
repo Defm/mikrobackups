@@ -8,8 +8,8 @@ $globalScriptBeforeRun $scriptname;
 :local queueCommentMark "dtq";
 
 #influxDB service URL (beware about port when /fetch)
-:local tURL "http://influxdbsvc.home/write\?db=mikroscripts"
-:local tPingURL "http://influxdbsvc.home/ping"
+:local tURL "http://nas.home/api/v2/write\?bucket=httpapi&org=home"
+:local tPingURL "http://nas.home/ping"
 :global globalNoteMe;
 :local itsOk true;
 
@@ -20,7 +20,7 @@ $globalScriptBeforeRun $scriptname;
   :set state ("Checking if INFLUXDB Service online");
   $globalNoteMe value=$state;
 
-  :local result [/tool fetch http-method=get port=8000 user="mikrotik" password="mikrotik" mode=http url="$tPingURL"  as-value output=user];
+  :local result [/tool fetch http-method=get port=8086 user="mikrotik" password="mikrotik" mode=http url="$tPingURL"  as-value output=user];
  
 } on-error={
   
@@ -34,6 +34,32 @@ $globalScriptBeforeRun $scriptname;
 
   :error $inf;
 }
+
+:local state "";
+
+:local authHeader ("Authorization: Token nh-mJylW1FCluBlUGXYZq_s5zne_QjzkHcc56y8v6AIlUOOiOm4bU2652r2Vkv3Vp6WzgQT7WPsi4yF0RvdElg=="); 
+
+:local txAvg 0
+:local rxAvg 0
+
+:local btServer 192.168.97.1;
+
+:set state ("Starting VPN bandwidth test");
+ $globalNoteMe value=$state;
+
+tool bandwidth-test protocol=tcp direction=transmit user=btest password=btest address=$btServer duration=15s do={
+:set txAvg ($"tx-total-average" / 1048576 );
+}
+
+tool bandwidth-test protocol=tcp direction=receive user=btest password=btest address=$btServer duration=15s do={
+:set rxAvg ($"rx-total-average" / 1048576 );
+}
+
+:global globalCallFetch;
+:local fetchCmd  "/tool fetch http-method=post port=8086 mode=http url=\"$tURL\" http-header-field=\"$authHeader, content-type: text/plain\" http-data=\"bandwidth,host=$sysname,target=CHR transmit=$txAvg,recieve=$rxAvg\" keep-result=no";
+
+$globalCallFetch $fetchCmd;
+
  
 /queue simple
 
@@ -98,8 +124,8 @@ $globalScriptBeforeRun $scriptname;
   :if ( $itsOk and !$skip) do={
     :do {
       :set state ("Pushing stats to influxDB about $hostName: UP = $upload, DOWN=$download");
-      $globalNoteMe value=$state;
-      /tool fetch http-method=post port=8000 user="mikrotik" password="mikrotik" mode=http url="$tURL" http-header-field="content-type: text/plain" http-data="TrafficStats,host=$sysname,target=$hostName upload=$upload,download=$download" keep-result=no;
+     $globalNoteMe value=$state;
+      /tool fetch http-method=post port=8086 mode=http url="$tURL" http-header-field="$authHeader, content-type: text/plain" http-data="traffic,host=$sysname,target=$hostName upload=$upload,download=$download" keep-result=no;
       $globalNoteMe value="Done";
     } on-error= {
       :set state "Error When $state"
@@ -133,4 +159,3 @@ $globalNoteMe value=$inf
   $globalTgMessage value=$inf;
 
 }
-

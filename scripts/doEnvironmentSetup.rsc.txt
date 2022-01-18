@@ -106,13 +106,13 @@
     :global globalNoteMe;
 
     #to prevent connection
-    :local guestDHCP "guest dhcp";
+    :local guestDHCP "guest-dhcp-server";
 
     #to allow connection
-    :local mainDHCP "main dhcp";
+    :local mainDHCP "main-dhcp-server";
 
     #when DHCP not using (add arp for leases)
-    :local arpInterface "main infrastructure";
+    :local arpInterface "main-infrastructure";
     :local state ("Adding new network member... ");
 
     $globalNoteMe value=$state;
@@ -141,7 +141,8 @@
 
     :do {
 
-        /ip dhcp-server lease remove [find address=$newIp];
+        :local state ("Removing existing DHCP configuration for ($newIp/$newMac) on $mainDHCP");
+        $globalNoteMe value=$state;       /ip dhcp-server lease remove [find address=$newIp];
         /ip dhcp-server lease remove [find mac-address=$newMac];
 
         :local state ("Adding DHCP configuration for ($newIp/$newMac) on $mainDHCP");
@@ -173,6 +174,8 @@
 
     :do {
 
+        :local state ("Adding ARP static entries for ($newBlockedIp/$newMac) on $mainDHCP");
+        $globalNoteMe value=$state;
         /ip arp remove [find address=$newIp];
         /ip arp remove [find address=$newBlockedIp];
         /ip arp remove [find mac-address=$newMac];
@@ -188,6 +191,8 @@
 
     :do {
 
+        :local state ("Adding CAPs ACL static entries for ($newBlockedIp/$newMac)");
+        $globalNoteMe value=$state;
         /caps-man access-list remove [find mac-address=$newMac];
         /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=$comment disabled=no mac-address=$newMac ssid-regexp=$ssid place-before=1
 
@@ -343,6 +348,52 @@
         $globalNoteMe value=$state;
         :return false;
 
+    }
+  }
+}
+
+
+
+:if (!any $globalCallFetch) do={
+  :global globalCallFetch do={
+
+    # this one calls Fetch and catches its errors
+    :global globalNoteMe;
+    :if ([:len $1] > 0) do={
+
+        # something like "/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes"
+        :local fetchCmd "$1";
+
+        :local state "I'm now putting: $fetchCmd";
+        $globalNoteMe value=$state;
+
+        /file remove [find where name="fetch.log.txt"]
+        {
+            :local jobid [:execute file=fetch.log.txt script=$fetchCmd]
+
+            :local state "Waiting the end of process for file fetch.log to be ready, max 20 seconds...";
+            $globalNoteMe value=$state;
+
+            :global Gltesec 0
+            :while (([:len [/sys script job find where .id=$jobid]] = 1) && ($Gltesec < 20)) do={
+                :set Gltesec ($Gltesec + 1)
+                :delay 1s
+
+                :local state "waiting... $Gltesec";
+                $globalNoteMe value=$state;
+
+            }
+
+            :local state "Done. Elapsed Seconds: $Gltesec\r\n";
+            $globalNoteMe value=$state;
+
+            :if ([:len [/file find where name="fetch.log.txt"]] = 1) do={
+                :local filecontent [/file get [/file find where name="fetch.log.txt"] contents]
+                :put "Result of Fetch:\r\n****************************\r\n$filecontent\r\n****************************"
+            } else={
+                :put "File not created."
+            }
+        }
     }
   }
 }
