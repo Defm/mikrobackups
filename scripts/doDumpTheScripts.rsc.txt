@@ -4,6 +4,8 @@
 :global globalScriptBeforeRun;
 $globalScriptBeforeRun $scriptname;
 
+:global globalCallFetch;
+
 #directories have to exist!
 :local FTPRoot "/REPO/mikrobackups/"
 
@@ -89,7 +91,11 @@ $globalScriptBeforeRun $scriptname;
         :do {
           :set state "Uploading $buFile' to '$dst'";
           $globalNoteMe value=$state;
-          /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path=$dst mode=ftp upload=yes;
+          
+          :local fetchCmd "/tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path=$dst mode=ftp upload=yes";
+        
+          $globalCallFetch $fetchCmd;
+
           $globalNoteMe value="Done";
         } on-error={ 
           :set state "Error When Uploading '$buFile' to '$dst'";
