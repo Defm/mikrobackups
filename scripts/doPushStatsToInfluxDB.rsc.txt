@@ -13,6 +13,9 @@ $globalScriptBeforeRun $scriptname;
 :global globalNoteMe;
 :local itsOk true;
 
+
+:local useBandwidthTest false;
+
 :local state "";
 
 :do {
@@ -39,13 +42,16 @@ $globalScriptBeforeRun $scriptname;
 
 :local authHeader ("Authorization: Token nh-mJylW1FCluBlUGXYZq_s5zne_QjzkHcc56y8v6AIlUOOiOm4bU2652r2Vkv3Vp6WzgQT7WPsi4yF0RvdElg=="); 
 
+
+:if ( $useBandwidthTest  ) do={
+
 :local txAvg 0
 :local rxAvg 0
 
 :local btServer 192.168.97.1;
 
 :set state ("Starting VPN bandwidth test");
- $globalNoteMe value=$state;
+$globalNoteMe value=$state;
 
 tool bandwidth-test protocol=tcp direction=transmit user=btest password=btest address=$btServer duration=15s do={
 :set txAvg ($"tx-total-average" / 1048576 );
@@ -60,6 +66,7 @@ tool bandwidth-test protocol=tcp direction=receive user=btest password=btest add
 
 $globalCallFetch $fetchCmd;
 
+}
  
 /queue simple
 
@@ -159,3 +166,4 @@ $globalNoteMe value=$inf
   $globalTgMessage value=$inf;
 
 }
+
