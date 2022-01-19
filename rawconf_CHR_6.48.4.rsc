@@ -1,4 +1,4 @@
-# oct/17/2021 04:07:47 by RouterOS 6.48.4
+# jan/19/2022 13:22:15 by RouterOS 6.48.4
 # software id = 
 #
 #
@@ -20,7 +20,7 @@
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=WINDOWS
-/ip ipsec peer add address=109.252.203.146/32 comment="IPSEC IKEv2 VPN PHASE1 (ANNA, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=ANNA-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=109.252.162.10/32 comment="IPSEC IKEv2 VPN PHASE1 (ANNA, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=ANNA-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=10.0.0.3/32 comment="IPSEC IKEv2 VPN PHASE1 (ANNA, traffic-only encryption)" local-address=10.0.0.1 name=ANNA-INNER passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=10.0.0.2/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, traffic-only encryption)" local-address=10.0.0.1 name=MIC-INNER passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=6.6.6.6/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
@@ -42,21 +42,21 @@
 /ppp profile add address-list=l2tp-active-clients dns-server=8.8.8.8,8.8.4.4 interface-list=l2tp-dynamic-tun local-address=10.0.0.1 name=l2tp-no-encrypt-ios-rw only-one=no remote-address=rw-clients
 /routing ospf area add area-id=0.0.0.1 default-cost=1 inject-summary-lsas=no name=local type=stub
 /routing ospf instance set [ find default=yes ] distribute-default=always-as-type-2 name=routes-provider-mis router-id=10.255.255.1
-/snmp community set [ find default=yes ] addresses=0.0.0.0/0
-/snmp community add addresses=192.168.99.180/32,192.168.99.170/32 name=globus
-/system logging action add memory-lines=600 name=IpsecOnScreenLog target=memory
-/system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
-/system logging action add disk-file-count=1 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
+/snmp community set [ find default=yes ] addresses=0.0.0.0/0 disabled=yes
+/snmp community add addresses=::/0 name=globus
+/system logging action add memory-lines=100000 name=IpsecOnScreenLog target=memory
+/system logging action add disk-file-count=20 disk-file-name=ScriptsDiskLog disk-lines-per-file=3000 name=ScriptsDiskLog target=disk
+/system logging action add disk-file-count=10 disk-file-name=ErrorDiskLog disk-lines-per-file=30000 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
 /system logging action add memory-lines=500 name=OnScreenLog target=memory
 /system logging action add name=DHCPOnScreenLog target=memory
 /system logging action add name=DNSOnScreenLog target=memory
 /system logging action add name=RouterControlDiskLog target=memory
 /system logging action add name=OSFTOnScreenLog target=memory
-/system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
+/system logging action add memory-lines=100000 name=L2TPOnScreenLog target=memory
+/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=30000 name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
-/system logging action add name=SSHOnscreenLog target=memory
+/system logging action add memory-lines=100000 name=SSHOnscreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
@@ -81,9 +81,10 @@
 /ip dhcp-server network add address=192.168.97.0/30 gateway=192.168.97.1
 /ip dns set cache-max-ttl=1d
 /ip dns static add address=10.0.0.1 name=CHR
-/ip dns static add address=192.168.99.180 name=minialx.home
+/ip dns static add address=192.168.90.70 name=minialx.home
 /ip dns static add address=192.168.90.40 name=nas.home
 /ip dns static add address=192.168.99.1 name=mikrouter.home
+/ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
 /ip firewall address-list add address=8.8.8.8 list=dns-accept
 /ip firewall address-list add address=192.168.97.0/30 list=mis-network
 /ip firewall address-list add address=rutracker.org list=vpn-sites
@@ -215,7 +216,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption) MIKROUTER" dst-address=192.168.99.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/29 template=yes
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption) ANNA" dst-address=192.168.90.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/29 template=yes
 /ip ipsec policy add comment=MIC-OUTER-IP-REMOTE-CONTROLLABLE dst-address=6.6.6.6/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
-/ip ipsec policy add comment=ANNA-OUTER-IP-REMOTE-CONTROLLABLE dst-address=109.252.203.146/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
+/ip ipsec policy add comment=ANNA-OUTER-IP-REMOTE-CONTROLLABLE dst-address=109.252.162.10/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range 2)" dst-address=91.79.0.0/16 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip route add check-gateway=ping comment=GLOBAL distance=10 gateway=185.13.148.1
 /ip service set telnet disabled=yes
@@ -265,7 +266,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 1\
     \n" show-at-login=no
-/system ntp client set enabled=yes primary-ntp=195.151.98.66 secondary-ntp=46.254.216.9
+/system ntp client set enabled=yes primary-ntp=85.21.78.91 secondary-ntp=46.254.216.9
 /system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=aug/04/2020 start-time=21:00:00
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
 /system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=08:00:00
@@ -465,11 +466,11 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n\r\
     \n:local extWANip \"\";\r\
     \n\r\
-    \n:if ( [/ip firewall address-list find list~\"external-ip\" ] = \"\") do={\r\
+    \n:if ( [/ip firewall address-list find list~\"alist-nat-external-ip\" ] = \"\") do={\r\
     \n        :put \"reserve password generator Script: cant fine ext wan ip address\"\r\
     \n        :log warning \"reserve password generator Script: cant find ext wan ip address\"\r\
     \n        } else={\r\
-    \n            :foreach j in=[/ip firewall address-list find list~\"external-ip\"] do={\r\
+    \n            :foreach j in=[/ip firewall address-list find list~\"alist-nat-external-ip\"] do={\r\
     \n\t\t:set extWANip (\$extWANip  . [/ip firewall address-list get \$j address])\r\
     \n            }\r\
     \n        }\r\
@@ -534,7 +535,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n:local OU \"\"\r\
     \n\r\
     \n:local KEYSIZE \"2048\"\r\
-    \n:local USERNAME \"mikrouter\"\r\
+    \n:local USERNAME \"anna\"\r\
     \n\r\
     \n:local MaskedServerIP [/ip address get [find where interface=wan] address];\r\
     \n:local ServerIP ( [:pick \"\$MaskedServerIP\" 0 [:find \"\$MaskedServerIP\" \"/\" -1]] ) ;\r\
@@ -827,13 +828,13 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n    :global globalNoteMe;\r\
     \n\r\
     \n    #to prevent connection\r\
-    \n    :local guestDHCP \"guest dhcp\";\r\
+    \n    :local guestDHCP \"guest-dhcp-server\";\r\
     \n\r\
     \n    #to allow connection\r\
-    \n    :local mainDHCP \"main dhcp\";\r\
+    \n    :local mainDHCP \"main-dhcp-server\";\r\
     \n\r\
     \n    #when DHCP not using (add arp for leases)\r\
-    \n    :local arpInterface \"main infrastructure\";\r\
+    \n    :local arpInterface \"main-infrastructure\";\r\
     \n    :local state (\"Adding new network member... \");\r\
     \n\r\
     \n    \$globalNoteMe value=\$state;\r\
@@ -862,7 +863,8 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n\r\
     \n    :do {\r\
     \n\r\
-    \n        /ip dhcp-server lease remove [find address=\$newIp];\r\
+    \n        :local state (\"Removing existing DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;       /ip dhcp-server lease remove [find address=\$newIp];\r\
     \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\r\
     \n\r\
     \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
@@ -894,6 +896,8 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n\r\
     \n    :do {\r\
     \n\r\
+    \n        :local state (\"Adding ARP static entries for (\$newBlockedIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
     \n        /ip arp remove [find address=\$newIp];\r\
     \n        /ip arp remove [find address=\$newBlockedIp];\r\
     \n        /ip arp remove [find mac-address=\$newMac];\r\
@@ -909,6 +913,8 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n\r\
     \n    :do {\r\
     \n\r\
+    \n        :local state (\"Adding CAPs ACL static entries for (\$newBlockedIp/\$newMac)\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
     \n        /caps-man access-list remove [find mac-address=\$newMac];\r\
     \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\$ssid place-before=1\r\
     \n\r\
@@ -1067,6 +1073,53 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n    }\r\
     \n  }\r\
     \n}\r\
+    \n\r\
+    \n\r\
+    \n\r\
+    \n:if (!any \$globalCallFetch) do={\r\
+    \n  :global globalCallFetch do={\r\
+    \n\r\
+    \n    # this one calls Fetch and catches its errors\r\
+    \n    :global globalNoteMe;\r\
+    \n    :if ([:len \$1] > 0) do={\r\
+    \n\r\
+    \n        # something like \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\r\
+    \n        :local fetchCmd \"\$1\";\r\
+    \n\r\
+    \n        :local state \"I'm now putting: \$fetchCmd\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        /file remove [find where name=\"fetch.log.txt\"]\r\
+    \n        {\r\
+    \n            :local jobid [:execute file=fetch.log.txt script=\$fetchCmd]\r\
+    \n\r\
+    \n            :local state \"Waiting the end of process for file fetch.log to be ready, max 20 seconds...\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :global Gltesec 0\r\
+    \n            :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 20)) do={\r\
+    \n                :set Gltesec (\$Gltesec + 1)\r\
+    \n                :delay 1s\r\
+    \n\r\
+    \n                :local state \"waiting... \$Gltesec\";\r\
+    \n                \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            }\r\
+    \n\r\
+    \n            :local state \"Done. Elapsed Seconds: \$Gltesec\\r\\n\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :if ([:len [/file find where name=\"fetch.log.txt\"]] = 1) do={\r\
+    \n                :local filecontent [/file get [/file find where name=\"fetch.log.txt\"] contents]\r\
+    \n                :put \"Result of Fetch:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\"\r\
+    \n            } else={\r\
+    \n                :put \"File not created.\"\r\
+    \n            }\r\
+    \n        }\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
     \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
@@ -1335,7 +1388,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n        [set \$vpnEndpoint disabled=yes];\r\
     \n        \r\
     \n        #waiting for tunnel to come up, because Telegram notes goes through tunnel\r\
-    \n        :delay 5;\r\
+    \n        :delay 15;\r\
     \n\r\
     \n        [set \$vpnEndpoint disabled=no];\r\
     \n\r\
@@ -1473,6 +1526,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n  \$globalTgMessage value=\$inf;\r\
     \n  \r\
     \n}\r\
+    \n\r\
     \n"
 /tool bandwidth-server set authenticate=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
