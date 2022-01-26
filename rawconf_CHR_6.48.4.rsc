@@ -1,4 +1,4 @@
-# jan/19/2022 14:10:36 by RouterOS 6.48.4
+# jan/26/2022 14:36:21 by RouterOS 6.48.4
 # software id = 
 #
 #
@@ -75,7 +75,7 @@
 /ip accounting set enabled=yes
 /ip address add address=192.168.97.1/30 comment="local IP" interface="main infrastructure" network=192.168.97.0
 /ip address add address=10.255.255.1 comment="ospf router-id binding" interface=ospf-loopback network=10.255.255.1
-/ip cloud set ddns-enabled=yes
+/ip cloud set ddns-enabled=yes update-time=yes
 /ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=no interface=wan use-peer-ntp=no
 /ip dhcp-server network add address=10.0.0.0/29 dns-server=8.8.8.8,8.8.4.4 gateway=10.0.0.1
 /ip dhcp-server network add address=192.168.97.0/30 gateway=192.168.97.1
@@ -85,6 +85,7 @@
 /ip dns static add address=192.168.90.40 name=nas.home
 /ip dns static add address=192.168.99.1 name=mikrouter.home
 /ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
+/ip dns static add address=185.13.148.14 name=ftpserver.org
 /ip firewall address-list add address=8.8.8.8 list=dns-accept
 /ip firewall address-list add address=192.168.97.0/30 list=mis-network
 /ip firewall address-list add address=rutracker.org list=vpn-sites
@@ -98,6 +99,7 @@
 /ip firewall address-list add address=2ip.ru list=vpn-sites
 /ip firewall address-list add address=10.0.0.0/29 list=mic-network
 /ip firewall address-list add address=10.0.0.1 list=mis-network
+/ip firewall address-list add address=185.13.148.14 list=alist-nat-external-ip
 #error exporting /ip firewall calea
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Bandwidth test allow" port=2000 protocol=tcp
@@ -272,6 +274,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
 /system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/07/2019 start-time=09:00:00
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jan/26/2022 start-time=14:34:19
 /system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,read,write,policy,test,password,sensitive source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\
     \n\r\
@@ -646,7 +649,7 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -1526,6 +1529,70 @@ add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out
     \n  \$globalTgMessage value=\$inf;\r\
     \n  \r\
     \n}\r\
+    \n\r\
+    \n"
+/system script add dont-require-permissions=yes name=doUpdateExternalDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doUpdateExternalDNS\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n:local state \"\";\r\
+    \n\r\
+    \n:local content\r\
+    \n:local IPv4\r\
+    \n:global LastIPv4\r\
+    \n\r\
+    \n# parsing the current IPv4 result\r\
+    \n/ip cloud force-update;\r\
+    \n:delay 7s;\r\
+    \n:set IPv4 [/ip cloud get public-address];\r\
+    \n\r\
+    \n\r\
+    \n:if ((\$LastIPv4 != \$IPv4) || (\$force = true)) do={\r\
+    \n\r\
+    \n    :set state \"External IP changed: current - (\$IPv4), last - (\$LastIPv4)\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    /ip firewall address-list remove [find list~\"alist-nat-external-ip\"];\r\
+    \n    /ip firewall address-list add list=\"alist-nat-external-ip\" address=\$IPv4;\r\
+    \n   \r\
+    \n    /ip dns static remove [/ip dns static find name=ftpserver.org];\r\
+    \n    /ip dns static add name=ftpserver.org address=\$IPv4;\r\
+    \n \r\
+    \n    :set LastIPv4 \$IPv4;\r\
+    \n \r\
+    \n    :local count [:len [/system script find name=\"doSuperviseCHRviaSSH\"]];\r\
+    \n    :if (\$count > 0) do={\r\
+    \n       \r\
+    \n        :set state \"Refreshing VPN server (CHR) IPSEC policies\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /system script run doSuperviseCHRviaSSH;\r\
+    \n    \r\
+    \n     }\r\
+    \n   \r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: external IP address change detected, refreshed\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
+    \n}\r\
+    \n\r\
     \n\r\
     \n"
 /tool bandwidth-server set authenticate=no

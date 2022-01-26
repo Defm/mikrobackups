@@ -1,4 +1,4 @@
-# oct/17/2021 03:59:43 by RouterOS 6.48.4
+# jan/26/2022 14:36:43 by RouterOS 6.48.4
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
@@ -104,7 +104,6 @@
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.90.150/32 total-queue=default
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
 /queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro(blocked)@guest-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.229/32 total-queue=default
-/queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.227/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A,AudioATV name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
@@ -113,7 +112,10 @@
 /queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx (wireless)@main-dhcp-server (78:31:C1:CF:9E:70)" queue=default/default target=192.168.90.80/32 total-queue=default
 /queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx (wire)@main-dhcp-server (38:C9:86:51:D2:B3)" queue=default/default target=192.168.90.90/32 total-queue=default
 /queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="NAS@main-dhcp-server (00:11:32:2C:A7:85)" queue=default/default target=192.168.90.40/32 total-queue=default
-/queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle@main-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.90.170/32 total-queue=default
+/queue simple add comment=dtq,FC:F5:C4:79:ED:D8,Twinkly_79EDD9 name="Twinkle@main-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.90.170/32 total-queue=default
+/queue simple add comment=dtq,00:26:5E:5F:1A:8D, name="DurepaDell@main-dhcp-server (00:26:5E:5F:1A:8D)" queue=default/default target=192.168.90.88/32 total-queue=default
+/queue simple add comment=dtq,00:26:5E:5F:1A:8D, name="DurepaDell(blocked)@guest-dhcp-server (00:26:5E:5F:1A:8D)" queue=default/default target=192.168.98.222/32 total-queue=default
+/queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.170/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -125,7 +127,7 @@
 /snmp community add addresses=::/0 disabled=yes name=public
 /system logging action add name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=flash/ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
-/system logging action add disk-file-count=1 disk-file-name=flash/ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
+/system logging action add disk-file-count=20 disk-file-name=flash/ErrorDiskLog disk-lines-per-file=30000 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
 /system logging action add memory-lines=500 name=OnScreenLog target=memory
 /system logging action add name=DHCPOnScreenLog target=memory
@@ -133,8 +135,8 @@
 /system logging action add name=RouterControlLog target=memory
 /system logging action add name=OSPFOnscreenLog target=memory
 /system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-name=flash/AuthDiskLog name=AuthDiskLog target=disk
-/system logging action add name=CertificatesOnScreenLog target=memory
+/system logging action add disk-file-count=20 disk-file-name=flash/AuthDiskLog disk-lines-per-file=30000 name=AuthDiskLog target=disk
+/system logging action add memory-lines=10000 name=CertificatesOnScreenLog target=memory
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
 /system logging action add name=CAPSOnScreenLog target=memory
 /system logging action add name=FirewallOnScreenLog target=memory
@@ -146,8 +148,10 @@
 /user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
 /user group add name=remote policy=ssh,read,write,!local,!telnet,!ftp,!reboot,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!api,!romon,!dude,!tikapp
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=Twinkle disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp=""
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=DurepaDell disabled=no mac-address=00:26:5E:5F:1A:8D ssid-regexp=""
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=DurepaDell disabled=no mac-address=00:26:5E:5F:1A:8D ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=AudioATV disabled=no mac-address=B0:34:95:50:A1:6A ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=Twinkle disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlxPro disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=mbpAlx disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=AlxATV disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 5"
@@ -200,6 +204,7 @@
 /ip arp add address=192.168.90.10 comment=LiwingRoomWAP interface=main-infrastructure-br mac-address=CC:2D:E0:E7:BE:02
 /ip arp add address=192.168.90.70 comment="miniAlx (wire)" interface=main-infrastructure-br mac-address=10:DD:B1:9E:19:5E
 /ip arp add address=192.168.90.210 comment=AudioATV interface=main-infrastructure-br mac-address=B0:34:95:50:A1:6A
+/ip arp add address=192.168.90.88 comment=DurepaDell interface=main-infrastructure-br mac-address=00:26:5E:5F:1A:8D
 /ip arp add address=192.168.90.170 comment=Twinkle interface=main-infrastructure-br mac-address=FC:F5:C4:79:ED:D8
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-server lease add address=192.168.90.200 comment="AlxATV (wireless)" mac-address=90:DD:5D:C8:46:AB server=main-dhcp-server
@@ -210,12 +215,14 @@
 /ip dhcp-server lease add address=192.168.90.150 client-id=1:54:2b:8d:77:38:a0 comment=iPhoneAlxr mac-address=54:2B:8D:77:38:A0 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.130 comment=iPadAlxPro mac-address=50:DE:06:25:C2:FC server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.229 block-access=yes comment="iPadAlxPro(blocked)" mac-address=50:DE:06:25:C2:FC server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.170 comment=Twinkle mac-address=FC:F5:C4:79:ED:D8 server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.227 block-access=yes comment="Twinkle(blocked)" mac-address=FC:F5:C4:79:ED:D8 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.210 comment="AudioATV (wireless)" mac-address=B0:34:95:50:A1:6A server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.231 block-access=yes comment="AudioATV(blocked)" mac-address=B0:34:95:50:A1:6A server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.10 client-id=1:cc:2d:e0:e7:be:2 comment=LivingRoomWap mac-address=CC:2D:E0:E7:BE:02 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.70 address-lists=alist-osx-hosts client-id=1:10:dd:b1:9e:19:5e comment="miniAlx (wire)" mac-address=10:DD:B1:9E:19:5E server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.90.88 comment=DurepaDell mac-address=00:26:5E:5F:1A:8D server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.222 block-access=yes comment="DurepaDell(blocked)" mac-address=00:26:5E:5F:1A:8D server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.170 comment=Twinkle mac-address=FC:F5:C4:79:ED:D8 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.170 block-access=yes comment="Twinkle(blocked)" mac-address=FC:F5:C4:79:ED:D8 server=guest-dhcp-server
 /ip dhcp-server network add address=192.168.90.0/27 caps-manager=192.168.90.1 comment="Network devices, CCTV" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.32/27 caps-manager=192.168.90.1 comment="Virtual machines" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.64/26 caps-manager=192.168.90.1 comment="Mac, Pc" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
@@ -225,7 +232,7 @@
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server vendor-class-id add address-pool=pool-vendor name=vendor-mikrotik-caps server=main-dhcp-server vid=mikrotik-cap
-/ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.90.1,8.8.8.8
+/ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.90.1 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
 /ip dns static add address=192.168.90.1 name=anna.home
 /ip dns static add address=10.0.0.3 name=anna.home
 /ip dns static add address=192.168.90.1 name=anna
@@ -248,7 +255,8 @@
 /ip dns static add address=192.168.90.210 comment=<AUTO:DHCP:main-dhcp-server> name=AudioATV.home ttl=5m
 /ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
-/ip dns static add address=109.252.203.146 name=ftpserver.org
+/ip dns static add address=192.168.90.170 comment=<AUTO:DHCP:main-dhcp-server> name=Twinkly79EDD9.home ttl=5m
+/ip dns static add address=109.252.162.10 name=ftpserver.org
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -308,11 +316,11 @@
 /ip firewall address-list add address=rutor.org list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=rutor.info list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=hdreactor.net list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=109.252.203.146 list=alist-nat-external-ip
+/ip firewall address-list add address=10.0.0.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
+/ip firewall address-list add address=185.13.148.14 comment="Add DNS Server to this List" list=alist-fw-dns-allow
+/ip firewall address-list add address=109.252.162.10 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
-/ip firewall filter add action=fasttrack-connection chain=forward comment="FASTTRACK TCP / Except VPN" connection-state=established,related dst-address-list=!alist-fw-vpn-subnets protocol=tcp
-/ip firewall filter add action=fasttrack-connection chain=forward comment="FASTTRACK UDP / Except VPN" connection-state=established,related protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=~~~OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
@@ -569,8 +577,8 @@
 /ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 protocol=tcp
 /ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to GRAFANA (map to port 3000, local only)" dst-address-list=alist-nat-grafana-server dst-port=80 in-interface=main-infrastructure-br log=yes log-prefix="~~~GRAFANA REDIRECT" protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.70 to-ports=3000
 /ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to GRAFANA  (local only)" dst-address-list=alist-nat-grafana-service dst-port=3000 log=yes log-prefix="~~~ GRAFANA BACK" out-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets
-/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to INFLUXDB (map to port 8000, local only)" dst-address-list=alist-nat-influxdb-server dst-port=80 in-interface=main-infrastructure-br log=yes log-prefix=~~~INFLUX protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.70 to-ports=8000
-/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to INFLUXDB  (local only)" dst-address-list=alist-nat-influxdb-service dst-port=8000 log=yes log-prefix="~~~~~~~~INFLUX BACK" out-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets
+/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to INFLUXDB (map to port 8000, local only)" dst-address-list=alist-nat-influxdb-server log=yes log-prefix=~~~INFLUX src-address-list=alist-nat-local-subnets to-addresses=192.168.90.40
+/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to INFLUXDB  (local only)" dst-address-list=alist-nat-influxdb-service log=yes log-prefix="~~~~~~~~INFLUX BACK" src-address-list=alist-nat-local-subnets
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_NAT src-address-list=alist-nat-local-subnets
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix=~~~VPN_NAT
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=alist-nat-local-subnets log-prefix=~~~VPN_NAT src-address-list=alist-fw-vpn-subnets
@@ -655,14 +663,8 @@
 /system logging add action=ParseMemoryLog topics=info,system
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
-/system note set note="You are logged into: anna\
-    \n############### system health ###############\
-    \nUptime:  00:00:10 d:h:m:s | CPU: 15%\
-    \nRAM: 51992/1048576M | Voltage: 24 v | Temp: 42c\
-    \n############# user auth details #############\
-    \nHotspot online: 0 | PPP online: 0\
-    \n" show-at-login=no
-/system ntp client set enabled=yes primary-ntp=195.151.98.66 secondary-ntp=46.254.216.9
+/system note set note=123 show-at-login=no
+/system ntp client set enabled=yes primary-ntp=85.21.78.91 secondary-ntp=46.254.216.9
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jan/30/2017 start-time=18:57:09
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/21/2017 start-time=15:31:13
@@ -2018,7 +2020,7 @@
     \n        [set \$vpnEndpoint disabled=yes];\r\
     \n        \r\
     \n        #waiting for tunnel to come up, because Telegram notes goes through tunnel\r\
-    \n        :delay 5;\r\
+    \n        :delay 15;\r\
     \n\r\
     \n        [set \$vpnEndpoint disabled=no];\r\
     \n\r\
@@ -2211,13 +2213,13 @@
     \n    :global globalNoteMe;\r\
     \n\r\
     \n    #to prevent connection\r\
-    \n    :local guestDHCP \"guest dhcp\";\r\
+    \n    :local guestDHCP \"guest-dhcp-server\";\r\
     \n\r\
     \n    #to allow connection\r\
-    \n    :local mainDHCP \"main dhcp\";\r\
+    \n    :local mainDHCP \"main-dhcp-server\";\r\
     \n\r\
     \n    #when DHCP not using (add arp for leases)\r\
-    \n    :local arpInterface \"main infrastructure\";\r\
+    \n    :local arpInterface \"main-infrastructure\";\r\
     \n    :local state (\"Adding new network member... \");\r\
     \n\r\
     \n    \$globalNoteMe value=\$state;\r\
@@ -2246,7 +2248,8 @@
     \n\r\
     \n    :do {\r\
     \n\r\
-    \n        /ip dhcp-server lease remove [find address=\$newIp];\r\
+    \n        :local state (\"Removing existing DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;       /ip dhcp-server lease remove [find address=\$newIp];\r\
     \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\r\
     \n\r\
     \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
@@ -2278,6 +2281,8 @@
     \n\r\
     \n    :do {\r\
     \n\r\
+    \n        :local state (\"Adding ARP static entries for (\$newBlockedIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
     \n        /ip arp remove [find address=\$newIp];\r\
     \n        /ip arp remove [find address=\$newBlockedIp];\r\
     \n        /ip arp remove [find mac-address=\$newMac];\r\
@@ -2293,6 +2298,8 @@
     \n\r\
     \n    :do {\r\
     \n\r\
+    \n        :local state (\"Adding CAPs ACL static entries for (\$newBlockedIp/\$newMac)\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
     \n        /caps-man access-list remove [find mac-address=\$newMac];\r\
     \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\$ssid place-before=1\r\
     \n\r\
@@ -2448,6 +2455,52 @@
     \n        \$globalNoteMe value=\$state;\r\
     \n        :return false;\r\
     \n\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n\r\
+    \n:if (!any \$globalCallFetch) do={\r\
+    \n  :global globalCallFetch do={\r\
+    \n\r\
+    \n    # this one calls Fetch and catches its errors\r\
+    \n    :global globalNoteMe;\r\
+    \n    :if ([:len \$1] > 0) do={\r\
+    \n\r\
+    \n        # something like \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\r\
+    \n        :local fetchCmd \"\$1\";\r\
+    \n\r\
+    \n        :local state \"I'm now putting: \$fetchCmd\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        /file remove [find where name=\"fetch.log.txt\"]\r\
+    \n        {\r\
+    \n            :local jobid [:execute file=fetch.log.txt script=\$fetchCmd]\r\
+    \n\r\
+    \n            :local state \"Waiting the end of process for file fetch.log to be ready, max 20 seconds...\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :global Gltesec 0\r\
+    \n            :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 20)) do={\r\
+    \n                :set Gltesec (\$Gltesec + 1)\r\
+    \n                :delay 1s\r\
+    \n\r\
+    \n                :local state \"waiting... \$Gltesec\";\r\
+    \n                \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            }\r\
+    \n\r\
+    \n            :local state \"Done. Elapsed Seconds: \$Gltesec\\r\\n\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :if ([:len [/file find where name=\"fetch.log.txt\"]] = 1) do={\r\
+    \n                :local filecontent [/file get [/file find where name=\"fetch.log.txt\"] contents]\r\
+    \n                :put \"Result of Fetch:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\"\r\
+    \n            } else={\r\
+    \n                :put \"File not created.\"\r\
+    \n            }\r\
+    \n        }\r\
     \n    }\r\
     \n  }\r\
     \n}\r\
@@ -2835,6 +2888,8 @@
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
+    \n:global globalCallFetch;\r\
+    \n\r\
     \n#directories have to exist!\r\
     \n:local FTPRoot \"/REPO/mikrobackups/\"\r\
     \n\r\
@@ -2920,7 +2975,11 @@
     \n        :do {\r\
     \n          :set state \"Uploading \$buFile' to '\$dst'\";\r\
     \n          \$globalNoteMe value=\$state;\r\
-    \n          /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes;\r\
+    \n          \r\
+    \n          :local fetchCmd \"/tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes\";\r\
+    \n        \r\
+    \n          \$globalCallFetch \$fetchCmd;\r\
+    \n\r\
     \n          \$globalNoteMe value=\"Done\";\r\
     \n        } on-error={ \r\
     \n          :set state \"Error When Uploading '\$buFile' to '\$dst'\";\r\
@@ -2973,7 +3032,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -3056,10 +3115,13 @@
     \n:local queueCommentMark \"dtq\";\r\
     \n\r\
     \n#influxDB service URL (beware about port when /fetch)\r\
-    \n:local tURL \"http://influxdbsvc.home/write\\\?db=mikroscripts\"\r\
-    \n:local tPingURL \"http://influxdbsvc.home/ping\"\r\
+    \n:local tURL \"http://nas.home/api/v2/write\\\?bucket=httpapi&org=home\"\r\
+    \n:local tPingURL \"http://nas.home/ping\"\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
+    \n\r\
+    \n\r\
+    \n:local useBandwidthTest false;\r\
     \n\r\
     \n:local state \"\";\r\
     \n\r\
@@ -3068,7 +3130,7 @@
     \n  :set state (\"Checking if INFLUXDB Service online\");\r\
     \n  \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n  :local result [/tool fetch http-method=get port=8000 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tPingURL\"  as-value output=user];\r\
+    \n  :local result [/tool fetch http-method=get port=8086 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tPingURL\"  as-value output=user];\r\
     \n \r\
     \n} on-error={\r\
     \n  \r\
@@ -3081,6 +3143,36 @@
     \n  \$globalTgMessage value=\$inf;\r\
     \n\r\
     \n  :error \$inf;\r\
+    \n}\r\
+    \n\r\
+    \n:local state \"\";\r\
+    \n\r\
+    \n:local authHeader (\"Authorization: Token nh-mJylW1FCluBlUGXYZq_s5zne_QjzkHcc56y8v6AIlUOOiOm4bU2652r2Vkv3Vp6WzgQT7WPsi4yF0RvdElg==\"); \r\
+    \n\r\
+    \n\r\
+    \n:if ( \$useBandwidthTest  ) do={\r\
+    \n\r\
+    \n:local txAvg 0\r\
+    \n:local rxAvg 0\r\
+    \n\r\
+    \n:local btServer 192.168.97.1;\r\
+    \n\r\
+    \n:set state (\"Starting VPN bandwidth test\");\r\
+    \n\$globalNoteMe value=\$state;\r\
+    \n\r\
+    \ntool bandwidth-test protocol=tcp direction=transmit user=btest password=btest address=\$btServer duration=15s do={\r\
+    \n:set txAvg (\$\"tx-total-average\" / 1048576 );\r\
+    \n}\r\
+    \n\r\
+    \ntool bandwidth-test protocol=tcp direction=receive user=btest password=btest address=\$btServer duration=15s do={\r\
+    \n:set rxAvg (\$\"rx-total-average\" / 1048576 );\r\
+    \n}\r\
+    \n\r\
+    \n:global globalCallFetch;\r\
+    \n:local fetchCmd  \"/tool fetch http-method=post port=8086 mode=http url=\\\"\$tURL\\\" http-header-field=\\\"\$authHeader, content-type: text/plain\\\" http-data=\\\"bandwidth,host=\$sysname,target=CHR transmit=\$txAvg,recieve=\$rxAvg\\\" keep-result=no\";\r\
+    \n\r\
+    \n\$globalCallFetch \$fetchCmd;\r\
+    \n\r\
     \n}\r\
     \n \r\
     \n/queue simple\r\
@@ -3146,8 +3238,8 @@
     \n  :if ( \$itsOk and !\$skip) do={\r\
     \n    :do {\r\
     \n      :set state (\"Pushing stats to influxDB about \$hostName: UP = \$upload, DOWN=\$download\");\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      /tool fetch http-method=post port=8000 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tURL\" http-header-field=\"content-type: text/plain\" http-data=\"TrafficStats,host=\$sysname,target=\$hostName upload=\$upload,download=\$download\" keep-result=no;\r\
+    \n     \$globalNoteMe value=\$state;\r\
+    \n      /tool fetch http-method=post port=8086 mode=http url=\"\$tURL\" http-header-field=\"\$authHeader, content-type: text/plain\" http-data=\"traffic,host=\$sysname,target=\$hostName upload=\$upload,download=\$download\" keep-result=no;\r\
     \n      \$globalNoteMe value=\"Done\";\r\
     \n    } on-error= {\r\
     \n      :set state \"Error When \$state\"\r\
@@ -3319,11 +3411,18 @@
     \n  #IPSEC certs have to be imported before the other config is restored\r\
     \n  #Its should be kept on flash memory to get alive after /system reset-configuration\r\
     \n\r\
-    \n  /certificate import file-name=flash/ca@CHR.p12 passphrase=1234567890\r\
-    \n  /certificate set [find common-name=ca@CHR] name=ca@CHR\r\
-    \n  /certificate import file-name=flash/anna@CHR.p12 passphrase=1234567890\r\
-    \n  /certificate set [find common-name=anna@CHR] name=anna@CHR\r\
-    \n\r\
+    \n  :local scriptName \"flash/ca@CHR.p12\"\r\r\
+    \n\r\r\
+    \n  :if ([:len [/file find name=\$scriptName]] > 0) do={\r\r\
+    \n  /certificate import file-name=\$scriptName passphrase=1234567890\r\r\
+    \n  /certificate set [find common-name=ca@CHR] name=ca@CHR\r\r\
+    \n  }\r\r\
+    \n  \r\r\
+    \n  :local scriptName \"flash/mikrouter@CHR.p12\"\r\r\
+    \n  :if ([:len [/file find name=\$scriptName]] > 0) do={\r\r\
+    \n  /certificate import file-name=\$scriptName passphrase=1234567890\r\r\
+    \n  /certificate set [find common-name=mikrouter@CHR] name=mikrouter@CHR\r\r\
+    \n  }\r\
     \n  :local write2file \":import file-name=\$targetfile verbose=yes\"\r\
     \n\r\
     \n  :execute script=\$write2file file=\$importlog\r\
