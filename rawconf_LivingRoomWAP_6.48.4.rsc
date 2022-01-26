@@ -1,4 +1,4 @@
-# sep/18/2021 21:00:03 by RouterOS 6.48.4
+# jan/26/2022 14:37:13 by RouterOS 6.48.4
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -10,12 +10,13 @@
 set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5180/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /interface ethernet set [ find default-name=ether1 ] name="lan A"
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
-/snmp community set [ find default=yes ] addresses=192.168.99.180/32,192.168.99.170/32 authentication-protocol=SHA1 encryption-protocol=AES name=globus
-/snmp community add addresses=::/0 name=public
+/ip dhcp-client option add code=60 name=classid value="'mikrotik-cap'"
+/snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
+/snmp community add addresses=::/0 disabled=yes name=public
 /system logging action add name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=flash/ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=flash/ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
@@ -31,6 +32,9 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /system logging action add memory-lines=1 name=ParseMemoryLog target=memory
 /system logging action add name=CAPSOnScreenLog target=memory
 /system logging action add name=FirewallOnScreenLog target=memory
+#error exporting /tool user-manager customer
+#error exporting /tool user-manager profile
+#error exporting /tool user-manager profile limitation
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
@@ -41,13 +45,14 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /interface detect-internet set detect-interface-list=all
 /interface wireless cap
 # 
-set caps-man-addresses=192.168.99.1 certificate=livingroomwap.capsman.2021@CHR discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz" lock-to-caps-man=yes
+set caps-man-addresses=192.168.90.1 certificate=livingroomwap.capsman.2021@CHR discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz" lock-to-caps-man=yes
 /ip accounting set account-local-traffic=yes enabled=yes threshold=200
 /ip cloud set ddns-enabled=yes
-/ip dhcp-client add disabled=no interface="main infrastructure"
+/ip dhcp-client add dhcp-options=hostname,clientid,classid disabled=no interface="main infrastructure"
 /ip dns set cache-max-ttl=1d query-server-timeout=3s
-/ip dns static add address=109.252.203.146 name=ftpserver.org
-/ip firewall address-list add address=109.252.203.146 list=external-ip
+/ip dns static add address=109.252.162.10 name=ftpserver.org
+/ip firewall address-list add address=109.252.162.10 list=external-ip
+/ip firewall address-list add address=109.252.162.10 list=alist-nat-external-ip
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set irc disabled=yes
 /ip firewall service-port set h323 disabled=yes
@@ -95,12 +100,12 @@ set caps-man-addresses=192.168.99.1 certificate=livingroomwap.capsman.2021@CHR d
 /system logging add action=ParseMemoryLog topics=info,system,!script
 /system note set note="You are logged into: LivingRoomWAP\
     \n############### system health ###############\
-    \nUptime:  00:00:21 d:h:m:s | CPU: 28%\
-    \nRAM: 22264/65536M | Voltage: 22 v | Temp: 54c\
+    \nUptime:  00:00:25 d:h:m:s | CPU: 5%\
+    \nRAM: 28252/65536M | Voltage: 22 v | Temp: 54c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
-    \n"
-/system ntp client set enabled=yes primary-ntp=195.151.98.66 secondary-ntp=46.254.216.9
+    \n" show-at-login=no
+/system ntp client set enabled=yes primary-ntp=192.168.90.1 secondary-ntp=192.168.90.1
 /system package update set channel=testing
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=mar/01/2018 start-time=15:55:00
 /system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
@@ -174,44 +179,68 @@ set caps-man-addresses=192.168.99.1 certificate=livingroomwap.capsman.2021@CHR d
     \n:beep frequency=500 length=500ms;\r\
     \n:delay 1000ms;"
 /system script add comment="Updates address-list that contains my external IP" dont-require-permissions=yes name=doUpdateExternalDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:local content\
-    \n:local IPv4\
-    \n:global LastIPv4\
-    \n\
-    \n# Getting my current IPv4 address\
-    \n\
-    \n# via web\
-    \n\
-    \n\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doUpdateExternalDNS\";\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doUpdateExternalDNS\";\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
     \n\r\
-    \n# parsing the current IPv4 result\
-    \n:set IPv4 [/ip cloud get public-address];\
-    \n\
-    \n:put \"EXTERNAL IP: Current IPv4 = \$IPv4\";\
-    \n:log info \"EXTERNAL IP: Current IPv4 = \$IPv4\";\
-    \n\
-    \n:if ((\$LastIPv4 != \$IPv4) || (\$force = true)) do={\
-    \n   :put \"EXTERNAL IP: update needed!\";\
-    \n   :log info \"EXTERNAL IP: update needed!\";\
-    \n\
-    \n    :log info \"Address list updated: external-ip\";\
-    \n   /ip firewall address-list remove [find list~\"external-ip\"];\
-    \n   /ip firewall address-list add list=\"external-ip\" address=\$IPv4;\
-    \n   \
-    \n   /ip dns static remove [/ip dns static find name=ftpserver.org];\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n:local state \"\";\r\
+    \n\r\
+    \n:local content\r\
+    \n:local IPv4\r\
+    \n:global LastIPv4\r\
+    \n\r\
+    \n# parsing the current IPv4 result\r\
+    \n/ip cloud force-update;\r\
+    \n:delay 7s;\r\
+    \n:set IPv4 [/ip cloud get public-address];\r\
+    \n\r\
+    \n\r\
+    \n:if ((\$LastIPv4 != \$IPv4) || (\$force = true)) do={\r\
+    \n\r\
+    \n    :set state \"External IP changed: current - (\$IPv4), last - (\$LastIPv4)\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    /ip firewall address-list remove [find list~\"alist-nat-external-ip\"];\r\
+    \n    /ip firewall address-list add list=\"alist-nat-external-ip\" address=\$IPv4;\r\
     \n   \r\
-    \n   :log info \"Address list updated: Static DNS of ftpserver.org\";\
-    \n   /ip dns static add name=ftpserver.org address=\$IPv4;\
-    \n \
-    \n   :set LastIPv4 \$IPv4;\
-    \n    \
-    \n} else={\
-    \n   :put \"EXTERNAL IP: no update needed!\"\
-    \n   :log info \"EXTERNAL IP: no update needed!\"\
-    \n}\
-    \n\
+    \n    /ip dns static remove [/ip dns static find name=ftpserver.org];\r\
+    \n    /ip dns static add name=ftpserver.org address=\$IPv4;\r\
+    \n \r\
+    \n    :set LastIPv4 \$IPv4;\r\
+    \n \r\
+    \n    :local count [:len [/system script find name=\"doSuperviseCHRviaSSH\"]];\r\
+    \n    :if (\$count > 0) do={\r\
+    \n       \r\
+    \n        :set state \"Refreshing VPN server (CHR) IPSEC policies\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /system script run doSuperviseCHRviaSSH;\r\
+    \n    \r\
+    \n     }\r\
+    \n   \r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: external IP address change detected, refreshed\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
+    \n}\r\
+    \n\r\
+    \n\r\
     \n"
 /system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=no name=doCoolConcole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -592,340 +621,407 @@ set caps-man-addresses=192.168.99.1 certificate=livingroomwap.capsman.2021@CHR d
     \n\r\
     \n}\r\
     \n"
-/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n\
-    \n:global globalNoteMe;\
-    \n:if (!any \$globalNoteMe) do={\
-    \n\
-    \n  :global globalNoteMe do={\
-    \n\
-    \n  ## outputs \$value using both :put and :log info\
-    \n  ## example \$outputInfo value=\"12345\"\
-    \n\
-    \n  :put \"info: \$value\"\
-    \n  :log info \"\$value\"\
-    \n\
-    \n  }\
-    \n}\
-    \n\
-    \n\
-    \n:global globalScriptBeforeRun;\
-    \n:if (!any \$globalScriptBeforeRun) do={\
-    \n  :global globalScriptBeforeRun do={\
-    \n\
-    \n    :global globalNoteMe;\
-    \n    :if ([:len \$1] > 0) do={\
-    \n\
-    \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\
-    \n      :local scriptname \"\$1\";\
-    \n      :local count [:len [/system script job find script=\$scriptname]];\
-    \n\
-    \n      :if (\$count > 0) do={\
-    \n\
-    \n        :foreach counter in=[/system script job find script=\$scriptname] do={\
-    \n         #But ignoring scripts started right NOW\
-    \n\
-    \n         :local thisScriptCallTime  [/system script job get \$counter started];\
-    \n         :if (\$currentTime != \$thisScriptCallTime) do={\
-    \n\
-    \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n            /system script job remove \$counter;\
-    \n\
-    \n          }\
-    \n        }\
-    \n      }\
-    \n\
-    \n      :local state \"Starting script: \$scriptname\";\
-    \n      \$globalNoteMe value=\$state;\
-    \n\
-    \n    }\
-    \n  }\
-    \n}\
-    \n\
-    \n:global globalTgMessage;\
-    \n:if (!any \$globalTgMessage) do={\
-    \n  :global globalTgMessage do={\
-    \n\
-    \n    :global globalNoteMe;\
-    \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
-    \n    :local tGroupID \"-343674739\";\
-    \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
-    \n\
-    \n    :local state (\"Sending telegram message... \$value\");\
-    \n    \$globalNoteMe value=\$state;\
-    \n\
-    \n    :do {\
-    \n      /tool fetch http-method=post mode=https url=\"\$tURL\" http-data=\"text=\$value\" keep-result=no;\
-    \n    } on-error= {\
-    \n      :local state (\"Telegram notify error\");\
-    \n      \$globalNoteMe value=\$state;\
-    \n    };\
-    \n  }\
-    \n}\
-    \n\
-    \n:global globalIPSECPolicyUpdateViaSSH;\
-    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={\
-    \n  :global globalIPSECPolicyUpdateViaSSH do={\
-    \n\
-    \n    :global globalRemoteIp;\
-    \n    :global globalNoteMe;\
-    \n\
-    \n    :if ([:len \$1] > 0) do={\
-    \n      :global globalRemoteIp (\"\$1\" . \"/32\");\
-    \n    }\
-    \n\
-    \n    :if (!any \$globalRemoteIp) do={\
-    \n      :global globalRemoteIp \"0.0.0.0/32\"\
-    \n    } else={\
-    \n    }\
-    \n\
-    \n    :local state (\"RPC... \$value\");\
-    \n    \$globalNoteMe value=\$state;\
-    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\
-    \n    :if (\$count > 0) do={\
-    \n       :local state (\"Starting policies process... \$globalRemoteIp \");\
-    \n       \$globalNoteMe value=\$state;\
-    \n       /system script run doUpdatePoliciesRemotely;\
-    \n     }\
-    \n  }\
-    \n}\
-    \n\
-    \n#Example call\
-    \n#\$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid=\"WiFi 5\"\
-    \n:global globalNewNetworkMember;\
-    \n:if (!any \$globalNewNetworkMember) do={\
-    \n  :global globalNewNetworkMember do={\
-    \n\
-    \n    :global globalNoteMe;\
-    \n\
-    \n    #to prevent connection\
-    \n    :local guestDHCP \"guest dhcp\";\
-    \n\
-    \n    #to allow connection\
-    \n    :local mainDHCP \"main dhcp\";\
-    \n\
-    \n    #when DHCP not using (add arp for leases)\
-    \n    :local arpInterface \"main infrastructure\";\
-    \n    :local state (\"Adding new network member... \");\
-    \n\
-    \n    \$globalNoteMe value=\$state;\
-    \n\
-    \n    # incoming named params\
-    \n    :local newIp [ :tostr \$ip ];\
-    \n    :local newBlockedIp [ :tostr \$gip ];\
-    \n    :local newMac [ :tostr \$mac ];\
-    \n    :local comment [ :tostr \$comm ];\
-    \n    :local ssid [ :tostr \$ssid ];\
-    \n    :if ([:len \$newIp] > 0) do={\
-    \n        :if ([ :typeof [ :toip \$newIp ] ] != \"ip\" ) do={\
-    \n\
-    \n            :local state (\"Error: bad IP parameter passed - (\$newIp)\");\
-    \n            \$globalNoteMe value=\$state;\
-    \n            :return false;\
-    \n\
-    \n        }\
-    \n    } else={\
-    \n\
-    \n        :local state (\"Error: bad IP parameter passed - (\$newIp)\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :do {\
-    \n\
-    \n        /ip dhcp-server lease remove [find address=\$newIp];\
-    \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\
-    \n\
-    \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\
-    \n\
-    \n    } on-error={\
-    \n\
-    \n        :local state (\"Error: something fail on DHCP configuration 'allow' step for (\$newIp/\$newMac) on \$mainDHCP\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :do {\
-    \n\
-    \n        /ip dhcp-server lease remove [find address=\$newBlockedIp];\
-    \n        :local state (\"Adding DHCP configuration for (\$newBlockedIp/\$newMac) on \$guestDHCP (preventing connections to guest network)\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\
-    \n\
-    \n    } on-error={\
-    \n\
-    \n        :local state (\"Error: something fail on DHCP configuration 'block' step for (\$newBlockedIp/\$newMac) on \$guestDHCP\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :do {\
-    \n\
-    \n        /ip arp remove [find address=\$newIp];\
-    \n        /ip arp remove [find address=\$newBlockedIp];\
-    \n        /ip arp remove [find mac-address=\$newMac];\
-    \n        /ip arp add address=\$newIp interface=\$arpInterface mac-address=\$newMac comment=\$comment\
-    \n\
-    \n    } on-error={\
-    \n\
-    \n        :local state (\"Error: something fail on ARP configuration step\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :do {\
-    \n\
-    \n        /caps-man access-list remove [find mac-address=\$newMac];\
-    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\$ssid place-before=1\
-    \n\
-    \n    } on-error={\
-    \n\
-    \n        :local state (\"Error: something fail on CAPS configuration step\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :return true;\
-    \n\
-    \n  }\
-    \n}\
-    \n\
-    \n\
-    \n\
-    \n#Example call\
-    \n#\$globalNewClientCert argClients=\"alx.iphone.rw.2021, alx.mini.rw.2021\" argUsage=\"tls-client,digital-signature,key-encipherment\"\
-    \n:if (!any \$globalNewClientCert) do={\
-    \n  :global globalNewClientCert do={\
-    \n\
-    \n    # generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\
-    \n    # This script is a SCEP-client, it request the server to provide a new certificate\
-    \n    # it ONLY form the request via API to remote SCEP server\
-    \n\
-    \n    # incoming named params\
-    \n    :local clients [ :tostr \$argClients ];\
-    \n    :local prefs  [ :tostr \$argUsage ];\
-    \n\
-    \n    # scope global functions\
-    \n    :global globalNoteMe;\
-    \n    :global globalScriptBeforeRun;\
-    \n\
-    \n    :if ([:len \$clients] > 0) do={\
-    \n      :if ([ :typeof [ :tostr \$clients ] ] != \"str\" ) do={\
-    \n\
-    \n          :local state (\"Error: bad 'cients' parameter passed - (\$clients)\");\
-    \n          \$globalNoteMe value=\$state;\
-    \n          :return false;\
-    \n\
-    \n      }\
-    \n    } else={\
-    \n\
-    \n        :local state (\"Error: bad 'cients' parameter passed - (\$clients\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n\
-    \n    :do {\
-    \n\
-    \n      #clients\
-    \n      :local IDs [:toarray \"\$clients\"];\
-    \n      :local fakeDomain \"myvpn.fake.org\"\
-    \n      :local scepAlias \"CHR\"\
-    \n      :local sysver [/system package get system version]\
-    \n      :local state (\"Started requests generation\");\
-    \n\
-    \n      \$globalNoteMe value=\$state;\
-    \n\
-    \n      ## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\
-    \n      :local COUNTRY \"RU\"\
-    \n      :local STATE \"MSC\"\
-    \n      :local LOC \"Moscow\"\
-    \n      :local ORG \"IKEv2 Home\"\
-    \n      :local OU \"IKEv2 Mikrotik\"\
-    \n\
-    \n      # :local COUNTRY \"\"\
-    \n      # :local STATE \"\"\
-    \n      # :local LOC \"\"\
-    \n      # :local ORG \"\"\
-    \n      # :local OU \"\"\
-    \n\
-    \n\
-    \n      :local KEYSIZE \"2048\"\
-    \n      :local USERNAME \"mikrouter\"\
-    \n\
-    \n      :local scepUrl \"http://185.13.148.14/scep/grant\";\
-    \n      :local itsOk true;\
-    \n\
-    \n      :foreach USERNAME in=\$IDs do={\
-    \n\
-    \n        :local state \"CLIENT TEMPLATE certificates generation...  \$USERNAME\";\
-    \n\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n        ## create a client certificate (that will be just a template while not signed)\
-    \n\
-    \n        /certificate add name=\"\$USERNAME@\$scepAlias\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\
-    \n\
-    \n\
-    \n        :local state \"Pushing sign request...\";\
-    \n        \$globalNoteMe value=\$state;\
-    \n        /certificate add-scep template=\"\$USERNAME@\$scepAlias\" scep-url=\"\$scepUrl\";\
-    \n\
-    \n        :delay 6s\
-    \n\
-    \n        ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate\
-    \n        :local state \"We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... \";\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n        :local state \"Proceed to remote SCEP please, find this request and appove it. I'll wait 30 seconds\";\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n        :delay 30s\
-    \n\
-    \n        :local baseLength 5;\
-    \n        :for j from=1 to=\$baseLength do={\
-    \n          :if ([ :len [ /certificate find where status=\"idle\" name=\"\$USERNAME@\$scepAlias\" ] ] > 0) do={\
-    \n\
-    \n            :local state \"Got it at last. Exporting to file\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n            /certificate set trusted=yes \"\$USERNAME@\$scepAlias\"\
-    \n\
-    \n            ## export the CA, client certificate, and private key\
-    \n            /certificate export-certificate \"\$USERNAME@\$scepAlias\" export-passphrase=\"1234567890\" type=pkcs12\
-    \n\
-    \n            :return true;\
-    \n\
-    \n          } else={\
-    \n\
-    \n            :local state \"Waiting for mikrotik to download the certificate...\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n            :delay 8s\
-    \n\
-    \n          };\
-    \n        }\
-    \n      };\
-    \n\
-    \n      :return false;\
-    \n\
-    \n    } on-error={\
-    \n\
-    \n        :local state (\"Error: something fail on SCEP certifcates issuing step\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :return false;\
-    \n\
-    \n    }\
-    \n  }\
-    \n}\
-    \n\
+/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:if (!any \$globalNoteMe) do={\r\
+    \n\r\
+    \n  :global globalNoteMe do={\r\
+    \n\r\
+    \n  ## outputs \$value using both :put and :log info\r\
+    \n  ## example \$outputInfo value=\"12345\"\r\
+    \n\r\
+    \n  :put \"info: \$value\"\r\
+    \n  :log info \"\$value\"\r\
+    \n\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n:if (!any \$globalScriptBeforeRun) do={\r\
+    \n  :global globalScriptBeforeRun do={\r\
+    \n\r\
+    \n    :global globalNoteMe;\r\
+    \n    :if ([:len \$1] > 0) do={\r\
+    \n\r\
+    \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\r\
+    \n      :local scriptname \"\$1\";\r\
+    \n      :local count [:len [/system script job find script=\$scriptname]];\r\
+    \n\r\
+    \n      :if (\$count > 0) do={\r\
+    \n\r\
+    \n        :foreach counter in=[/system script job find script=\$scriptname] do={\r\
+    \n         #But ignoring scripts started right NOW\r\
+    \n\r\
+    \n         :local thisScriptCallTime  [/system script job get \$counter started];\r\
+    \n         :if (\$currentTime != \$thisScriptCallTime) do={\r\
+    \n\r\
+    \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            /system script job remove \$counter;\r\
+    \n\r\
+    \n          }\r\
+    \n        }\r\
+    \n      }\r\
+    \n\r\
+    \n      :local state \"Starting script: \$scriptname\";\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n:if (!any \$globalTgMessage) do={\r\
+    \n  :global globalTgMessage do={\r\
+    \n\r\
+    \n    :global globalNoteMe;\r\
+    \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\r\
+    \n    :local tGroupID \"-343674739\";\r\
+    \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\r\
+    \n\r\
+    \n    :local state (\"Sending telegram message... \$value\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    :do {\r\
+    \n      /tool fetch http-method=post mode=https url=\"\$tURL\" http-data=\"text=\$value\" keep-result=no;\r\
+    \n    } on-error= {\r\
+    \n      :local state (\"Telegram notify error\");\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n    };\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:global globalIPSECPolicyUpdateViaSSH;\r\
+    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={\r\
+    \n  :global globalIPSECPolicyUpdateViaSSH do={\r\
+    \n\r\
+    \n    :global globalRemoteIp;\r\
+    \n    :global globalNoteMe;\r\
+    \n\r\
+    \n    :if ([:len \$1] > 0) do={\r\
+    \n      :global globalRemoteIp (\"\$1\" . \"/32\");\r\
+    \n    }\r\
+    \n\r\
+    \n    :if (!any \$globalRemoteIp) do={\r\
+    \n      :global globalRemoteIp \"0.0.0.0/32\"\r\
+    \n    } else={\r\
+    \n    }\r\
+    \n\r\
+    \n    :local state (\"RPC... \$value\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\r\
+    \n    :if (\$count > 0) do={\r\
+    \n       :local state (\"Starting policies process... \$globalRemoteIp \");\r\
+    \n       \$globalNoteMe value=\$state;\r\
+    \n       /system script run doUpdatePoliciesRemotely;\r\
+    \n     }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n#Example call\r\
+    \n#\$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid=\"WiFi 5\"\r\
+    \n:global globalNewNetworkMember;\r\
+    \n:if (!any \$globalNewNetworkMember) do={\r\
+    \n  :global globalNewNetworkMember do={\r\
+    \n\r\
+    \n    :global globalNoteMe;\r\
+    \n\r\
+    \n    #to prevent connection\r\
+    \n    :local guestDHCP \"guest-dhcp-server\";\r\
+    \n\r\
+    \n    #to allow connection\r\
+    \n    :local mainDHCP \"main-dhcp-server\";\r\
+    \n\r\
+    \n    #when DHCP not using (add arp for leases)\r\
+    \n    :local arpInterface \"main-infrastructure\";\r\
+    \n    :local state (\"Adding new network member... \");\r\
+    \n\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    # incoming named params\r\
+    \n    :local newIp [ :tostr \$ip ];\r\
+    \n    :local newBlockedIp [ :tostr \$gip ];\r\
+    \n    :local newMac [ :tostr \$mac ];\r\
+    \n    :local comment [ :tostr \$comm ];\r\
+    \n    :local ssid [ :tostr \$ssid ];\r\
+    \n    :if ([:len \$newIp] > 0) do={\r\
+    \n        :if ([ :typeof [ :toip \$newIp ] ] != \"ip\" ) do={\r\
+    \n\r\
+    \n            :local state (\"Error: bad IP parameter passed - (\$newIp)\");\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            :return false;\r\
+    \n\r\
+    \n        }\r\
+    \n    } else={\r\
+    \n\r\
+    \n        :local state (\"Error: bad IP parameter passed - (\$newIp)\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        :local state (\"Removing existing DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;       /ip dhcp-server lease remove [find address=\$newIp];\r\
+    \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\r\
+    \n\r\
+    \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n\r\
+    \n        :local state (\"Error: something fail on DHCP configuration 'allow' step for (\$newIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        /ip dhcp-server lease remove [find address=\$newBlockedIp];\r\
+    \n        :local state (\"Adding DHCP configuration for (\$newBlockedIp/\$newMac) on \$guestDHCP (preventing connections to guest network)\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n\r\
+    \n        :local state (\"Error: something fail on DHCP configuration 'block' step for (\$newBlockedIp/\$newMac) on \$guestDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        :local state (\"Adding ARP static entries for (\$newBlockedIp/\$newMac) on \$mainDHCP\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /ip arp remove [find address=\$newIp];\r\
+    \n        /ip arp remove [find address=\$newBlockedIp];\r\
+    \n        /ip arp remove [find mac-address=\$newMac];\r\
+    \n        /ip arp add address=\$newIp interface=\$arpInterface mac-address=\$newMac comment=\$comment\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n\r\
+    \n        :local state (\"Error: something fail on ARP configuration step\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n        :local state (\"Adding CAPs ACL static entries for (\$newBlockedIp/\$newMac)\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /caps-man access-list remove [find mac-address=\$newMac];\r\
+    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\$ssid place-before=1\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n\r\
+    \n        :local state (\"Error: something fail on CAPS configuration step\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :return true;\r\
+    \n\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n\r\
+    \n#Example call\r\
+    \n#\$globalNewClientCert argClients=\"alx.iphone.rw.2021, alx.mini.rw.2021\" argUsage=\"tls-client,digital-signature,key-encipherment\"\r\
+    \n#\$globalNewClientCert argClients=\"182.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\"\r\
+    \n:if (!any \$globalNewClientCert) do={\r\
+    \n  :global globalNewClientCert do={\r\
+    \n\r\
+    \n    # generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\r\
+    \n    # This script is a SCEP-client, it request the server to provide a new certificate\r\
+    \n    # it ONLY form the request via API to remote SCEP server\r\
+    \n\r\
+    \n    # incoming named params\r\
+    \n    :local clients [ :tostr \$argClients ];\r\
+    \n    :local prefs  [ :tostr \$argUsage ];\r\
+    \n    :local asIp  \$argBindAsIP ;\r\
+    \n\r\
+    \n    # scope global functions\r\
+    \n    :global globalNoteMe;\r\
+    \n    :global globalScriptBeforeRun;\r\
+    \n\r\
+    \n    :if ([:len \$clients] > 0) do={\r\
+    \n      :if ([ :typeof [ :tostr \$clients ] ] != \"str\" ) do={\r\
+    \n\r\
+    \n          :local state (\"Error: bad 'cients' parameter passed - (\$clients)\");\r\
+    \n          \$globalNoteMe value=\$state;\r\
+    \n          :return false;\r\
+    \n\r\
+    \n      }\r\
+    \n    } else={\r\
+    \n\r\
+    \n        :local state (\"Error: bad 'cients' parameter passed - (\$clients\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n\r\
+    \n    :do {\r\
+    \n\r\
+    \n      #clients\r\
+    \n      :local IDs [:toarray \"\$clients\"];\r\
+    \n      :local fakeDomain \"myvpn.fake.org\"\r\
+    \n      :local scepAlias \"CHR\"\r\
+    \n      :local sysver [/system package get system version]\r\
+    \n      :local state (\"Started requests generation\");\r\
+    \n\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n      ## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
+    \n      :local COUNTRY \"RU\"\r\
+    \n      :local STATE \"MSC\"\r\
+    \n      :local LOC \"Moscow\"\r\
+    \n      :local ORG \"IKEv2 Home\"\r\
+    \n      :local OU \"IKEv2 Mikrotik\"\r\
+    \n\r\
+    \n      # :local COUNTRY \"\"\r\
+    \n      # :local STATE \"\"\r\
+    \n      # :local LOC \"\"\r\
+    \n      # :local ORG \"\"\r\
+    \n      # :local OU \"\"\r\
+    \n\r\
+    \n\r\
+    \n      :local KEYSIZE \"2048\"\r\
+    \n      :local USERNAME \"mikrouter\"\r\
+    \n\r\
+    \n      :local scepUrl \"http://185.13.148.14/scep/grant\";\r\
+    \n      :local itsOk true;\r\
+    \n\r\
+    \n      :local tname \"\";\r\
+    \n      :foreach USERNAME in=\$IDs do={\r\
+    \n\r\
+    \n        ## create a client certificate (that will be just a template while not signed)\r\
+    \n        :if (  [:len \$asIp ] > 0 ) do={\r\
+    \n\r\
+    \n                :local state \"CLIENT TEMPLATE certificates generation as IP...  \$USERNAME\";\r\
+    \n                \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n                :set tname \"S.\$USERNAME@\$scepAlias\";\r\
+    \n\r\
+    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\r\
+    \n\r\
+    \n            } else={\r\
+    \n\r\
+    \n                :local state \"CLIENT TEMPLATE certificates generation as EMAIL...  \$USERNAME\";\r\
+    \n                \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n                :set tname \"C.\$USERNAME@\$scepAlias\";\r\
+    \n\r\
+    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\r\
+    \n\r\
+    \n            }\r\
+    \n\r\
+    \n        :local state \"Pushing sign request...\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /certificate add-scep template=\"\$tname\" scep-url=\"\$scepUrl\";\r\
+    \n\r\
+    \n        :delay 6s\r\
+    \n\r\
+    \n        ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate\r\
+    \n        :local state \"We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... \";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :local state \"Proceed to remote SCEP please, find this request and appove it. I'll wait 30 seconds\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :delay 30s\r\
+    \n\r\
+    \n        :local baseLength 5;\r\
+    \n        :for j from=1 to=\$baseLength do={\r\
+    \n          :if ([ :len [ /certificate find where status=\"idle\" name=\"\$tname\" ] ] > 0) do={\r\
+    \n\r\
+    \n            :local state \"Got it at last. Exporting to file\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            /certificate set trusted=yes \"\$tname\"\r\
+    \n\r\
+    \n            ## export the CA, client certificate, and private key\r\
+    \n            /certificate export-certificate \"\$tname\" export-passphrase=\"1234567890\" type=pkcs12\r\
+    \n\r\
+    \n            :return true;\r\
+    \n\r\
+    \n          } else={\r\
+    \n\r\
+    \n            :local state \"Waiting for mikrotik to download the certificate...\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            :delay 8s\r\
+    \n\r\
+    \n          };\r\
+    \n        }\r\
+    \n      };\r\
+    \n\r\
+    \n      :return false;\r\
+    \n\r\
+    \n    } on-error={\r\
+    \n\r\
+    \n        :local state (\"Error: something fail on SCEP certifcates issuing step\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :return false;\r\
+    \n\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n\r\
+    \n:if (!any \$globalCallFetch) do={\r\
+    \n  :global globalCallFetch do={\r\
+    \n\r\
+    \n    # this one calls Fetch and catches its errors\r\
+    \n    :global globalNoteMe;\r\
+    \n    :if ([:len \$1] > 0) do={\r\
+    \n\r\
+    \n        # something like \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\r\
+    \n        :local fetchCmd \"\$1\";\r\
+    \n\r\
+    \n        :local state \"I'm now putting: \$fetchCmd\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        /file remove [find where name=\"fetch.log.txt\"]\r\
+    \n        {\r\
+    \n            :local jobid [:execute file=fetch.log.txt script=\$fetchCmd]\r\
+    \n\r\
+    \n            :local state \"Waiting the end of process for file fetch.log to be ready, max 20 seconds...\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :global Gltesec 0\r\
+    \n            :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 20)) do={\r\
+    \n                :set Gltesec (\$Gltesec + 1)\r\
+    \n                :delay 1s\r\
+    \n\r\
+    \n                :local state \"waiting... \$Gltesec\";\r\
+    \n                \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            }\r\
+    \n\r\
+    \n            :local state \"Done. Elapsed Seconds: \$Gltesec\\r\\n\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :if ([:len [/file find where name=\"fetch.log.txt\"]] = 1) do={\r\
+    \n                :local filecontent [/file get [/file find where name=\"fetch.log.txt\"] contents]\r\
+    \n                :put \"Result of Fetch:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\"\r\
+    \n            } else={\r\
+    \n                :put \"File not created.\"\r\
+    \n            }\r\
+    \n        }\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
     \n"
 /system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\
@@ -1121,11 +1217,11 @@ set caps-man-addresses=192.168.99.1 certificate=livingroomwap.capsman.2021@CHR d
     \n\r\
     \n:local extWANip \"\";\r\
     \n\r\
-    \n:if ( [/ip firewall address-list find list~\"external-ip\" ] = \"\") do={\r\
+    \n:if ( [/ip firewall address-list find list~\"alist-nat-external-ip\" ] = \"\") do={\r\
     \n        :put \"reserve password generator Script: cant fine ext wan ip address\"\r\
     \n        :log warning \"reserve password generator Script: cant find ext wan ip address\"\r\
     \n        } else={\r\
-    \n            :foreach j in=[/ip firewall address-list find list~\"external-ip\"] do={\r\
+    \n            :foreach j in=[/ip firewall address-list find list~\"alist-nat-external-ip\"] do={\r\
     \n\t\t:set extWANip (\$extWANip  . [/ip firewall address-list get \$j address])\r\
     \n            }\r\
     \n        }\r\
@@ -1177,7 +1273,7 @@ set caps-man-addresses=192.168.99.1 certificate=livingroomwap.capsman.2021@CHR d
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -1427,3 +1523,7 @@ set caps-man-addresses=192.168.99.1 certificate=livingroomwap.capsman.2021@CHR d
     \n"
 /tool bandwidth-server set authenticate=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
+#error exporting /tool user-manager database
+#error exporting /tool user-manager profile profile-limitation
+#error exporting /tool user-manager router
+#error exporting /tool user-manager user
