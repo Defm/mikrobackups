@@ -37,11 +37,18 @@ $doStartBeep
   #IPSEC certs have to be imported before the other config is restored
   #Its should be kept on flash memory to get alive after /system reset-configuration
 
-  /certificate import file-name=flash/ca@CHR.p12 passphrase=1234567890
-  /certificate set [find common-name=ca@CHR] name=ca@CHR
-  /certificate import file-name=flash/anna@CHR.p12 passphrase=1234567890
-  /certificate set [find common-name=anna@CHR] name=anna@CHR
-
+  :local scriptName "flash/ca@CHR.p12"
+
+  :if ([:len [/file find name=$scriptName]] > 0) do={
+  /certificate import file-name=$scriptName passphrase=1234567890
+  /certificate set [find common-name=ca@CHR] name=ca@CHR
+  }
+  
+  :local scriptName "flash/mikrouter@CHR.p12"
+  :if ([:len [/file find name=$scriptName]] > 0) do={
+  /certificate import file-name=$scriptName passphrase=1234567890
+  /certificate set [find common-name=mikrouter@CHR] name=mikrouter@CHR
+  }
   :local write2file ":import file-name=$targetfile verbose=yes"
 
   :execute script=$write2file file=$importlog
