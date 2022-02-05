@@ -1,4 +1,4 @@
-# jan/26/2022 21:00:02 by RouterOS 6.48.4
+# feb/05/2022 21:00:02 by RouterOS 6.48.4
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -32,9 +32,7 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /system logging action add memory-lines=1 name=ParseMemoryLog target=memory
 /system logging action add name=CAPSOnScreenLog target=memory
 /system logging action add name=FirewallOnScreenLog target=memory
-#error exporting /tool user-manager customer
-#error exporting /tool user-manager profile
-#error exporting /tool user-manager profile limitation
+/tool user-manager customer set admin access=own-routers,own-users,own-profiles,own-limits,config-payment-gw
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
@@ -50,9 +48,9 @@ set caps-man-addresses=192.168.90.1 certificate=livingroomwap.capsman.2021@CHR d
 /ip cloud set ddns-enabled=yes
 /ip dhcp-client add dhcp-options=hostname,clientid,classid disabled=no interface="main infrastructure"
 /ip dns set cache-max-ttl=1d query-server-timeout=3s
-/ip dns static add address=109.252.162.10 name=ftpserver.org
+/ip dns static add address=109.252.144.247 name=ftpserver.org
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=109.252.162.10 list=alist-nat-external-ip
+/ip firewall address-list add address=109.252.144.247 list=alist-nat-external-ip
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set irc disabled=yes
 /ip firewall service-port set h323 disabled=yes
@@ -100,8 +98,8 @@ set caps-man-addresses=192.168.90.1 certificate=livingroomwap.capsman.2021@CHR d
 /system logging add action=ParseMemoryLog topics=info,system,!script
 /system note set note="You are logged into: LivingRoomWAP\
     \n############### system health ###############\
-    \nUptime:  00:00:25 d:h:m:s | CPU: 5%\
-    \nRAM: 28252/65536M | Voltage: 22 v | Temp: 54c\
+    \nUptime:  00:00:25 d:h:m:s | CPU: 91%\
+    \nRAM: 27552/65536M | Voltage: 22 v | Temp: 56c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n" show-at-login=no
@@ -1523,7 +1521,4 @@ set caps-man-addresses=192.168.90.1 certificate=livingroomwap.capsman.2021@CHR d
     \n"
 /tool bandwidth-server set authenticate=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
-#error exporting /tool user-manager database
-#error exporting /tool user-manager profile profile-limitation
-#error exporting /tool user-manager router
-#error exporting /tool user-manager user
+/tool user-manager database set db-path=flash/user-manager

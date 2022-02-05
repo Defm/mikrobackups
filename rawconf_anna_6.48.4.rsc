@@ -1,4 +1,4 @@
-# jan/26/2022 21:00:03 by RouterOS 6.48.4
+# feb/05/2022 21:00:02 by RouterOS 6.48.4
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
@@ -99,7 +99,7 @@
     \n\r\
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
 /ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
-/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
+/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
 /queue simple add comment=dtq,54:2B:8D:77:38:A0, name="iPhoneAlxr(blocked)@guest-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.90.150/32 total-queue=default
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
@@ -232,31 +232,34 @@
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dhcp-server vendor-class-id add address-pool=pool-vendor name=vendor-mikrotik-caps server=main-dhcp-server vid=mikrotik-cap
-/ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=192.168.90.1 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
+/ip dns set allow-remote-requests=yes cache-max-ttl=1d query-server-timeout=3s servers=8.8.8.8
 /ip dns static add address=192.168.90.1 name=anna.home
-/ip dns static add address=10.0.0.3 name=anna.home
-/ip dns static add address=192.168.90.1 name=anna
+/ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 name=time.windows.com
-/ip dns static add address=172.16.0.17 name=influxdb
+/ip dns static add cname=influxdb.home name=influxdb type=CNAME
 /ip dns static add address=172.16.0.17 name=influxdb.home
 /ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
-/ip dns static add address=172.16.0.16 name=grafana
+/ip dns static add cname=grafana.home name=grafana type=CNAME
 /ip dns static add address=172.16.0.16 name=grafana.home
 /ip dns static add cname=minialx.home name=grafanasvc.home type=CNAME
 /ip dns static add address=192.168.97.1 name=chr.home
-/ip dns static add address=10.0.0.1 name=chr.home
+/ip dns static add address=192.168.99.1 name=mikrouter.home
+/ip dns static add cname=chr.home name=chr type=CNAME
 /ip dns static add address=192.168.100.1 name=gateway.home
-/ip dns static add address=192.168.90.10 comment=<AUTO:DHCP:main-dhcp-server> name=LivingRoomWAP.home ttl=5m
+/ip dns static add address=192.168.90.10 name=LivingRoomWAP.home
+/ip dns static add cname=LivingRoomWAP.home name=LivingRoomWAP type=CNAME
 /ip dns static add address=192.168.90.90 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlx.home ttl=5m
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m
-/ip dns static add address=192.168.90.70 comment=<AUTO:DHCP:main-dhcp-server> name=miniAlx.home ttl=5m
-/ip dns static add address=192.168.90.40 comment=<AUTO:DHCP:main-dhcp-server> name=nas.home ttl=5m
+/ip dns static add address=192.168.90.70 comment=<AUTO:DHCP:main-dhcp-server> name=miniAlx.home
+/ip dns static add address=192.168.90.40 comment=<AUTO:DHCP:main-dhcp-server> name=nas.home
+/ip dns static add cname=nas.home name=nas type=CNAME
 /ip dns static add address=192.168.90.200 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.90.210 comment=<AUTO:DHCP:main-dhcp-server> name=AudioATV.home ttl=5m
 /ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add address=192.168.90.170 comment=<AUTO:DHCP:main-dhcp-server> name=Twinkly79EDD9.home ttl=5m
-/ip dns static add address=109.252.162.10 name=ftpserver.org
+/ip dns static add address=109.252.144.247 name=ftpserver.org
+/ip dns static add cname=mikrouter.home name=mikrouter type=CNAME
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -318,7 +321,7 @@
 /ip firewall address-list add address=hdreactor.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=10.0.0.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=185.13.148.14 comment="Add DNS Server to this List" list=alist-fw-dns-allow
-/ip firewall address-list add address=109.252.162.10 list=alist-nat-external-ip
+/ip firewall address-list add address=109.252.144.247 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -553,45 +556,47 @@
 /ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new in-interface="wan A" log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
 /ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log-prefix="#DROP UNKNOWN (FWD)"
 /ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log-prefix="#DROP UNKNOWN (INPUT)"
-/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
-/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
-/ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1360 passthrough=yes protocol=tcp src-address-list=alist-fw-vpn-subnets tcp-flags=syn tcp-mss=1361-65535
-/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=alist-mangle-vpn-tunneled-sites new-connection-mark=cmark-tunnel-connection passthrough=yes
-/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new dst-address-list=alist-fw-telegram-servers new-connection-mark=cmark-tunnel-connection passthrough=yes
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY
-/ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark layer7-protocol=7Z new-connection-mark=conn-7z-download passthrough=yes
-/ip firewall mangle add action=mark-packet chain=prerouting comment=7z connection-mark=conn-7z-download layer7-protocol=7Z log-prefix=~~~DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-connection chain=prerouting comment="EXE DL CONN mark" connection-mark=no-mark layer7-protocol=EXE new-connection-mark=conn-exe-download passthrough=yes
-/ip firewall mangle add action=mark-packet chain=prerouting comment=exe connection-mark=conn-exe-download layer7-protocol=EXE log-prefix=~~~DL_exe new-packet-mark=exe-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-connection chain=prerouting comment="RAR DL CONN mark" connection-mark=no-mark layer7-protocol=RAR new-connection-mark=conn-rar-download passthrough=yes
-/ip firewall mangle add action=mark-packet chain=prerouting comment=rar connection-mark=conn-rar-download layer7-protocol=RAR log-prefix=~~~DL_rar new-packet-mark=rar-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=mark-connection chain=prerouting comment="ZIP DL CONN mark" connection-mark=no-mark layer7-protocol=ZIP new-connection-mark=conn-zip-download passthrough=yes
-/ip firewall mangle add action=mark-packet chain=prerouting comment=zip connection-mark=conn-zip-download layer7-protocol=ZIP log-prefix=~~~DL_zip new-packet-mark=zip-mark passthrough=yes protocol=tcp
-/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:63
-/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:127
-/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 log-prefix="#DNS Req" protocol=udp
-/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 protocol=tcp
-/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to GRAFANA (map to port 3000, local only)" dst-address-list=alist-nat-grafana-server dst-port=80 in-interface=main-infrastructure-br log=yes log-prefix="~~~GRAFANA REDIRECT" protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.70 to-ports=3000
-/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to GRAFANA  (local only)" dst-address-list=alist-nat-grafana-service dst-port=3000 log=yes log-prefix="~~~ GRAFANA BACK" out-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets
-/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to INFLUXDB (map to port 8000, local only)" dst-address-list=alist-nat-influxdb-server log=yes log-prefix=~~~INFLUX src-address-list=alist-nat-local-subnets to-addresses=192.168.90.40
-/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to INFLUXDB  (local only)" dst-address-list=alist-nat-influxdb-service log=yes log-prefix="~~~~~~~~INFLUX BACK" src-address-list=alist-nat-local-subnets
-/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_NAT src-address-list=alist-nat-local-subnets
-/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix=~~~VPN_NAT
-/ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=alist-nat-local-subnets log-prefix=~~~VPN_NAT src-address-list=alist-fw-vpn-subnets
-/ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface-list=list-l2tp-tunnels
-/ip firewall nat add action=netmap chain=dstnat comment="WINBOX pass through" dst-port=9999 in-interface="wan A" log-prefix=~~~WNBOX protocol=tcp to-addresses=192.168.90.1 to-ports=8291
-/ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=8291 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.1 to-ports=8291
-/ip firewall nat add action=netmap chain=dstnat comment="WEB pass through" dst-port=8888 in-interface="wan A" log-prefix="#WEB EXT CTRL" protocol=tcp to-addresses=192.168.90.1 to-ports=80
-/ip firewall nat add action=dst-nat chain=dstnat comment="WEB NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=80 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.1 to-ports=80
-/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through" dst-port=1111 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.80 to-ports=21
-/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through PASV" dst-port=65000-65050 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.80 to-ports=65000-65050
-/ip firewall nat add action=dst-nat chain=dstnat comment="FTP NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=21 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.80 to-ports=21
-/ip firewall nat add action=netmap chain=dstnat comment="RDP pass through" dst-address-type=local dst-port=3333 in-interface="wan A" log-prefix=~~~RDP protocol=tcp to-addresses=192.168.90.80 to-ports=3389
-/ip firewall nat add action=dst-nat chain=dstnat comment="RDP NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=3389 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.80 to-ports=3389
+/ip firewall mangle add action=change-mss chain=forward disabled=yes new-mss=1360 out-interface="wan A" passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1300-65535
+/ip firewall mangle add action=change-mss chain=forward disabled=yes in-interface="wan A" new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1300-65535
+/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" disabled=yes in-interface=all-ppp new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" disabled=yes new-mss=1360 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" disabled=yes new-mss=1360 passthrough=yes protocol=tcp src-address-list=alist-fw-vpn-subnets tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new disabled=yes dst-address-list=alist-mangle-vpn-tunneled-sites new-connection-mark=cmark-tunnel-connection passthrough=yes
+/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new disabled=yes dst-address-list=alist-fw-telegram-servers new-connection-mark=cmark-tunnel-connection passthrough=yes
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" disabled=yes dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" disabled=yes dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection disabled=yes dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection disabled=yes dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY disabled=yes
+/ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark disabled=yes layer7-protocol=7Z new-connection-mark=conn-7z-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=7z connection-mark=conn-7z-download disabled=yes layer7-protocol=7Z log-prefix=~~~DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-connection chain=prerouting comment="EXE DL CONN mark" connection-mark=no-mark disabled=yes layer7-protocol=EXE new-connection-mark=conn-exe-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=exe connection-mark=conn-exe-download disabled=yes layer7-protocol=EXE log-prefix=~~~DL_exe new-packet-mark=exe-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-connection chain=prerouting comment="RAR DL CONN mark" connection-mark=no-mark disabled=yes layer7-protocol=RAR new-connection-mark=conn-rar-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=rar connection-mark=conn-rar-download disabled=yes layer7-protocol=RAR log-prefix=~~~DL_rar new-packet-mark=rar-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-connection chain=prerouting comment="ZIP DL CONN mark" connection-mark=no-mark disabled=yes layer7-protocol=ZIP new-connection-mark=conn-zip-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=zip connection-mark=conn-zip-download disabled=yes layer7-protocol=ZIP log-prefix=~~~DL_zip new-packet-mark=zip-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" disabled=yes ttl=equal:63
+/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" disabled=yes ttl=equal:127
+/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" disabled=yes dst-port=53 log-prefix="#DNS Req" protocol=udp
+/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" disabled=yes dst-port=53 protocol=tcp
+/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to GRAFANA (map to port 3000, local only)" disabled=yes dst-address-list=alist-nat-grafana-server dst-port=80 in-interface=main-infrastructure-br log=yes log-prefix="~~~GRAFANA REDIRECT" protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.70 to-ports=3000
+/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to GRAFANA  (local only)" disabled=yes dst-address-list=alist-nat-grafana-service dst-port=3000 log=yes log-prefix="~~~ GRAFANA BACK" out-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets
+/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to INFLUXDB (map to port 8000, local only)" disabled=yes dst-address-list=alist-nat-influxdb-server log=yes log-prefix=~~~INFLUX src-address-list=alist-nat-local-subnets to-addresses=192.168.90.40
+/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to INFLUXDB  (local only)" disabled=yes dst-address-list=alist-nat-influxdb-service log=yes log-prefix="~~~~~~~~INFLUX BACK" src-address-list=alist-nat-local-subnets
+/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" disabled=yes dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_NAT src-address-list=alist-nat-local-subnets
+/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" disabled=yes dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix=~~~VPN_NAT
+/ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" disabled=yes dst-address-list=alist-nat-local-subnets log-prefix=~~~VPN_NAT src-address-list=alist-fw-vpn-subnets
+/ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" disabled=yes out-interface-list=list-l2tp-tunnels
+/ip firewall nat add action=netmap chain=dstnat comment="WINBOX pass through" disabled=yes dst-port=9999 in-interface="wan A" log-prefix=~~~WNBOX protocol=tcp to-addresses=192.168.90.1 to-ports=8291
+/ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX NAT loopback" disabled=yes dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=8291 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.1 to-ports=8291
+/ip firewall nat add action=netmap chain=dstnat comment="WEB pass through" disabled=yes dst-port=8888 in-interface="wan A" log-prefix="#WEB EXT CTRL" protocol=tcp to-addresses=192.168.90.1 to-ports=80
+/ip firewall nat add action=dst-nat chain=dstnat comment="WEB NAT loopback" disabled=yes dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=80 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.1 to-ports=80
+/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through" disabled=yes dst-port=1111 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.80 to-ports=21
+/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through PASV" disabled=yes dst-port=65000-65050 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.80 to-ports=65000-65050
+/ip firewall nat add action=dst-nat chain=dstnat comment="FTP NAT loopback" disabled=yes dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=21 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.80 to-ports=21
+/ip firewall nat add action=netmap chain=dstnat comment="RDP pass through" disabled=yes dst-address-type=local dst-port=3333 in-interface="wan A" log-prefix=~~~RDP protocol=tcp to-addresses=192.168.90.80 to-ports=3389
+/ip firewall nat add action=dst-nat chain=dstnat comment="RDP NAT loopback" disabled=yes dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=3389 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.80 to-ports=3389
 /ip firewall nat add action=masquerade chain=srcnat comment="all WAN allowed" dst-address-list=!alist-fw-vpn-subnets out-interface="wan A"
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set irc disabled=yes
@@ -605,7 +610,7 @@
 /ip ipsec identity add auth-method=digital-signature certificate=anna.ipsec.2021@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
 /ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=deny dst-host=grafana redirect-to=192.168.90.180:3000
@@ -663,7 +668,13 @@
 /system logging add action=ParseMemoryLog topics=info,system
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
-/system note set note=123 show-at-login=no
+/system note set note="You are logged into: anna\
+    \n############### system health ###############\
+    \nUptime:  00:00:10 d:h:m:s | CPU: 32%\
+    \nRAM: 60212/1048576M | Voltage: 24 v | Temp: 44c\
+    \n############# user auth details #############\
+    \nHotspot online: 0 | PPP online: 0\
+    \n" show-at-login=no
 /system ntp client set enabled=yes primary-ntp=85.21.78.91 secondary-ntp=46.254.216.9
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jan/30/2017 start-time=18:57:09
@@ -849,6 +860,7 @@
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
+    \n:local payLoad false;\r\
     \n:local state \"\";\r\
     \n\r\
     \n:local content\r\
@@ -873,7 +885,9 @@
     \n    /ip dns static add name=ftpserver.org address=\$IPv4;\r\
     \n \r\
     \n    :set LastIPv4 \$IPv4;\r\
-    \n \r\
+    \n    \r\
+    \n    :set payLoad true; \r\
+    \n\r\
     \n    :local count [:len [/system script find name=\"doSuperviseCHRviaSSH\"]];\r\
     \n    :if (\$count > 0) do={\r\
     \n       \r\
@@ -886,9 +900,15 @@
     \n}\r\
     \n\r\
     \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
+    \n:if (\$itsOk and \$payLoad ) do={\r\
     \n  :set inf \"\$scriptname on \$sysname: external IP address change detected, refreshed\"\r\
     \n}\r\
+    \n\r\
+    \n\r\
+    \n:if (\$itsOk and !\$payLoad ) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: no external IP address update needed\"\r\
+    \n}\r\
+    \n\r\
     \n\r\
     \n:if (!\$itsOk) do={\r\
     \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
