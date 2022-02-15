@@ -1,4 +1,4 @@
-# feb/05/2022 21:00:02 by RouterOS 6.48.4
+# feb/15/2022 21:00:02 by RouterOS 6.48.4
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -98,8 +98,8 @@ set caps-man-addresses=192.168.90.1 certificate=livingroomwap.capsman.2021@CHR d
 /system logging add action=ParseMemoryLog topics=info,system,!script
 /system note set note="You are logged into: LivingRoomWAP\
     \n############### system health ###############\
-    \nUptime:  00:00:25 d:h:m:s | CPU: 91%\
-    \nRAM: 27552/65536M | Voltage: 22 v | Temp: 56c\
+    \nUptime:  00:00:24 d:h:m:s | CPU: 1%\
+    \nRAM: 28088/65536M | Voltage: 22 v | Temp: 56c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n" show-at-login=no
