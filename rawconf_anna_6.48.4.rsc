@@ -1,4 +1,4 @@
-# mar/17/2022 21:00:02 by RouterOS 6.48.4
+# mar/27/2022 21:00:02 by RouterOS 6.48.4
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
@@ -415,7 +415,7 @@
 /ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-ban address-list-timeout=1w3d chain=chain-winbox-staged-control comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage3
 /ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage3 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 3" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage2
 /ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage2 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 2" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage1 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage1 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp src-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=return chain=chain-winbox-staged-control comment="Return From RFC Winbox Chain"
 /ip firewall filter add action=passthrough chain=forward comment=DUMMY5 log-prefix=~~~DUMMY5 src-address-list=alist-fw-empty-dummy
 /ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-ban
@@ -668,8 +668,8 @@
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system note set note="You are logged into: anna\
     \n############### system health ###############\
-    \nUptime:  00:00:12 d:h:m:s | CPU: 20%\
-    \nRAM: 64024/1048576M | Voltage: 24 v | Temp: 45c\
+    \nUptime:  00:00:11 d:h:m:s | CPU: 8%\
+    \nRAM: 64360/1048576M | Voltage: 24 v | Temp: 43c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n" show-at-login=no

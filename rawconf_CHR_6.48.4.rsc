@@ -1,4 +1,4 @@
-# mar/17/2022 21:00:02 by RouterOS 6.48.4
+# mar/27/2022 21:00:02 by RouterOS 6.48.4
 # software id = 
 #
 #
@@ -189,8 +189,8 @@
 /ip firewall mangle add action=mark-connection chain=forward comment="Mark IPsec" ipsec-policy=out,ipsec new-connection-mark=ipsec passthrough=yes
 /ip firewall mangle add action=mark-connection chain=forward comment="Mark IPsec" ipsec-policy=in,ipsec new-connection-mark=ipsec passthrough=yes
 /ip firewall nat add action=dst-nat chain=dstnat dst-port=8888 protocol=tcp to-addresses=192.168.99.1 to-ports=80
-/ip firewall nat add action=dst-nat chain=dstnat comment="FTP pass through" dst-port=2121 protocol=tcp to-addresses=192.168.99.30 to-ports=21
-/ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX pass through" dst-port=9999 protocol=tcp to-addresses=192.168.99.1 to-ports=8291
+/ip firewall nat add action=dst-nat chain=dstnat comment="FTP pass through" dst-port=2121 protocol=tcp to-addresses=192.168.90.40 to-ports=21
+/ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX pass through" dst-port=9999 protocol=tcp to-addresses=192.168.90.1 to-ports=8291
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=mic-network log-prefix=#VPN src-address-list=mis-network
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=mis-network log-prefix=#VPN src-address-list=mic-network
 /ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel-anna
