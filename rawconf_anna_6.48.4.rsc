@@ -1,4 +1,4 @@
-# mar/27/2022 21:00:02 by RouterOS 6.48.4
+# apr/26/2022 21:00:02 by RouterOS 6.48.4
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
@@ -668,8 +668,8 @@
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system note set note="You are logged into: anna\
     \n############### system health ###############\
-    \nUptime:  00:00:11 d:h:m:s | CPU: 8%\
-    \nRAM: 64360/1048576M | Voltage: 24 v | Temp: 43c\
+    \nUptime:  00:00:12 d:h:m:s | CPU: 20%\
+    \nRAM: 65120/1048576M | Voltage: 24 v | Temp: 42c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n" show-at-login=no
