@@ -1,4 +1,4 @@
-# apr/26/2022 21:00:02 by RouterOS 6.48.4
+# may/16/2022 21:00:01 by RouterOS 6.48.4
 # software id = 
 #
 #
@@ -1593,7 +1593,7 @@
     \n\r\
     \n\r\
     \n"
-/tool bandwidth-server set authenticate=no
+#error exporting /tool bandwidth-server
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool netwatch add down-script=":global NetwatchHostName \"mikrouter.home\";\r\
     \n/system script run doNetwatchHost;" host=192.168.99.1 up-script=":global NetwatchHostName \"mikrouter.home\";\r\
