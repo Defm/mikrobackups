@@ -1,4 +1,4 @@
-# may/16/2022 21:00:02 by RouterOS 6.48.4
+# may/26/2022 21:00:02 by RouterOS 6.48.4
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
@@ -116,6 +116,8 @@
 /queue simple add comment=dtq,00:26:5E:5F:1A:8D, name="DurepaDell@main-dhcp-server (00:26:5E:5F:1A:8D)" queue=default/default target=192.168.90.88/32 total-queue=default
 /queue simple add comment=dtq,00:26:5E:5F:1A:8D, name="DurepaDell(blocked)@guest-dhcp-server (00:26:5E:5F:1A:8D)" queue=default/default target=192.168.98.222/32 total-queue=default
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.170/32 total-queue=default
+/queue simple add comment=dtq,EE:02:23:79:80:DB,Galaxy-A21s name="Galaxy-A21s@guest-dhcp-server (EE:02:23:79:80:DB)" queue=default/default target=192.168.98.228/32 total-queue=default
+/queue simple add comment=dtq,B0:34:95:28:F5:15,iPad-Konohov name="iPad-Konohov@guest-dhcp-server (B0:34:95:28:F5:15)" queue=default/default target=192.168.98.227/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
