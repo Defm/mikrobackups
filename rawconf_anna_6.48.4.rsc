@@ -1,9 +1,9 @@
-# may/26/2022 21:00:02 by RouterOS 6.48.4
+# jun/05/2022 21:00:02 by RouterOS 6.48.4
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
 # serial number = D4440C1FE42A
-/caps-man channel add band=2ghz-onlyn control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
+/caps-man channel add band=2ghz-b/g/n control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
 /caps-man channel add band=5ghz-a/n/ac comment="20Mhz + Ce = 40Mhz, reselect interval from 5180, 5220, 5745, 5785 once per 10h" control-channel-width=20mhz extension-channel=Ce frequency=5180,5220,5745,5785 name=common-chnls-5Ghz reselect-interval=10h tx-power=15
 /caps-man configuration add mode=ap name=empty
 /interface bridge add arp=proxy-arp name=guest-infrastructure-br
@@ -116,8 +116,7 @@
 /queue simple add comment=dtq,00:26:5E:5F:1A:8D, name="DurepaDell@main-dhcp-server (00:26:5E:5F:1A:8D)" queue=default/default target=192.168.90.88/32 total-queue=default
 /queue simple add comment=dtq,00:26:5E:5F:1A:8D, name="DurepaDell(blocked)@guest-dhcp-server (00:26:5E:5F:1A:8D)" queue=default/default target=192.168.98.222/32 total-queue=default
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.170/32 total-queue=default
-/queue simple add comment=dtq,EE:02:23:79:80:DB,Galaxy-A21s name="Galaxy-A21s@guest-dhcp-server (EE:02:23:79:80:DB)" queue=default/default target=192.168.98.228/32 total-queue=default
-/queue simple add comment=dtq,B0:34:95:28:F5:15,iPad-Konohov name="iPad-Konohov@guest-dhcp-server (B0:34:95:28:F5:15)" queue=default/default target=192.168.98.227/32 total-queue=default
+/queue simple add comment=dtq,00:27:15:CE:B8:DD,android-411369d57dc52a13 name="android-411369d57dc52a13@guest-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.98.226/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -262,6 +261,8 @@
 /ip dns static add address=192.168.90.170 comment=<AUTO:DHCP:main-dhcp-server> name=Twinkly79EDD9.home ttl=5m
 /ip dns static add cname=mikrouter.home name=mikrouter type=CNAME
 /ip dns static add address=109.252.144.247 name=ftpserver.org
+/ip dns static add address=95.213.159.180 name=atv.qello.com
+/ip dns static add address=95.213.159.180 name=atv.package2.qello.com
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
