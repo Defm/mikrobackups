@@ -1,4 +1,4 @@
-# jun/05/2022 21:00:02 by RouterOS 6.48.4
+# jun/15/2022 21:00:03 by RouterOS 6.48.4
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
@@ -21,8 +21,8 @@
 /interface ethernet set [ find default-name=ether10 ] name="lan I" poe-out=forced-on
 /interface ethernet set [ find default-name=sfp-sfpplus1 ] disabled=yes name=optic
 /interface ethernet set [ find default-name=ether1 ] arp=proxy-arp name="wan A"
-/caps-man datapath add bridge=guest-infrastructure-br name=2CapsMan-guest
-/caps-man datapath add bridge=main-infrastructure-br client-to-client-forwarding=yes name=2CapsMan-private
+/caps-man datapath add arp=proxy-arp bridge=guest-infrastructure-br name=2CapsMan-guest
+/caps-man datapath add arp=reply-only bridge=main-infrastructure-br client-to-client-forwarding=yes name=2CapsMan-private
 /caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps name="5GHz Rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps vht-basic-mcs=mcs0-9 vht-supported-mcs=mcs0-9
 /caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps ht-basic-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 ht-supported-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 name="2GHz rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps
 /caps-man security add authentication-types=wpa2-psk comment="2GHz/5GHz Security" encryption=aes-ccm group-encryption=aes-ccm group-key-update=1h name=private passphrase=mikrotik
@@ -113,10 +113,11 @@
 /queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx (wire)@main-dhcp-server (38:C9:86:51:D2:B3)" queue=default/default target=192.168.90.90/32 total-queue=default
 /queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="NAS@main-dhcp-server (00:11:32:2C:A7:85)" queue=default/default target=192.168.90.40/32 total-queue=default
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8,Twinkly_79EDD9 name="Twinkle@main-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.90.170/32 total-queue=default
-/queue simple add comment=dtq,00:26:5E:5F:1A:8D, name="DurepaDell@main-dhcp-server (00:26:5E:5F:1A:8D)" queue=default/default target=192.168.90.88/32 total-queue=default
-/queue simple add comment=dtq,00:26:5E:5F:1A:8D, name="DurepaDell(blocked)@guest-dhcp-server (00:26:5E:5F:1A:8D)" queue=default/default target=192.168.98.222/32 total-queue=default
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.170/32 total-queue=default
-/queue simple add comment=dtq,00:27:15:CE:B8:DD,android-411369d57dc52a13 name="android-411369d57dc52a13@guest-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.98.226/32 total-queue=default
+/queue simple add comment=dtq,54:35:30:05:9B:BD,ASUS name="ASUS(wireless)@main-dhcp-server (54:35:30:05:9B:BD)" queue=default/default target=192.168.90.88/32 total-queue=default
+/queue simple add comment=dtq,54:35:30:05:9B:BD, name="ASUS(wireless)(blocked)@guest-dhcp-server (54:35:30:05:9B:BD)" queue=default/default target=192.168.98.88/32 total-queue=default
+/queue simple add comment=dtq,00:27:15:CE:B8:DD,android-c05eac79e2ff7f23 name="android(wireless)@main-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.90.140/32 total-queue=default
+/queue simple add comment=dtq,00:27:15:CE:B8:DD, name="android(wireless)(blocked)@guest-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.98.140/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -149,9 +150,9 @@
 /user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
 /user group add name=remote policy=ssh,read,write,!local,!telnet,!ftp,!reboot,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!api,!romon,!dude,!tikapp
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=Twinkle disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp=""
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=DurepaDell disabled=no mac-address=00:26:5E:5F:1A:8D ssid-regexp=""
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=DurepaDell disabled=no mac-address=00:26:5E:5F:1A:8D ssid-regexp=""
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="android(wireless)" disabled=no mac-address=00:27:15:CE:B8:DD ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="ASUS(wireless)" disabled=no mac-address=54:35:30:05:9B:BD ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=Twinkle disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=AudioATV disabled=no mac-address=B0:34:95:50:A1:6A ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlxPro disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=mbpAlx disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp="WiFi 5"
@@ -205,8 +206,9 @@
 /ip arp add address=192.168.90.10 comment=LiwingRoomWAP interface=main-infrastructure-br mac-address=CC:2D:E0:E7:BE:02
 /ip arp add address=192.168.90.70 comment="miniAlx (wire)" interface=main-infrastructure-br mac-address=10:DD:B1:9E:19:5E
 /ip arp add address=192.168.90.210 comment=AudioATV interface=main-infrastructure-br mac-address=B0:34:95:50:A1:6A
-/ip arp add address=192.168.90.88 comment=DurepaDell interface=main-infrastructure-br mac-address=00:26:5E:5F:1A:8D
 /ip arp add address=192.168.90.170 comment=Twinkle interface=main-infrastructure-br mac-address=FC:F5:C4:79:ED:D8
+/ip arp add address=192.168.90.88 comment="ASUS(wireless)" interface=main-infrastructure-br mac-address=54:35:30:05:9B:BD
+/ip arp add address=192.168.90.140 comment="android(wireless)" interface=main-infrastructure-br mac-address=00:27:15:CE:B8:DD
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-server lease add address=192.168.90.200 comment="AlxATV (wireless)" mac-address=90:DD:5D:C8:46:AB server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.80 address-lists=alist-osx-hosts client-id=1:78:31:c1:cf:9e:70 comment="MbpAlx (wireless)" mac-address=78:31:C1:CF:9E:70 server=main-dhcp-server
@@ -220,10 +222,12 @@
 /ip dhcp-server lease add address=192.168.98.231 block-access=yes comment="AudioATV(blocked)" mac-address=B0:34:95:50:A1:6A server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.10 client-id=1:cc:2d:e0:e7:be:2 comment=LivingRoomWap mac-address=CC:2D:E0:E7:BE:02 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.70 address-lists=alist-osx-hosts client-id=1:10:dd:b1:9e:19:5e comment="miniAlx (wire)" mac-address=10:DD:B1:9E:19:5E server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.90.88 comment=DurepaDell mac-address=00:26:5E:5F:1A:8D server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.222 block-access=yes comment="DurepaDell(blocked)" mac-address=00:26:5E:5F:1A:8D server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.170 comment=Twinkle mac-address=FC:F5:C4:79:ED:D8 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.170 block-access=yes comment="Twinkle(blocked)" mac-address=FC:F5:C4:79:ED:D8 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.88 comment="ASUS(wireless)" mac-address=54:35:30:05:9B:BD server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.88 block-access=yes comment="ASUS(wireless)(blocked)" mac-address=54:35:30:05:9B:BD server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.140 comment="android(wireless)" mac-address=00:27:15:CE:B8:DD server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.140 block-access=yes comment="android(wireless)(blocked)" mac-address=00:27:15:CE:B8:DD server=guest-dhcp-server
 /ip dhcp-server network add address=192.168.90.0/27 caps-manager=192.168.90.1 comment="Network devices, CCTV" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.32/27 caps-manager=192.168.90.1 comment="Virtual machines" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.64/26 caps-manager=192.168.90.1 comment="Mac, Pc" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
@@ -260,9 +264,11 @@
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add address=192.168.90.170 comment=<AUTO:DHCP:main-dhcp-server> name=Twinkly79EDD9.home ttl=5m
 /ip dns static add cname=mikrouter.home name=mikrouter type=CNAME
-/ip dns static add address=109.252.144.247 name=ftpserver.org
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=95.213.159.180 name=atv.package2.qello.com
+/ip dns static add address=109.252.144.247 name=ftpserver.org
+/ip dns static add address=192.168.90.88 comment=<AUTO:DHCP:main-dhcp-server> name=ASUS.home ttl=5m
+/ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=android-c05eac79e2ff7f23.home ttl=5m
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -324,7 +330,11 @@
 /ip firewall address-list add address=hdreactor.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=10.0.0.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=185.13.148.14 comment="Add DNS Server to this List" list=alist-fw-dns-allow
+/ip firewall address-list add address=minialx.home list=alist-fw-port-scanner-allow
+/ip firewall address-list add address=mbpalx.home list=alist-fw-port-scanner-allow
+/ip firewall address-list add address=nas.home list=alist-fw-port-scanner-allow
 /ip firewall address-list add address=109.252.144.247 list=alist-nat-external-ip
+/ip firewall address-list add address=asus.home comment=asus.home list=alist-fw-port-scanner-allow
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -421,8 +431,8 @@
 /ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage1 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp src-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=return chain=chain-winbox-staged-control comment="Return From RFC Winbox Chain"
 /ip firewall filter add action=passthrough chain=forward comment=DUMMY5 log-prefix=~~~DUMMY5 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-ban
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-ban
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
 /ip firewall filter add action=passthrough chain=forward comment=DUMMY6 log-prefix=~~~DUMMY6 src-address-list=alist-fw-empty-dummy
 /ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=1h chain=input comment=alist-fw-highload connection-limit=100,32 protocol=tcp
 /ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=10h chain=forward comment=alist-fw-highload connection-limit=100,32 protocol=tcp
@@ -671,8 +681,8 @@
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system note set note="You are logged into: anna\
     \n############### system health ###############\
-    \nUptime:  00:00:12 d:h:m:s | CPU: 20%\
-    \nRAM: 65120/1048576M | Voltage: 24 v | Temp: 42c\
+    \nUptime:  00:00:10 d:h:m:s | CPU: 33%\
+    \nRAM: 65092/1048576M | Voltage: 24 v | Temp: 44c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n" show-at-login=no
