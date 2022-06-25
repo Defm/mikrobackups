@@ -1,4 +1,4 @@
-# jun/15/2022 21:00:03 by RouterOS 6.48.4
+# jun/25/2022 21:00:03 by RouterOS 6.48.4
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
@@ -116,7 +116,7 @@
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.170/32 total-queue=default
 /queue simple add comment=dtq,54:35:30:05:9B:BD,ASUS name="ASUS(wireless)@main-dhcp-server (54:35:30:05:9B:BD)" queue=default/default target=192.168.90.88/32 total-queue=default
 /queue simple add comment=dtq,54:35:30:05:9B:BD, name="ASUS(wireless)(blocked)@guest-dhcp-server (54:35:30:05:9B:BD)" queue=default/default target=192.168.98.88/32 total-queue=default
-/queue simple add comment=dtq,00:27:15:CE:B8:DD,android-c05eac79e2ff7f23 name="android(wireless)@main-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.90.140/32 total-queue=default
+/queue simple add comment=dtq,00:27:15:CE:B8:DD,android-62c9ff43b0b903ad name="android(wireless)@main-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.90.140/32 total-queue=default
 /queue simple add comment=dtq,00:27:15:CE:B8:DD, name="android(wireless)(blocked)@guest-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.98.140/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -266,9 +266,9 @@
 /ip dns static add cname=mikrouter.home name=mikrouter type=CNAME
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=95.213.159.180 name=atv.package2.qello.com
-/ip dns static add address=109.252.144.247 name=ftpserver.org
 /ip dns static add address=192.168.90.88 comment=<AUTO:DHCP:main-dhcp-server> name=ASUS.home ttl=5m
-/ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=android-c05eac79e2ff7f23.home ttl=5m
+/ip dns static add address=109.252.27.43 name=ftpserver.org
+/ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=android-62c9ff43b0b903ad.home ttl=5m
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -333,8 +333,8 @@
 /ip firewall address-list add address=minialx.home list=alist-fw-port-scanner-allow
 /ip firewall address-list add address=mbpalx.home list=alist-fw-port-scanner-allow
 /ip firewall address-list add address=nas.home list=alist-fw-port-scanner-allow
-/ip firewall address-list add address=109.252.144.247 list=alist-nat-external-ip
 /ip firewall address-list add address=asus.home comment=asus.home list=alist-fw-port-scanner-allow
+/ip firewall address-list add address=109.252.27.43 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -2173,7 +2173,8 @@
     \n         :if (\$currentTime != \$thisScriptCallTime) do={\r\
     \n\r\
     \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
+    \n             :log error \$state\r\
+    \n             \$globalNoteMe value=\$state;\r\
     \n            /system script job remove \$counter;\r\
     \n\r\
     \n          }\r\
