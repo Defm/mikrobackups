@@ -1,4 +1,4 @@
-# jul/15/2022 21:00:03 by RouterOS 6.48.4
+# jul/22/2022 11:28:14 by RouterOS 6.48.4
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
@@ -127,9 +127,10 @@
 /routing ospf instance set [ find default=yes ] name=routes-provider-mic router-id=10.255.255.2
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
+/system logging action set 1 disk-file-name=flash/log
 /system logging action add name=IpsecOnScreenLog target=memory
-/system logging action add disk-file-count=1 disk-file-name=flash/ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
-/system logging action add disk-file-count=20 disk-file-name=flash/ErrorDiskLog disk-lines-per-file=30000 name=ErrorDiskLog target=disk
+/system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
+/system logging action add disk-file-count=20 disk-file-name=ErrorDiskLog disk-lines-per-file=30000 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
 /system logging action add memory-lines=500 name=OnScreenLog target=memory
 /system logging action add name=DHCPOnScreenLog target=memory
@@ -137,14 +138,13 @@
 /system logging action add name=RouterControlLog target=memory
 /system logging action add name=OSPFOnscreenLog target=memory
 /system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-count=20 disk-file-name=flash/AuthDiskLog disk-lines-per-file=30000 name=AuthDiskLog target=disk
+/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=30000 name=AuthDiskLog target=disk
 /system logging action add memory-lines=10000 name=CertificatesOnScreenLog target=memory
 /system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
 /system logging action add name=CAPSOnScreenLog target=memory
 /system logging action add name=FirewallOnScreenLog target=memory
 /system logging action add name=SSHOnScreenLog target=memory
 /system logging action add name=PoEOnscreenLog target=memory
-/tool user-manager customer set admin access=own-routers,own-users,own-profiles,own-limits,config-payment-gw
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
@@ -267,8 +267,8 @@
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=95.213.159.180 name=atv.package2.qello.com
 /ip dns static add address=192.168.90.88 comment=<AUTO:DHCP:main-dhcp-server> name=ASUS.home ttl=5m
-/ip dns static add address=109.252.27.43 name=ftpserver.org
 /ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=android-f12dea842e4908da.home ttl=5m
+/ip dns static add address=109.252.27.43 name=ftpserver.org
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -681,13 +681,12 @@
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system note set note="You are logged into: anna\
     \n############### system health ###############\
-    \nUptime:  00:00:10 d:h:m:s | CPU: 33%\
-    \nRAM: 65092/1048576M | Voltage: 24 v | Temp: 44c\
+    \nUptime:  00:00:10 d:h:m:s | CPU: 23%\
+    \nRAM: 46724/1048576M | Voltage: 24 v | Temp: 40c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n" show-at-login=no
 /system ntp client set enabled=yes primary-ntp=85.21.78.91 secondary-ntp=46.254.216.9
-/system ntp server set broadcast=yes enabled=yes multicast=yes
 /system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jan/30/2017 start-time=18:57:09
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/21/2017 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/21/2017 start-time=19:19:59
@@ -3676,4 +3675,3 @@
     \n:global NetwatchHostName \"miniAlx\";\r\
     \n/system script run doNetwatchHost;"
 /tool sniffer set filter-interface=ip-mapping-br filter-operator-between-entries=and streaming-server=192.168.90.170
-/tool user-manager database set db-path=flash/user-manager
