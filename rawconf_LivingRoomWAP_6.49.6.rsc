@@ -10,7 +10,7 @@
 set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5180/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /interface ethernet set [ find default-name=ether1 ] name="lan A"
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
@@ -97,8 +97,8 @@ set caps-man-addresses=192.168.90.1 certificate=livingroomwap.capsman.2021@CHR d
 /system logging add action=ParseMemoryLog topics=info,system,!script
 /system note set note="You are logged into: LivingRoomWAP\
     \n############### system health ###############\
-    \nUptime:  00:00:23 d:h:m:s | CPU: 2%\
-    \nRAM: 22532/65536M | Voltage: 23 v | Temp: 57c\
+    \nUptime:  00:00:24 d:h:m:s | CPU: 8%\
+    \nRAM: 23036/65536M | Voltage: 23 v | Temp: 56c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n" show-at-login=no
