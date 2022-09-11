@@ -1,4 +1,4 @@
-# aug/14/2022 21:00:05 by RouterOS 6.49.6
+# aug/24/2022 21:00:02 by RouterOS 6.49.6
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -10,7 +10,7 @@
 set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5180/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /interface ethernet set [ find default-name=ether1 ] name="lan A"
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
