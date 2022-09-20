@@ -1,0 +1,598 @@
+#------------------------------------------------------------------------------------------------------------------------
+# SATELLITE2 module  for TLGRM version 1.8 by Sertik (Serkov S.V.) 24/04/2022
+#------------------------------------------------------------------------------------------------------------------------
+
+
+# declare functions:
+:global FuncDHCPclient
+:global FuncWifiConnect
+:global FuncUsers
+:global FuncLog
+:global FuncLogReset
+:global FuncPingPong
+:global FuncPing
+:global FuncMail
+:global FuncSMSsend
+:global FuncModemInfo
+:global FuncSATMirror
+:global FuncSATClear
+
+
+
+
+# DHCP-clients -> Telegram
+# ---------------------------------------
+:set FuncDHCPclient do={
+:if ([:len $0]!=0) do={
+:local count
+:local output
+:global Emoji
+:global FuncTelegramSender
+
+:foreach i in=[ip dhcp-client find] do={
+:local cuStatus [ip dhcp-client get $i status]
+:local cuComment [ip dhcp-client get $i comment]
+:local cuIP [ip dhcp-client get $i address]
+:local cuGW [ip dhcp-client get $i gateway]
+:local cuFace [ip dhcp-client get $i interface]
+:local cuAddDroute [ip dhcp-client get $i add-default-route]
+:local cuDistance [ip dhcp-client get $i "default-route-distance"]
+:set count ($count+1)
+
+:set output ("$output"."$count "."$cuComment "."$cuFace "."IP: "."$cuIP "."getway:"." $cuGW "."distance"." $cuDistance "."$cuStatus"."%0A")
+
+   }
+[$FuncTelegramSender ("$Emoji "."Router "."$[/system identity get name] "."DHCP-clients table:"."%0A"."$output")]
+:return $count
+ }
+}
+
+
+#  wifi connect table -> Telegram 
+# ------------------------------------------------------------
+:set FuncWifiConnect do={
+:if ([:len $0]!=0) do={
+:global Emoji
+:global FuncTelegramSender
+:local identity [/system identity get name]
+:local count
+:local output;
+:foreach activeIndex in=[/interface wireless connect find true] do={
+      :set count ($count+1);
+              :local ConVal [/interface wireless connect get $activeIndex]
+                :local iFace ($ConVal->"interface")
+                :local MACAddr ($ConVal->"mac-address")
+                :local comment ($ConVal->"comment")
+                :local connect ($ConVal->"connect")
+                :local area ($ConVal->"area-prefix")
+                :local signal ($ConVal->"signal-range")
+                :local SSID ($ConVal->"ssid")
+                :local WP ($ConVal->"wireless-protocol")
+     :if ($ConVal->"disabled") do={
+             :set output ("$output"."$count"." %F0%9F%94%B4 "." $comment"." $iFace"." $MACAddr"."%0A");
+} else={ :set output ("$output"."$count"." %F0%9F%94%B7  "." $comment"." $iFace"." $MACAddr"." $connect"." $area"." $signal"." $SSID"." $WP"."%0A");}
+
+#      :log warning ("$count  "." $comment"." $iFace"." $MACAddr"." $connect"." $area"." $signal"." $SSID"." $WP"."\n")
+          }
+
+if ([:len $output] >0) do={[$FuncTelegramSender ("$Emoji"." *Router"." $identity"." wireless connect-tabl:*"."%0A"."-------------------------------------------------------------------------------------------------------------- "."%0A"."$output") "markdown"]
+} else={[$FuncTelegramSender ("$Emoji"." *Router"." $identity"." wireless connect-tabl is empty*") "markdown"]}
+   :return $count;
+ }
+}
+
+#  Router`s user table -> Telegram 
+# ------------------------------------------------------------
+:set FuncUsers do={
+:if ([:len $0]!=0) do={
+:global Emoji
+:global FuncTelegramSender
+:local identity [/system identity get name]
+:local count
+:local output
+:local output1
+:foreach i in=[/user find true] do={
+      :set count ($count+1);
+                :local UserVal [/user get $i]
+                :local Uname ($UserVal->"name")
+                :local Ugroup ($UserVal->"group")
+                :local comment ($UserVal->"comment")
+                :local Ulogget ($UserVal->"last-logget-in")
+
+     :if ($UserVal->"disabled") do={
+             :set output ("$output"."$count"." %F0%9F%94%B4 "."$comment "."$Uname "."$Ugroup"." $time"."%0A");
+} else={ :set output ("$output"."$count"." %F0%9F%94%B7  "."$comment "."$Uname "."$Ugroup"." $time"."%0A");}
+
+          }
+
+:set count
+foreach i in [/user active find true] do={
+      :set count ($count+1);
+              :local UserVal [/user active get $i]
+                :local Uname ($UserVal->"name")
+                :local Via ($UserVal->"via")
+  :set output1 ("$output1"."$count"." $Uname "."$Via"."%0A");
+
+}
+
+if ([:len $output] >0) do={[$FuncTelegramSender ("$Emoji"." *Router"." $identity"."  users:*"."%0A"."-------------------------------------------------------------------------------------------------------------- "."%0A"."$output") "markdown"]
+}
+if ([:len $output1] >0) do={[$FuncTelegramSender ("$Emoji"." *Router"." $identity"." active users:*"."%0A"."-------------------------------------------------------------------------------------------------------------- "."%0A"."$output1") "markdown"]
+} else={[$FuncTelegramSender ("$Emoji"." *Router"." $identity"." no active users*") "markdown"]}
+  :return $count;
+ }
+}
+
+
+# Routers modem info -> Telegram
+
+:global FuncModemInfo do={
+:if ([:len $0]!=0) do={
+
+:global Emoji
+:global FuncTelegramSender
+
+# lte-modems
+:local lteinfo
+:local LteModem [:toarray ""]
+
+:local pinstatus
+:local registrationstatus 
+:local functionality
+:local manufacturer 
+:local model 
+:local revision 
+:local currentoperator 
+:local lac 
+:local currentcellid 
+:local enbid 
+:local sectorid 
+:local phycellid
+:local accesstechnology
+:local sessionuptime
+:local imei 
+:local imsi 
+:local uicc
+:local earfcn
+:local rsrp 
+:local rsrq
+:local sinr
+
+:if ([/interface lte find]) do={
+:foreach i in=[/interface lte find] do={
+:local lteiFace [/interface lte get $i name]
+:local lteComment [/interface lte get $i comment]
+if ([/interface lte get $i value-name=disabled] = false) do={
+
+:set LteModem [/interface lte info [find name=$lteiFace] once as-value]
+
+:set pinstatus ($LteModem->"pin-status");
+:set registrationstatus ($LteModem->"registration-status");
+:set functionality ($LteModem->"functionality");
+:set manufacturer ($LteModem->"manufacturer");
+:set model ($LteModem->"model");
+:set revision ($LteModem->"revision");
+:set currentoperator ($LteModem->"current-operator");
+:set lac ($LteModem->"lac");
+:set currentcellid ($LteModem->"current-cellid");
+:set enbid ($LteModem->"enb-id");
+:set sectorid ($LteModem->"sector-id");
+:set phycellid ($LteModem->"phy-cellid");
+:set accesstechnology ($LteModem->"access-technology");
+:set sessionuptime ($LteModem->"session-uptime");
+:set imei ($LteModem->"imei");
+:set imsi ($LteModem->"imsi");
+:set uicc ($LteModem->"uicc");
+:set earfcn ($LteModem->"earfcn");
+:set rsrp ($LteModem->"rsrp");
+:set rsrq ($LteModem->"rsrq");
+:set sinr ($LteModem->"sinr");
+
+:set lteinfo ("%E2%9C%8C"." LTE-modem "."$lteiFace  info:"."%0A"."$pinstatus"."%0A"."$registrationstatus"."%0A"."$functionality"."%0A"."$manufacturer"."%0A"."$model"."%0A"."$revision"."%0A"."$currentoperator"."%0A"."$lac"."%0A"."$currentcellid"."%0A"."$enbid"."%0A"."$sectorid"."%0A"."$phycellid"."%0A"."$accesstechnology"."%0A"."$sessionuptime"."%0A"."$imei"."%0A"."$imsi"."%0A"."$uicc"."%0A"."$earfcn"."%0A"."$rsrp"."%0A"."$rsrq"."%0A"."$sinr")
+
+[$FuncTelegramSender ("$Emoji "."$[/system identity get name]"." $lteinfo")]
+
+  } else={[$FuncTelegramSender ("$Emoji "."$[/system identity get name] "."LTE-interface "."$lteiFace "."$lteComment "."disabled")]}
+ }
+} else={[$FuncTelegramSender ("$Emoji "."$[/system identity get name] "."no found lte modem")]}
+
+# modems ppp-client
+:local nameFind [:toarray ""]
+:local calc 0
+:foreach i in=[/interface ppp-client find] do={
+:set  calc ($calc+1)
+if ([/interface ppp-client get $i value-name=disabled] = false) do={
+:local tmp [/interface ppp-client info $i once as-value]
+:set $nameFind ($nameFind, {{"name"=[/interface ppp-client get $i value-name=name]; "comment"=[/interface ppp-client get $i comment]; "type"="ppp-client";"manufacturer"=($tmp->"manufacturer");"model"=($tmp->"model");"revision"=($tmp->"revision")}})
+  } else={[$FuncTelegramSender ("$Emoji "."$[/system identity get name] "."ppp-client modem "."$[/interface ppp-client get $i name] "."$[/interface ppp-client get $i comment] "."disabled")]}
+}
+
+:if ([:len $nameFind]!= 0) do={
+:local mName
+:local mType
+:local mComment
+:for i from=0 to ([:len $nameFind]-1) do={
+:set mName ($nameFind->$i->"name")
+:set mComment ($nameFind->$i->"comment")
+:set mType ($nameFind->$i->"type")
+[$FuncTelegramSender ("$Emoji "."$[/system identity get name] "."$mComment "."$mName "."$mType")]
+}
+} else={
+:if ($calc=0) do={
+[$FuncTelegramSender ("$Emoji "."$[/system identity get name] "."no found ppp-client modem")]}}
+:return []
+ }
+}
+
+
+# - Log in-> Telegram
+
+:set FuncLog do={
+:if ([:len $0]!=0) do={
+
+:global Emoji
+:global botID
+:global myChatID
+:global FuncTelegramSender
+
+:local name [/system identity get name]
+:local LogsAll [/log print count-only]
+:local counter 0
+:local log1
+:local otstup $2
+:local logs $1
+
+:if ($otstup ~ "[a-z|A-Z|_-|+/|*?]") do={:set otstup 0}
+:foreach i in=[/log find] do={
+  :if (($counter >= ($LogsAll - $otstup - $logs)) and ($counter < ($LogsAll - $otstup))) do={
+  :local Log1Time [/log get $i time]
+  :local Log1Message [/log get $i message]
+    :set log1 ($log1."|".$Log1Time." ".$Log1Message."%0A")
+  }
+  :set counter ($counter + 1)
+}
+:set otstup 0
+[$FuncTelegramSender ("$Emoji "."$name: "."$logs line logs:"."%0A"."$log1")]
+  :return $counter
+ }
+}
+
+
+# - Reset Logging and setup length log ($1)
+:set FuncLogReset do={
+if ([:len $0]!=0) do={
+:local LineLog 
+:if ([:len $1]=0) do={:set LineLog 1000} else={:set LineLog $1}
+/system logging action set memory memory-lines=1;
+/system logging action set memory memory-lines=$LineLog;
+:log warning "Logging is reset. A log of $LineLog entries is set"
+:return $LineLog
+ }
+}
+
+# - FuncPingPong 15/04/2022 Функция проверки доступности устройства в сети
+#   c оповещением в Телеграмм. Использует FuncPing
+
+:set FuncPingPong do={
+:if ([:len $0]!=0) do={
+:global Emoji
+:global FuncTelegramSender
+:global FuncPing
+:local PA; :local PC; :local PI; :local PRT; :local Hadr;
+:if ([:len $1]!=0) do={:set PA $1} else={:set PA 8.8.8.8}
+:if ([:len $2]!=0) do={:set PC $2} else={:set PC [:tonum "3"]}
+:if ([:len $3]!=0) do={:set PI $3} else={:set PI ""}
+:if ([:len $4]!=0) do={:set PRT $4} else={:set PRT "main"}
+:local PingAns [$FuncPing PingAdr=$1 PingCount=$2 PingInterface=$3 PingRoutingTabl=$4]
+:if ($PingAns="ERROR") do={[$FuncTelegramSender ("$Emoji "."Host "."$PA "."not responded")]; :return "ERROR"}
+:if ($PingAns="OK") do={[$FuncTelegramSender ("$Emoji "."Host "."$PA "."ping OK")]; :return "OK"}
+ }
+}
+
+:global FuncActIface do={
+# Get address active gateway - in var $activeGateway
+/ip route
+ {   :local counter;
+     :foreach counter in=[find dst-address=0.0.0.0/0] do={         
+	 :if ([get $counter active] = true) do={
+	 :set $activeGateway [get $counter gateway]; :set $Gdistance [get $counter distance];
+	 }  }}
+:if ($activeGateway!=nil) do={
+
+# Get Gateway with gateway-status active
+:local GatewayStatus;
+:set $GatewayStatus [ :tostr [ /ip route get [ find gateway=$activeGateway dst-address=0.0.0.0/0 distance=$Gdistance] gateway-status ]];
+
+
+:if ([:find $GatewayStatus "via"] > 0) do={
+# Seek Interface name in $GatewayStatus (after "via" verb)
+:local activeInterface;
+:set $activeInterface [ :pick $GatewayStatus ( [ :len [ :pick $GatewayStatus 0 [ :find $GatewayStatus "via" ] ] ] + 5 ) [ :len $GatewayStatus ] ]; :return $activeInterface
+} else={ 
+:set $activeInterface [ :pick $GatewayStatus 0 ([:find $GatewayStatus "reachable"]-1)]; :return $activeInterface;}
+
+} else={:local activeInterface "not found"; :return $activeInterface;}
+}
+
+
+
+# - FuncPing 15/03/2022 Функция проверки доступности устройства в сети
+#  возможные именованные параметры:
+# PingAdr -     адрес пингуемого хоста, если не указан пингуется 8.8.8.8 (доступность Интернета)
+#                    допускается передача PingAdr с указанием порта (отсекается)
+# PingCount - число пингов, ести не указано, по умолчанию устанавливается 3 пинга
+# PingIntherface - интерфейс для пинга, может быть не указан, тогда используется default gatway
+# PingRoutingTabl - таблица маршрутов (если не указана используется таблица main
+
+# все парамметры пинга могут быть переданы ТОЛЬКО ! в именованных параметрах
+
+# :put [$FuncPing PingAdr=8.8.8.8 PingCount=3 PingInterface=ether1 PingRoutingTabl=main]
+# :put [$FuncPing PingAdr=8.8.8.8 PingCount=3 PingInterface=ether1]
+# :put [$FuncPing PingAdr=8.8.8.8 PingCount=3]
+# :put [$FuncPing PingAdr=8.8.8.8]
+# :put [$FuncPing]
+
+# ответ функции возвращается в виде:
+# "OK" - устройство доступно в сети
+# "ERROR" - устройство не отвечает на пинг
+
+:set FuncPing do={
+:if ([:len $0]!=0) do={
+:global Emoji
+:global FuncTelegramSender
+:local PA; :local PC; :local PI; :local PRT; :local Hadr;
+
+:if ([:len $PingAdr]!=0) do={:set PA $PingAdr} else={:set PA 8.8.8.8}
+:set Hadr $PA
+:if ([:len $PingCount]!=0) do={:set PC $PingCount} else={:set PC [:tonum "3"]}
+:local PingCalc $PC
+:if ([:len $PingInterface]!=0) do={:set PI $PingInterface} else={:set PI ""}
+:local PingIface
+:if ($PI="") do={:set PingIface "";} else {:set PingIface ("interface="."$PI")}
+:if ([:len $PingRoutingTabl]!=0) do={:set PRT $PingRoutingTabl} else={:set PRT "main"}
+:local PingRT ("routing-table="."$PRT")
+:if ([:find $Hadr ":"]>0) do={:set Hadr [:pick $Hadr 0 [:find $Hadr ":"]];}
+:local Result [[:parse "[/ping $Hadr count=$PingCalc $PingIface $PingRT]"]]
+:beep frequency=300 length=494ms; :delay 70ms; :beep frequency=600 length=494ms; :delay 70ms; :beep frequency=900 length=494ms;
+:local PingAnswer ""; :local MainIfInetOk false;
+:set MainIfInetOk ((3*$Result) >= (2 * $PingCalc))
+if (!$MainIfInetOk) do={:return "ERROR"} else={:return "OK"}
+ }
+}
+
+# - FuncMail - Функция отправки почты 
+#    by Sergej Serkov 17/01/2021
+#------------------------------------------------------
+
+# Применение:
+# [$FuncMail Email="user@mail.ru" Mailtext="test letter"]
+# вложение файлов не поддерживается
+
+# для корректной работы функции почтовый сервис Router OS /tool email должен быть настроен верно по умолчанию
+# адрес получателя и текст письма могут быть переданы в именованных либо позиционных параметрах (или/или)
+# в случае с позиционными параметрами $1 - адрес получателя; $2 - текст сообщения (местами менять нельзя)
+# при передаче адреса и текста письма в именованных параметрах (Email и Mailtext) - их порядок не важен
+
+# for example:
+# :log info [$FuncMail Email="user@mail.ru" Mailtext="Привет !"]; # (с именованными параметрами) 
+# :log info [$FuncMail user@mail.ru "Привет !"]; # (c позиционными параметрами)
+
+:set FuncMail do={
+:if ([:len $0]!=0) do={ 
+:local Etls "yes"; # если TLS не используется установить в "no"
+:local smtpserv;
+do {
+:set smtpserv [:resolve [/tool e-mail get address]];
+} on-error={:log error ("Call ERROR function $0 not resolve email smtp server"); :return ("ERROR: $0 < not resolve email smtp server >")}
+:local Eaccount [/tool e-mail get user];
+:local pass [/tool e-mail get password];
+:local Eport [/tool e-mail get port];
+:local MA; :local MT
+:if ([:len $1]!=0) do={:set MA $1} else={:set MA $Email}
+:if ([:len $2]!=0) do={:set MT $2} else={:set MT $Mailtext}
+:if ((any $MA) and (any $MT)) do={
+:log info " "; :log warning "FuncMail start mail sending ... to e-mail: $Email";
+do {[/tool e-mail send from="<$Eaccount>" to=$MA server=$smtpserv \
+ port=$Eport user=$Eaccount password=$pass start-tls=$Etls subject=("from $0 Router $[/system identity get name]") \
+ body=$MT;];
+              } on-error={:log info ""; :log error ("Call ERROR function $0 ERROR e-mail send"); 
+                                                                                      :return "ERROR: <$0 e-mail send>"}
+:log warning "Mail send"; :log info " "; :return "OK: <mail send>"
+} else={:log error ("Call ERROR function $0 Email or Mailtext parametrs no defined"); :return ("ERROR: $0 < necessary parameters are not set >")}
+ }
+}
+
+
+# FuncSMSsend 
+# -----------------------------------
+
+# [$FuncSMSsend "Hello Привет мир" +79104797777]
+
+# local function transliteration
+# string for transliteration is set in the parametr name "string"
+
+
+:set FuncSMSsend do={
+
+:local FuncSatTranslite do={
+#  table of the codes of Russian letters Translite
+:local rsimv [:toarray {"А"="A"; "Б"="B"; "В"="V"; "Г"="G"; "Д"="D"; "Е"="E"; "Ж"="ZH"; "З"="Z"; "И"="I"; "Й"="J"; "К"="K"; "Л"="L"; "М"="M"; "Н"="N"; "О"="O"; "П"="P"; "Р"="R"; "С"="S"; "Т"="T"; "У"="U"; "Ф"="F"; "Х"="KH"; "Ц"="C"; "Ч"="CH"; "Ш"="SH"; "Щ"="SCH"; "Ъ"="``"; "Ы"="Y`"; "Ь"="`"; "Э"="E`"; "Ю"="JU"; "Я"="YA"; "а"="a"; "б"="b"; "в"="v"; "г"="g"; "д"="d"; "е"="e"; "ж"="zh"; "з"="z"; "и"="i"; "й"="j"; "к"="k"; "л"="l"; "м"="m"; "н"="n"; "о"="o"; "п"="p"; "р"="r"; "с"="s"; "т"="t"; "у"="u"; "ф"="f"; "х"="kh"; "ц"="c"; "ч"="ch"; "ш"="sh"; "щ"="sch"; "ъ"="``"; "ы"="y`"; "ь"="`"; "э"="e`"; "ю"="ju"; "я"="ya"; "Ё"="Yo"; "ё"="yo"; "№"="#"}]
+
+# encoding of the symbols and аssembly line
+:local StrTele ""; :local code "";
+:for i from=0 to=([:len $string]-1) do={:local keys [:pick $string $i (1+$i)];
+
+:local key ($rsimv->$keys); if ([:len $key]!=0) do={:set $code ($rsimv->$keys);} else={:set $code $keys};
+
+:if (($keys="Ь")  and ([:pick $string ($i+1) (2+$i)]="Е")) do={:set $code "I"; :set $i ($i+1)}
+:if (($keys="ь")  and ([:pick $string ($i+1) (2+$i)]="е")) do={:set $code "i"; :set $i ($i+1)}
+:if (($keys="Ь")  and ([:pick $string ($i+1) (2+$i)]="е")) do={:set $code "I"; :set $i ($i+1)}
+:if (($keys="ь")  and ([:pick $string ($i+1) (2+$i)]="Е")) do={:set $code "i"; :set $i ($i+1)}
+:if (($keys="Ы")  and ([:pick $string ($i+1) (2+$i)]="Й")) do={:set $code "I"; :set $i ($i+1)}
+:if (($keys="ы")  and ([:pick $string ($i+1) (2+$i)]="й")) do={:set $code "i"; :set $i ($i+1)}
+:if (($keys="ы")  and ([:pick $string ($i+1) (2+$i)]="Й")) do={:set $code "i"; :set $i ($i+1)}
+:if (($keys="Ы")  and ([:pick $string ($i+1) (2+$i)]="й")) do={:set $code "I"; :set $i ($i+1)}
+ :set $StrTele ("$StrTele"."$code")}
+:return $StrTele
+}
+
+
+         :if ([:len $0]!=0) do={
+         :local SMSdevice [/tool sms get port];
+         :local NumPhone
+         :global ADMINPHONE;
+         :if ([:len $2]!=0) do={:set NumPhone $2} \
+              else={
+                     :if ([:len $ADMINPHONE]!=0) do={:set NumPhone $ADMINPHONE} \
+                            else={
+                                :local NumSMS [/tool sms get allowed-number];
+                                     :if ([:len $NumSMS]!=0) do={:set NumPhone ($NumSMS->0)} \
+                                             else={:log error "ERROR $0 sms phone number not found"; :return "ERROR function $0 sms phone number"}
+}}
+
+# must be performed translite
+:set $1 [$FuncSatTranslite string=$1]
+
+         :log info ""; :log warning "Function $0 start sms sending to $NumPhone";
+             :do {
+                [/tool sms send  $SMSdevice phone=$NumPhone message=$1];
+                } on-error={:log error "ERROR $0 sms send"; :return "ERROR sms"}
+          :log warning "Function $0 sms sent via modem"; :log info "";
+          :return "done sms"
+    } else={:log error "ERROR $0 sms send but no message text"; :return "ERROR sms" }
+}
+
+# function FuncSATMirror
+# ------------------------------------------------------------
+
+:set FuncSATMirror do={
+:if ([:len $0]!=0) do={
+:global fMirror;
+
+:if (!$fMirror) do={
+:global FuncSATLogo; :global SATLogo $FuncSATLogo; :set FuncSATLogo
+:global FuncSATList; :global SATList $FuncSATList; :set FuncSATList 
+:global FuncArp; :global Arp $FuncArp; :set FuncArp
+:global FuncAddress; :global Address $FuncAddress; :set FuncAddress
+:global FuncBackup; :global Backup $FuncBackup; :set FuncBackup
+:global FuncLease; :global Lease $FuncLease; :set FuncLease
+:global FuncReport; :global Report $FuncReport; :set FuncReport
+:global FuncStatus; :global Status $FuncStatus; :set FuncStatus
+:global FuncVPN; :global VPN $FuncVPN; :set FuncVPN
+:global FuncVpnUser; :global VpnUser $FuncVpnUser; :set FuncVpnUser
+:global FuncWifi; :global Wifi $FuncWifi; :set FuncWifi
+:global FuncWifiReg; :global WifiReg $FuncWifiReg; :set FuncWifiReg
+:global FuncWifiAccess; :global WifiAccess $FuncWifiAccess; :set FuncWifiAccess
+:global FuncWifiConnect; :global WifiConnect $FuncWifiConnect; :set FuncWifiConnect
+:global FuncHealth; :global Health $FuncHealth; :set FuncHealth
+:global FuncDHCPclient; :global DHCPclient $FuncDHCPclient; :set FuncDHCPclient
+:global FuncDHCPclient; :global DHCPclient $FuncDHCPclient; :set FuncDHCPclient
+:global FuncUsers; :global Users $FuncUsers; :set FuncUsers;
+:global FuncScriptList; :global ScriptList $FuncScriptList; :set FuncScriptList
+:global FuncFuncList; :global FuncList $FuncFuncList; :set FuncFuncList
+:global FuncSchedList; :global SchedList $FuncSchedList; :set FuncSchedList
+:global FuncLog; :global Log $FuncLog; :set FuncLog
+:global FuncLogReset; :global LogReset $FuncLogReset; :set FuncLogReset
+:global FuncPingPong; :global PingPong $FuncPingPong; :set FuncPingPong
+:global FuncModemInfo; :global ModemInfo $FuncModemInfo; :set FuncModemInfo
+:global FuncGlobalVarList; :global GlobalVarList $FuncGlobalVarList; :set FuncGlobalVarList
+:global FuncSATMirror; :global SATMirror $FuncSATMirror; :set FuncSATMirror
+:global FuncSATClear; :global SATClear $FuncSATClear; :set FuncSATClear
+        :put  ("$[/system identity get name] "."function mirror reflected. Short names set")
+        :log error "Conversion completed. Funcnames --> to short name";
+:global fMirror true
+:global broadCast true;
+        :return ("library SATELLITE mirror is reflected. Short names set")
+} else={
+:global SATLogo; :global FuncSATLogo $SATlogo; :set SATLogo
+:global SATList; :global FuncSATList $SATList; :set SATList 
+:global Arp; :global FuncArp $Arp; :set Arp
+:global Address; :global FuncAddress $Address; :set Address
+:global Backup; :global FuncBackup $Backup; :set Backup
+:global Lease; :global FuncLease $Lease; :set Lease
+:global Report; :global FuncReport $Report; :set Report
+:global Status; :global FuncStatus $Status; :set Status
+:global VPN; :global FuncVPN $VPN; :set VPN
+:global VpnUser; :global FuncVpnUser $VpnUser; :set VpnUser
+:global Wifi; :global FuncWifi $Wifi; :set Wifi
+:global WifiReg; :global FuncWifiReg $WifiReg; :set WifiReg
+:global WifiAccess; :global FuncWifiAccess $WifiAccess; :set WifiAccess
+:global WifiConnect; :global FuncWifiConnect $WifiConnect; :set WifiConnect
+:global WifiPass; :global FuncWifiPass $WifiPass; :set WifiPass
+:global Health; :global FuncHealth $Health; :set Health
+:global DHCPclient; :global FuncDHCPclient $DHCPclient; :set DHCPclient
+:global Users; :global FuncUsers $Users; :set Users;
+:global ScriptList; :global FuncScriptList $ScriptList; :set ScriptList
+:global FuncList; :global FuncFuncList $FuncList; :set FuncList
+:global SchedList; :global FuncSchedList $SchedList; :set SchedList
+:global Log; :global FuncLog $Log; :set Log
+:global LogReset; :global FuncLogReset $LogReset; :set LogReset
+:global PingPong; :global FuncPingPong $PingPong; :set PingPong
+:global ModemInfo; :global FuncModemInfo $ModemInfo; :set ModemInfo
+:global GlobalVarList; :global FuncGlobalVarList $GlobalVarList; :set GlobalVarList
+:global SATMirror; :global FuncSATMirror $SATMirror; :set SATMirror
+:global SATClear; :global FuncSATClear $SATClear; :set SATClear
+        :put  ("$[/system identity get name] "."function "."$0 "."function long names restored")
+        :log warning "Conversion completed short names --> to Funcnames";
+:global fMirror false
+:global broadCast false;
+        :return ("library SATELLITE function "."$0 "."function long names restored")}
+ }
+}
+
+# function FuncSATClear 
+# ------------------------------------------------------------
+:set FuncSATClear do={
+:if ([:len $0]!=0) do={
+
+:global fMirror
+:if ([:len [/system script environment find name="SATMirror"]]!=0) do={
+:if ($fMirror=true) do={:global SATMirror; [$SATMirror]; :delay 2s}}
+:global FuncSATLogo; :set FuncSATLogo
+:global FuncSATList; :set FuncSATList 
+:global FuncArp; :set FuncArp
+:global FuncAddress; :set FuncAddress
+:global FuncBackup; :set FuncBackup
+:global FuncLease; :set FuncLease
+:global FuncReport; :set FuncReport
+:global FuncStatus; :set FuncStatus
+:global FuncVPN; :set FuncVPN
+:global FuncVpnUser; :set FuncVpnUser
+:global FuncWifi; :set FuncWifi
+:global FuncWifiReg; :set FuncWifiReg
+:global FuncWifiAccess; :set FuncWifiAccess
+:global FuncWifiConnect; :set FuncWifiConnect
+:global FuncWifiPass; :set FuncWifiPass
+:global FuncHealth; :set FuncHealth
+:global FuncDHCPclient; :set FuncDHCPclient
+:global FuncUsers; :set FuncUsers;
+:global FuncScriptList; :set FuncScriptList
+:global FuncSchedList; :set FuncSchedList
+:global FuncFuncList; :set FuncFuncList
+:global FuncLog; :set FuncLog
+:global FuncLogReset; :set FuncLogReset
+:global FuncPingPong; :set FuncPingPong
+:global FuncModemInfo; :set FuncModemInfo
+:global FuncGlobalVarList; :set FuncGlobalVarList
+     :if ($1="all") do={
+:global FuncPing; :set FuncPing; 
+:global FuncMail; :set FuncMail;
+:global FuncSMSsend; :set FuncSMSsend;
+:global FuncSchedFuncAdd; :set FuncSchedFuncAdd;
+:global FuncSchedScriptAdd; :set FuncSchedScriptAdd;
+:global FuncSchedRemove; :set FuncSchedRemove;
+:global FuncUnixTimeToFormat; :set FuncUnixTimeToFormat;
+:global FuncEpochTime; :set FuncEpochTime;
+:global FuncSATMirror; :set FuncSATMirror;
+:global FuncTelegramSender; :set FuncTelegramSender;
+:global fMirror; :set fMirror;
+:global broadCast; :set broadCast;
+}
+:global FuncSATClear; :set FuncSATClear
+:global SATClear; :set SATClear
+        :put  ("$[/system identity get name]"." $0 unload")
+        :return ("library $0 "." is unload")
+ }
+}
+
+:log info "  -    SATELLITE2 module is set"
