@@ -1,4 +1,4 @@
-# jul/15/2022 21:00:03 by RouterOS 6.48.4
+# aug/24/2022 21:00:02 by RouterOS 6.49.6
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -10,7 +10,7 @@
 set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5180/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /interface ethernet set [ find default-name=ether1 ] name="lan A"
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
@@ -32,9 +32,6 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /system logging action add memory-lines=1 name=ParseMemoryLog target=memory
 /system logging action add name=CAPSOnScreenLog target=memory
 /system logging action add name=FirewallOnScreenLog target=memory
-#error exporting /tool user-manager customer
-#error exporting /tool user-manager profile
-#error exporting /tool user-manager profile limitation
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
 /user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
@@ -49,10 +46,10 @@ set caps-man-addresses=192.168.90.1 certificate=livingroomwap.capsman.2021@CHR d
 /ip accounting set account-local-traffic=yes enabled=yes threshold=200
 /ip cloud set ddns-enabled=yes
 /ip dhcp-client add dhcp-options=hostname,clientid,classid disabled=no interface="main infrastructure"
-/ip dns set cache-max-ttl=1d query-server-timeout=3s
-/ip dns static add address=109.252.27.43 name=ftpserver.org
+/ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
+/ip dns static add address=46.39.51.163 name=ftpserver.org
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=109.252.27.43 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.163 list=alist-nat-external-ip
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set irc disabled=yes
 /ip firewall service-port set h323 disabled=yes
@@ -100,13 +97,12 @@ set caps-man-addresses=192.168.90.1 certificate=livingroomwap.capsman.2021@CHR d
 /system logging add action=ParseMemoryLog topics=info,system,!script
 /system note set note="You are logged into: LivingRoomWAP\
     \n############### system health ###############\
-    \nUptime:  00:00:25 d:h:m:s | CPU: 2%\
-    \nRAM: 27528/65536M | Voltage: 22 v | Temp: 55c\
+    \nUptime:  00:00:24 d:h:m:s | CPU: 8%\
+    \nRAM: 23036/65536M | Voltage: 23 v | Temp: 56c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n" show-at-login=no
 /system ntp client set enabled=yes primary-ntp=192.168.90.1 secondary-ntp=192.168.90.1
-/system package update set channel=testing
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=mar/01/2018 start-time=15:55:00
 /system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
 /system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/10/2018 start-time=15:10:00
@@ -1523,7 +1519,3 @@ set caps-man-addresses=192.168.90.1 certificate=livingroomwap.capsman.2021@CHR d
     \n"
 /tool bandwidth-server set authenticate=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
-#error exporting /tool user-manager database
-#error exporting /tool user-manager profile profile-limitation
-#error exporting /tool user-manager router
-#error exporting /tool user-manager user

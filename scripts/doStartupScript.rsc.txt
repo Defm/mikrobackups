@@ -16,14 +16,16 @@
 
 #wait some for all tunnels to come up after reboot and VPN to work
 
+:local inf "Wait some for all tunnels to come up after reboot and VPN to work.." ;
+:global globalNoteMe;
+$globalNoteMe value=$inf;
+
 :delay 25s;
 
 :local sysname [/system identity get name];
 :local scriptname "doStartupScript";
 
 :local inf "$scriptname on $sysname: system restart detected" ;
-
-:global globalNoteMe;
 $globalNoteMe value=$inf;
 
 :global globalTgMessage;

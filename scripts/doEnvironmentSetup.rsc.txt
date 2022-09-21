@@ -35,7 +35,8 @@
          :if ($currentTime != $thisScriptCallTime) do={
 
            :local state "$scriptname already Running at $thisScriptCallTime - killing old script before continuing";
-            $globalNoteMe value=$state;
+             :log error $state
+             $globalNoteMe value=$state;
             /system script job remove $counter;
 
           }
@@ -43,8 +44,8 @@
       }
 
       :local state "Starting script: $scriptname";
-      $globalNoteMe value=$state;
-
+      :put "info: $state"
+      :log info "$state"
     }
   }
 }
@@ -55,7 +56,7 @@
 
     :global globalNoteMe;
     :local tToken "798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M";
-    :local tGroupID "-343674739";
+    :local tGroupID "-1001798127067";
     :local tURL "https://api.telegram.org/bot$tToken/sendMessage\?chat_id=$tGroupID";
 
     :local state ("Sending telegram message... $value");
@@ -122,7 +123,7 @@
     :local newBlockedIp [ :tostr $gip ];
     :local newMac [ :tostr $mac ];
     :local comment [ :tostr $comm ];
-    :local ssid [ :tostr $ssid ];
+    :local newSsid [ :tostr $ssid ];
     :if ([:len $newIp] > 0) do={
         :if ([ :typeof [ :toip $newIp ] ] != "ip" ) do={
 
@@ -191,10 +192,10 @@
 
     :do {
 
-        :local state ("Adding CAPs ACL static entries for ($newBlockedIp/$newMac)");
+        :local state ("Adding CAPs ACL static entries for ($newBlockedIp/$newMac) on $newSsid");
         $globalNoteMe value=$state;
         /caps-man access-list remove [find mac-address=$newMac];
-        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=$comment disabled=no mac-address=$newMac ssid-regexp=$ssid place-before=1
+        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=$comment disabled=no mac-address=$newMac ssid-regexp="$newSsid" place-before=1
 
     } on-error={
 

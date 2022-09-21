@@ -6,6 +6,7 @@ $globalScriptBeforeRun $scriptname;
 
 :global globalNoteMe;
 :local itsOk true;
+:local payLoad false;
 :local state "";
 
 :local content
@@ -30,7 +31,9 @@ $globalScriptBeforeRun $scriptname;
     /ip dns static add name=ftpserver.org address=$IPv4;
  
     :set LastIPv4 $IPv4;
- 
+    
+    :set payLoad true; 
+
     :local count [:len [/system script find name="doSuperviseCHRviaSSH"]];
     :if ($count > 0) do={
        
@@ -43,9 +46,15 @@ $globalScriptBeforeRun $scriptname;
 }
 
 :local inf ""
-:if ($itsOk) do={
+:if ($itsOk and $payLoad ) do={
   :set inf "$scriptname on $sysname: external IP address change detected, refreshed"
 }
+
+
+:if ($itsOk and !$payLoad ) do={
+  :set inf "$scriptname on $sysname: no external IP address update needed"
+}
+
 
 :if (!$itsOk) do={
   :set inf "Error When $scriptname on $sysname: $state"  
