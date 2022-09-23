@@ -13,7 +13,7 @@ $globalScriptBeforeRun $scriptname;
 :local RequestUrl "https://$GitHubAccessToken@raw.githubusercontent.com/$GitHubUserName/$GitHubRepoName/master/scripts/";
 
 :local UseUpdateList true;
-:local UpdateList [:toarray "doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS"];
+:local UpdateList [:toarray "doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH"];
 
 :global globalNoteMe;
 :local itsOk true;
