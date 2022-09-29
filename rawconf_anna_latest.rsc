@@ -1,4 +1,4 @@
-# sep/23/2022 21:00:02 by RouterOS 6.49.6
+# sep/30/2022 00:10:58 by RouterOS 6.49.6
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
@@ -143,7 +143,7 @@
 /routing ospf instance set [ find default=yes ] name=routes-provider-anna router-id=10.255.255.3
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
-/system logging action set 1 disk-file-name=flash/log
+/system logging action set 1 disk-file-name=journal
 /system logging action add name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=20 disk-file-name=ErrorDiskLog disk-lines-per-file=30000 name=ErrorDiskLog target=disk
@@ -179,7 +179,7 @@
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlxr disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set ca-certificate=ca@CHR certificate=C.anna.capsman@CHR enabled=yes require-peer-certificate=yes
+/caps-man manager set ca-certificate=ca@CHR certificate=anna.capsman@CHR enabled=yes require-peer-certificate=yes
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
 /caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface="wan A"
 /caps-man manager interface add comment="Do CapsMan on private" disabled=no interface=main-infrastructure-br
@@ -233,7 +233,7 @@
 /ip arp add address=192.168.90.2 comment="WB (wire)" interface=main-infrastructure-br mac-address=80:34:28:11:EE:7E
 /ip arp add address=192.168.90.3 comment="WB (wireless)" interface=main-infrastructure-br mac-address=F0:C8:14:48:5B:9A
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
-/ip dhcp-client add add-default-route=no !dhcp-options interface="wan A" use-peer-ntp=no
+/ip dhcp-client add add-default-route=no interface="wan A" use-peer-ntp=no
 /ip dhcp-server lease add address=192.168.90.200 comment="AlxATV (wireless)" mac-address=90:DD:5D:C8:46:AB server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.80 address-lists=alist-osx-hosts client-id=1:78:31:c1:cf:9e:70 comment="MbpAlx (wireless)" mac-address=78:31:C1:CF:9E:70 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.90 address-lists=alist-osx-hosts comment="MbpAlx (wire)" mac-address=38:C9:86:51:D2:B3 server=main-dhcp-server
@@ -309,7 +309,7 @@
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
 /ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=alist-fw-rfc-special
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
-/ip firewall address-list add address=127.0.0.0/8 comment="RFC 1122 (Loopback)" list=alist-fw-rfc-special
+/ip firewall address-list add address=127.0.0.0/8 comment="RFC 1122 (Loopback)" disabled=yes list=alist-fw-rfc-special
 /ip firewall address-list add address=169.254.0.0/16 comment="RFC 3927 (Dynamic Configuration of IPv4 Link-Local Addresses)" list=alist-fw-rfc-special
 /ip firewall address-list add address=172.16.0.0/12 comment="RFC 1918 (Private Use IP Space)" list=alist-fw-rfc-special
 /ip firewall address-list add address=192.0.0.0/24 comment="RFC 6890 (IETF Protocol Assingments)" list=alist-fw-rfc-special
@@ -657,7 +657,7 @@
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
-/ip ipsec identity add auth-method=digital-signature certificate=C.anna.ipsec@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
+/ip ipsec identity add auth-method=digital-signature certificate=anna.ipsec@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
@@ -738,14 +738,13 @@
 /system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=23:30:00
 /system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=07:00:00
 /system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=11:31:24
-/system scheduler add name=doStartupScript on-event="\r\
-    \n/system script run doStartupScript;" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add name=doStartupScript on-event="/system script run doStartupScript;" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system scheduler add interval=1w name=doTrackFirmwareUpdates on-event="/system script run doTrackFirmwareUpdates" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=11:30:00
 /system scheduler add interval=1d name=doCreateTrafficAccountingQueues on-event="/system script run doCreateTrafficAccountingQueues" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=06:05:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
-/system scheduler add comment="added by function FuncSchedScriptAdd" interval=30s name="Run script TLGRMcall--14:23:30" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add comment="added by function FuncSchedScriptAdd" interval=30s name="Run script TLGRMcall--05:46:15" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -1610,7 +1609,7 @@
     \n    # ssh server attr\r\
     \n    :local dst \"185.13.148.14\";\r\
     \n    :local port 2222;\r\
-    \n    :local user \"mikrouter\";\r\
+    \n    :local user \"automation\";\r\
     \n\r\
     \n    :local errorDef \"\";\r\
     \n\r\
@@ -2456,7 +2455,6 @@
     \n\r\
     \n\r\
     \n      :local KEYSIZE \"2048\"\r\
-    \n      :local USERNAME \"mikrouter\"\r\
     \n\r\
     \n      :local scepUrl \"http://185.13.148.14/scep/grant\";\r\
     \n      :local itsOk true;\r\
@@ -2470,7 +2468,7 @@
     \n                :local state \"CLIENT TEMPLATE certificates generation as IP...  \$USERNAME\";\r\
     \n                \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n                :set tname \"S.\$USERNAME@\$scepAlias\";\r\
+    \n                :set tname \"\$USERNAME@\$scepAlias\";\r\
     \n\r\
     \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\r\
     \n\r\
@@ -2479,7 +2477,7 @@
     \n                :local state \"CLIENT TEMPLATE certificates generation as EMAIL...  \$USERNAME\";\r\
     \n                \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n                :set tname \"C.\$USERNAME@\$scepAlias\";\r\
+    \n                :set tname \"\$USERNAME@\$scepAlias\";\r\
     \n\r\
     \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\r\
     \n\r\
@@ -3449,87 +3447,303 @@
     \n}\r\
     \n\r\
     \n"
-/system script add comment="A very special script for CFG restore from *.rsc files (not from backup). This one should be placed at flash/perfectrestore.rsc, your config should be at flash/backup.rsc. Run 'Reset confuguration' with 'no default config', choose 'flash/perfectrestore.rsc' as 'run after reset. Pretty logs will be at flash/import.log and flash/perfectrestore.log" dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n\r\
-    \n{\r\
-    \n\r\
-    \n:global targetfile \"flash/backup.rsc\"\r\
-    \n:global importlog \"flash/import.log\"\r\
-    \n:global debuglog \"flash/perfectrestore.log\"\r\
-    \n\r\
-    \n/file remove [find name ~\"\$importlog\"]\r\
-    \n/file remove [find name ~\"\$debuglog\"]\r\
-    \n\r\
-    \n# Wait for interfaces to initialize\r\
-    \n:delay 15s\r\
-    \n\r\
-    \n# Beep Functions\r\
-    \n :local doStartBeep [:parse \":beep frequency=1000 length=300ms;:delay 150ms;:beep frequency=1500 length=300ms;\"];\r\
-    \n :local doFinishBeep [:parse \":beep frequency=1000 length=.6;:delay .5s;:beep frequency=1600 length=.6;:delay .5s;:beep frequency=2100 length=.3;:delay .3s;:beep frequency=2500 length=.3;:delay .3s;:beep frequency=2400 length=1;\r\
-    \n\"];\r\
-    \n\r\
-    \n# Setup temporary logging to disk\r\
-    \n/system logging action add disk-file-count=1 disk-file-name=\$debuglog disk-lines-per-file=4096 name=perfectrestore target=disk\r\
-    \n/system logging add action=perfectrestore topics=system,info\r\
-    \n/system logging add action=perfectrestore topics=script,info\r\
-    \n/system logging add action=perfectrestore topics=warning\r\
-    \n/system logging add action=perfectrestore topics=error\r\
-    \n/system logging add action=perfectrestore topics=critical\r\
-    \n/system logging add action=perfectrestore topics=debug,!packet\r\
-    \n\r\
-    \n# Play Audible Start Sequence\r\
-    \n\$doStartBeep\r\
-    \n\r\
-    \n# Import the rsc file\r\
-    \n:log info \"BEGIN IMPORT file=\$targetfile -----------------------------------------------------------------------------\"\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \n  #IPSEC certs have to be imported before the other config is restored\r\
-    \n  #Its should be kept on flash memory to get alive after /system reset-configuration\r\
-    \n\r\
-    \n  :local scriptName \"flash/ca@CHR.p12\"\r\r\
+/system script add comment="A very special script for CFG restore from *.rsc files (not from backup). This one should be placed at flash/perfectrestore.rsc, your config should be at flash/backup.rsc. Run 'Reset confuguration' with 'no default config', choose 'flash/perfectrestore.rsc' as 'run after reset. Pretty logs will be at flash/import.log and flash/perfectrestore.log" dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="{\r\r\
     \n\r\r\
-    \n  :if ([:len [/file find name=\$scriptName]] > 0) do={\r\r\
-    \n  /certificate import file-name=\$scriptName passphrase=1234567890\r\r\
-    \n  /certificate set [find common-name=ca@CHR] name=ca@CHR\r\r\
+    \n:global targetfile \"backup.rsc\"\r\r\
+    \n:global importlog \"import.log\"\r\r\
+    \n:global debuglog \"perfectrestore.log\"\r\r\
+    \n\r\r\
+    \n/file remove [find name ~\"\$importlog\"]\r\r\
+    \n/file remove [find name ~\"\$debuglog\"]\r\r\
+    \n\r\r\
+    \n# Wait for interfaces to initialize\r\r\
+    \n:delay 5s\r\r\
+    \n\r\r\
+    \n# Beep Functions\r\r\
+    \n :local doStartBeep [:parse \":beep frequency=1000 length=300ms;:delay 150ms;:beep frequency=1500 length=300ms;\"];\r\r\
+    \n :local doFinishBeep [:parse \":beep frequency=1000 length=.6;:delay .5s;:beep frequency=1600 length=.6;:delay .5s;:beep frequency=2100 length=.3;:delay .3s;:beep frequency=2500 length=.3;:delay .3s;:beep frequency=2400 length=1;\"];\r\r\
+    \n\r\r\
+    \n# Setup temporary logging to disk\r\r\
+    \n/system logging action add disk-file-count=1 disk-file-name=\$debuglog disk-lines-per-file=4096 name=perfectrestore target=disk\r\r\
+    \n/system logging add action=perfectrestore topics=system,info\r\r\
+    \n/system logging add action=perfectrestore topics=script,info\r\r\
+    \n/system logging add action=perfectrestore topics=warning\r\r\
+    \n/system logging add action=perfectrestore topics=error\r\r\
+    \n/system logging add action=perfectrestore topics=critical\r\r\
+    \n/system logging add action=perfectrestore topics=debug,!packet\r\r\
+    \n\r\r\
+    \n# checks if specific packages exist\r\r\
+    \n:if ( [ :len [ /system package find where name=\"ntp\" and disabled=no ] ] = 0 ) do={\r\r\
+    \n  :log error \"NTP package should be installed for NTP-server to work\";\r\r\
+    \n  :error \"NTP package should be installed for NTP-server to work\";\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:if ( [ :len [ /system package find where name=\"iot\" and disabled=no ] ] = 0 ) do={\r\r\
+    \n  :log error \"IOT package should be installed\";\r\r\
+    \n  :error \"IOT package should be installed\";\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:if ( [ :len [ /system package find where name=\"lora\" and disabled=no ] ] = 0 ) do={\r\r\
+    \n  :log error \"LORA package should be installed\";\r\r\
+    \n  :error \"LORA package should be installed\";\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n# Play Audible Start Sequence\r\r\
+    \n\$doStartBeep\r\r\
+    \n\r\r\
+    \n:log warning \"GO -----------------------------------------------------------------------------\";\r\r\
+    \n/user active print detail file=activeUsers.txt;\r\r\
+    \n:global currentUsers [/file get activeUsers.txt contents];\r\r\
+    \n:log warning \"ENVIRONMENT IS \$currentUsers\";\r\r\
+    \n\r\r\
+    \n# bug 6.49.6 - lora servers stay OK after /system reset-configuration no-defaults=yes\r\r\
+    \n/lora servers remove [find]\r\r\
+    \n\r\r\
+    \n:local AcyncAwait do={\r\r\
+    \n\r\r\
+    \n  # this one calls Fetch and catches its errors\r\r\
+    \n  :if (([:len \$1] > 0) and ([:len \$2] > 0)) do={\r\r\
+    \n\r\r\
+    \n      # something like \r\r\
+    \n      # \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\r\r\
+    \n      # or\r\r\
+    \n      # \":import file-name=\$targetfile verbose=yes\"\r\r\
+    \n      :local Cmd \"\$1\";\r\r\
+    \n      :local outputFile \"\$2\";\r\r\
+    \n      :local state \"AS-AW--------------------------: I'm now calling and waiting result for: \$Cmd\";\r\r\
+    \n      :log info \$state;\r\r\
+    \n\r\r\
+    \n      /file remove [find where name=\"\$outputFile\"]\r\r\
+    \n      {\r\r\
+    \n          :local jobid [:execute file=\"\$outputFile\" script=\$Cmd]\r\r\
+    \n\r\r\
+    \n          :local state \"AS-AW----------------------: Waiting the end of process for file \$outputFile to be ready, max 40 seconds...\";\r\r\
+    \n          :log info \$state;\r\r\
+    \n\r\r\
+    \n          :global Gltesec 0\r\r\
+    \n          :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 40)) do={\r\r\
+    \n              :set Gltesec (\$Gltesec + 1)\r\r\
+    \n              :delay 1s\r\r\
+    \n\r\r\
+    \n              :local state \"AS-AW-------------------: waiting... \$Gltesec\";\r\r\
+    \n              :log info \$state;\r\r\
+    \n\r\r\
+    \n          }\r\r\
+    \n\r\r\
+    \n          :local state \"AS-AW------------------------: Done. Elapsed Seconds: \$Gltesec\\r\\n\";\r\r\
+    \n          :log info \$state;\r\r\
+    \n\r\r\
+    \n          :if ([:len [/file find where name=\"\$outputFile\"]] = 1) do={\r\r\
+    \n              :local filecontent [/file get [/file find where name=\"\$outputFile\"] contents]\r\r\
+    \n              :log warning \"AS-AW--------------------: Result of CALL:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\"\r\r\
+    \n          } else={\r\r\
+    \n              :log info \"AS-AW-----------------------: File not created.\"\r\r\
+    \n          }\r\r\
+    \n      }\r\r\
+    \n  }\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n\r\r\
+    \n:do {\r\r\
+    \n\r\r\
+    \n  :log warning \"CERT  -----------------------------------------------------------------------------\";\r\r\
+    \n\r\r\
+    \n  # IPSEC\\CAPSMAN\\DoH\\Etc certs have to be imported before the other config is restored\r\r\
+    \n  # should be located in Files root\r\r\
+    \n  # look through your backup.rsc before \r\r\
+    \n\r\r\
+    \n  # certificates in '*.p12' format without password protection (without private keys)\r\r\
+    \n  :local certImportListPublicKeys [:toarray \"ca@CHR\"];\r\r\
+    \n  # certificates in '*.p12' format protected using password (containing private keys), set the password to '1234567890' or rewrite the script\r\r\
+    \n  :local certImportListPrivateKeys [:toarray \"anna.capsman@CHR,anna.ipsec@CHR\"];\r\r\
+    \n\r\r\
+    \n  :foreach certFile in=\$certImportListPublicKeys do={\r\r\
+    \n\r\r\
+    \n    :local certFileName \"\$certFile.p12\";\r\r\
+    \n    :if ([:len [/file find name=\$certFileName]] > 0) do={\r\r\
+    \n    :log info \"GOT PUB CERTIFICATE '\$certFile'\";\r\r\
+    \n    /certificate import file-name=\$certFileName name=\$certFile passphrase=\"\";\r\r\
+    \n    } else={\r\r\
+    \n      :log error \"CANT GET PUB CERTIFICATE FOR '\$certFile'\";\r\r\
+    \n    }\r\r\
+    \n\r\r\
+    \n  }\r\r\
+    \n\r\r\
+    \n  :foreach certFile in=\$certImportListPrivateKeys do={\r\r\
+    \n\r\r\
+    \n    :local certFileName \"\$certFile.p12\";\r\r\
+    \n    :if ([:len [/file find name=\$certFileName]] > 0) do={\r\r\
+    \n    :log info \"GOT PRIV CERTIFICATE '\$certFile'\";\r\r\
+    \n    /certificate import file-name=\$certFileName name=\$certFile passphrase=\"1234567890\";\r\r\
+    \n    } else={\r\r\
+    \n      :log error \"CANT GET PRIV CERTIFICATE FOR '\$certFile'\";\r\r\
+    \n    }\r\r\
+    \n\r\r\
     \n  }\r\r\
     \n  \r\r\
-    \n  :local scriptName \"flash/mikrouter@CHR.p12\"\r\r\
-    \n  :if ([:len [/file find name=\$scriptName]] > 0) do={\r\r\
-    \n  /certificate import file-name=\$scriptName passphrase=1234567890\r\r\
-    \n  /certificate set [find common-name=mikrouter@CHR] name=mikrouter@CHR\r\r\
-    \n  }\r\
-    \n  :local write2file \":import file-name=\$targetfile verbose=yes\"\r\
-    \n\r\
-    \n  :execute script=\$write2file file=\$importlog\r\
-    \n\r\
-    \n  :log info \"END IMPORT file=\$targetfile  -----------------------------------------------------------------------------\"\r\
-    \n\r\
-    \n} on-error={\r\
-    \n\r\
-    \n:log error \"ERROR IMPORT file=\$targetfile  -----------------------------------------------------------------------------\"\r\
-    \n\r\
-    \n}\r\
-    \n\r\
-    \n# Post import delay\r\
-    \n:delay 20s\r\
-    \n\r\
-    \n# Play Audible Finish Sequence\r\
-    \n\$doFinishBeep\r\
-    \n\r\
-    \n# Teardown temporary logging to disk\r\
-    \n/system logging remove [/system logging find where action=perfectrestore]\r\
-    \n/system logging action remove [/system logging action find where name=perfectrestore]\r\
-    \n\r\
-    \n/system script environment remove [find name=\"targetfile\"]\r\
-    \n/system script environment remove [find name=\"importlog\"]\r\
-    \n/system script environment remove [find name=\"debuglog\"]\r\
-    \n\r\
-    \n#new startup scripts maybe restored so...\r\
-    \n/system reboot\r\
-    \n\r\
-    \n}\r\
+    \n  :local content [/file get [/file find name=\"\$targetfile\"] contents] ;\r\r\
+    \n  :local contentLen [ :len \$content ] ;\r\r\
+    \n  :if ([:len \$contentLen] = 0) do={\r\r\
+    \n     :log error (\"Could not retrieve \$targetfile contents (file size limitation)\")\r\r\
+    \n  }\r\r\
+    \n  \r\r\
+    \n  :local certNameStart 0;\r\r\
+    \n  :local certName \"\";\r\r\
+    \n  :local certNameEnd 0;\r\r\
+    \n  :local lastEnd 0;\r\r\
+    \n  :local key \"certificate=\";\r\r\
+    \n  :do {\r\r\
+    \n\r\r\
+    \n    :put \"Lookup.. \$key starting at \$lastEnd out of \$contentLen\"\r\r\
+    \n    :set certNameStart [:find \$content \$key \$lastEnd ] ;\r\r\
+    \n\r\r\
+    \n    :if ( [:typeof \$certNameStart] != \"nil\") do={\r\r\
+    \n\r\r\
+    \n      :set certNameEnd [:find \$content \" \" \$certNameStart] ;\r\r\
+    \n\r\r\
+    \n      :if ( [:typeof \$certNameEnd ] != \"nil\" ) do={\r\r\
+    \n      \r\r\
+    \n        :set certName [:pick \$content \$certNameStart \$certNameEnd ] ;\r\r\
+    \n        :set lastEnd ( \$certNameEnd + 2 ) ; \r\r\
+    \n        \r\r\
+    \n        :log info \"Certificate needed \$certname\"; \r\r\
+    \n        :global entry [:pick \$line 0 \$lineEnd ]\r\r\
+    \n      } else={\r\r\
+    \n       # no more occurenses found\r\r\
+    \n       :set lastEnd \$contentLen ; \r\r\
+    \n      }\r\r\
+    \n    } else={\r\r\
+    \n        # no more occurenses found\r\r\
+    \n        :set lastEnd \$contentLen ; \r\r\
+    \n    }\r\r\
+    \n  } while (\$lastEnd < ( \$contentLen -2 ) )\r\r\
+    \n\r\r\
+    \n} on-error={\r\r\
+    \n\r\r\
+    \n:log error \"CERT ERROR  -----------------------------------------------------------------------------\"\r\r\
+    \n\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n\r\r\
+    \n\r\r\
+    \n\r\r\
+    \n:do {\r\r\
+    \n\r\r\
+    \n  # Import the rsc file\r\r\
+    \n  :log warning \" IMPORT -----------------------------------------------------------------------------\"\r\r\
+    \n\r\r\
+    \n  :local importCmd \":import file-name=\$targetfile verbose=yes\"\r\r\
+    \n\r\r\
+    \n  :log info \"RESTORE START\";\r\r\
+    \n  \r\r\
+    \n  # DO IT ASYNC!! So we have to wait for it\r\r\
+    \n  \$AcyncAwait \$importCmd \"import.log.txt\";\r\r\
+    \n\r\r\
+    \n  # wait for confuguration beeng applied\r\r\
+    \n  :log info \"POST IMPORT DELAY FOR CONFIGURATION BEING APPLIED\";\r\r\
+    \n  :delay 10s;\r\r\
+    \n\r\r\
+    \n\r\r\
+    \n  :log info \"END IMPORT file=\$targetfile  -----------------------------------------------------------------------------\"\r\r\
+    \n\r\r\
+    \n} on-error={\r\r\
+    \n\r\r\
+    \n:log error \"ERROR IMPORT  -----------------------------------------------------------------------------\"\r\r\
+    \n\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:do {\r\r\
+    \n\r\r\
+    \n  :log warning \"USERS -----------------------------------------------------------------------------\"\r\r\
+    \n\r\r\
+    \n  :local mgmtUsername \"owner\"; # main administrator\r\r\
+    \n  :log info \"CREATING MAIN ADMIN USER. new username W/O password (SET IT AFTER FIRST LOGON)- '\$mgmtUsername'\";\r\r\
+    \n  /user remove [/user find name=\$mgmtUsername];\r\r\
+    \n  /user add name=\$mgmtUsername group=full comment=\"management user\" password=\"\";\r\r\
+    \n\r\r\
+    \n\r\r\
+    \n  :local mgmtUsername \"reserved\"; # additional admin user, it has its own script to periodically regenerate password\r\r\
+    \n  :local thePass ([/certificate scep-server otp generate minutes-valid=0 as-value]->\"password\");\r\r\
+    \n  :log info \"CREATING ADDITIONAL ADMIN USER. new username - '\$mgmtUsername':'\$thePass'\";\r\r\
+    \n  /user remove [/user find name=\$mgmtUsername];\r\r\
+    \n  /user add name=\$mgmtUsername group=full comment=\"additional admin\" password=\"\$thePass\";\r\r\
+    \n\r\r\
+    \n  :local mgmtUsername \"automation\"; # user for /system ssh-exec\r\r\
+    \n  :local thePass ([/certificate scep-server otp generate minutes-valid=0 as-value]->\"password\");\r\r\
+    \n\r\r\
+    \n  :log info \"CREATING NEW USER AND CHANGING SCRIPTS AND SCHEDULES OWNAGE. new username - '\$mgmtUsername':'\$thePass'\";\r\r\
+    \n  /user remove [/user find name=\$mgmtUsername];\r\r\
+    \n  /user add name=\$mgmtUsername group=full comment=\"outgoing SSH user\" password=\"\$thePass\";\r\r\
+    \n\r\r\
+    \n  :log warning \"USERS - OK\"\r\r\
+    \n} on-error={ \r\r\
+    \n  :log error \"USERS - ERROR\"\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:do {\r\r\
+    \n\r\r\
+    \n  :log warning \"SSH KEYS -----------------------------------------------------------------------------\"\r\r\
+    \n\r\r\
+    \n  # SSH KEYS\r\r\
+    \n  # HOWTO on linux host\r\r\
+    \n  # ssh-keygen -t rsa -b 4096 -C \"defm.ssh@mbpalxm\" -f ~/.ssh/defm.ssh@mbpalxm -m pem\r\r\
+    \n  # USERS must exist!!\r\r\
+    \n  # public, 1 file in '*.pub', for decryption when connecting TO router. Mapping is MikrotikUser=ImportFileName\r\r\
+    \n  :local PublicKeys [:toarray {\"owner\"=\"defm.ssh@mbpalxm\"}];\r\r\
+    \n  # privates + publics, 2 files, for encryption when connecting FROM router (via /system ssh-exec), set the password to '1234567890' or rewrite the script\r\r\
+    \n  :local PrivateKeys [:toarray {\"owner\"=\"automation.ssh@anna\"}];\r\r\
+    \n\r\r\
+    \n  :foreach username,filename in=\$PublicKeys do={\r\r\
+    \n\r\r\
+    \n    :local keyFileName \"\$filename.pub\";\r\r\
+    \n    :if ([:len [/file find name=\$keyFileName]] > 0 and [:len [/user find name=\$username]] > 0) do={\r\r\
+    \n      :log info \"GOT PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
+    \n      /user ssh-keys import user=\"\$username\" public-key-file=\"\$keyFileName\";    \r\r\
+    \n    } else={\r\r\
+    \n      :log error \"CANT GET PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
+    \n    }\r\r\
+    \n\r\r\
+    \n  }\r\r\
+    \n\r\r\
+    \n  :foreach username,filename in=\$PrivateKeys do={\r\r\
+    \n\r\r\
+    \n    :local keyFileName \"\$filename.pub\";\r\r\
+    \n    :if ([:len [/file find name=\$keyFileName]] > 0 and [:len [/file find name=\$filename]] > 0 and [:len [/user find name=\$username]] > 0) do={\r\r\
+    \n    :log info \"GOT PRIV KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
+    \n      /user ssh-keys private import user=\"\$username\" private-key-file=\"\$filename\" public-key-file=\"\$keyFileName\" passphrase=\"1234567890\"\r\r\
+    \n    } else={\r\r\
+    \n      :log error \"CANT GET PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
+    \n    }\r\r\
+    \n\r\r\
+    \n  }\r\r\
+    \n  \r\r\
+    \n \r\r\
+    \n} on-error={\r\r\
+    \n\r\r\
+    \n:log error \"SSH KEYS ERROR  -----------------------------------------------------------------------------\"\r\r\
+    \n\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n\r\r\
+    \n# Play Audible Finish Sequence\r\r\
+    \n\$doFinishBeep\r\r\
+    \n\r\r\
+    \n# remove system Admin\r\r\
+    \n/user remove [/user find name=\"admin\"];\r\r\
+    \n\r\r\
+    \n# Teardown temporary logging to disk\r\r\
+    \n/system logging remove [/system logging find where action=perfectrestore]\r\r\
+    \n/system logging action remove [/system logging action find where name=perfectrestore]\r\r\
+    \n\r\r\
+    \n/system script environment remove [find name=\"targetfile\"]\r\r\
+    \n/system script environment remove [find name=\"importlog\"]\r\r\
+    \n/system script environment remove [find name=\"debuglog\"]\r\r\
+    \n\r\r\
+    \n# new startup scripts maybe restored so...\r\r\
+    \n/system reboot\r\r\
+    \n\r\r\
+    \n}\r\r\
+    \n\r\r\
     \n"
 /system script add comment="A server-side script, that is called via global function using ssh-exec from another mikrotik-client to update it's IPSEC policy IP address" dont-require-permissions=yes name=doUpdatePoliciesRemotely owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
@@ -3693,9 +3907,6 @@
     \n        /ip dns set servers=\r\
     \n        /ip dns set use-doh-server=\"https://1.1.1.1/dns-query\" verify-doh-cert=yes\r\
     \n\r\
-    \n        # Transparent proxy all DNS queries from your LAN through your router towards DoH servers / put this rule on top\r\
-    \n        :do {/ip firewall nat add chain=dstnat protocol=udp dst-port=53 in-interface-list=LAN action=redirect} \\\r\
-    \n            if=([/ip dns get allow-remote-requests]=yes)\r\
     \n    } while=([/certificate print count-only where fingerprint=\"4348a0e9444c78cb265e058d5e8944b4d84f9662bd26db257f8934a443c70161\"]=0);\r\
     \n} if=([/certificate print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);"
 /system script add comment="STARTER SATELLITE" dont-require-permissions=no name=SATELLITEstart owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
@@ -5379,7 +5590,7 @@
     \n} else={\r\
     \nsystem script run \$jobScript\r\
     \n}"
-/system script add dont-require-permissions=no name=SATELLITE1ext owner=TLGRMSAT policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#------------------------------------------------------------------------------------------------------------------------\r\
+/system script add dont-require-permissions=no name=SATELLITE1ext owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#------------------------------------------------------------------------------------------------------------------------\r\
     \n# SATELLITE1ext module  for TLGRM version 1.8 by Sertik (Serkov S.V.) 24/04/2022\r\
     \n#------------------------------------------------------------------------------------------------------------------------\r\
     \n\r\
@@ -5841,6 +6052,114 @@
     \n}\r\
     \n\r\
     \n"
+/system script add comment="keeps scripts and schedules owner constant" dont-require-permissions=yes name=doKeepScriptsOwner owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \"doKeepScriptsOwner\";\r\
+    \n\r\
+    \n:local state \"\";\r\
+    \n:local mgmtUsername \"owner\"; # main administrator \r\
+    \n:global globalCallFetch;\r\
+    \n:global globalNoteMe;\r\
+    \n\r\
+    \n:local impersonate false; # user password needed when true\r\
+    \n:local thePass \"\";\r\
+    \n\r\
+    \n:do {\r\
+    \n\r\
+    \n    # We now need to change script and schedules ownage from *sys user\r\
+    \n    # This can be done via ftp impersonation - here is the trick (the only way to change SCHEDULE owner is to recreate entry UNDER this user)\r\
+    \n    # In RouterOS it is possible to automatically execute scripts - your script file has to be named anything.auto.rsc \r\
+    \n    # once this file is uploaded using FTP to the router, it will automatically be executed, just like with the '/import' command. \r\
+    \n    # This method only works with FTP\r\
+    \n\r\
+    \n    :local scriptCount [:len [/system script find where owner!=\"\$mgmtUsername\"]];\r\
+    \n    :local schedCount  [:len [/system scheduler find where owner!=\"\$mgmtUsername\"]];\r\
+    \n\r\
+    \n    :if (\$scriptCount = 0 and \$schedCount = 0) do={\r\
+    \n        :set state \"No scripts and schedules owner change needed\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :error \$state;\r\
+    \n    };    \r\
+    \n\r\
+    \n    :if ([:len [/user find name=\"\$mgmtUsername\"]] > 0) do={\r\
+    \n \r\
+    \n        :if (\$impersonate) do={\r\
+    \n\r\
+    \n            :local buffer \"\\r\\ \r\
+    \n                            \\n # we can change script owner as usual\\r\\\r\
+    \n                            \\n /system script set owner=\\\"\$mgmtUsername\\\" [find where owner!=\\\"\$mgmtUsername\\\"];\\r\\\r\
+    \n                            \\n\\r\\ \r\
+    \n                            \\n # the only way to change schedule owner is to recreate entry\\r\\\r\
+    \n                            \\n /system scheduler;\\r\\ \r\
+    \n                            \\n :foreach schEndpoint in=[find  where owner!=\\\"\$mgmtUsername\\\"] do={\\r\\\r\
+    \n                            \\n  :local name [get value-name=name \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      :local startTime [get value-name=start-time \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      :local onEvent [get value-name=on-event \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      :local interval [get value-name=interval \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      :local startDate [get value-name=start-date \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      :local comment [get value-name=comment \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      remove \\\$schEndpoint;\\r\\\r\
+    \n                            \\n      add name=\\\"\\\$name\\\" start-time=\\\"\\\$startTime\\\"  on-event=\\\"\\\$onEvent\\\" interval=\\\"\\\$interval\\\" start-date=\\\"\\\$startDate\\\" comment=\\\"\\\$comment\\\";\\r\\\r\
+    \n                            \\n      }\\r\\\r\
+    \n                            \\n;\";\r\
+    \n\r\
+    \n            # delete all previous files\r\
+    \n            :local rsc \"ownage.rsc.txt\";\r\
+    \n            /file remove [/file find where name=\"\$rsc\"];\r\
+    \n            # create the file as it doesn't exist yet\r\
+    \n            /file print file=\"\$rsc\";\r\
+    \n            # wait for filesystem to create file\r\
+    \n            :delay 6;\r\
+    \n            # write the buffer into it\r\
+    \n            :set state \"Creating script file '\$rsc' with commands '\$buffer'\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            # i will not remove this file later to got a chance to manually reproduce fetch if it fail via this script\r\
+    \n            /file set [/file find where name=\"\$rsc\"] contents=\"\$buffer\";    \r\
+    \n            :local filecontent [/file get [/file find where name=\"\$rsc\"] contents];\r\
+    \n            :set state \"Created command file '\$rsc' with content '\$filecontent'\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            # push it and and autorun under mgmtUsername account\r\
+    \n            :set state \"Pushing autorun command file as user '\$mgmtUsername' via FTP\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :local fetchCmd  \"/tool fetch address=127.0.0.1 mode=ftp src-path=\$rsc dst-path=ownage.auto.rsc user=\\\"\$mgmtUsername\\\" password=\\\"\$thePass\\\" host=\\\"\\\" upload=\\\"yes\\\"\";\r\
+    \n\r\
+    \n            \$globalCallFetch \$fetchCmd;\r\
+    \n\r\
+    \n            /file remove [/file find where name=\"\$rsc\"];\r\
+    \n\r\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        } else={\r\
+    \n\r\
+    \n            /system script set owner=\"\$mgmtUsername\" [find where owner!=\"\$mgmtUsername\"];\r\
+    \n            # the only way to change schedule owner is to recreate entry\\r\\\r\
+    \n            /system scheduler;\r\
+    \n            :foreach schEndpoint in=[find  where owner!=\"\$mgmtUsername\"] do={\r\
+    \n              :local name [get value-name=name \$schEndpoint];\r\
+    \n                  :local startTime [get value-name=start-time \$schEndpoint];\r\
+    \n                  :local onEvent [get value-name=on-event \$schEndpoint];\r\
+    \n                  :local interval [get value-name=interval \$schEndpoint];\r\
+    \n                  :local startDate [get value-name=start-date \$schEndpoint];\r\
+    \n                  :local comment [get value-name=comment \$schEndpoint];\r\
+    \n                  remove \$schEndpoint;\r\
+    \n                  add name=\"\$name\" start-time=\"\$startTime\"  on-event=\"\$onEvent\" interval=\"\$interval\" start-date=\"\$startDate\" comment=\"\$comment\";\r\
+    \n                  };\r\
+    \n\r\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n        }  \r\
+    \n\r\
+    \n\r\
+    \n    } else={\r\
+    \n        :set state \"Cant find user '\$mgmtUsername' for impersonation call\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n    }\r\
+    \n\r\
+    \n} on-error={ \r\
+    \n    :set state \"Changing scripts and schedules ownage - ERROR\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n}"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool graphing set page-refresh=50
