@@ -8,8 +8,5 @@
         /ip dns set servers=
         /ip dns set use-doh-server="https://1.1.1.1/dns-query" verify-doh-cert=yes
 
-        # Transparent proxy all DNS queries from your LAN through your router towards DoH servers / put this rule on top
-        :do {/ip firewall nat add chain=dstnat protocol=udp dst-port=53 in-interface-list=LAN action=redirect} \
-            if=([/ip dns get allow-remote-requests]=yes)
     } while=([/certificate print count-only where fingerprint="4348a0e9444c78cb265e058d5e8944b4d84f9662bd26db257f8934a443c70161"]=0);
 } if=([/certificate print count-only where name="DigiCertGlobalRootCA.crt.pem"]=0);
