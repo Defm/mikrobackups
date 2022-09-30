@@ -1,0 +1,108 @@
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doKeepScriptsOwner";
+
+:local state "";
+:local mgmtUsername "owner"; # main administrator 
+:global globalCallFetch;
+:global globalNoteMe;
+
+:local impersonate false; # user password needed when true
+:local thePass "";
+
+:do {
+
+    # We now need to change script and schedules ownage from *sys user
+    # This can be done via ftp impersonation - here is the trick (the only way to change SCHEDULE owner is to recreate entry UNDER this user)
+    # In RouterOS it is possible to automatically execute scripts - your script file has to be named anything.auto.rsc 
+    # once this file is uploaded using FTP to the router, it will automatically be executed, just like with the '/import' command. 
+    # This method only works with FTP
+
+    :local scriptCount [:len [/system script find where owner!="$mgmtUsername"]];
+    :local schedCount  [:len [/system scheduler find where owner!="$mgmtUsername"]];
+
+    :if ($scriptCount = 0 and $schedCount = 0) do={
+        :set state "No scripts and schedules owner change needed";
+        $globalNoteMe value=$state;
+        :error $state;
+    };    
+
+    :if ([:len [/user find name="$mgmtUsername"]] > 0) do={
+ 
+        :if ($impersonate) do={
+
+            :local buffer "\r\ 
+                            \n # we can change script owner as usual\r\
+                            \n /system script set owner=\"$mgmtUsername\" [find where owner!=\"$mgmtUsername\"];\r\
+                            \n\r\ 
+                            \n # the only way to change schedule owner is to recreate entry\r\
+                            \n /system scheduler;\r\ 
+                            \n :foreach schEndpoint in=[find  where owner!=\"$mgmtUsername\"] do={\r\
+                            \n  :local name [get value-name=name \$schEndpoint];\r\
+                            \n      :local startTime [get value-name=start-time \$schEndpoint];\r\
+                            \n      :local onEvent [get value-name=on-event \$schEndpoint];\r\
+                            \n      :local interval [get value-name=interval \$schEndpoint];\r\
+                            \n      :local startDate [get value-name=start-date \$schEndpoint];\r\
+                            \n      :local comment [get value-name=comment \$schEndpoint];\r\
+                            \n      remove \$schEndpoint;\r\
+                            \n      add name=\"\$name\" start-time=\"\$startTime\"  on-event=\"\$onEvent\" interval=\"\$interval\" start-date=\"\$startDate\" comment=\"\$comment\";\r\
+                            \n      }\r\
+                            \n;";
+
+            # delete all previous files
+            :local rsc "ownage.rsc.txt";
+            /file remove [/file find where name="$rsc"];
+            # create the file as it doesn't exist yet
+            /file print file="$rsc";
+            # wait for filesystem to create file
+            :delay 6;
+            # write the buffer into it
+            :set state "Creating script file '$rsc' with commands '$buffer'";
+            $globalNoteMe value=$state;
+            # i will not remove this file later to got a chance to manually reproduce fetch if it fail via this script
+            /file set [/file find where name="$rsc"] contents="$buffer";    
+            :local filecontent [/file get [/file find where name="$rsc"] contents];
+            :set state "Created command file '$rsc' with content '$filecontent'";
+            $globalNoteMe value=$state;
+            # push it and and autorun under mgmtUsername account
+            :set state "Pushing autorun command file as user '$mgmtUsername' via FTP";
+            $globalNoteMe value=$state;
+
+            :local fetchCmd  "/tool fetch address=127.0.0.1 mode=ftp src-path=$rsc dst-path=ownage.auto.rsc user=\"$mgmtUsername\" password=\"$thePass\" host=\"\" upload=\"yes\"";
+
+            $globalCallFetch $fetchCmd;
+
+            /file remove [/file find where name="$rsc"];
+
+            :set state "Changing scripts and schedules ownage - OK";
+            $globalNoteMe value=$state;
+
+        } else={
+
+            /system script set owner="$mgmtUsername" [find where owner!="$mgmtUsername"];
+            # the only way to change schedule owner is to recreate entry\r\
+            /system scheduler;
+            :foreach schEndpoint in=[find  where owner!="$mgmtUsername"] do={
+              :local name [get value-name=name $schEndpoint];
+                  :local startTime [get value-name=start-time $schEndpoint];
+                  :local onEvent [get value-name=on-event $schEndpoint];
+                  :local interval [get value-name=interval $schEndpoint];
+                  :local startDate [get value-name=start-date $schEndpoint];
+                  :local comment [get value-name=comment $schEndpoint];
+                  remove $schEndpoint;
+                  add name="$name" start-time="$startTime"  on-event="$onEvent" interval="$interval" start-date="$startDate" comment="$comment";
+                  };
+
+            :set state "Changing scripts and schedules ownage - OK";
+            $globalNoteMe value=$state;
+        }  
+
+
+    } else={
+        :set state "Cant find user '$mgmtUsername' for impersonation call";
+        $globalNoteMe value=$state;
+    }
+
+} on-error={ 
+    :set state "Changing scripts and schedules ownage - ERROR";
+    $globalNoteMe value=$state;
+}
