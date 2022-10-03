@@ -1,4 +1,4 @@
-# sep/30/2022 00:12:11 by RouterOS 6.49.6
+# oct/03/2022 21:00:02 by RouterOS 6.49.6
 # software id = 
 #
 #
@@ -266,7 +266,7 @@
     \nHotspot online: 0 | PPP online: 1\
     \n" show-at-login=no
 /system ntp client set enabled=yes primary-ntp=85.21.78.91 secondary-ntp=46.254.216.9
-/system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=aug/04/2020 start-time=21:00:00
+/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=aug/04/2020 start-time=21:00:00
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
 /system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/07/2019 start-time=09:00:00
@@ -995,7 +995,6 @@
     \n\r\
     \n\r\
     \n      :local KEYSIZE \"2048\"\r\
-    \n      :local USERNAME \"mikrouter\"\r\
     \n\r\
     \n      :local scepUrl \"http://185.13.148.14/scep/grant\";\r\
     \n      :local itsOk true;\r\
@@ -1009,7 +1008,7 @@
     \n                :local state \"CLIENT TEMPLATE certificates generation as IP...  \$USERNAME\";\r\
     \n                \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n                :set tname \"S.\$USERNAME@\$scepAlias\";\r\
+    \n                :set tname \"\$USERNAME@\$scepAlias\";\r\
     \n\r\
     \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\r\
     \n\r\
@@ -1018,7 +1017,7 @@
     \n                :local state \"CLIENT TEMPLATE certificates generation as EMAIL...  \$USERNAME\";\r\
     \n                \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n                :set tname \"C.\$USERNAME@\$scepAlias\";\r\
+    \n                :set tname \"\$USERNAME@\$scepAlias\";\r\
     \n\r\
     \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\r\
     \n\r\

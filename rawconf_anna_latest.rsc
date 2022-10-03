@@ -1,4 +1,4 @@
-# sep/30/2022 00:25:49 by RouterOS 6.49.6
+# oct/03/2022 21:00:02 by RouterOS 6.49.6
 # software id = R98Z-YE17
 #
 # model = RB4011iGS+
@@ -114,25 +114,25 @@
 /queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro(blocked)@guest-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.229/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
-/queue simple add comment=dtq,B0:34:95:50:A1:6A,AudioATV name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
+/queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
 /queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP name="LivingRoomWap@main-dhcp-server (CC:2D:E0:E7:BE:02)" queue=default/default target=192.168.90.10/32 total-queue=default
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx (wire)@main-dhcp-server (10:DD:B1:9E:19:5E)" queue=default/default target=192.168.90.70/32 total-queue=default
-/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx (wireless)@main-dhcp-server (78:31:C1:CF:9E:70)" queue=default/default target=192.168.90.80/32 total-queue=default
-/queue simple add comment=dtq,38:C9:86:51:D2:B3,MbpAlx name="MbpAlx (wire)@main-dhcp-server (38:C9:86:51:D2:B3)" queue=default/default target=192.168.90.90/32 total-queue=default
+/queue simple add comment=dtq,78:31:C1:CF:9E:70, name="MbpAlx (wireless)@main-dhcp-server (78:31:C1:CF:9E:70)" queue=default/default target=192.168.90.80/32 total-queue=default
+/queue simple add comment=dtq,38:C9:86:51:D2:B3, name="MbpAlx (wire)@main-dhcp-server (38:C9:86:51:D2:B3)" queue=default/default target=192.168.90.90/32 total-queue=default
 /queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="NAS@main-dhcp-server (00:11:32:2C:A7:85)" queue=default/default target=192.168.90.40/32 total-queue=default
-/queue simple add comment=dtq,FC:F5:C4:79:ED:D8,Twinkly_79EDD9 name="Twinkle@main-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.90.170/32 total-queue=default
+/queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle@main-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.90.170/32 total-queue=default
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.170/32 total-queue=default
-/queue simple add comment=dtq,54:35:30:05:9B:BD,ASUS name="ASUS(wireless)@main-dhcp-server (54:35:30:05:9B:BD)" queue=default/default target=192.168.90.88/32 total-queue=default
+/queue simple add comment=dtq,54:35:30:05:9B:BD, name="ASUS(wireless)@main-dhcp-server (54:35:30:05:9B:BD)" queue=default/default target=192.168.90.88/32 total-queue=default
 /queue simple add comment=dtq,54:35:30:05:9B:BD, name="ASUS(wireless)(blocked)@guest-dhcp-server (54:35:30:05:9B:BD)" queue=default/default target=192.168.98.88/32 total-queue=default
-/queue simple add comment=dtq,00:27:15:CE:B8:DD,android-95914276d1da81b5 name="android(wireless)@main-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.90.140/32 total-queue=default
+/queue simple add comment=dtq,00:27:15:CE:B8:DD, name="android(wireless)@main-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.90.140/32 total-queue=default
 /queue simple add comment=dtq,00:27:15:CE:B8:DD, name="android(wireless)(blocked)@guest-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.98.140/32 total-queue=default
 /queue simple add comment=dtq,BC:D0:74:0A:B2:6A,MbpAlxm name="MbpAlxm (wireless)@main-dhcp-server (BC:D0:74:0A:B2:6A)" queue=default/default target=192.168.90.75/32 total-queue=default
 /queue simple add comment=dtq,BC:D0:74:0A:B2:6A, name="MbpAlxm(blocked)@guest-dhcp-server (BC:D0:74:0A:B2:6A)" queue=default/default target=192.168.98.75/32 total-queue=default
-/queue simple add comment=dtq,48:65:EE:19:3C:0D,MbpAlxm name="MbpAlxm (wire)@main-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.90.85/32 total-queue=default
+/queue simple add comment=dtq,48:65:EE:19:3C:0D, name="MbpAlxm (wire)@main-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.90.85/32 total-queue=default
 /queue simple add comment=dtq,48:65:EE:19:3C:0D, name="MbpAlxm(blocked)@guest-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.98.85/32 total-queue=default
 /queue simple add comment=dtq,80:34:28:11:EE:7E,wb name="WB (wire)@main-dhcp-server (80:34:28:11:EE:7E)" queue=default/default target=192.168.90.2/32 total-queue=default
 /queue simple add comment=dtq,80:34:28:11:EE:7E, name="WB (wire)(blocked)@guest-dhcp-server (80:34:28:11:EE:7E)" queue=default/default target=192.168.98.2/32 total-queue=default
-/queue simple add comment=dtq,F0:C8:14:48:5B:9A,wb name="WB (wireless)@main-dhcp-server (F0:C8:14:48:5B:9A)" queue=default/default target=192.168.90.3/32 total-queue=default
+/queue simple add comment=dtq,F0:C8:14:48:5B:9A, name="WB (wireless)@main-dhcp-server (F0:C8:14:48:5B:9A)" queue=default/default target=192.168.90.3/32 total-queue=default
 /queue simple add comment=dtq,F0:C8:14:48:5B:9A, name="WB (wireless)(blocked)@guest-dhcp-server (F0:C8:14:48:5B:9A)" queue=default/default target=192.168.98.3/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
@@ -289,20 +289,15 @@
 /ip dns static add address=192.168.100.1 name=gateway.home
 /ip dns static add cname=LivingRoomWAP.home name=LivingRoomWAP type=CNAME
 /ip dns static add address=192.168.90.10 name=LivingRoomWAP.home
-/ip dns static add address=192.168.90.90 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlx.home ttl=5m
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m
 /ip dns static add address=192.168.90.70 comment=<AUTO:DHCP:main-dhcp-server> name=miniAlx.home
 /ip dns static add address=192.168.90.200 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
-/ip dns static add address=192.168.90.210 comment=<AUTO:DHCP:main-dhcp-server> name=AudioATV.home ttl=5m
 /ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
-/ip dns static add address=192.168.90.170 comment=<AUTO:DHCP:main-dhcp-server> name=Twinkly79EDD9.home ttl=5m
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=95.213.159.180 name=atv.package2.qello.com
-/ip dns static add address=192.168.90.88 comment=<AUTO:DHCP:main-dhcp-server> name=ASUS.home ttl=5m
-/ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=android-95914276d1da81b5.home ttl=5m
 /ip dns static add address=192.168.90.1 name=time.windows.com
-/ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
+/ip dns static add address=192.168.90.75 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
 /ip dns static add address=46.39.51.179 name=ftpserver.org
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
@@ -731,7 +726,7 @@
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/21/2017 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/21/2017 start-time=19:19:59
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
-/system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
+/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
 /system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/10/2018 start-time=15:10:00
 /system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=03:25:00
 /system scheduler add interval=1h name=doCheckPingRate on-event="/system script run doCheckPingRate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=02:40:00
@@ -744,7 +739,7 @@
 /system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=06:05:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
-/system scheduler add comment="added by function FuncSchedScriptAdd" interval=30s name="Run script TLGRMcall--05:46:15" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add comment="added by function FuncSchedScriptAdd" interval=30s name="Run script TLGRMcall--22:59:52" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\

@@ -1,4 +1,4 @@
-# sep/23/2022 21:00:03 by RouterOS 6.49.6
+# oct/03/2022 21:00:03 by RouterOS 6.49.6
 # software id = FXCL-E3SF
 #
 # model = RouterBOARD wAP G-5HacT2HnD
@@ -99,8 +99,8 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
 /system logging add action=FTPMemoryLog topics=tftp
 /system note set note="You are logged into: LivingRoomWAP\
     \n############### system health ###############\
-    \nUptime:  00:00:24 d:h:m:s | CPU: 100%\
-    \nRAM: 23428/65536M | Voltage: 23 v | Temp: 61c\
+    \nUptime:  00:00:24 d:h:m:s | CPU: 9%\
+    \nRAM: 23396/65536M | Voltage: 23 v | Temp: 49c\
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n" show-at-login=no
@@ -905,7 +905,6 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n\r\
     \n\r\
     \n      :local KEYSIZE \"2048\"\r\
-    \n      :local USERNAME \"mikrouter\"\r\
     \n\r\
     \n      :local scepUrl \"http://185.13.148.14/scep/grant\";\r\
     \n      :local itsOk true;\r\
@@ -919,7 +918,7 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n                :local state \"CLIENT TEMPLATE certificates generation as IP...  \$USERNAME\";\r\
     \n                \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n                :set tname \"S.\$USERNAME@\$scepAlias\";\r\
+    \n                :set tname \"\$USERNAME@\$scepAlias\";\r\
     \n\r\
     \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\r\
     \n\r\
@@ -928,7 +927,7 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n                :local state \"CLIENT TEMPLATE certificates generation as EMAIL...  \$USERNAME\";\r\
     \n                \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n                :set tname \"C.\$USERNAME@\$scepAlias\";\r\
+    \n                :set tname \"\$USERNAME@\$scepAlias\";\r\
     \n\r\
     \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\r\
     \n\r\
@@ -1283,7 +1282,7 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
