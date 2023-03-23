@@ -1,44 +1,30 @@
-# oct/08/2022 21:00:02 by RouterOS 6.49.6
-# software id = R98Z-YE17
+# mar/23/2023 11:30:32 by RouterOS 7.7
+# software id = IA5H-12KT
 #
-# model = RB4011iGS+
-# serial number = D4440C1FE42A
-/caps-man channel add band=2ghz-b/g/n control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
+# model = RB5009UPr+S+
+# serial number = HCY086PZ6XZ
+/caps-man channel add band=2ghz-b/g/n comment=CH1 control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
 /caps-man channel add band=5ghz-a/n/ac comment="20Mhz + Ce = 40Mhz, reselect interval from 5180, 5220, 5745, 5785 once per 10h" control-channel-width=20mhz extension-channel=Ce frequency=5180,5220,5745,5785 name=common-chnls-5Ghz reselect-interval=10h tx-power=15
 /caps-man configuration add mode=ap name=empty
-/interface bridge add arp=proxy-arp name=guest-infrastructure-br
+/interface bridge add dhcp-snooping=yes igmp-snooping=yes name=guest-infrastructure-br
 /interface bridge add arp=proxy-arp fast-forward=no name=ip-mapping-br
-/interface bridge add admin-mac=48:8F:5A:D4:5F:69 arp=reply-only auto-mac=no name=main-infrastructure-br
+/interface bridge add admin-mac=48:8F:5A:D4:5F:69 arp=reply-only auto-mac=no dhcp-snooping=yes igmp-snooping=yes name=main-infrastructure-br
 /interface bridge add arp=proxy-arp fast-forward=no name=ospf-loopback-br
-/interface ethernet set [ find default-name=ether2 ] name="lan A"
-/interface ethernet set [ find default-name=ether3 ] name="lan B"
-/interface ethernet set [ find default-name=ether4 ] name="lan C"
-/interface ethernet set [ find default-name=ether5 ] name="lan D"
-/interface ethernet set [ find default-name=ether6 ] disabled=yes name="lan E"
-/interface ethernet set [ find default-name=ether7 ] disabled=yes name="lan F"
-/interface ethernet set [ find default-name=ether8 ] disabled=yes name="lan G"
-/interface ethernet set [ find default-name=ether9 ] disabled=yes name="lan H"
-/interface ethernet set [ find default-name=ether10 ] name="lan I" poe-out=forced-on
+/interface ethernet set [ find default-name=ether2 ] arp=disabled comment="to WB (wire)" loop-protect=on name="lan A" poe-out=forced-on
+/interface ethernet set [ find default-name=ether3 ] arp=disabled comment="to miniAlx (wire)" loop-protect=on name="lan B"
+/interface ethernet set [ find default-name=ether4 ] arp=disabled comment="to MbpAlxm (wire)" loop-protect=on name="lan C"
+/interface ethernet set [ find default-name=ether5 ] arp=disabled name="lan D"
+/interface ethernet set [ find default-name=ether6 ] arp=disabled comment="to capxl(wire)" loop-protect=on name="lan E"
+/interface ethernet set [ find default-name=ether7 ] arp=disabled comment="to PC(wire)" loop-protect=on name="lan F"
+/interface ethernet set [ find default-name=ether8 ] comment="to GUEST" loop-protect=on name="lan G"
 /interface ethernet set [ find default-name=sfp-sfpplus1 ] disabled=yes name=optic
-/interface ethernet set [ find default-name=ether1 ] arp=proxy-arp name="wan A"
+/interface ethernet set [ find default-name=ether1 ] arp=proxy-arp mac-address=20:CF:30:DE:7B:2A name="wan A" poe-out=off
 /caps-man datapath add arp=proxy-arp bridge=guest-infrastructure-br name=2CapsMan-guest
 /caps-man datapath add arp=reply-only bridge=main-infrastructure-br client-to-client-forwarding=yes name=2CapsMan-private
 /caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps name="5GHz Rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps vht-basic-mcs=mcs0-9 vht-supported-mcs=mcs0-9
 /caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps ht-basic-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 ht-supported-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 name="2GHz rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps
-/caps-man security add authentication-types=wpa2-psk comment="2GHz/5GHz Security" encryption=aes-ccm group-encryption=aes-ccm group-key-update=1h name=private passphrase=mikrotik
+/caps-man security add authentication-types=wpa2-psk comment="2GHz/5GHz Security" encryption=aes-ccm group-encryption=aes-ccm group-key-update=1h name=private
 /caps-man security add authentication-types="" comment="2GHz/5GHz FREE" encryption="" group-key-update=5m name=guest
-/interface ethernet switch port set 0 default-vlan-id=0
-/interface ethernet switch port set 1 default-vlan-id=0
-/interface ethernet switch port set 2 default-vlan-id=0
-/interface ethernet switch port set 3 default-vlan-id=0
-/interface ethernet switch port set 4 default-vlan-id=0
-/interface ethernet switch port set 5 default-vlan-id=0
-/interface ethernet switch port set 6 default-vlan-id=0
-/interface ethernet switch port set 7 default-vlan-id=0
-/interface ethernet switch port set 8 default-vlan-id=0
-/interface ethernet switch port set 9 default-vlan-id=0
-/interface ethernet switch port set 10 default-vlan-id=0
-/interface ethernet switch port set 11 default-vlan-id=0
 /interface list add comment="Trusted networks" name=list-trusted
 /interface list add comment="Semi-Trusted networks" name=list-semi-trusted
 /interface list add comment="Untrusted networks" name=list-untrusted
@@ -54,13 +40,15 @@
 /interface list add comment="Guest Wireless" include=list-2ghz-caps-guest name=list-guest-wireless
 /interface list add comment="neighbors allowed interfaces" include=list-2ghz-caps-private,list-5ghz-caps-private name=list-neighbors-lookup
 /interface list add comment="Private Wireless" include=list-2ghz-caps-private,list-5ghz-caps-private name=list-private-wireless
+/interface list add comment="infrastructure OSPF interfaces" name=list-ospf-master
+/interface list add comment="support OSPF interfaces" name=list-ospf-bearing
 /caps-man configuration add channel=common-chnls-2Ghz country=russia datapath=2CapsMan-private datapath.interface-list=list-2ghz-caps-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
 /caps-man configuration add channel=common-chnls-5Ghz country=russia datapath=2CapsMan-private datapath.interface-list=list-5ghz-caps-private disconnect-timeout=9s distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-5Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 5Ghz PRIVATE" tx-chains=0,1,2,3
 /caps-man configuration add channel=common-chnls-2Ghz country=russia datapath=2CapsMan-guest datapath.interface-list=list-2ghz-caps-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=anna
-/interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" group-key-update=1h management-protection=allowed mode=dynamic-keys name=private supplicant-identity="" wpa-pre-shared-key=mikrotik wpa2-pre-shared-key=mikrotik
+/interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" group-key-update=1h management-protection=allowed mode=dynamic-keys name=private supplicant-identity=""
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
-/ip dhcp-server add authoritative=after-2sec-delay disabled=no interface=main-infrastructure-br lease-time=1d name=main-dhcp-server
+/ip dhcp-server add authoritative=after-2sec-delay interface=main-infrastructure-br lease-time=1d name=main-dhcp-server
 /ip dhcp-server option add code=15 name=DomainName value="s'home'"
 /ip firewall layer7-protocol add name=EXE regexp=".(exe)"
 /ip firewall layer7-protocol add name=RAR regexp=".(rar)"
@@ -76,15 +64,16 @@
 /ip ipsec policy group add name=outside-ipsec-encryption
 /ip ipsec profile set [ find default=yes ] dh-group=modp1024
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
-/ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" exchange-mode=ike2 local-address=192.168.100.7 name=CHR-external profile=ROUTEROS
+/ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" exchange-mode=ike2 local-address=10.20.225.166 name=CHR-external profile=ROUTEROS
 /ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" local-address=10.0.0.3 name=CHR-internal profile=ROUTEROS
 /ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
 /ip ipsec proposal add auth-algorithms=sha256 enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
+/ip kid-control add fri=0s-1d mon=0s-1d name=totals sat=0s-1d sun=0s-1d thu=0s-1d tue=0s-1d wed=0s-1d
 /ip pool add name=pool-main ranges=192.168.90.100-192.168.90.200
 /ip pool add name=pool-guest ranges=192.168.98.200-192.168.98.230
 /ip pool add name=pool-virtual-machines ranges=192.168.90.0/26
 /ip pool add name=pool-vendor ranges=192.168.90.2-192.168.90.10
-/ip dhcp-server add add-arp=yes address-pool=pool-guest authoritative=after-2sec-delay disabled=no interface=guest-infrastructure-br lease-script="\r\
+/ip dhcp-server add add-arp=yes address-pool=pool-guest authoritative=after-2sec-delay interface=guest-infrastructure-br lease-script="\r\
     \n# Globals\r\
     \n#\r\
     \n:global GleaseBound;\r\
@@ -98,26 +87,17 @@
     \n:set GleaseActIP \$leaseActIP;\r\
     \n\r\
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
-/lora servers add address=eu.mikrotik.thethings.industries down-port=1700 name=TTN-EU up-port=1700
-/lora servers add address=us.mikrotik.thethings.industries down-port=1700 name=TTN-US up-port=1700
-/lora servers add address=eu1.cloud.thethings.industries down-port=1700 name="TTS Cloud (eu1)" up-port=1700
-/lora servers add address=nam1.cloud.thethings.industries down-port=1700 name="TTS Cloud (nam1)" up-port=1700
-/lora servers add address=au1.cloud.thethings.industries down-port=1700 name="TTS Cloud (au1)" up-port=1700
-/lora servers add address=eu1.cloud.thethings.network down-port=1700 name="TTN V3 (eu1)" up-port=1700
-/lora servers add address=nam1.cloud.thethings.network down-port=1700 name="TTN V3 (nam1)" up-port=1700
-/lora servers add address=au1.cloud.thethings.network down-port=1700 name="TTN V3 (au1)" up-port=1700
 /ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
-/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
+/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
 /queue simple add comment=dtq,54:2B:8D:77:38:A0, name="iPhoneAlxr(blocked)@guest-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
-/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhoneAlxr name="iPhoneAlxr@main-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.90.150/32 total-queue=default
+/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhone name="iPhoneAlxr@main-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.90.150/32 total-queue=default
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
 /queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro(blocked)@guest-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.229/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
-/queue simple add comment=dtq,CC:2D:E0:E7:BE:02,LivingRoomWAP name="LivingRoomWap@main-dhcp-server (CC:2D:E0:E7:BE:02)" queue=default/default target=192.168.90.10/32 total-queue=default
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx (wire)@main-dhcp-server (10:DD:B1:9E:19:5E)" queue=default/default target=192.168.90.70/32 total-queue=default
-/queue simple add comment=dtq,78:31:C1:CF:9E:70, name="MbpAlx (wireless)@main-dhcp-server (78:31:C1:CF:9E:70)" queue=default/default target=192.168.90.80/32 total-queue=default
+/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx (wireless)@main-dhcp-server (78:31:C1:CF:9E:70)" queue=default/default target=192.168.90.80/32 total-queue=default
 /queue simple add comment=dtq,38:C9:86:51:D2:B3, name="MbpAlx (wire)@main-dhcp-server (38:C9:86:51:D2:B3)" queue=default/default target=192.168.90.90/32 total-queue=default
 /queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="NAS@main-dhcp-server (00:11:32:2C:A7:85)" queue=default/default target=192.168.90.40/32 total-queue=default
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle@main-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.90.170/32 total-queue=default
@@ -128,19 +108,30 @@
 /queue simple add comment=dtq,00:27:15:CE:B8:DD, name="android(wireless)(blocked)@guest-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.98.140/32 total-queue=default
 /queue simple add comment=dtq,BC:D0:74:0A:B2:6A,MbpAlxm name="MbpAlxm (wireless)@main-dhcp-server (BC:D0:74:0A:B2:6A)" queue=default/default target=192.168.90.75/32 total-queue=default
 /queue simple add comment=dtq,BC:D0:74:0A:B2:6A, name="MbpAlxm(blocked)@guest-dhcp-server (BC:D0:74:0A:B2:6A)" queue=default/default target=192.168.98.75/32 total-queue=default
-/queue simple add comment=dtq,48:65:EE:19:3C:0D, name="MbpAlxm (wire)@main-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.90.85/32 total-queue=default
+/queue simple add comment=dtq,48:65:EE:19:3C:0D,MbpAlxm name="MbpAlxm (wire)@main-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.90.85/32 total-queue=default
 /queue simple add comment=dtq,48:65:EE:19:3C:0D, name="MbpAlxm(blocked)@guest-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.98.85/32 total-queue=default
 /queue simple add comment=dtq,80:34:28:11:EE:7E,wb name="WB (wire)@main-dhcp-server (80:34:28:11:EE:7E)" queue=default/default target=192.168.90.2/32 total-queue=default
 /queue simple add comment=dtq,80:34:28:11:EE:7E, name="WB (wire)(blocked)@guest-dhcp-server (80:34:28:11:EE:7E)" queue=default/default target=192.168.98.2/32 total-queue=default
 /queue simple add comment=dtq,F0:C8:14:48:5B:9A, name="WB (wireless)@main-dhcp-server (F0:C8:14:48:5B:9A)" queue=default/default target=192.168.90.3/32 total-queue=default
 /queue simple add comment=dtq,F0:C8:14:48:5B:9A, name="WB (wireless)(blocked)@guest-dhcp-server (F0:C8:14:48:5B:9A)" queue=default/default target=192.168.98.3/32 total-queue=default
+/queue simple add comment=dtq,18:FD:74:13:6E:33,capxl name="capxl(wire)@main-dhcp-server (18:FD:74:13:6E:33)" queue=default/default target=192.168.90.10/32 total-queue=default
+/queue simple add comment=dtq,F8:3F:51:0D:88:0B,localhost name="SamsungTV(wire)@main-dhcp-server (F8:3F:51:0D:88:0B)" queue=default/default target=192.168.90.205/32 total-queue=default
+/queue simple add comment=dtq,F8:3F:51:0D:88:0B, name="SamsungTV(wire)(blocked)@guest-dhcp-server (F8:3F:51:0D:88:0B)" queue=default/default target=192.168.98.205/32 total-queue=default
+/queue simple add comment=dtq,88:88:88:88:87:88,DESKTOP-QMUE5PH name="AsusPC(wire)@main-dhcp-server (88:88:88:88:87:88)" queue=default/default target=192.168.90.100/32 total-queue=default
+/queue simple add comment=dtq,88:88:88:88:87:88, name="AsusPC(wire)(blocked)@guest-dhcp-server (88:88:88:88:87:88)" queue=default/default target=192.168.98.100/32 total-queue=default
+/queue simple add comment=dtq,90:DD:5D:CA:8F:B0,AlxATV name="AlxATV(wire)@main-dhcp-server (90:DD:5D:CA:8F:B0)" queue=default/default target=192.168.90.201/32 total-queue=default
+/queue simple add comment=dtq,90:DD:5D:CA:8F:B0, name="AlxATV(wire)(blocked)@guest-dhcp-server (90:DD:5D:CA:8F:B0)" queue=default/default target=192.168.98.201/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
 /queue tree add name=7Z packet-mark=7z-mark parent="Total Bandwidth" queue=default
 /queue tree add name=ZIP packet-mark=zip-mark parent="Total Bandwidth" queue=default
-/routing ospf area add area-id=0.0.0.3 default-cost=1 inject-summary-lsas=no name=anna-space type=stub
-/routing ospf instance set [ find default=yes ] name=routes-provider-anna router-id=10.255.255.3
+/routing id add comment="OSPF Common" id=10.255.255.3 name=anna-10.255.255.3
+/routing ospf instance add comment="OSPF Common" disabled=no in-filter-chain=ospf-in name=routes-provider-anna originate-default=always redistribute=ospf router-id=anna-10.255.255.3
+/routing ospf area add area-id=0.0.0.3 default-cost=1 disabled=no instance=routes-provider-anna name=anna-space type=stub
+/routing ospf area add disabled=no instance=routes-provider-anna name=backbone
+/routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
+/routing table add comment="tunnel swing" fib name=rmark-telegram-redirect
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
 /system logging action set 1 disk-file-name=journal
@@ -161,14 +152,16 @@
 /system logging action add name=FirewallOnScreenLog target=memory
 /system logging action add name=SSHOnScreenLog target=memory
 /system logging action add name=PoEOnscreenLog target=memory
-/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
-/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
-/user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
-/user group add name=remote policy=ssh,read,write,!local,!telnet,!ftp,!reboot,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!api,!romon,!dude,!tikapp
-/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-70 ssid-regexp=WiFi
+/system logging action add name=EmailOnScreenLog target=memory
+/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
+/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
+/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AlxATV(wire)" disabled=no mac-address=90:DD:5D:CA:8F:B0 ssid-regexp=""
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AsusPC(wire)" disabled=no mac-address=88:88:88:88:87:88 ssid-regexp=""
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="SamsungTV(wire)" disabled=no mac-address=F8:3F:51:0D:88:0B ssid-regexp=""
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="WB (wireless)" disabled=no mac-address=F0:C8:14:48:5B:9A ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=MbpAlxm disabled=no mac-address=48:65:EE:19:3C:0D ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=MbpAlxm disabled=no mac-address=BC:D0:74:0A:B2:6A ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="MbpAlxm(wireless)" disabled=no mac-address=BC:D0:74:0A:B2:6A ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="android(wireless)" disabled=no mac-address=00:27:15:CE:B8:DD ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="ASUS(wireless)" disabled=no mac-address=54:35:30:05:9B:BD ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=Twinkle disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp="WiFi 5"
@@ -179,25 +172,28 @@
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlxr disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set ca-certificate=ca@CHR certificate=anna.capsman@CHR enabled=yes require-peer-certificate=yes
+/caps-man manager set certificate=anna.capsman@CHR enabled=yes require-peer-certificate=yes
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
 /caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface="wan A"
 /caps-man manager interface add comment="Do CapsMan on private" disabled=no interface=main-infrastructure-br
 /caps-man manager interface add comment="Do CapsMan on guest" disabled=no interface=guest-infrastructure-br
-/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest" hw-supported-modes=gn identity-regexp=WAP master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
-/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private" hw-supported-modes=ac identity-regexp=WAP master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
+/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest" hw-supported-modes=gn identity-regexp=capxl master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
+/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private" hw-supported-modes=ac identity-regexp=capxl master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn identity-regexp=anna master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
 /caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac identity-regexp=anna master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
-/interface bridge port add bridge=main-infrastructure-br interface="lan D"
-/interface bridge port add bridge=main-infrastructure-br interface="lan A"
-/interface bridge port add bridge=main-infrastructure-br interface="lan B"
-/interface bridge port add bridge=main-infrastructure-br interface="lan C"
-/interface bridge port add bridge=main-infrastructure-br interface="lan I"
-/interface bridge settings set allow-fast-path=no
+/interface bridge port add bridge=main-infrastructure-br interface="lan D" trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface="lan A" trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface="lan B" trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface="lan C" trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface="lan E" trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface="lan F" trusted=yes
+/interface bridge port add bridge=guest-infrastructure-br interface="lan G" trusted=yes
+/interface bridge settings set use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=list-neighbors-lookup
-/ip settings set accept-source-route=yes allow-fast-path=no rp-filter=loose tcp-syncookies=yes
+/ip settings set accept-source-route=yes rp-filter=loose tcp-syncookies=yes
+/ipv6 settings set disable-ipv6=yes
 /interface detect-internet set detect-interface-list=all internet-interface-list=list-autodetect-INTERNET lan-interface-list=list-autodetect-LAN wan-interface-list=list-autodetect-WAN
 /interface list member add comment="MGTS, GPON via Huavei" interface="wan A" list=list-untrusted
 /interface list member add comment="GUEST WLAN" interface=guest-infrastructure-br list=list-guest-wireless
@@ -206,23 +202,23 @@
 /interface list member add comment="FW: winbox allowed" interface=main-infrastructure-br list=list-winbox-allowed
 /interface list member add comment="neighbors lookup" interface=tunnel list=list-neighbors-lookup
 /interface list member add comment="FW: drop invalid" interface="wan A" list=list-drop-invalid-connections
+/interface list member add comment=OSPF interface=tunnel list=list-ospf-bearing
+/interface list member add comment=OSPF interface=ospf-loopback-br list=list-ospf-bearing
+/interface list member add interface=main-infrastructure-br list=list-ospf-master
 /interface wireless snooper set receive-errors=yes
-/ip accounting set enabled=yes threshold=1600
-/ip accounting web-access set accessible-via-web=yes
 /ip address add address=192.168.90.1/24 comment="local ip" interface=main-infrastructure-br network=192.168.90.0
 /ip address add address=192.168.98.1/24 comment="local guest wifi" interface=guest-infrastructure-br network=192.168.98.0
 /ip address add address=10.255.255.3 comment="ospf router-id binding" interface=ospf-loopback-br network=10.255.255.3
 /ip address add address=172.16.0.16/30 comment="GRAFANA IP redirect" interface=ip-mapping-br network=172.16.0.16
 /ip address add address=172.16.0.17/30 comment="INFLUXDB IP redirect" interface=ip-mapping-br network=172.16.0.16
-/ip address add address=192.168.100.7/24 comment="wan via ACADO edge router" interface="wan A" network=192.168.100.0
+/ip address add address=10.20.225.166/24 comment="wan via ACADO edge router" interface="wan A" network=10.20.225.0
 /ip arp add address=192.168.90.80 comment="MbpAlx (wireless)" interface=main-infrastructure-br mac-address=78:31:C1:CF:9E:70
 /ip arp add address=192.168.90.200 comment="AlxATV (wireless)" interface=main-infrastructure-br mac-address=90:DD:5D:C8:46:AB
 /ip arp add address=192.168.90.90 comment="MbpAlx (wire)" interface=main-infrastructure-br mac-address=38:C9:86:51:D2:B3
 /ip arp add address=192.168.90.40 comment=NAS interface=main-infrastructure-br mac-address=00:11:32:2C:A7:85
 /ip arp add address=192.168.90.150 comment=iPhoneAlxr interface=main-infrastructure-br mac-address=54:2B:8D:77:38:A0
 /ip arp add address=192.168.90.130 comment=iPadAlxPro interface=main-infrastructure-br mac-address=50:DE:06:25:C2:FC
-/ip arp add address=192.168.100.7 interface="wan A" mac-address=48:8F:5A:D4:5F:68
-/ip arp add address=192.168.90.10 comment=LiwingRoomWAP interface=main-infrastructure-br mac-address=CC:2D:E0:E7:BE:02
+/ip arp add address=192.168.90.10 comment="capxl(wire)" interface=main-infrastructure-br mac-address=18:FD:74:13:6E:33
 /ip arp add address=192.168.90.70 comment="miniAlx (wire)" interface=main-infrastructure-br mac-address=10:DD:B1:9E:19:5E
 /ip arp add address=192.168.90.210 comment=AudioATV interface=main-infrastructure-br mac-address=B0:34:95:50:A1:6A
 /ip arp add address=192.168.90.170 comment=Twinkle interface=main-infrastructure-br mac-address=FC:F5:C4:79:ED:D8
@@ -232,8 +228,12 @@
 /ip arp add address=192.168.90.85 comment="MbpAlxm (wire)" interface=main-infrastructure-br mac-address=48:65:EE:19:3C:0D
 /ip arp add address=192.168.90.2 comment="WB (wire)" interface=main-infrastructure-br mac-address=80:34:28:11:EE:7E
 /ip arp add address=192.168.90.3 comment="WB (wireless)" interface=main-infrastructure-br mac-address=F0:C8:14:48:5B:9A
+/ip arp add address=10.20.225.166 comment="wan via ACADO edge router" interface="wan A" mac-address=20:CF:30:DE:7B:2A
+/ip arp add address=192.168.90.205 comment="SamsungTV(wire)" interface=main-infrastructure-br mac-address=F8:3F:51:0D:88:0B
+/ip arp add address=192.168.90.100 comment="AsusPC(wire)" interface=main-infrastructure-br mac-address=88:88:88:88:87:88
+/ip arp add address=192.168.90.201 comment="AlxATV(wire)" interface=main-infrastructure-br mac-address=90:DD:5D:CA:8F:B0
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
-/ip dhcp-client add add-default-route=no interface="wan A" use-peer-ntp=no
+/ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=yes interface="wan A" use-peer-dns=no use-peer-ntp=no
 /ip dhcp-server lease add address=192.168.90.200 comment="AlxATV (wireless)" mac-address=90:DD:5D:C8:46:AB server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.80 address-lists=alist-osx-hosts client-id=1:78:31:c1:cf:9e:70 comment="MbpAlx (wireless)" mac-address=78:31:C1:CF:9E:70 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.90 address-lists=alist-osx-hosts comment="MbpAlx (wire)" mac-address=38:C9:86:51:D2:B3 server=main-dhcp-server
@@ -244,7 +244,7 @@
 /ip dhcp-server lease add address=192.168.98.229 block-access=yes comment="iPadAlxPro(blocked)" mac-address=50:DE:06:25:C2:FC server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.210 comment="AudioATV (wireless)" mac-address=B0:34:95:50:A1:6A server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.231 block-access=yes comment="AudioATV(blocked)" mac-address=B0:34:95:50:A1:6A server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.10 client-id=1:cc:2d:e0:e7:be:2 comment=LivingRoomWap mac-address=CC:2D:E0:E7:BE:02 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.90.10 comment="capxl(wire)" mac-address=18:FD:74:13:6E:33 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.70 address-lists=alist-osx-hosts client-id=1:10:dd:b1:9e:19:5e comment="miniAlx (wire)" mac-address=10:DD:B1:9E:19:5E server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.170 comment=Twinkle mac-address=FC:F5:C4:79:ED:D8 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.170 block-access=yes comment="Twinkle(blocked)" mac-address=FC:F5:C4:79:ED:D8 server=guest-dhcp-server
@@ -260,6 +260,13 @@
 /ip dhcp-server lease add address=192.168.98.2 block-access=yes comment="WB (wire)(blocked)" mac-address=80:34:28:11:EE:7E server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.3 comment="WB (wireless)" mac-address=F0:C8:14:48:5B:9A server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.3 block-access=yes comment="WB (wireless)(blocked)" mac-address=F0:C8:14:48:5B:9A server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.205 comment="SamsungTV(wire)" mac-address=F8:3F:51:0D:88:0B server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.205 block-access=yes comment="SamsungTV(wire)(blocked)" mac-address=F8:3F:51:0D:88:0B server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.100 comment="AsusPC(wire)" mac-address=88:88:88:88:87:88 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.100 block-access=yes comment="AsusPC(wire)(blocked)" mac-address=88:88:88:88:87:88 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.201 comment="AlxATV(wire)" mac-address=90:DD:5D:CA:8F:B0 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.201 block-access=yes comment="AlxATV(wire)(blocked)" mac-address=90:DD:5D:CA:8F:B0 server=guest-dhcp-server
+/ip dhcp-server matcher add address-pool=pool-vendor code=60 name=vendor-mikrotik-caps server=main-dhcp-server value=mikrotik-cap
 /ip dhcp-server network add address=192.168.90.0/27 caps-manager=192.168.90.1 comment="Network devices, CCTV" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.32/27 caps-manager=192.168.90.1 comment="Virtual machines" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.64/26 caps-manager=192.168.90.1 comment="Mac, Pc" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
@@ -268,8 +275,7 @@
 /ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dns-server=8.8.8.8 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
-/ip dhcp-server vendor-class-id add address-pool=pool-vendor name=vendor-mikrotik-caps server=main-dhcp-server vid=mikrotik-cap
-/ip dns set allow-remote-requests=yes cache-max-ttl=1d max-concurrent-queries=200 max-concurrent-tcp-sessions=30 query-server-timeout=3s use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
+/ip dns set allow-remote-requests=yes cache-max-ttl=1d max-concurrent-queries=200 max-concurrent-tcp-sessions=30 query-server-timeout=3s servers=217.10.36.5,217.10.34.2 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 name=anna.home
 /ip dns static add cname=wb.home name=wb type=CNAME
@@ -287,18 +293,23 @@
 /ip dns static add cname=nas.home name=nas type=CNAME
 /ip dns static add address=192.168.90.40 name=nas.home
 /ip dns static add address=192.168.100.1 name=gateway.home
-/ip dns static add cname=LivingRoomWAP.home name=LivingRoomWAP type=CNAME
-/ip dns static add address=192.168.90.10 name=LivingRoomWAP.home
-/ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m
+/ip dns static add cname=capxl.home name=capxl type=CNAME
+/ip dns static add address=192.168.90.10 name=capxl.home
 /ip dns static add address=192.168.90.70 comment=<AUTO:DHCP:main-dhcp-server> name=miniAlx.home
-/ip dns static add address=192.168.90.200 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=95.213.159.180 name=atv.package2.qello.com
 /ip dns static add address=192.168.90.1 name=time.windows.com
-/ip dns static add address=192.168.90.75 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
-/ip dns static add address=46.39.51.179 name=ftpserver.org
+/ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
+/ip dns static add address=46.39.51.172 name=ftpserver.org
+/ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
+/ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhone.home ttl=5m
+/ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
+/ip dns static add address=192.168.90.80 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlx.home ttl=5m
+/ip dns static add address=192.168.90.100 name=hare.home ttl=5m
+/ip dns static add cname=hare.home name=hare ttl=5m type=CNAME
+/ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -350,10 +361,10 @@
 /ip firewall address-list add address=influxdbsvc.home list=alist-nat-influxdb-service
 /ip firewall address-list add address=auntmia.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=clubseventeen.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=speedtest.tele2.net disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=speedtest.tele2.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.90.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=lostfilm.tv list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=pornhub.com disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=nnmclub.to list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=rutor.org list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=rutor.info list=alist-mangle-vpn-tunneled-sites
@@ -363,12 +374,16 @@
 /ip firewall address-list add address=minialx.home list=alist-fw-port-scanner-allow
 /ip firewall address-list add address=mbpalx.home list=alist-fw-port-scanner-allow
 /ip firewall address-list add address=nas.home list=alist-fw-port-scanner-allow
-/ip firewall address-list add address=asus.home comment=asus.home list=alist-fw-port-scanner-allow
+/ip firewall address-list add address=hare.home comment=asus.home list=alist-fw-port-scanner-allow
 /ip firewall address-list add address=www.parallels.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=instagram.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=facebook.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=l.instagram.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=46.39.51.179 list=alist-nat-external-ip
+/ip firewall address-list add address=192.168.100.7 comment="Add DNS Server to this List" list=alist-fw-dns-allow
+/ip firewall address-list add address=46.39.51.172 list=alist-nat-external-ip
+/ip firewall address-list add address=217.10.36.5 comment="AKADO official DNS server" list=alist-fw-dns-allow
+/ip firewall address-list add address=217.10.34.2 comment="AKADO official DNS server" list=alist-fw-dns-allow
+/ip firewall address-list add address=2ip.ru list=alist-mangle-vpn-tunneled-sites
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -405,7 +420,7 @@
 /ip firewall filter add action=jump chain=input comment="Jump to DNS Amplification" jump-target=chain-dns-amp-attack
 /ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" log-prefix=~~~DNS port=53 protocol=udp src-address-list=alist-fw-dns-allow
 /ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" dst-address-list=alist-fw-dns-allow log-prefix=~~~DNS port=53 protocol=udp
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-dns-amp-block address-list-timeout=10h chain=chain-dns-amp-attack comment="Add DNS Amplification to Blacklist" port=53 protocol=udp src-address-list=!alist-fw-dns-allow
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-dns-amp-block address-list-timeout=10h chain=chain-dns-amp-attack comment="Add DNS Amplification to Blacklist" log=yes log-prefix=~~~~DNS port=53 protocol=udp src-address-list=!alist-fw-dns-allow
 /ip firewall filter add action=drop chain=chain-dns-amp-attack comment="Drop DNS Amplification" src-address-list=alist-fw-dns-amp-block
 /ip firewall filter add action=return chain=chain-dns-amp-attack comment="Return from DNS Amplification"
 /ip firewall filter add action=accept chain=input comment="Self fetch requests" log-prefix=WEB port=80 protocol=tcp
@@ -609,9 +624,9 @@
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=alist-mangle-vpn-tunneled-sites new-connection-mark=cmark-tunnel-connection passthrough=yes
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new dst-address-list=alist-fw-telegram-servers new-connection-mark=cmark-tunnel-connection passthrough=yes
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-telegram-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-telegram-redirect passthrough=no
 /ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY
 /ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark layer7-protocol=7Z new-connection-mark=conn-7z-download passthrough=yes
 /ip firewall mangle add action=mark-packet chain=prerouting comment=7z connection-mark=conn-7z-download layer7-protocol=7Z log-prefix=~~~DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
@@ -644,26 +659,21 @@
 /ip firewall nat add action=dst-nat chain=dstnat comment="RDP NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=3389 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.80 to-ports=3389
 /ip firewall nat add action=masquerade chain=srcnat comment="all WAN allowed" dst-address-list=!alist-fw-vpn-subnets out-interface="wan A"
 /ip firewall service-port set tftp disabled=yes
-/ip firewall service-port set irc disabled=yes
 /ip firewall service-port set h323 disabled=yes
 /ip firewall service-port set sip disabled=yes
 /ip firewall service-port set pptp disabled=yes
-/ip firewall service-port set udplite disabled=yes
-/ip firewall service-port set dccp disabled=yes
-/ip firewall service-port set sctp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
 /ip ipsec identity add auth-method=digital-signature certificate=anna.ipsec@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
-/ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
+/ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=192.168.100.7/32 src-port=1701
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
 /ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
-/ip proxy access add action=deny dst-host=grafana redirect-to=192.168.90.180:3000
-/ip proxy access add action=deny dst-host=influxdb redirect-to=192.168.90.180:8000
-/ip route add comment="GLOBAL MGTS" distance=50 gateway=192.168.100.1
-/ip route rule add action=unreachable comment="LAN/GUEST isolation" dst-address=192.168.98.0/24 src-address=192.168.90.0/24
-/ip route rule add action=unreachable comment="LAN/GUEST isolation" dst-address=192.168.90.0/24 src-address=192.168.98.0/24
-/ip route rule add comment=API.TELEGRAM.ORG dst-address=149.154.167.0/24 table=mark-telegram
+/ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
+/ip proxy access add action=redirect action-data=influxdb:8000 dst-host=influxdb
+/ip route add comment="GLOBAL AKADO" disabled=no distance=50 dst-address=0.0.0.0/0 gateway=10.20.225.1 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+/ip route add comment="GLOBAL VPN" disabled=no distance=110 dst-address=0.0.0.0/0 gateway=10.0.0.1 pref-src=10.0.0.3 routing-table=rmark-vpn-redirect scope=30 suppress-hw-offload=no target-scope=10
+/ip route add comment="GLOBAL VPN" disabled=no distance=110 dst-address=192.168.97.0/30 gateway=10.0.0.1 pref-src=10.0.0.3 routing-table=rmark-vpn-redirect scope=30 suppress-hw-offload=no target-scope=10
 /ip service set telnet disabled=yes
 /ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
@@ -676,13 +686,13 @@
 /ip upnp interfaces add interface="wan A" type=external
 /ip upnp interfaces add interface=main-infrastructure-br type=internal
 /ip upnp interfaces add interface=guest-infrastructure-br type=internal
-/routing filter add action=discard chain=ospf-in comment="discard intra area routes" ospf-type=intra-area
-/routing filter add action=accept chain=ospf-in comment="set default remote route mark" prefix-length=0 set-pref-src=10.0.0.3 set-route-comment="GLOBAL VPN" set-routing-mark=rmark-vpn-redirect
-/routing filter add action=accept chain=ospf-in comment="set pref source" set-pref-src=10.0.0.3
-/routing ospf nbma-neighbor add address=10.255.255.1
-/routing ospf network add area=anna-space network=192.168.90.0/24
-/routing ospf network add area=backbone network=10.0.0.0/29
-/routing ospf network add area=backbone network=10.255.255.3/32
+/routing filter rule add chain=ospf-in comment="discard intra area routes" rule="if ( protocol ospf && ospf-type intra) { reject; }"
+/routing filter rule add chain=ospf-in comment="set default remote route mark and pref src" rule="if ( protocol ospf && dst-len==0) { set pref-src 10.0.0.3 ; set comment GLOBAL-VPN ; accept; }"
+/routing ospf interface-template add area=backbone cost=10 disabled=no interfaces=list-ospf-bearing networks=10.0.0.0/29,10.255.255.3/32 priority=1
+/routing ospf interface-template add area=anna-space cost=10 disabled=no interfaces=list-ospf-master networks=192.168.90.0/24 priority=1
+/routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.98.0/24 src-address=192.168.90.0/24
+/routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.90.0/24 src-address=192.168.98.0/24
+/routing rule add action=lookup-only-in-table comment=API.TELEGRAM.ORG disabled=yes dst-address=149.154.167.0/24 table=rmark-vpn-redirect
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
 /system clock set time-zone-name=Europe/Moscow
 /system identity set name=anna
@@ -713,6 +723,7 @@
 /system logging add action=ParseMemoryLog topics=info,system
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
+/system logging add action=EmailOnScreenLog topics=e-mail
 /system note set note="You are logged into: anna\
     \n############### system health ###############\
     \nUptime:  1d04:19:45 d:h:m:s | CPU: 5%\
@@ -720,13 +731,15 @@
     \n############# user auth details #############\
     \nHotspot online: 0 | PPP online: 0\
     \n" show-at-login=no
-/system ntp client set enabled=yes primary-ntp=85.21.78.91 secondary-ntp=46.254.216.9
+/system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
+/system ntp client servers add address=85.21.78.91
+/system ntp client servers add address=ru.pool.ntp.org
 /system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jan/30/2017 start-time=18:57:09
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/21/2017 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/21/2017 start-time=19:19:59
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
-/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
+/system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
 /system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/10/2018 start-time=15:10:00
 /system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=03:25:00
 /system scheduler add interval=1h name=doCheckPingRate on-event="/system script run doCheckPingRate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=02:40:00
@@ -739,7 +752,7 @@
 /system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=06:05:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
-/system scheduler add comment="added by function FuncSchedScriptAdd" interval=30s name="Run script TLGRMcall--22:59:52" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add comment="added by function FuncSchedScriptAdd" interval=30s name="Run script TLGRMcall--05:46:15" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -970,7 +983,7 @@
     \n}\r\
     \n\r\
     \n"
-/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConcole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doCoolConcole\";\r\
     \n\r\
@@ -1271,7 +1284,7 @@
     \n}\r\
     \n\r\
     \n:local perf \"%D0%9F%D1%80%D0%BE%D0%B8%D0%B7%D0%B2%D0%BE%D0%B4%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D0%BE%D1%81%D1%82%D1%8C%20%D0%BA%D0%B0%D0%BD%D0%B0%D0%BB%D0%B0%3A%20\";\r\
-    \n:local stats \"\$ds-\$ts tx: \$txAvg Mbps - rx: \$rxAvg Mbps\";\r\
+    \n:local stats \"\$ds-\$ts upload: \$txAvg Mbps - download: \$rxAvg Mbps\";\r\
     \n\r\
     \n:log info (\"VPN Tunnel speed \$stats\");\r\
     \n:put \"VPN Tunnel speed \$stats\";\r\
@@ -1561,7 +1574,7 @@
     \n\r\
     \n/system script run SATELLITEstart;\r\
     \n\r\
-    \n/system script run doCoolConcole;\r\
+    \n/system script run doCoolConsole;\r\
     \n\r\
     \n/system script run doImperialMarch;\r\
     \n\r\
@@ -2719,159 +2732,169 @@
     \n  \r\
     \n}\r\
     \n"
-/system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doBackup\";\r\
-    \n\r\
-    \n:local sysname [/system identity get name]\r\
-    \n:local sysver [/system package get system version]\r\
-    \n:local scriptname \"doBackup\"\r\
-    \n:local saveSysBackup true\r\
-    \n:local encryptSysBackup false\r\
-    \n:local saveRawExport true\r\
-    \n:local verboseRawExport false\r\
-    \n:local state \"\"\r\
-    \n\r\
-    \n:local ts [/system clock get time]\r\
-    \n:set ts ([:pick \$ts 0 2].[:pick \$ts 3 5].[:pick \$ts 6 8])\r\
-    \n:local ds [/system clock get date]\r\
-    \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\
-    \n\r\
-    \n#directories have to exist!\r\
-    \n:local FTPEnable true\r\
-    \n:local FTPServer \"nas.home\"\r\
-    \n:local FTPPort 21\r\
-    \n:local FTPUser \"git\"\r\
-    \n:local FTPPass \"git\"\r\
-    \n:local FTPRoot \"/REPO/backups/\"\r\
-    \n:local FTPGitEnable true\r\
-    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_latest.rsc\"\r\
-    \n\r\
-    \n:local SMTPEnable true\r\
-    \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\
-    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\
-    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n\r\
-    \n:local itsOk true;\r\
-    \n\r\
-    \n:do {\r\
-    \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
-    \n} on-error={ \r\
-    \n  :set state \"FTP server looks like to be unreachable\"\r\
-    \n  \$globalNoteMe value=\$state;\r\
-    \n  :set itsOk false;\r\
-    \n}\r\
-    \n\r\
-    \n:local fname (\"BACKUP-\$sysname-\$ds-\$ts\")\r\
-    \n\r\
-    \n:if (\$saveSysBackup and \$itsOk) do={\r\
-    \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
-    \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\
-    \n  :delay 2s;\r\
-    \n  \$globalNoteMe value=\"System Backup Finished\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (\$saveRawExport and \$itsOk) do={\r\
-    \n  :if (\$FTPGitEnable ) do={\r\
-    \n     #do not apply hide-sensitive flag\r\
-    \n     :if (\$verboseRawExport = true) do={ /export terse verbose file=(\$fname.\".safe.rsc\") }\r\
-    \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\
-    \n     :delay 2s;\r\
-    \n  }\r\
-    \n  \$globalNoteMe value=\"Raw configuration script export Finished\"\r\
-    \n}\r\
-    \n\r\
-    \n:delay 5s\r\
-    \n\r\
-    \n:local buFile \"\"\r\
-    \n\r\
-    \n:foreach backupFile in=[/file find] do={\r\
-    \n  :set buFile ([/file get \$backupFile name])\r\
-    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\" and \$itsOk) do={\r\
-    \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\
-    \n    if (\$FTPEnable and \$itsOk) do={\r\
-    \n        :do {\r\
-    \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\
-    \n        \$globalNoteMe value=\$state\r\
-    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\
-    \n        \$globalNoteMe value=\"Done\"\r\
-    \n        } on-error={ \r\
-    \n          :set state \"Error When \$state\"\r\
-    \n          \$globalNoteMe value=\$state;\r\
-    \n          :set itsOk false;\r\
-    \n       }\r\
-    \n\r\
-    \n        #special ftp upload for git purposes\r\
-    \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\
-    \n            :do {\r\
-    \n            :set state \"Uploading \$buFile to FTP (RAW, \$FTPRawGitName)\"\r\
-    \n            \$globalNoteMe value=\$state\r\
-    \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
-    \n            \$globalNoteMe value=\"Done\"\r\
-    \n            } on-error={ \r\
-    \n              :set state \"Error When \$state\"\r\
-    \n              \$globalNoteMe value=\$state;\r\
-    \n              :set itsOk false;\r\
-    \n           }\r\
-    \n        }\r\
-    \n\r\
-    \n    }\r\
-    \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\
-    \n        :do {\r\
-    \n        :set state \"Uploading \$buFile to SMTP\"\r\
-    \n        \$globalNoteMe value=\$state\r\
-    \n\r\
-    \n        #email works in background, delay needed\r\
-    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile\r\
-    \n\r\
-    \n        #waiting for email to be delivered\r\
-    \n        :delay 15s;\r\
-    \n\r\
-    \n        :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\r\
-    \n\r\
-    \n        if (!\$emlResult) do={\r\
-    \n\r\
-    \n          :set state \"Error When \$state\"\r\
-    \n          \$globalNoteMe value=\$state;\r\
-    \n          :set itsOk false;\r\
-    \n\r\
-    \n        } else={\r\
-    \n\r\
-    \n          \$globalNoteMe value=\"Done\"\r\
-    \n       \r\
-    \n        }\r\
-    \n\r\
-    \n        } on-error={ \r\
-    \n          :set state \"Error When \$state\"\r\
-    \n          \$globalNoteMe value=\$state;\r\
-    \n          :set itsOk false;\r\
-    \n       }\r\
-    \n    }\r\
-    \n\r\
-    \n    :delay 2s;\r\
-    \n    /file remove \$backupFile;\r\
-    \n\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: Automatic Backup Completed Successfully\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n  \r\
-    \n}"
+/system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\r\
+    \n\$globalScriptBeforeRun \"doBackup\";\r\r\
+    \n\r\r\
+    \n:local sysname [/system identity get name]\r\r\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
+    \n\r\r\
+    \n:local sysver \"NA\"\r\r\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
+    \n  :local sysver [/system package get system version]\r\r\
+    \n}\r\r\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] = 0 and \$rosVer = 7 ) do={\r\r\
+    \n  :local sysver [/system package get routeros version]\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:local scriptname \"doBackup\"\r\r\
+    \n:local saveSysBackup true\r\r\
+    \n:local encryptSysBackup false\r\r\
+    \n:local saveRawExport true\r\r\
+    \n:local verboseRawExport false\r\r\
+    \n:local state \"\"\r\r\
+    \n\r\r\
+    \n:local ts [/system clock get time]\r\r\
+    \n:set ts ([:pick \$ts 0 2].[:pick \$ts 3 5].[:pick \$ts 6 8])\r\r\
+    \n:local ds [/system clock get date]\r\r\
+    \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\r\
+    \n\r\r\
+    \n#directories have to exist!\r\r\
+    \n:local FTPEnable true\r\r\
+    \n:local FTPServer \"nas.home\"\r\r\
+    \n:local FTPPort 21\r\r\
+    \n:local FTPUser \"git\"\r\r\
+    \n:local FTPPass \"git\"\r\r\
+    \n:local FTPRoot \"/REPO/backups/\"\r\r\
+    \n:local FTPGitEnable true\r\r\
+    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_latest.rsc\"\r\r\
+    \n\r\r\
+    \n:local SMTPEnable true\r\r\
+    \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\r\
+    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\r\
+    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\r\
+    \n\r\r\
+    \n:global globalNoteMe;\r\r\
+    \n\r\r\
+    \n:local itsOk true;\r\r\
+    \n\r\r\
+    \n:do {\r\r\
+    \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\r\
+    \n} on-error={ \r\r\
+    \n  :set state \"FTP server looks like to be unreachable\"\r\r\
+    \n  \$globalNoteMe value=\$state;\r\r\
+    \n  :set itsOk false;\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:local fname (\"BACKUP-\$sysname-\$ds-\$ts\")\r\r\
+    \n\r\r\
+    \n:if (\$saveSysBackup and \$itsOk) do={\r\r\
+    \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\r\
+    \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\r\
+    \n  :delay 2s;\r\r\
+    \n  \$globalNoteMe value=\"System Backup Finished\"\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:if (\$saveRawExport and \$itsOk) do={\r\r\
+    \n  :if (\$FTPGitEnable ) do={\r\r\
+    \n     #do not apply hide-sensitive flag\r\r\
+    \n     :if (\$verboseRawExport = true) do={ /export terse verbose file=(\$fname.\".safe.rsc\") }\r\r\
+    \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\r\
+    \n     :delay 2s;\r\r\
+    \n  }\r\r\
+    \n  \$globalNoteMe value=\"Raw configuration script export Finished\"\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:delay 5s\r\r\
+    \n\r\r\
+    \n:local buFile \"\"\r\r\
+    \n\r\r\
+    \n:foreach backupFile in=[/file find] do={\r\r\
+    \n  :set buFile ([/file get \$backupFile name])\r\r\
+    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\" and \$itsOk) do={\r\r\
+    \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\r\
+    \n    if (\$FTPEnable and \$itsOk) do={\r\r\
+    \n        :do {\r\r\
+    \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\r\
+    \n        \$globalNoteMe value=\$state\r\r\
+    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\r\
+    \n        \$globalNoteMe value=\"Done\"\r\r\
+    \n        } on-error={ \r\r\
+    \n          :set state \"Error When \$state\"\r\r\
+    \n          \$globalNoteMe value=\$state;\r\r\
+    \n          :set itsOk false;\r\r\
+    \n       }\r\r\
+    \n\r\r\
+    \n        #special ftp upload for git purposes\r\r\
+    \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\r\
+    \n            :do {\r\r\
+    \n            :set state \"Uploading \$buFile to GIT-FTP (RAW, \$FTPRawGitName)\"\r\r\
+    \n            \$globalNoteMe value=\$state\r\r\
+    \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\r\
+    \n            \$globalNoteMe value=\"Done\"\r\r\
+    \n            } on-error={ \r\r\
+    \n              :set state \"Error When \$state\"\r\r\
+    \n              \$globalNoteMe value=\$state;\r\r\
+    \n              :set itsOk false;\r\r\
+    \n           }\r\r\
+    \n        }\r\r\
+    \n\r\r\
+    \n    }\r\r\
+    \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\r\
+    \n        :do {\r\r\
+    \n        :set state \"Uploading \$buFile to SMTP\"\r\r\
+    \n        \$globalNoteMe value=\$state\r\r\
+    \n\r\r\
+    \n        #email works in background, delay needed\r\r\
+    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile tls=starttls\r\r\
+    \n\r\r\
+    \n        #waiting for email to be delivered\r\r\
+    \n        :delay 15s;\r\r\
+    \n\r\r\
+    \n        :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\r\r\
+    \n\r\r\
+    \n        if (!\$emlResult) do={\r\r\
+    \n\r\r\
+    \n          :set state \"Error When \$state\"\r\r\
+    \n          \$globalNoteMe value=\$state;\r\r\
+    \n          :set itsOk false;\r\r\
+    \n\r\r\
+    \n        } else={\r\r\
+    \n\r\r\
+    \n          \$globalNoteMe value=\"Done\"\r\r\
+    \n       \r\r\
+    \n        }\r\r\
+    \n\r\r\
+    \n        } on-error={ \r\r\
+    \n          :set state \"Error When \$state\"\r\r\
+    \n          \$globalNoteMe value=\$state;\r\r\
+    \n          :set itsOk false;\r\r\
+    \n       }\r\r\
+    \n    }\r\r\
+    \n\r\r\
+    \n    :delay 2s;\r\r\
+    \n    /file remove \$backupFile;\r\r\
+    \n\r\r\
+    \n  }\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:local inf \"\"\r\r\
+    \n:if (\$itsOk) do={\r\r\
+    \n  :set inf \"\$scriptname on \$sysname: Automatic Backup Completed Successfully\"\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:if (!\$itsOk) do={\r\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n\$globalNoteMe value=\$inf\r\r\
+    \n\r\r\
+    \n:if (!\$itsOk) do={\r\r\
+    \n\r\r\
+    \n  :global globalTgMessage;\r\r\
+    \n  \$globalTgMessage value=\$inf;\r\r\
+    \n  \r\r\
+    \n}\r\r\
+    \n"
 /system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doRandomGen\";\r\
@@ -3443,62 +3466,53 @@
     \n\r\
     \n"
 /system script add comment="A very special script for CFG restore from *.rsc files (not from backup). This one should be placed at flash/perfectrestore.rsc, your config should be at flash/backup.rsc. Run 'Reset confuguration' with 'no default config', choose 'flash/perfectrestore.rsc' as 'run after reset. Pretty logs will be at flash/import.log and flash/perfectrestore.log" dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="{\r\r\
-    \n\r\r\
     \n:global targetfile \"backup.rsc\"\r\r\
     \n:global importlog \"import.log\"\r\r\
     \n:global debuglog \"perfectrestore.log\"\r\r\
-    \n\r\r\
+    \n:global rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
     \n/file remove [find name ~\"\$importlog\"]\r\r\
     \n/file remove [find name ~\"\$debuglog\"]\r\r\
-    \n\r\r\
     \n# Wait for interfaces to initialize\r\r\
     \n:delay 5s\r\r\
-    \n\r\r\
     \n# Beep Functions\r\r\
     \n :local doStartBeep [:parse \":beep frequency=1000 length=300ms;:delay 150ms;:beep frequency=1500 length=300ms;\"];\r\r\
     \n :local doFinishBeep [:parse \":beep frequency=1000 length=.6;:delay .5s;:beep frequency=1600 length=.6;:delay .5s;:beep frequency=2100 length=.3;:delay .3s;:beep frequency=2500 length=.3;:delay .3s;:beep frequency=2400 length=1;\"];\r\r\
-    \n\r\r\
     \n# Setup temporary logging to disk\r\r\
+    \n/system logging action remove [find where name~\"perfect\"]\r\r\
     \n/system logging action add disk-file-count=1 disk-file-name=\$debuglog disk-lines-per-file=4096 name=perfectrestore target=disk\r\r\
+    \n/system logging remove [find where action~\"perfect\"]\r\r\
     \n/system logging add action=perfectrestore topics=system,info\r\r\
     \n/system logging add action=perfectrestore topics=script,info\r\r\
     \n/system logging add action=perfectrestore topics=warning\r\r\
     \n/system logging add action=perfectrestore topics=error\r\r\
     \n/system logging add action=perfectrestore topics=critical\r\r\
     \n/system logging add action=perfectrestore topics=debug,!packet\r\r\
-    \n\r\r\
     \n# checks if specific packages exist\r\r\
-    \n:if ( [ :len [ /system package find where name=\"ntp\" and disabled=no ] ] = 0 ) do={\r\r\
+    \n:if ( [ :len [ /system package find where name=\"ntp\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
     \n  :log error \"NTP package should be installed for NTP-server to work\";\r\r\
     \n  :error \"NTP package should be installed for NTP-server to work\";\r\r\
     \n}\r\r\
-    \n\r\r\
-    \n:if ( [ :len [ /system package find where name=\"iot\" and disabled=no ] ] = 0 ) do={\r\r\
+    \n:if ( [ :len [ /system package find where name=\"iot\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
     \n  :log error \"IOT package should be installed\";\r\r\
     \n  :error \"IOT package should be installed\";\r\r\
     \n}\r\r\
-    \n\r\r\
-    \n:if ( [ :len [ /system package find where name=\"lora\" and disabled=no ] ] = 0 ) do={\r\r\
+    \n:if ( [ :len [ /system package find where name=\"lora\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
     \n  :log error \"LORA package should be installed\";\r\r\
     \n  :error \"LORA package should be installed\";\r\r\
     \n}\r\r\
-    \n\r\r\
     \n# Play Audible Start Sequence\r\r\
     \n\$doStartBeep\r\r\
-    \n\r\r\
     \n:log warning \"GO -----------------------------------------------------------------------------\";\r\r\
     \n/user active print detail file=activeUsers.txt;\r\r\
     \n:global currentUsers [/file get activeUsers.txt contents];\r\r\
     \n:log warning \"ENVIRONMENT IS \$currentUsers\";\r\r\
-    \n\r\r\
     \n# bug 6.49.6 - lora servers stay OK after /system reset-configuration no-defaults=yes\r\r\
-    \n/lora servers remove [find]\r\r\
+    \n#/lora servers remove [find]\r\r\
     \n\r\r\
+    \n:log warning \"CREATING ASYNC WRAPPER -----------------------------------------------------------------------------\";\r\r\
     \n:local AcyncAwait do={\r\r\
-    \n\r\r\
     \n  # this one calls Fetch and catches its errors\r\r\
     \n  :if (([:len \$1] > 0) and ([:len \$2] > 0)) do={\r\r\
-    \n\r\r\
     \n      # something like \r\r\
     \n      # \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\r\r\
     \n      # or\r\r\
@@ -3507,27 +3521,20 @@
     \n      :local outputFile \"\$2\";\r\r\
     \n      :local state \"AS-AW--------------------------: I'm now calling and waiting result for: \$Cmd\";\r\r\
     \n      :log info \$state;\r\r\
-    \n\r\r\
     \n      /file remove [find where name=\"\$outputFile\"]\r\r\
     \n      {\r\r\
     \n          :local jobid [:execute file=\"\$outputFile\" script=\$Cmd]\r\r\
-    \n\r\r\
     \n          :local state \"AS-AW----------------------: Waiting the end of process for file \$outputFile to be ready, max 40 seconds...\";\r\r\
     \n          :log info \$state;\r\r\
-    \n\r\r\
     \n          :global Gltesec 0\r\r\
     \n          :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 40)) do={\r\r\
     \n              :set Gltesec (\$Gltesec + 1)\r\r\
     \n              :delay 1s\r\r\
-    \n\r\r\
     \n              :local state \"AS-AW-------------------: waiting... \$Gltesec\";\r\r\
     \n              :log info \$state;\r\r\
-    \n\r\r\
     \n          }\r\r\
-    \n\r\r\
     \n          :local state \"AS-AW------------------------: Done. Elapsed Seconds: \$Gltesec\\r\\n\";\r\r\
     \n          :log info \$state;\r\r\
-    \n\r\r\
     \n          :if ([:len [/file find where name=\"\$outputFile\"]] = 1) do={\r\r\
     \n              :local filecontent [/file get [/file find where name=\"\$outputFile\"] contents]\r\r\
     \n              :log warning \"AS-AW--------------------: Result of CALL:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\"\r\r\
@@ -3538,22 +3545,16 @@
     \n  }\r\r\
     \n}\r\r\
     \n\r\r\
-    \n\r\r\
     \n:do {\r\r\
-    \n\r\r\
     \n  :log warning \"CERT  -----------------------------------------------------------------------------\";\r\r\
-    \n\r\r\
     \n  # IPSEC\\CAPSMAN\\DoH\\Etc certs have to be imported before the other config is restored\r\r\
     \n  # should be located in Files root\r\r\
     \n  # look through your backup.rsc before \r\r\
-    \n\r\r\
     \n  # certificates in '*.p12' format without password protection (without private keys)\r\r\
     \n  :local certImportListPublicKeys [:toarray \"ca@CHR\"];\r\r\
     \n  # certificates in '*.p12' format protected using password (containing private keys), set the password to '1234567890' or rewrite the script\r\r\
     \n  :local certImportListPrivateKeys [:toarray \"anna.capsman@CHR,anna.ipsec@CHR\"];\r\r\
-    \n\r\r\
     \n  :foreach certFile in=\$certImportListPublicKeys do={\r\r\
-    \n\r\r\
     \n    :local certFileName \"\$certFile.p12\";\r\r\
     \n    :if ([:len [/file find name=\$certFileName]] > 0) do={\r\r\
     \n    :log info \"GOT PUB CERTIFICATE '\$certFile'\";\r\r\
@@ -3561,11 +3562,8 @@
     \n    } else={\r\r\
     \n      :log error \"CANT GET PUB CERTIFICATE FOR '\$certFile'\";\r\r\
     \n    }\r\r\
-    \n\r\r\
     \n  }\r\r\
-    \n\r\r\
     \n  :foreach certFile in=\$certImportListPrivateKeys do={\r\r\
-    \n\r\r\
     \n    :local certFileName \"\$certFile.p12\";\r\r\
     \n    :if ([:len [/file find name=\$certFileName]] > 0) do={\r\r\
     \n    :log info \"GOT PRIV CERTIFICATE '\$certFile'\";\r\r\
@@ -3573,34 +3571,25 @@
     \n    } else={\r\r\
     \n      :log error \"CANT GET PRIV CERTIFICATE FOR '\$certFile'\";\r\r\
     \n    }\r\r\
-    \n\r\r\
     \n  }\r\r\
-    \n  \r\r\
     \n  :local content [/file get [/file find name=\"\$targetfile\"] contents] ;\r\r\
     \n  :local contentLen [ :len \$content ] ;\r\r\
     \n  :if ([:len \$contentLen] = 0) do={\r\r\
     \n     :log error (\"Could not retrieve \$targetfile contents (file size limitation)\")\r\r\
     \n  }\r\r\
-    \n  \r\r\
     \n  :local certNameStart 0;\r\r\
     \n  :local certName \"\";\r\r\
     \n  :local certNameEnd 0;\r\r\
     \n  :local lastEnd 0;\r\r\
     \n  :local key \"certificate=\";\r\r\
     \n  :do {\r\r\
-    \n\r\r\
     \n    :put \"Lookup.. \$key starting at \$lastEnd out of \$contentLen\"\r\r\
     \n    :set certNameStart [:find \$content \$key \$lastEnd ] ;\r\r\
-    \n\r\r\
     \n    :if ( [:typeof \$certNameStart] != \"nil\") do={\r\r\
-    \n\r\r\
     \n      :set certNameEnd [:find \$content \" \" \$certNameStart] ;\r\r\
-    \n\r\r\
     \n      :if ( [:typeof \$certNameEnd ] != \"nil\" ) do={\r\r\
-    \n      \r\r\
     \n        :set certName [:pick \$content \$certNameStart \$certNameEnd ] ;\r\r\
     \n        :set lastEnd ( \$certNameEnd + 2 ) ; \r\r\
-    \n        \r\r\
     \n        :log info \"Certificate needed \$certname\"; \r\r\
     \n        :global entry [:pick \$line 0 \$lineEnd ]\r\r\
     \n      } else={\r\r\
@@ -3612,73 +3601,45 @@
     \n        :set lastEnd \$contentLen ; \r\r\
     \n    }\r\r\
     \n  } while (\$lastEnd < ( \$contentLen -2 ) )\r\r\
-    \n\r\r\
     \n} on-error={\r\r\
-    \n\r\r\
     \n:log error \"CERT ERROR  -----------------------------------------------------------------------------\"\r\r\
-    \n\r\r\
     \n}\r\r\
-    \n\r\r\
-    \n\r\r\
-    \n\r\r\
-    \n\r\r\
     \n:do {\r\r\
-    \n\r\r\
     \n  # Import the rsc file\r\r\
     \n  :log warning \" IMPORT -----------------------------------------------------------------------------\"\r\r\
-    \n\r\r\
     \n  :local importCmd \":import file-name=\$targetfile verbose=yes\"\r\r\
-    \n\r\r\
     \n  :log info \"RESTORE START\";\r\r\
-    \n  \r\r\
     \n  # DO IT ASYNC!! So we have to wait for it\r\r\
     \n  \$AcyncAwait \$importCmd \"import.log.txt\";\r\r\
-    \n\r\r\
     \n  # wait for confuguration beeng applied\r\r\
     \n  :log info \"POST IMPORT DELAY FOR CONFIGURATION BEING APPLIED\";\r\r\
     \n  :delay 10s;\r\r\
-    \n\r\r\
-    \n\r\r\
     \n  :log info \"END IMPORT file=\$targetfile  -----------------------------------------------------------------------------\"\r\r\
-    \n\r\r\
     \n} on-error={\r\r\
-    \n\r\r\
     \n:log error \"ERROR IMPORT  -----------------------------------------------------------------------------\"\r\r\
-    \n\r\r\
     \n}\r\r\
-    \n\r\r\
     \n:do {\r\r\
-    \n\r\r\
     \n  :log warning \"USERS -----------------------------------------------------------------------------\"\r\r\
-    \n\r\r\
     \n  :local mgmtUsername \"owner\"; # main administrator\r\r\
     \n  :log info \"CREATING MAIN ADMIN USER. new username W/O password (SET IT AFTER FIRST LOGON)- '\$mgmtUsername'\";\r\r\
     \n  /user remove [/user find name=\$mgmtUsername];\r\r\
     \n  /user add name=\$mgmtUsername group=full comment=\"management user\" password=\"\";\r\r\
-    \n\r\r\
-    \n\r\r\
     \n  :local mgmtUsername \"reserved\"; # additional admin user, it has its own script to periodically regenerate password\r\r\
     \n  :local thePass ([/certificate scep-server otp generate minutes-valid=0 as-value]->\"password\");\r\r\
     \n  :log info \"CREATING ADDITIONAL ADMIN USER. new username - '\$mgmtUsername':'\$thePass'\";\r\r\
     \n  /user remove [/user find name=\$mgmtUsername];\r\r\
     \n  /user add name=\$mgmtUsername group=full comment=\"additional admin\" password=\"\$thePass\";\r\r\
-    \n\r\r\
     \n  :local mgmtUsername \"automation\"; # user for /system ssh-exec\r\r\
     \n  :local thePass ([/certificate scep-server otp generate minutes-valid=0 as-value]->\"password\");\r\r\
-    \n\r\r\
     \n  :log info \"CREATING NEW USER AND CHANGING SCRIPTS AND SCHEDULES OWNAGE. new username - '\$mgmtUsername':'\$thePass'\";\r\r\
     \n  /user remove [/user find name=\$mgmtUsername];\r\r\
     \n  /user add name=\$mgmtUsername group=full comment=\"outgoing SSH user\" password=\"\$thePass\";\r\r\
-    \n\r\r\
     \n  :log warning \"USERS - OK\"\r\r\
     \n} on-error={ \r\r\
     \n  :log error \"USERS - ERROR\"\r\r\
     \n}\r\r\
-    \n\r\r\
     \n:do {\r\r\
-    \n\r\r\
     \n  :log warning \"SSH KEYS -----------------------------------------------------------------------------\"\r\r\
-    \n\r\r\
     \n  # SSH KEYS\r\r\
     \n  # HOWTO on linux host\r\r\
     \n  # ssh-keygen -t rsa -b 4096 -C \"defm.ssh@mbpalxm\" -f ~/.ssh/defm.ssh@mbpalxm -m pem\r\r\
@@ -3687,9 +3648,7 @@
     \n  :local PublicKeys [:toarray {\"owner\"=\"defm.ssh@mbpalxm\"}];\r\r\
     \n  # privates + publics, 2 files, for encryption when connecting FROM router (via /system ssh-exec), set the password to '1234567890' or rewrite the script\r\r\
     \n  :local PrivateKeys [:toarray {\"owner\"=\"automation.ssh@anna\"}];\r\r\
-    \n\r\r\
     \n  :foreach username,filename in=\$PublicKeys do={\r\r\
-    \n\r\r\
     \n    :local keyFileName \"\$filename.pub\";\r\r\
     \n    :if ([:len [/file find name=\$keyFileName]] > 0 and [:len [/user find name=\$username]] > 0) do={\r\r\
     \n      :log info \"GOT PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
@@ -3697,49 +3656,32 @@
     \n    } else={\r\r\
     \n      :log error \"CANT GET PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
     \n    }\r\r\
-    \n\r\r\
     \n  }\r\r\
-    \n\r\r\
     \n  :foreach username,filename in=\$PrivateKeys do={\r\r\
-    \n\r\r\
     \n    :local keyFileName \"\$filename.pub\";\r\r\
     \n    :if ([:len [/file find name=\$keyFileName]] > 0 and [:len [/file find name=\$filename]] > 0 and [:len [/user find name=\$username]] > 0) do={\r\r\
     \n    :log info \"GOT PRIV KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
-    \n      /user ssh-keys private import user=\"\$username\" private-key-file=\"\$filename\" public-key-file=\"\$keyFileName\" passphrase=\"1234567890\"\r\r\
+    \n      /user ssh-keys private import user=\"\$username\" private-key-file=\"\$filename\"\r\r\
     \n    } else={\r\r\
     \n      :log error \"CANT GET PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
     \n    }\r\r\
-    \n\r\r\
     \n  }\r\r\
-    \n  \r\r\
-    \n \r\r\
     \n} on-error={\r\r\
-    \n\r\r\
     \n:log error \"SSH KEYS ERROR  -----------------------------------------------------------------------------\"\r\r\
-    \n\r\r\
     \n}\r\r\
-    \n\r\r\
-    \n\r\r\
     \n# Play Audible Finish Sequence\r\r\
     \n\$doFinishBeep\r\r\
-    \n\r\r\
     \n# remove system Admin\r\r\
     \n/user remove [/user find name=\"admin\"];\r\r\
-    \n\r\r\
     \n# Teardown temporary logging to disk\r\r\
     \n/system logging remove [/system logging find where action=perfectrestore]\r\r\
     \n/system logging action remove [/system logging action find where name=perfectrestore]\r\r\
-    \n\r\r\
     \n/system script environment remove [find name=\"targetfile\"]\r\r\
     \n/system script environment remove [find name=\"importlog\"]\r\r\
     \n/system script environment remove [find name=\"debuglog\"]\r\r\
-    \n\r\r\
     \n# new startup scripts maybe restored so...\r\r\
     \n/system reboot\r\r\
-    \n\r\r\
-    \n}\r\r\
-    \n\r\r\
-    \n"
+    \n}"
 /system script add comment="A server-side script, that is called via global function using ssh-exec from another mikrotik-client to update it's IPSEC policy IP address" dont-require-permissions=yes name=doUpdatePoliciesRemotely owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doUpdatePoliciesRemotely\";\r\
@@ -6156,7 +6098,7 @@
     \n    \$globalNoteMe value=\$state;\r\
     \n}"
 /tool bandwidth-server set enabled=no
-/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
+/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 tls=yes user=defm.kopcap@gmail.com
 /tool graphing set page-refresh=50
 /tool graphing interface add
 /tool graphing resource add
@@ -6167,7 +6109,7 @@
     \n:log info \"Netwatch UP\"\r\
     \n\r\
     \n:global NetwatchHostName \"miniAlx\";\r\
-    \n/system script run doNetwatchHost;" host=192.168.90.180 up-script="\r\
+    \n/system script run doNetwatchHost;" host=192.168.90.180 type=simple up-script="\r\
     \n:put \"info: Netwatch UP\"\r\
     \n:log info \"Netwatch UP\"\r\
     \n\r\
