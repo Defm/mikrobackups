@@ -1,4 +1,4 @@
-# mar/22/2023 21:00:02 by RouterOS 6.49.6
+# mar/27/2023 21:17:00 by RouterOS 6.49.6
 # software id = 
 #
 #
@@ -20,8 +20,8 @@
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=WINDOWS
-/ip ipsec peer add address=85.174.201.49/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, remotely updated via SSH)" disabled=yes exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-STATIC-IP-RANGE passive=yes profile=ROUTEROS send-initial-contact=no
-/ip ipsec peer add address=46.159.156.156/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=85.174.204.159/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=85.174.204.159/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, remotely updated via SSH)" disabled=yes exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-STATIC-IP-RANGE passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=46.39.51.172/32 comment="IPSEC IKEv2 VPN PHASE1 (ANNA, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=ANNA-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=10.0.0.3/32 comment="IPSEC IKEv2 VPN PHASE1 (ANNA, traffic-only encryption)" local-address=10.0.0.1 name=ANNA-INNER passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=10.0.0.2/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, traffic-only encryption)" local-address=10.0.0.1 name=MIC-INNER passive=yes profile=ROUTEROS send-initial-contact=no
@@ -33,15 +33,15 @@
 /ip ipsec proposal add auth-algorithms=sha256 enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec proposal add auth-algorithms=sha256 enc-algorithms=aes-256-cbc lifetime=8h name="IPSEC IKEv2 VPN PHASE2 IOS/OSX" pfs-group=none
 /ip pool add name=vpn-clients ranges=10.0.0.0/29
-/ip pool add name=int-clients ranges=192.168.97.0/30
+/ip pool add name=int-clients ranges=192.168.97.0/29
 /ip pool add name=rw-clients ranges=10.10.10.8/29
 /ip dhcp-server add add-arp=yes address-pool=int-clients bootp-support=none disabled=no interface=wan name=internal
 /ip ipsec mode-config add address-pool=vpn-clients address-prefix-length=30 name=common-setup static-dns=8.8.8.8 system-dns=no
 /ip ipsec mode-config add address-pool=rw-clients address-prefix-length=32 name=roadwarrior-setup
 /ppp profile add address-list=l2tp-active-clients dns-server=8.8.8.8,8.8.4.4 interface-list=l2tp-dynamic-tun local-address=10.0.0.1 name=l2tp-no-encrypt-site2site only-one=no remote-address=vpn-clients
 /ppp profile add address-list=l2tp-active-clients dns-server=8.8.8.8,8.8.4.4 interface-list=l2tp-dynamic-tun local-address=10.0.0.1 name=l2tp-no-encrypt-ios-rw only-one=no remote-address=rw-clients
-/routing ospf area add area-id=0.0.0.1 default-cost=1 inject-summary-lsas=no name=chr-space type=stub
-/routing ospf instance set [ find default=yes ] distribute-default=always-as-type-2 name=routes-provider-chr router-id=10.255.255.1
+/routing ospf area add area-id=0.0.0.1 default-cost=1 disabled=yes inject-summary-lsas=no name=chr-space type=stub
+/routing ospf instance set [ find default=yes ] distribute-default=if-installed-as-type-2 name=routes-provider-chr router-id=10.255.255.1
 /snmp community set [ find default=yes ] addresses=0.0.0.0/0 disabled=yes
 /snmp community add addresses=::/0 name=globus
 /system logging action add memory-lines=10000 name=IpsecOnScreenLog target=memory
@@ -73,12 +73,12 @@
 /interface list member add comment="neighbors lookup" interface=tunnel-mikrotik list=neighbors
 /interface list member add comment="neighbors lookup" interface="main infrastructure" list=neighbors
 /ip accounting set enabled=yes
-/ip address add address=192.168.97.1/30 comment="local IP" interface="main infrastructure" network=192.168.97.0
+/ip address add address=192.168.97.1/29 comment="local IP" interface="main infrastructure" network=192.168.97.0
 /ip address add address=10.255.255.1 comment="ospf router-id binding" interface=ospf-loopback network=10.255.255.1
 /ip cloud set ddns-enabled=yes update-time=yes
 /ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=no interface=wan use-peer-ntp=no
 /ip dhcp-server network add address=10.0.0.0/29 dns-server=8.8.8.8,8.8.4.4 gateway=10.0.0.1
-/ip dhcp-server network add address=192.168.97.0/30 gateway=192.168.97.1
+/ip dhcp-server network add address=192.168.97.0/29 gateway=192.168.97.1
 /ip dns set cache-max-ttl=1d
 /ip dns static add address=10.0.0.1 name=CHR
 /ip dns static add address=192.168.90.70 name=minialx.home
@@ -87,14 +87,14 @@
 /ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
 /ip dns static add address=185.13.148.14 name=ftpserver.org
 /ip firewall address-list add address=8.8.8.8 list=dns-accept
-/ip firewall address-list add address=192.168.97.0/30 list=mis-network
+/ip firewall address-list add address=192.168.97.0/29 list=mis-network
 /ip firewall address-list add address=rutracker.org list=vpn-sites
 /ip firewall address-list add address=185.13.148.14 list=external-ip
 /ip firewall address-list add address=192.168.99.0/24 list=mic-network
 /ip firewall address-list add address=8.8.4.4 list=dns-accept
 /ip firewall address-list add address=10.0.0.0/29 list=tun-network
 /ip firewall address-list add address=192.168.99.0/24 list=mis-remote-control
-/ip firewall address-list add address=192.168.97.0/30 list=mis-remote-control
+/ip firewall address-list add address=192.168.97.0/29 list=mis-remote-control
 /ip firewall address-list add address=0.0.0.0/0 list=mis-remote-control
 /ip firewall address-list add address=2ip.ru list=vpn-sites
 /ip firewall address-list add address=10.0.0.0/29 list=mic-network
@@ -214,13 +214,12 @@
 /ip ipsec policy set 0 disabled=yes
 /ip ipsec policy add comment="Roadwarrior IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption)" disabled=yes dst-address=10.10.10.8/29 group=roadwarrior-ipsec proposal="IPSEC IKEv2 VPN PHASE2 IOS/OSX" src-address=0.0.0.0/0 template=yes
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption) MIKROUTER" dst-address=192.168.99.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/29 template=yes
-/ip ipsec policy add comment=MIC-OUTER-IP-REMOTE-CONTROLLABLE dst-address=46.159.156.156/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
+/ip ipsec policy add comment=MIC-OUTER-IP-REMOTE-CONTROLLABLE dst-address=85.174.204.159/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip ipsec policy add comment=ANNA-OUTER-IP-REMOTE-CONTROLLABLE dst-address=46.39.51.172/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range 2)" disabled=yes dst-address=91.79.0.0/16 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption) ANNA" dst-address=192.168.90.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/29 template=yes
 /ip route add comment="GLOBAL VPN" disabled=yes distance=110 gateway=10.0.0.3 pref-src=10.0.0.1 routing-mark=mark-site-over-vpn
 /ip route add check-gateway=ping comment=GLOBAL distance=10 gateway=185.13.148.1
-/ip route add comment="GLOBAL VPN" distance=110 dst-address=192.168.90.0/24 gateway=10.0.0.3 pref-src=10.0.0.1
 /ip service set telnet disabled=yes
 /ip service set ssh port=2222
 /ip service set api disabled=yes
@@ -233,11 +232,13 @@
 /routing filter add action=discard chain=ospf-in comment="discard intra area routes" ospf-type=intra-area
 /routing filter add action=accept chain=ospf-in comment="set pref source" set-pref-src=10.0.0.1
 /routing filter add action=accept chain=ospf-in comment="set default remote route mark" prefix-length=0 set-pref-src=10.0.0.1 set-route-comment=GLOBAL set-routing-mark=mark-site-over-vpn
+/routing ospf interface add disabled=yes interface=ospf-loopback network-type=broadcast passive=yes
+/routing ospf interface add interface="main infrastructure" network-type=broadcast passive=yes
 /routing ospf nbma-neighbor add address=10.255.255.2
 /routing ospf nbma-neighbor add address=10.255.255.3
 /routing ospf network add area=backbone network=10.0.0.0/29
-/routing ospf network add area=chr-space network=192.168.97.0/29
-/routing ospf network add area=backbone network=10.255.255.1/32
+/routing ospf network add area=backbone network=192.168.97.0/29
+/routing ospf network add area=backbone disabled=yes network=10.255.255.1/32
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-community=globus trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=CHR
@@ -1606,7 +1607,7 @@
     \n\r\
     \n"
 /tool bandwidth-server set authenticate=no
-/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=zgejdmvndvorrmsn port=587 start-tls=yes user=defm.kopcap@gmail.com
+/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool netwatch add down-script=":global NetwatchHostName \"mikrouter.home\";\r\
     \n/system script run doNetwatchHost;" host=192.168.99.1 up-script=":global NetwatchHostName \"mikrouter.home\";\r\
     \n/system script run doNetwatchHost;"
