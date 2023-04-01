@@ -1,4 +1,4 @@
-# mar/23/2023 11:30:32 by RouterOS 7.7
+# apr/01/2023 21:00:02 by RouterOS 7.7
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -97,7 +97,7 @@
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx (wire)@main-dhcp-server (10:DD:B1:9E:19:5E)" queue=default/default target=192.168.90.70/32 total-queue=default
-/queue simple add comment=dtq,78:31:C1:CF:9E:70,MbpAlx name="MbpAlx (wireless)@main-dhcp-server (78:31:C1:CF:9E:70)" queue=default/default target=192.168.90.80/32 total-queue=default
+/queue simple add comment=dtq,78:31:C1:CF:9E:70,MBP-Uzer name="MbpAlx (wireless)@main-dhcp-server (78:31:C1:CF:9E:70)" queue=default/default target=192.168.90.80/32 total-queue=default
 /queue simple add comment=dtq,38:C9:86:51:D2:B3, name="MbpAlx (wire)@main-dhcp-server (38:C9:86:51:D2:B3)" queue=default/default target=192.168.90.90/32 total-queue=default
 /queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="NAS@main-dhcp-server (00:11:32:2C:A7:85)" queue=default/default target=192.168.90.40/32 total-queue=default
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle@main-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.90.170/32 total-queue=default
@@ -127,8 +127,8 @@
 /queue tree add name=7Z packet-mark=7z-mark parent="Total Bandwidth" queue=default
 /queue tree add name=ZIP packet-mark=zip-mark parent="Total Bandwidth" queue=default
 /routing id add comment="OSPF Common" id=10.255.255.3 name=anna-10.255.255.3
-/routing ospf instance add comment="OSPF Common" disabled=no in-filter-chain=ospf-in name=routes-provider-anna originate-default=always redistribute=ospf router-id=anna-10.255.255.3
-/routing ospf area add area-id=0.0.0.3 default-cost=1 disabled=no instance=routes-provider-anna name=anna-space type=stub
+/routing ospf instance add comment="OSPF Common - inject into \"rmark-vpn-redirect\" table" disabled=no in-filter-chain=ospf-in name=routes-provider-anna originate-default=never redistribute="" router-id=anna-10.255.255.3 routing-table=rmark-vpn-redirect
+/routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-provider-anna name=anna-space type=stub
 /routing ospf area add disabled=no instance=routes-provider-anna name=backbone
 /routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
 /routing table add comment="tunnel swing" fib name=rmark-telegram-redirect
@@ -306,10 +306,10 @@
 /ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhone.home ttl=5m
 /ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
-/ip dns static add address=192.168.90.80 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlx.home ttl=5m
 /ip dns static add address=192.168.90.100 name=hare.home ttl=5m
 /ip dns static add cname=hare.home name=hare ttl=5m type=CNAME
 /ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m
+/ip dns static add address=192.168.90.80 comment=<AUTO:DHCP:main-dhcp-server> name=MBP-Uzer.home ttl=5m
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -384,6 +384,7 @@
 /ip firewall address-list add address=217.10.36.5 comment="AKADO official DNS server" list=alist-fw-dns-allow
 /ip firewall address-list add address=217.10.34.2 comment="AKADO official DNS server" list=alist-fw-dns-allow
 /ip firewall address-list add address=2ip.ru list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=www.canva.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -672,8 +673,6 @@
 /ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
 /ip proxy access add action=redirect action-data=influxdb:8000 dst-host=influxdb
 /ip route add comment="GLOBAL AKADO" disabled=no distance=50 dst-address=0.0.0.0/0 gateway=10.20.225.1 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=10
-/ip route add comment="GLOBAL VPN" disabled=no distance=110 dst-address=0.0.0.0/0 gateway=10.0.0.1 pref-src=10.0.0.3 routing-table=rmark-vpn-redirect scope=30 suppress-hw-offload=no target-scope=10
-/ip route add comment="GLOBAL VPN" disabled=no distance=110 dst-address=192.168.97.0/30 gateway=10.0.0.1 pref-src=10.0.0.3 routing-table=rmark-vpn-redirect scope=30 suppress-hw-offload=no target-scope=10
 /ip service set telnet disabled=yes
 /ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
@@ -686,10 +685,13 @@
 /ip upnp interfaces add interface="wan A" type=external
 /ip upnp interfaces add interface=main-infrastructure-br type=internal
 /ip upnp interfaces add interface=guest-infrastructure-br type=internal
-/routing filter rule add chain=ospf-in comment="discard intra area routes" rule="if ( protocol ospf && ospf-type intra) { reject; }"
-/routing filter rule add chain=ospf-in comment="set default remote route mark and pref src" rule="if ( protocol ospf && dst-len==0) { set pref-src 10.0.0.3 ; set comment GLOBAL-VPN ; accept; }"
-/routing ospf interface-template add area=backbone cost=10 disabled=no interfaces=list-ospf-bearing networks=10.0.0.0/29,10.255.255.3/32 priority=1
-/routing ospf interface-template add area=anna-space cost=10 disabled=no interfaces=list-ospf-master networks=192.168.90.0/24 priority=1
+/routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf && ospf-type intra) { set comment DISCARDED-INTRA-AREA ; reject; }"
+/routing filter rule add chain=ospf-in comment="set default remote route mark and pref src" disabled=no rule="if ( protocol ospf && dst-len==0) { set pref-src 10.0.0.3 ; set comment GLOBAL-VPN ; accept; }"
+/routing filter rule add chain=ospf-in disabled=yes rule="reject;"
+/routing filter rule add chain=ospf-in comment="set default remote route mark and pref src" disabled=no rule="accept;"
+/routing ospf interface-template add area=anna-space cost=10 disabled=yes interfaces=ospf-loopback-br networks=10.255.255.3/32 passive priority=1
+/routing ospf interface-template add area=backbone cost=10 disabled=no interfaces=tunnel networks=10.0.0.0/29 priority=1 type=ptp
+/routing ospf interface-template add area=anna-space cost=10 disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive priority=1
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.98.0/24 src-address=192.168.90.0/24
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.90.0/24 src-address=192.168.98.0/24
 /routing rule add action=lookup-only-in-table comment=API.TELEGRAM.ORG disabled=yes dst-address=149.154.167.0/24 table=rmark-vpn-redirect
