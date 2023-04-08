@@ -1,60 +1,51 @@
 {
-
 :global targetfile "backup.rsc"
 :global importlog "import.log"
 :global debuglog "perfectrestore.log"
-
+:global rosVer [:tonum [:pick [/system resource get version] 0 1]]
 /file remove [find name ~"$importlog"]
 /file remove [find name ~"$debuglog"]
-
 # Wait for interfaces to initialize
 :delay 5s
-
 # Beep Functions
  :local doStartBeep [:parse ":beep frequency=1000 length=300ms;:delay 150ms;:beep frequency=1500 length=300ms;"];
  :local doFinishBeep [:parse ":beep frequency=1000 length=.6;:delay .5s;:beep frequency=1600 length=.6;:delay .5s;:beep frequency=2100 length=.3;:delay .3s;:beep frequency=2500 length=.3;:delay .3s;:beep frequency=2400 length=1;"];
-
 # Setup temporary logging to disk
+/system logging action remove [find where name~"perfect"]
 /system logging action add disk-file-count=1 disk-file-name=$debuglog disk-lines-per-file=4096 name=perfectrestore target=disk
+/system logging remove [find where action~"perfect"]
 /system logging add action=perfectrestore topics=system,info
 /system logging add action=perfectrestore topics=script,info
 /system logging add action=perfectrestore topics=warning
 /system logging add action=perfectrestore topics=error
 /system logging add action=perfectrestore topics=critical
 /system logging add action=perfectrestore topics=debug,!packet
-
 # checks if specific packages exist
-:if ( [ :len [ /system package find where name="ntp" and disabled=no ] ] = 0 ) do={
+:if ( [ :len [ /system package find where name="ntp" and disabled=no ] ] = 0 and $rosVer = 6 ) do={
   :log error "NTP package should be installed for NTP-server to work";
   :error "NTP package should be installed for NTP-server to work";
 }
-
-:if ( [ :len [ /system package find where name="iot" and disabled=no ] ] = 0 ) do={
+:if ( [ :len [ /system package find where name="iot" and disabled=no ] ] = 0 and $rosVer = 6 ) do={
   :log error "IOT package should be installed";
   :error "IOT package should be installed";
 }
-
-:if ( [ :len [ /system package find where name="lora" and disabled=no ] ] = 0 ) do={
+:if ( [ :len [ /system package find where name="lora" and disabled=no ] ] = 0 and $rosVer = 6 ) do={
   :log error "LORA package should be installed";
   :error "LORA package should be installed";
 }
-
 # Play Audible Start Sequence
 $doStartBeep
-
 :log warning "GO -----------------------------------------------------------------------------";
 /user active print detail file=activeUsers.txt;
 :global currentUsers [/file get activeUsers.txt contents];
 :log warning "ENVIRONMENT IS $currentUsers";
-
 # bug 6.49.6 - lora servers stay OK after /system reset-configuration no-defaults=yes
-/lora servers remove [find]
+#/lora servers remove [find]
 
+:log warning "CREATING ASYNC WRAPPER -----------------------------------------------------------------------------";
 :local AcyncAwait do={
-
   # this one calls Fetch and catches its errors
   :if (([:len $1] > 0) and ([:len $2] > 0)) do={
-
       # something like 
       # "/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes"
       # or
@@ -63,27 +54,20 @@ $doStartBeep
       :local outputFile "$2";
       :local state "AS-AW--------------------------: I'm now calling and waiting result for: $Cmd";
       :log info $state;
-
       /file remove [find where name="$outputFile"]
       {
           :local jobid [:execute file="$outputFile" script=$Cmd]
-
           :local state "AS-AW----------------------: Waiting the end of process for file $outputFile to be ready, max 40 seconds...";
           :log info $state;
-
           :global Gltesec 0
           :while (([:len [/sys script job find where .id=$jobid]] = 1) && ($Gltesec < 40)) do={
               :set Gltesec ($Gltesec + 1)
               :delay 1s
-
               :local state "AS-AW-------------------: waiting... $Gltesec";
               :log info $state;
-
           }
-
           :local state "AS-AW------------------------: Done. Elapsed Seconds: $Gltesec\r\n";
           :log info $state;
-
           :if ([:len [/file find where name="$outputFile"]] = 1) do={
               :local filecontent [/file get [/file find where name="$outputFile"] contents]
               :log warning "AS-AW--------------------: Result of CALL:\r\n****************************\r\n$filecontent\r\n****************************"
@@ -94,22 +78,16 @@ $doStartBeep
   }
 }
 
-
 :do {
-
   :log warning "CERT  -----------------------------------------------------------------------------";
-
   # IPSEC\CAPSMAN\DoH\Etc certs have to be imported before the other config is restored
   # should be located in Files root
   # look through your backup.rsc before 
-
   # certificates in '*.p12' format without password protection (without private keys)
   :local certImportListPublicKeys [:toarray "ca@CHR"];
   # certificates in '*.p12' format protected using password (containing private keys), set the password to '1234567890' or rewrite the script
   :local certImportListPrivateKeys [:toarray "anna.capsman@CHR,anna.ipsec@CHR"];
-
   :foreach certFile in=$certImportListPublicKeys do={
-
     :local certFileName "$certFile.p12";
     :if ([:len [/file find name=$certFileName]] > 0) do={
     :log info "GOT PUB CERTIFICATE '$certFile'";
@@ -117,11 +95,8 @@ $doStartBeep
     } else={
       :log error "CANT GET PUB CERTIFICATE FOR '$certFile'";
     }
-
   }
-
   :foreach certFile in=$certImportListPrivateKeys do={
-
     :local certFileName "$certFile.p12";
     :if ([:len [/file find name=$certFileName]] > 0) do={
     :log info "GOT PRIV CERTIFICATE '$certFile'";
@@ -129,34 +104,25 @@ $doStartBeep
     } else={
       :log error "CANT GET PRIV CERTIFICATE FOR '$certFile'";
     }
-
   }
-  
   :local content [/file get [/file find name="$targetfile"] contents] ;
   :local contentLen [ :len $content ] ;
   :if ([:len $contentLen] = 0) do={
      :log error ("Could not retrieve $targetfile contents (file size limitation)")
   }
-  
   :local certNameStart 0;
   :local certName "";
   :local certNameEnd 0;
   :local lastEnd 0;
   :local key "certificate=";
   :do {
-
     :put "Lookup.. $key starting at $lastEnd out of $contentLen"
     :set certNameStart [:find $content $key $lastEnd ] ;
-
     :if ( [:typeof $certNameStart] != "nil") do={
-
       :set certNameEnd [:find $content " " $certNameStart] ;
-
       :if ( [:typeof $certNameEnd ] != "nil" ) do={
-      
         :set certName [:pick $content $certNameStart $certNameEnd ] ;
         :set lastEnd ( $certNameEnd + 2 ) ; 
-        
         :log info "Certificate needed $certname"; 
         :global entry [:pick $line 0 $lineEnd ]
       } else={
@@ -168,73 +134,45 @@ $doStartBeep
         :set lastEnd $contentLen ; 
     }
   } while ($lastEnd < ( $contentLen -2 ) )
-
 } on-error={
-
 :log error "CERT ERROR  -----------------------------------------------------------------------------"
-
 }
-
-
-
-
 :do {
-
   # Import the rsc file
   :log warning " IMPORT -----------------------------------------------------------------------------"
-
   :local importCmd ":import file-name=$targetfile verbose=yes"
-
   :log info "RESTORE START";
-  
   # DO IT ASYNC!! So we have to wait for it
   $AcyncAwait $importCmd "import.log.txt";
-
   # wait for confuguration beeng applied
   :log info "POST IMPORT DELAY FOR CONFIGURATION BEING APPLIED";
   :delay 10s;
-
-
   :log info "END IMPORT file=$targetfile  -----------------------------------------------------------------------------"
-
 } on-error={
-
 :log error "ERROR IMPORT  -----------------------------------------------------------------------------"
-
 }
-
 :do {
-
   :log warning "USERS -----------------------------------------------------------------------------"
-
   :local mgmtUsername "owner"; # main administrator
   :log info "CREATING MAIN ADMIN USER. new username W/O password (SET IT AFTER FIRST LOGON)- '$mgmtUsername'";
   /user remove [/user find name=$mgmtUsername];
   /user add name=$mgmtUsername group=full comment="management user" password="";
-
-
   :local mgmtUsername "reserved"; # additional admin user, it has its own script to periodically regenerate password
   :local thePass ([/certificate scep-server otp generate minutes-valid=0 as-value]->"password");
   :log info "CREATING ADDITIONAL ADMIN USER. new username - '$mgmtUsername':'$thePass'";
   /user remove [/user find name=$mgmtUsername];
   /user add name=$mgmtUsername group=full comment="additional admin" password="$thePass";
-
   :local mgmtUsername "automation"; # user for /system ssh-exec
   :local thePass ([/certificate scep-server otp generate minutes-valid=0 as-value]->"password");
-
   :log info "CREATING NEW USER AND CHANGING SCRIPTS AND SCHEDULES OWNAGE. new username - '$mgmtUsername':'$thePass'";
   /user remove [/user find name=$mgmtUsername];
   /user add name=$mgmtUsername group=full comment="outgoing SSH user" password="$thePass";
-
   :log warning "USERS - OK"
 } on-error={ 
   :log error "USERS - ERROR"
 }
-
 :do {
-
   :log warning "SSH KEYS -----------------------------------------------------------------------------"
-
   # SSH KEYS
   # HOWTO on linux host
   # ssh-keygen -t rsa -b 4096 -C "defm.ssh@mbpalxm" -f ~/.ssh/defm.ssh@mbpalxm -m pem
@@ -243,9 +181,7 @@ $doStartBeep
   :local PublicKeys [:toarray {"owner"="defm.ssh@mbpalxm"}];
   # privates + publics, 2 files, for encryption when connecting FROM router (via /system ssh-exec), set the password to '1234567890' or rewrite the script
   :local PrivateKeys [:toarray {"owner"="automation.ssh@anna"}];
-
   :foreach username,filename in=$PublicKeys do={
-
     :local keyFileName "$filename.pub";
     :if ([:len [/file find name=$keyFileName]] > 0 and [:len [/user find name=$username]] > 0) do={
       :log info "GOT PUB KEY FOR '$username' AS '$keyFileName'";
@@ -253,46 +189,29 @@ $doStartBeep
     } else={
       :log error "CANT GET PUB KEY FOR '$username' AS '$keyFileName'";
     }
-
   }
-
   :foreach username,filename in=$PrivateKeys do={
-
     :local keyFileName "$filename.pub";
     :if ([:len [/file find name=$keyFileName]] > 0 and [:len [/file find name=$filename]] > 0 and [:len [/user find name=$username]] > 0) do={
     :log info "GOT PRIV KEY FOR '$username' AS '$keyFileName'";
-      /user ssh-keys private import user="$username" private-key-file="$filename" public-key-file="$keyFileName" passphrase="1234567890"
+      /user ssh-keys private import user="$username" private-key-file="$filename"
     } else={
       :log error "CANT GET PUB KEY FOR '$username' AS '$keyFileName'";
     }
-
   }
-  
- 
 } on-error={
-
 :log error "SSH KEYS ERROR  -----------------------------------------------------------------------------"
-
 }
-
-
 # Play Audible Finish Sequence
 $doFinishBeep
-
 # remove system Admin
 /user remove [/user find name="admin"];
-
 # Teardown temporary logging to disk
 /system logging remove [/system logging find where action=perfectrestore]
 /system logging action remove [/system logging action find where name=perfectrestore]
-
 /system script environment remove [find name="targetfile"]
 /system script environment remove [find name="importlog"]
 /system script environment remove [find name="debuglog"]
-
 # new startup scripts maybe restored so...
 /system reboot
-
-}
-
-
+}
