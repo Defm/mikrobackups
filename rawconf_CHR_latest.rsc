@@ -1,4 +1,4 @@
-# apr/06/2023 21:00:02 by RouterOS 6.49.6
+# apr/11/2023 21:00:02 by RouterOS 6.49.6
 # software id = 
 #
 #
@@ -100,6 +100,10 @@
 /ip firewall address-list add address=10.0.0.0/29 list=mic-network
 /ip firewall address-list add address=10.0.0.1 list=mis-network
 /ip firewall address-list add address=185.13.148.14 list=alist-nat-external-ip
+/ip firewall address-list add address=10.0.0.0/29 list=alist-fw-vpn-subnets
+/ip firewall address-list add address=192.168.90.0/24 list=alist-fw-vpn-subnets
+/ip firewall address-list add address=192.168.99.0/24 list=alist-fw-vpn-subnets
+/ip firewall address-list add address=192.168.97.0/24 list=alist-fw-vpn-subnets
 #error exporting /ip firewall calea
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Bandwidth test allow" port=2000 protocol=tcp
@@ -145,7 +149,7 @@
 /ip firewall filter add action=add-src-to-address-list address-list=bh-winbox address-list-timeout=none-dynamic chain="Winbox staged control" comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new dst-port=8291 protocol=tcp src-address-list=winbox-staged-3
 /ip firewall filter add action=add-src-to-address-list address-list=winbox-staged-3 address-list-timeout=1m chain="Winbox staged control" comment="Add succesive attempts to Winbox Stage 3" connection-state=new dst-port=8291 protocol=tcp src-address-list=winbox-staged-2
 /ip firewall filter add action=add-src-to-address-list address-list=winbox-staged-2 address-list-timeout=1m chain="Winbox staged control" comment="Add succesive attempts to Winbox Stage 2" connection-state=new dst-port=8291 protocol=tcp src-address-list=winbox-staged-1
-/ip firewall filter add action=add-src-to-address-list address-list=winbox-staged-1 address-list-timeout=1m chain="Winbox staged control" comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp
+/ip firewall filter add action=add-src-to-address-list address-list=winbox-staged-1 address-list-timeout=1m chain="Winbox staged control" comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp src-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=return chain="Winbox staged control" comment="Return From Winbox staged control"
 /ip firewall filter add action=add-src-to-address-list address-list=bh-wan-port-scan address-list-timeout=none-dynamic chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1
 /ip firewall filter add action=add-src-to-address-list address-list=bh-lan-port-scan address-list-timeout=none-dynamic chain=forward comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1
@@ -263,13 +267,7 @@
 /system logging add action=AuthDiskLog topics=manager
 /system logging add action=IpsecOnScreenLog topics=ipsec,!debug,!packet
 /system logging add action=SSHOnscreenLog topics=ssh
-/system note set note="You are logged into: CHR\
-    \n############### system health ###############\
-    \nUptime:  2w6d00:00:10 d:h:m:s | CPU: 0%\
-    \nRAM: 65092/1015808M | Voltage: NIL | Temp: NIL\
-    \n############# user auth details #############\
-    \nHotspot online: 0 | PPP online: 1\
-    \n" show-at-login=no
+/system note set note="Idenity: CHR | Uptime:  28w5d01:19:36 | Public IP:  185.13.148.14 | "
 /system ntp client set enabled=yes primary-ntp=85.21.78.91 secondary-ntp=46.254.216.9
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=aug/04/2020 start-time=21:00:00
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
@@ -277,6 +275,7 @@
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/07/2019 start-time=09:00:00
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jan/26/2022 start-time=14:34:19
+/system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=apr/08/2023 start-time=16:06:04
 /system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,read,write,policy,test,password,sensitive source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\
     \n\r\
@@ -1608,6 +1607,22 @@
     \n\r\
     \n\r\
     \n"
+/system script add dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \"doCoolConsole\";\r\
+    \n\r\
+    \n:local content \"\"\r\
+    \n:local logcontenttemp \"\"\r\
+    \n:local logcontent \"\"\r\
+    \n \r\
+    \n:set logcontenttemp \"Idenity: \$[/system identity get name]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n:set logcontenttemp \"Uptime:  \$[/system resource get uptime]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n:set logcontenttemp \"Public IP:  \$[/ip cloud get public-address]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n\r\
+    \n/system note set note=\"\$logcontent\"  "
 /tool bandwidth-server set authenticate=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 start-tls=yes user=defm.kopcap@gmail.com
 /tool netwatch add down-script=":global NetwatchHostName \"mikrouter.home\";\r\

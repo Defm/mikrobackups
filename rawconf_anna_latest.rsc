@@ -1,4 +1,4 @@
-# apr/01/2023 21:00:02 by RouterOS 7.7
+# apr/11/2023 21:00:02 by RouterOS 7.7
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -49,7 +49,8 @@
 /interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" group-key-update=1h management-protection=allowed mode=dynamic-keys name=private supplicant-identity=""
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
 /ip dhcp-server add authoritative=after-2sec-delay interface=main-infrastructure-br lease-time=1d name=main-dhcp-server
-/ip dhcp-server option add code=15 name=DomainName value="s'home'"
+/ip dhcp-server option add code=15 force=yes name=DomainName_Windows value="s'home'"
+/ip dhcp-server option add code=119 force=yes name=DomainName_LinuxMac value="s'home'"
 /ip firewall layer7-protocol add name=EXE regexp=".(exe)"
 /ip firewall layer7-protocol add name=RAR regexp=".(rar)"
 /ip firewall layer7-protocol add name=ZIP regexp=".(zip)"
@@ -127,9 +128,12 @@
 /queue tree add name=7Z packet-mark=7z-mark parent="Total Bandwidth" queue=default
 /queue tree add name=ZIP packet-mark=zip-mark parent="Total Bandwidth" queue=default
 /routing id add comment="OSPF Common" id=10.255.255.3 name=anna-10.255.255.3
-/routing ospf instance add comment="OSPF Common - inject into \"rmark-vpn-redirect\" table" disabled=no in-filter-chain=ospf-in name=routes-provider-anna originate-default=never redistribute="" router-id=anna-10.255.255.3 routing-table=rmark-vpn-redirect
-/routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-provider-anna name=anna-space type=stub
-/routing ospf area add disabled=no instance=routes-provider-anna name=backbone
+/routing ospf instance add comment="OSPF Common - inject into \"rmark-vpn-redirect\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-rmark-vpn-redirect originate-default=never redistribute="" router-id=anna-10.255.255.3 routing-table=rmark-vpn-redirect
+/routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-main originate-default=never redistribute="" router-id=anna-10.255.255.3
+/routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-rmark-vpn-redirect name=anna-space-vpn type=stub
+/routing ospf area add disabled=no instance=routes-inject-into-rmark-vpn-redirect name=backbone
+/routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-main name=anna-space-main type=stub
+/routing ospf area add disabled=no instance=routes-inject-into-main name=bb1
 /routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
 /routing table add comment="tunnel swing" fib name=rmark-telegram-redirect
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
@@ -267,13 +271,13 @@
 /ip dhcp-server lease add address=192.168.90.201 comment="AlxATV(wire)" mac-address=90:DD:5D:CA:8F:B0 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.201 block-access=yes comment="AlxATV(wire)(blocked)" mac-address=90:DD:5D:CA:8F:B0 server=guest-dhcp-server
 /ip dhcp-server matcher add address-pool=pool-vendor code=60 name=vendor-mikrotik-caps server=main-dhcp-server value=mikrotik-cap
-/ip dhcp-server network add address=192.168.90.0/27 caps-manager=192.168.90.1 comment="Network devices, CCTV" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
-/ip dhcp-server network add address=192.168.90.32/27 caps-manager=192.168.90.1 comment="Virtual machines" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
-/ip dhcp-server network add address=192.168.90.64/26 caps-manager=192.168.90.1 comment="Mac, Pc" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
-/ip dhcp-server network add address=192.168.90.128/27 caps-manager=192.168.90.1 comment="Phones, tablets" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
-/ip dhcp-server network add address=192.168.90.160/27 caps-manager=192.168.90.1 comment="IoT, intercom" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
-/ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dns-server=8.8.8.8 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
-/ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
+/ip dhcp-server network add address=192.168.90.0/27 caps-manager=192.168.90.1 comment="Network devices, CCTV" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
+/ip dhcp-server network add address=192.168.90.32/27 caps-manager=192.168.90.1 comment="Virtual machines" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
+/ip dhcp-server network add address=192.168.90.64/26 caps-manager=192.168.90.1 comment="Mac, Pc" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
+/ip dhcp-server network add address=192.168.90.128/27 caps-manager=192.168.90.1 comment="Phones, tablets" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
+/ip dhcp-server network add address=192.168.90.160/27 caps-manager=192.168.90.1 comment="IoT, intercom" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
+/ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=8.8.8.8 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
+/ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dns set allow-remote-requests=yes cache-max-ttl=1d max-concurrent-queries=200 max-concurrent-tcp-sessions=30 query-server-timeout=3s servers=217.10.36.5,217.10.34.2 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
 /ip dns static add cname=anna.home name=anna type=CNAME
@@ -302,7 +306,6 @@
 /ip dns static add address=95.213.159.180 name=atv.package2.qello.com
 /ip dns static add address=192.168.90.1 name=time.windows.com
 /ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
-/ip dns static add address=46.39.51.172 name=ftpserver.org
 /ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhone.home ttl=5m
 /ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
@@ -310,6 +313,10 @@
 /ip dns static add cname=hare.home name=hare ttl=5m type=CNAME
 /ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m
 /ip dns static add address=192.168.90.80 comment=<AUTO:DHCP:main-dhcp-server> name=MBP-Uzer.home ttl=5m
+/ip dns static add address=46.39.51.172 name=ftpserver.org
+/ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bbs|\\.chan|\\.cyb|\\.dyn|\\.geek|\\.gopher|\\.indy|\\.libre|\\.neo|\\.null|\\.o)\$" type=FWD
+/ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.oss|\\.oz|\\.parody|\\.pirate|\\.opennic.glue|\\.dns\\.opennic\\.glue)\$" type=FWD
+/ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bazar|\\.coin|\\.emc|\\.lib|\\.fur1|\\.bit|\\.ku|\\.te|\\.ti|\\.uu)\$" type=FWD
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -380,11 +387,13 @@
 /ip firewall address-list add address=facebook.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=l.instagram.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.100.7 comment="Add DNS Server to this List" list=alist-fw-dns-allow
-/ip firewall address-list add address=46.39.51.172 list=alist-nat-external-ip
 /ip firewall address-list add address=217.10.36.5 comment="AKADO official DNS server" list=alist-fw-dns-allow
 /ip firewall address-list add address=217.10.34.2 comment="AKADO official DNS server" list=alist-fw-dns-allow
 /ip firewall address-list add address=2ip.ru list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=www.canva.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=46.39.51.172 list=alist-nat-external-ip
+/ip firewall address-list add address=192.168.99.0/24 list=alist-fw-vpn-subnets
+/ip firewall address-list add address=192.168.90.0/24 list=alist-fw-vpn-subnets
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -689,9 +698,11 @@
 /routing filter rule add chain=ospf-in comment="set default remote route mark and pref src" disabled=no rule="if ( protocol ospf && dst-len==0) { set pref-src 10.0.0.3 ; set comment GLOBAL-VPN ; accept; }"
 /routing filter rule add chain=ospf-in disabled=yes rule="reject;"
 /routing filter rule add chain=ospf-in comment="set default remote route mark and pref src" disabled=no rule="accept;"
-/routing ospf interface-template add area=anna-space cost=10 disabled=yes interfaces=ospf-loopback-br networks=10.255.255.3/32 passive priority=1
+/routing ospf interface-template add area=anna-space-vpn cost=10 disabled=yes interfaces=ospf-loopback-br networks=10.255.255.3/32 passive priority=1
 /routing ospf interface-template add area=backbone cost=10 disabled=no interfaces=tunnel networks=10.0.0.0/29 priority=1 type=ptp
-/routing ospf interface-template add area=anna-space cost=10 disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive priority=1
+/routing ospf interface-template add area=bb1 cost=10 disabled=no interfaces=tunnel networks=10.0.0.0/29 priority=1 type=ptp
+/routing ospf interface-template add area=anna-space-vpn cost=10 disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive priority=1
+/routing ospf interface-template add area=anna-space-main cost=10 disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive priority=1
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.98.0/24 src-address=192.168.90.0/24
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.90.0/24 src-address=192.168.98.0/24
 /routing rule add action=lookup-only-in-table comment=API.TELEGRAM.ORG disabled=yes dst-address=149.154.167.0/24 table=rmark-vpn-redirect
@@ -726,13 +737,7 @@
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
-/system note set note="You are logged into: anna\
-    \n############### system health ###############\
-    \nUptime:  1d04:19:45 d:h:m:s | CPU: 5%\
-    \nRAM: 89196/1048576M | Voltage: 24 v | Temp: 51c\
-    \n############# user auth details #############\
-    \nHotspot online: 0 | PPP online: 0\
-    \n" show-at-login=no
+/system note set note="Idenity: anna | Uptime:  5d09:49:13 | Public IP:  46.39.51.172 | "
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
@@ -755,6 +760,7 @@
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=06:05:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add comment="added by function FuncSchedScriptAdd" interval=30s name="Run script TLGRMcall--05:46:15" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=07:00:00
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -987,57 +993,20 @@
     \n"
 /system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doCoolConcole\";\r\
+    \n\$globalScriptBeforeRun \"doCoolConsole\";\r\
     \n\r\
-    \n:local content\r\
+    \n:local content \"\"\r\
     \n:local logcontenttemp \"\"\r\
     \n:local logcontent \"\"\r\
-    \n:local counter\r\
-    \n:local v 0\r\
     \n \r\
-    \n:set logcontenttemp \"You are logged into: \$[/system identity get name]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
-    \n \r\
-    \n:set logcontenttemp \"############### system health ###############\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
-    \n \r\
-    \n:set logcontenttemp \"Uptime:  \$[/system resource get uptime] d:h:m:s\"\r\
+    \n:set logcontenttemp \"Idenity: \$[/system identity get name]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n \r\
-    \n:set logcontenttemp \"CPU: \$[/system resource get cpu-load]%\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
-    \n \r\
-    \n:set logcontenttemp \"RAM: \$(([/system resource get total-memory]-[/system resource get free-memory])/1024)/\$([/system resource get total-memory]/1024)M\"\r\
+    \n:set logcontenttemp \"Uptime:  \$[/system resource get uptime]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n \r\
-    \n##\r\
-    \n#voltage and temp readout not available on x86, check for this before trying\r\
-    \n#to record otherwise script will halt unexpectedly\r\
-    \n##\r\
-    \n \r\
-    \n:if ([/system resource get architecture-name]=\"x86\") do={\r\
-    \n  :set logcontenttemp \"Voltage: NIL\"\r\
-    \n  :set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n  :set logcontenttemp \"Temp: NIL\"\r\
-    \n  :set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
-    \n} else={\r\
-    \n  :set logcontenttemp \"Voltage: \$[:pick [/system health get voltage] 0 2] v\"\r\
-    \n  :set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n  :set logcontenttemp \"Temp: \$[ /system health get temperature]c\"\r\
-    \n  :set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
-    \n}\r\
-    \n \r\
-    \n:set logcontenttemp \"############# user auth details #############\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
-    \n \r\
-    \n:foreach counter in=[/ip hotspot active find ] do={:set v (\$v + 1)}\r\
-    \n:set logcontenttemp \"Hotspot online: \$v |\"\r\
-    \n:set v 0\r\
-    \n:foreach counter in=[/ppp active find ] do={:set v (\$v + 1)}\r\
-    \n:set logcontenttemp (\"\$logcontenttemp\" . \" PPP online: \$v\")\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"\\n\")\r\
-    \n \r\
-    \n/system note set note=\"\$logcontent\""
+    \n:set logcontenttemp \"Public IP:  \$[/ip cloud get public-address]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n\r\
+    \n/system note set note=\"\$logcontent\"  "
 /system script add dont-require-permissions=yes name=doIpsecPolicyUpd owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local PolicyComment \"UBUNTU VPN traffic\"\r\
     \n:local WANip [/ip address get [find interface=\"wan A\"] address] \r\
     \n:local shortWANip ( [:pick \"\$WANip\" 0 [:find \"\$WANip\" \"/\" -1]] ) \r\
@@ -1575,8 +1544,6 @@
     \n/system script run doEnvironmentSetup;\r\
     \n\r\
     \n/system script run SATELLITEstart;\r\
-    \n\r\
-    \n/system script run doCoolConsole;\r\
     \n\r\
     \n/system script run doImperialMarch;\r\
     \n\r\
@@ -3127,7 +3094,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
