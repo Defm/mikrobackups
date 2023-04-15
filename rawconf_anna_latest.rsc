@@ -1,4 +1,4 @@
-# apr/15/2023 18:05:57 by RouterOS 7.7
+# apr/15/2023 18:34:53 by RouterOS 7.7
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -734,7 +734,7 @@
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
-/system note set note="Idenity: anna | Uptime:  1w2d06:49:12 | Public IP:  46.39.51.172 | "
+/system note set note="Idenity: anna | Uptime:  1w2d07:19:12 | Public IP:  46.39.51.172 | "
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
@@ -743,7 +743,7 @@
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/21/2017 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/21/2017 start-time=19:19:59
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
-/system scheduler add interval=1w3d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
+/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
 /system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/10/2018 start-time=15:10:00
 /system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=03:25:00
 /system scheduler add interval=1h name=doCheckPingRate on-event="/system script run doCheckPingRate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=02:40:00
@@ -2730,10 +2730,10 @@
     \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
     \n\r\r\
     \n:local sysver \"NA\"\r\r\
-    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\r\
     \n  :local sysver [/system package get system version]\r\r\
     \n}\r\r\
-    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] = 0 and \$rosVer = 7 ) do={\r\r\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\r\
     \n  :local sysver [/system package get routeros version]\r\r\
     \n}\r\r\
     \n\r\r\
