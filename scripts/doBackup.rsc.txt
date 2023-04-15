@@ -1,153 +1,163 @@
-:global globalScriptBeforeRun;
-$globalScriptBeforeRun "doBackup";
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doBackup";
+
+:local sysname [/system identity get name]
+:local rosVer [:tonum [:pick [/system resource get version] 0 1]]
+
+:local sysver "NA"
+:if ( [ :len [ /system package find where name="system" and disabled=no ] ] = 0 and $rosVer = 6 ) do={
+  :local sysver [/system package get system version]
+}
+:if ( [ :len [ /system package find where name="routeros" and disabled=no ] ] = 0 and $rosVer = 7 ) do={
+  :local sysver [/system package get routeros version]
+}
+
+:local scriptname "doBackup"
+:local saveSysBackup true
+:local encryptSysBackup false
+:local saveRawExport true
+:local verboseRawExport false
+:local state ""
+
+:local ts [/system clock get time]
+:set ts ([:pick $ts 0 2].[:pick $ts 3 5].[:pick $ts 6 8])
+:local ds [/system clock get date]
+:set ds ([:pick $ds 7 11].[:pick $ds 0 3].[:pick $ds 4 6])
+
+#directories have to exist!
+:local FTPEnable true
+:local FTPServer "nas.home"
+:local FTPPort 21
+:local FTPUser "git"
+:local FTPPass "git"
+:local FTPRoot "/REPO/backups/"
+:local FTPGitEnable true
+:local FTPRawGitName "/REPO/mikrobackups/rawconf_$sysname_latest.rsc"
+
+:local SMTPEnable true
+:local SMTPAddress "defm.kopcap@gmail.com"
+:local SMTPSubject ("$sysname Full Backup ($ds-$ts)")
+:local SMTPBody ("$sysname full Backup file see in attachment.\nRouterOS version: $sysver\nTime and Date stamp: ($ds-$ts) ")
+
+:global globalNoteMe;
+
+:local itsOk true;
+
+:do {
+  :local smtpserv [:resolve "$FTPServer"];
+} on-error={ 
+  :set state "FTP server looks like to be unreachable"
+  $globalNoteMe value=$state;
+  :set itsOk false;
+}
+
+:local fname ("BACKUP-$sysname-$ds-$ts")
+
+:if ($saveSysBackup and $itsOk) do={
+  :if ($encryptSysBackup = true) do={ /system backup save name=($fname.".backup") }
+  :if ($encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=($fname.".backup") }
+  :delay 2s;
+  $globalNoteMe value="System Backup Finished"
+}
+
+:if ($saveRawExport and $itsOk) do={
+  :if ($FTPGitEnable ) do={
+     #do not apply hide-sensitive flag
+     :if ($verboseRawExport = true) do={ /export terse verbose file=($fname.".safe.rsc") }
+     :if ($verboseRawExport = false) do={ /export terse file=($fname.".safe.rsc") }
+     :delay 2s;
+  }
+  $globalNoteMe value="Raw configuration script export Finished"
+}
+
+:delay 5s
+
+:local buFile ""
+
+:foreach backupFile in=[/file find] do={
+  :set buFile ([/file get $backupFile name])
+  :if ([:typeof [:find $buFile $fname]] != "nil" and $itsOk) do={
+    :local itsSRC ( $buFile ~".safe.rsc")
+    if ($FTPEnable and $itsOk) do={
+        :do {
+        :set state "Uploading $buFile to FTP ($FTPRoot$buFile)"
+        $globalNoteMe value=$state
+        /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRoot$buFile" mode=ftp upload=yes
+        $globalNoteMe value="Done"
+        } on-error={ 
+          :set state "Error When $state"
+          $globalNoteMe value=$state;
+          :set itsOk false;
+       }
+
+        #special ftp upload for git purposes
+        if ($itsSRC and $FTPGitEnable and $itsOk) do={
+            :do {
+            :set state "Uploading $buFile to GIT-FTP (RAW, $FTPRawGitName)"
+            $globalNoteMe value=$state
+            /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRawGitName" mode=ftp upload=yes
+            $globalNoteMe value="Done"
+            } on-error={ 
+              :set state "Error When $state"
+              $globalNoteMe value=$state;
+              :set itsOk false;
+           }
+        }
+
+    }
+    if ($SMTPEnable and !$itsSRC and $itsOk) do={
+        :do {
+        :set state "Uploading $buFile to SMTP"
+        $globalNoteMe value=$state
+
+        #email works in background, delay needed
+        /tool e-mail send to=$SMTPAddress body=$SMTPBody subject=$SMTPSubject file=$buFile tls=starttls
+
+        #waiting for email to be delivered
+        :delay 15s;
+
+        :local emlResult ([/tool e-mail get last-status] = "succeeded")
+
+        if (!$emlResult) do={
+
+          :set state "Error When $state"
+          $globalNoteMe value=$state;
+          :set itsOk false;
+
+        } else={
+
+          $globalNoteMe value="Done"
+       
+        }
+
+        } on-error={ 
+          :set state "Error When $state"
+          $globalNoteMe value=$state;
+          :set itsOk false;
+       }
+    }
+
+    :delay 2s;
+    /file remove $backupFile;
+
+  }
+}
+
+:local inf ""
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: Automatic Backup Completed Successfully"
+}
+
+:if (!$itsOk) do={
+  :set inf "Error When $scriptname on $sysname: $state"  
+}
+
+$globalNoteMe value=$inf
+
+:if (!$itsOk) do={
+
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+  
+}
 
-:local sysname [/system identity get name]
-:local sysver [/system package get system version]
-:local scriptname "doBackup"
-:local saveSysBackup true
-:local encryptSysBackup false
-:local saveRawExport true
-:local verboseRawExport false
-:local state ""
-
-:local ts [/system clock get time]
-:set ts ([:pick $ts 0 2].[:pick $ts 3 5].[:pick $ts 6 8])
-:local ds [/system clock get date]
-:set ds ([:pick $ds 7 11].[:pick $ds 0 3].[:pick $ds 4 6])
-
-#directories have to exist!
-:local FTPEnable true
-:local FTPServer "nas.home"
-:local FTPPort 21
-:local FTPUser "git"
-:local FTPPass "git"
-:local FTPRoot "/REPO/backups/"
-:local FTPGitEnable true
-:local FTPRawGitName "/REPO/mikrobackups/rawconf_$sysname_latest.rsc"
-
-:local SMTPEnable true
-:local SMTPAddress "defm.kopcap@gmail.com"
-:local SMTPSubject ("$sysname Full Backup ($ds-$ts)")
-:local SMTPBody ("$sysname full Backup file see in attachment.\nRouterOS version: $sysver\nTime and Date stamp: ($ds-$ts) ")
-
-:global globalNoteMe;
-
-:local itsOk true;
-
-:do {
-  :local smtpserv [:resolve "$FTPServer"];
-} on-error={ 
-  :set state "FTP server looks like to be unreachable"
-  $globalNoteMe value=$state;
-  :set itsOk false;
-}
-
-:local fname ("BACKUP-$sysname-$ds-$ts")
-
-:if ($saveSysBackup and $itsOk) do={
-  :if ($encryptSysBackup = true) do={ /system backup save name=($fname.".backup") }
-  :if ($encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=($fname.".backup") }
-  :delay 2s;
-  $globalNoteMe value="System Backup Finished"
-}
-
-:if ($saveRawExport and $itsOk) do={
-  :if ($FTPGitEnable ) do={
-     #do not apply hide-sensitive flag
-     :if ($verboseRawExport = true) do={ /export terse verbose file=($fname.".safe.rsc") }
-     :if ($verboseRawExport = false) do={ /export terse file=($fname.".safe.rsc") }
-     :delay 2s;
-  }
-  $globalNoteMe value="Raw configuration script export Finished"
-}
-
-:delay 5s
-
-:local buFile ""
-
-:foreach backupFile in=[/file find] do={
-  :set buFile ([/file get $backupFile name])
-  :if ([:typeof [:find $buFile $fname]] != "nil" and $itsOk) do={
-    :local itsSRC ( $buFile ~".safe.rsc")
-    if ($FTPEnable and $itsOk) do={
-        :do {
-        :set state "Uploading $buFile to FTP ($FTPRoot$buFile)"
-        $globalNoteMe value=$state
-        /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRoot$buFile" mode=ftp upload=yes
-        $globalNoteMe value="Done"
-        } on-error={ 
-          :set state "Error When $state"
-          $globalNoteMe value=$state;
-          :set itsOk false;
-       }
-
-        #special ftp upload for git purposes
-        if ($itsSRC and $FTPGitEnable and $itsOk) do={
-            :do {
-            :set state "Uploading $buFile to FTP (RAW, $FTPRawGitName)"
-            $globalNoteMe value=$state
-            /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRawGitName" mode=ftp upload=yes
-            $globalNoteMe value="Done"
-            } on-error={ 
-              :set state "Error When $state"
-              $globalNoteMe value=$state;
-              :set itsOk false;
-           }
-        }
-
-    }
-    if ($SMTPEnable and !$itsSRC and $itsOk) do={
-        :do {
-        :set state "Uploading $buFile to SMTP"
-        $globalNoteMe value=$state
-
-        #email works in background, delay needed
-        /tool e-mail send to=$SMTPAddress body=$SMTPBody subject=$SMTPSubject file=$buFile
-
-        #waiting for email to be delivered
-        :delay 15s;
-
-        :local emlResult ([/tool e-mail get last-status] = "succeeded")
-
-        if (!$emlResult) do={
-
-          :set state "Error When $state"
-          $globalNoteMe value=$state;
-          :set itsOk false;
-
-        } else={
-
-          $globalNoteMe value="Done"
-       
-        }
-
-        } on-error={ 
-          :set state "Error When $state"
-          $globalNoteMe value=$state;
-          :set itsOk false;
-       }
-    }
-
-    :delay 2s;
-    /file remove $backupFile;
-
-  }
-}
-
-:local inf ""
-:if ($itsOk) do={
-  :set inf "$scriptname on $sysname: Automatic Backup Completed Successfully"
-}
-
-:if (!$itsOk) do={
-  :set inf "Error When $scriptname on $sysname: $state"  
-}
-
-$globalNoteMe value=$inf
-
-:if (!$itsOk) do={
-
-  :global globalTgMessage;
-  $globalTgMessage value=$inf;
-  
-}

@@ -1,0 +1,16 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doCoolConsole";
+
+:local content ""
+:local logcontenttemp ""
+:local logcontent ""
+ 
+:set logcontenttemp "Idenity: $[/system identity get name]"
+:set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
+:set logcontenttemp "Uptime:  $[/system resource get uptime]"
+:set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
+:set logcontenttemp "Public IP:  $[/ip cloud get public-address]"
+:set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
+
+/system note set note="$logcontent"  

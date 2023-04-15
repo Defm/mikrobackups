@@ -113,7 +113,7 @@
     :local mainDHCP "main-dhcp-server";
 
     #when DHCP not using (add arp for leases)
-    :local arpInterface "main-infrastructure";
+    :local arpInterface "main-infrastructure-br";
     :local state ("Adding new network member... ");
 
     $globalNoteMe value=$state;
@@ -143,12 +143,21 @@
     :do {
 
         :local state ("Removing existing DHCP configuration for ($newIp/$newMac) on $mainDHCP");
-        $globalNoteMe value=$state;       /ip dhcp-server lease remove [find address=$newIp];
+        $globalNoteMe value=$state;       
+        /ip dhcp-server lease remove [find address=$newIp];
         /ip dhcp-server lease remove [find mac-address=$newMac];
 
         :local state ("Adding DHCP configuration for ($newIp/$newMac) on $mainDHCP");
         $globalNoteMe value=$state;
-        /ip dhcp-server lease add address=$newIp mac-address=$newMac server=$mainDHCP comment=$comment;
+        
+       :if ([ :len [ /ip dhcp-server find where name="$mainDHCP" ] ] > 0) do={
+            /ip dhcp-server lease add address=$newIp mac-address=$newMac server=$mainDHCP comment=$comment;
+            :local state ("Done.");
+            $globalNoteMe value=$state;
+       } else={
+        :local state ("Cant find DHCP server $mainDHCP. SKIPPED.");
+        $globalNoteMe value=$state;
+       }
 
     } on-error={
 
@@ -163,7 +172,15 @@
         /ip dhcp-server lease remove [find address=$newBlockedIp];
         :local state ("Adding DHCP configuration for ($newBlockedIp/$newMac) on $guestDHCP (preventing connections to guest network)");
         $globalNoteMe value=$state;
-        /ip dhcp-server lease add address=$newBlockedIp block-access=yes mac-address=$newMac server=$guestDHCP comment=($comment . "(blocked)");
+
+       :if ([ :len [ /ip dhcp-server find where name="$guestDHCP" ] ] > 0) do={
+          /ip dhcp-server lease add address=$newBlockedIp block-access=yes mac-address=$newMac server=$guestDHCP comment=($comment . "(blocked)");
+          :local state ("Done.");
+          $globalNoteMe value=$state;
+       } else={
+        :local state ("Cant find DHCP server $guestDHCP. SKIPPED.");
+        $globalNoteMe value=$state;
+       }
 
     } on-error={
 
@@ -180,7 +197,15 @@
         /ip arp remove [find address=$newIp];
         /ip arp remove [find address=$newBlockedIp];
         /ip arp remove [find mac-address=$newMac];
+
+     :if ([ :len [ /interface find where name="$arpInterface" ] ] > 0) do={
         /ip arp add address=$newIp interface=$arpInterface mac-address=$newMac comment=$comment
+        :local state ("Done.");
+        $globalNoteMe value=$state;
+       } else={
+        :local state ("Cant find interface $arpInterface. SKIPPED.");
+        $globalNoteMe value=$state;
+       }
 
     } on-error={
 
