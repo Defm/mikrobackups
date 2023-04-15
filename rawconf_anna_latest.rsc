@@ -1,4 +1,4 @@
-# apr/11/2023 21:00:02 by RouterOS 7.7
+# apr/15/2023 18:05:57 by RouterOS 7.7
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -105,8 +105,6 @@
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.170/32 total-queue=default
 /queue simple add comment=dtq,54:35:30:05:9B:BD, name="ASUS(wireless)@main-dhcp-server (54:35:30:05:9B:BD)" queue=default/default target=192.168.90.88/32 total-queue=default
 /queue simple add comment=dtq,54:35:30:05:9B:BD, name="ASUS(wireless)(blocked)@guest-dhcp-server (54:35:30:05:9B:BD)" queue=default/default target=192.168.98.88/32 total-queue=default
-/queue simple add comment=dtq,00:27:15:CE:B8:DD, name="android(wireless)@main-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.90.140/32 total-queue=default
-/queue simple add comment=dtq,00:27:15:CE:B8:DD, name="android(wireless)(blocked)@guest-dhcp-server (00:27:15:CE:B8:DD)" queue=default/default target=192.168.98.140/32 total-queue=default
 /queue simple add comment=dtq,BC:D0:74:0A:B2:6A,MbpAlxm name="MbpAlxm (wireless)@main-dhcp-server (BC:D0:74:0A:B2:6A)" queue=default/default target=192.168.90.75/32 total-queue=default
 /queue simple add comment=dtq,BC:D0:74:0A:B2:6A, name="MbpAlxm(blocked)@guest-dhcp-server (BC:D0:74:0A:B2:6A)" queue=default/default target=192.168.98.75/32 total-queue=default
 /queue simple add comment=dtq,48:65:EE:19:3C:0D,MbpAlxm name="MbpAlxm (wire)@main-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.90.85/32 total-queue=default
@@ -122,6 +120,8 @@
 /queue simple add comment=dtq,88:88:88:88:87:88, name="AsusPC(wire)(blocked)@guest-dhcp-server (88:88:88:88:87:88)" queue=default/default target=192.168.98.100/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:CA:8F:B0,AlxATV name="AlxATV(wire)@main-dhcp-server (90:DD:5D:CA:8F:B0)" queue=default/default target=192.168.90.201/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:CA:8F:B0, name="AlxATV(wire)(blocked)@guest-dhcp-server (90:DD:5D:CA:8F:B0)" queue=default/default target=192.168.98.201/32 total-queue=default
+/queue simple add comment=dtq,04:F1:69:8E:12:B6,HONOR_9X-e57500d48bf17173 name="Hare's Honor9x(wireless)@main-dhcp-server (04:F1:69:8E:12:B6)" queue=default/default target=192.168.90.140/32 total-queue=default
+/queue simple add comment=dtq,04:F1:69:8E:12:B6, name="Hare's Honor9x(wireless)(blocked)@guest-dhcp-server (04:F1:69:8E:12:B6)" queue=default/default target=192.168.98.140/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -160,20 +160,16 @@
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AlxATV(wire)" disabled=no mac-address=90:DD:5D:CA:8F:B0 ssid-regexp=""
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AsusPC(wire)" disabled=no mac-address=88:88:88:88:87:88 ssid-regexp=""
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="SamsungTV(wire)" disabled=no mac-address=F8:3F:51:0D:88:0B ssid-regexp=""
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Hare's Honor9x(wireless)" disabled=no mac-address=04:F1:69:8E:12:B6 ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="WB (wireless)" disabled=no mac-address=F0:C8:14:48:5B:9A ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=MbpAlxm disabled=no mac-address=48:65:EE:19:3C:0D ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="MbpAlxm(wireless)" disabled=no mac-address=BC:D0:74:0A:B2:6A ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="android(wireless)" disabled=no mac-address=00:27:15:CE:B8:DD ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="ASUS(wireless)" disabled=no mac-address=54:35:30:05:9B:BD ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=Twinkle disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=AudioATV disabled=no mac-address=B0:34:95:50:A1:6A ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlxPro disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=mbpAlx disabled=no mac-address=78:31:C1:CF:9E:70 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=AlxATV disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPhoneAlxr disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Twinkle(wireless)" disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AudioATV(wireless)" disabled=no mac-address=B0:34:95:50:A1:6A ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPadAlxPro(wireless)" disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AlxATV(wireless)" disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless)" disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
 /caps-man manager set certificate=anna.capsman@CHR enabled=yes require-peer-certificate=yes
@@ -227,7 +223,6 @@
 /ip arp add address=192.168.90.210 comment=AudioATV interface=main-infrastructure-br mac-address=B0:34:95:50:A1:6A
 /ip arp add address=192.168.90.170 comment=Twinkle interface=main-infrastructure-br mac-address=FC:F5:C4:79:ED:D8
 /ip arp add address=192.168.90.88 comment="ASUS(wireless)" interface=main-infrastructure-br mac-address=54:35:30:05:9B:BD
-/ip arp add address=192.168.90.140 comment="android(wireless)" interface=main-infrastructure-br mac-address=00:27:15:CE:B8:DD
 /ip arp add address=192.168.90.75 comment="MbpAlxm (wireless)" interface=main-infrastructure-br mac-address=BC:D0:74:0A:B2:6A
 /ip arp add address=192.168.90.85 comment="MbpAlxm (wire)" interface=main-infrastructure-br mac-address=48:65:EE:19:3C:0D
 /ip arp add address=192.168.90.2 comment="WB (wire)" interface=main-infrastructure-br mac-address=80:34:28:11:EE:7E
@@ -236,6 +231,7 @@
 /ip arp add address=192.168.90.205 comment="SamsungTV(wire)" interface=main-infrastructure-br mac-address=F8:3F:51:0D:88:0B
 /ip arp add address=192.168.90.100 comment="AsusPC(wire)" interface=main-infrastructure-br mac-address=88:88:88:88:87:88
 /ip arp add address=192.168.90.201 comment="AlxATV(wire)" interface=main-infrastructure-br mac-address=90:DD:5D:CA:8F:B0
+/ip arp add address=192.168.90.140 comment="Hare's Honor9x(wireless)" interface=main-infrastructure-br mac-address=04:F1:69:8E:12:B6
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=yes interface="wan A" use-peer-dns=no use-peer-ntp=no
 /ip dhcp-server lease add address=192.168.90.200 comment="AlxATV (wireless)" mac-address=90:DD:5D:C8:46:AB server=main-dhcp-server
@@ -254,8 +250,6 @@
 /ip dhcp-server lease add address=192.168.98.170 block-access=yes comment="Twinkle(blocked)" mac-address=FC:F5:C4:79:ED:D8 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.88 comment="ASUS(wireless)" mac-address=54:35:30:05:9B:BD server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.88 block-access=yes comment="ASUS(wireless)(blocked)" mac-address=54:35:30:05:9B:BD server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.140 comment="android(wireless)" mac-address=00:27:15:CE:B8:DD server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.140 block-access=yes comment="android(wireless)(blocked)" mac-address=00:27:15:CE:B8:DD server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.75 comment="MbpAlxm (wireless)" mac-address=BC:D0:74:0A:B2:6A server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.75 block-access=yes comment="MbpAlxm(blocked)" mac-address=BC:D0:74:0A:B2:6A server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.85 comment="MbpAlxm (wire)" mac-address=48:65:EE:19:3C:0D server=main-dhcp-server
@@ -270,6 +264,8 @@
 /ip dhcp-server lease add address=192.168.98.100 block-access=yes comment="AsusPC(wire)(blocked)" mac-address=88:88:88:88:87:88 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.201 comment="AlxATV(wire)" mac-address=90:DD:5D:CA:8F:B0 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.201 block-access=yes comment="AlxATV(wire)(blocked)" mac-address=90:DD:5D:CA:8F:B0 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.140 comment="Hare's Honor9x(wireless)" mac-address=04:F1:69:8E:12:B6 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.140 block-access=yes comment="Hare's Honor9x(wireless)(blocked)" mac-address=04:F1:69:8E:12:B6 server=guest-dhcp-server
 /ip dhcp-server matcher add address-pool=pool-vendor code=60 name=vendor-mikrotik-caps server=main-dhcp-server value=mikrotik-cap
 /ip dhcp-server network add address=192.168.90.0/27 caps-manager=192.168.90.1 comment="Network devices, CCTV" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.32/27 caps-manager=192.168.90.1 comment="Virtual machines" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
@@ -280,6 +276,8 @@
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dns set allow-remote-requests=yes cache-max-ttl=1d max-concurrent-queries=200 max-concurrent-tcp-sessions=30 query-server-timeout=3s servers=217.10.36.5,217.10.34.2 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
+/ip dns static add address=46.39.51.172 name=ftpserver.org
+/ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 name=anna.home
 /ip dns static add cname=wb.home name=wb type=CNAME
@@ -299,9 +297,10 @@
 /ip dns static add address=192.168.100.1 name=gateway.home
 /ip dns static add cname=capxl.home name=capxl type=CNAME
 /ip dns static add address=192.168.90.10 name=capxl.home
+/ip dns static add address=192.168.90.100 name=hare.home ttl=5m
+/ip dns static add cname=hare.home name=hare ttl=5m type=CNAME
 /ip dns static add address=192.168.90.70 comment=<AUTO:DHCP:main-dhcp-server> name=miniAlx.home
 /ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
-/ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=95.213.159.180 name=atv.package2.qello.com
 /ip dns static add address=192.168.90.1 name=time.windows.com
@@ -309,14 +308,12 @@
 /ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhone.home ttl=5m
 /ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
-/ip dns static add address=192.168.90.100 name=hare.home ttl=5m
-/ip dns static add cname=hare.home name=hare ttl=5m type=CNAME
 /ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m
 /ip dns static add address=192.168.90.80 comment=<AUTO:DHCP:main-dhcp-server> name=MBP-Uzer.home ttl=5m
-/ip dns static add address=46.39.51.172 name=ftpserver.org
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bbs|\\.chan|\\.cyb|\\.dyn|\\.geek|\\.gopher|\\.indy|\\.libre|\\.neo|\\.null|\\.o)\$" type=FWD
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.oss|\\.oz|\\.parody|\\.pirate|\\.opennic.glue|\\.dns\\.opennic\\.glue)\$" type=FWD
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bazar|\\.coin|\\.emc|\\.lib|\\.fur1|\\.bit|\\.ku|\\.te|\\.ti|\\.uu)\$" type=FWD
+/ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=HONOR9X-e57500d48bf17173.home ttl=5m
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -391,9 +388,9 @@
 /ip firewall address-list add address=217.10.34.2 comment="AKADO official DNS server" list=alist-fw-dns-allow
 /ip firewall address-list add address=2ip.ru list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=www.canva.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=46.39.51.172 list=alist-nat-external-ip
 /ip firewall address-list add address=192.168.99.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-vpn-subnets
+/ip firewall address-list add address=46.39.51.172 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -737,7 +734,7 @@
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
-/system note set note="Idenity: anna | Uptime:  5d09:49:13 | Public IP:  46.39.51.172 | "
+/system note set note="Idenity: anna | Uptime:  1w2d06:49:12 | Public IP:  46.39.51.172 | "
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
@@ -2157,7 +2154,7 @@
     \n\r\
     \n/ip firewall address-list add list=\$today address=\"log-in.\$time1.\$user.\$usermac.\$ipuser\"\r\
     \n"
-/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=no name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:if (!any \$globalNoteMe) do={\r\
@@ -2272,7 +2269,7 @@
     \n    :local mainDHCP \"main-dhcp-server\";\r\
     \n\r\
     \n    #when DHCP not using (add arp for leases)\r\
-    \n    :local arpInterface \"main-infrastructure\";\r\
+    \n    :local arpInterface \"main-infrastructure-br\";\r\
     \n    :local state (\"Adding new network member... \");\r\
     \n\r\
     \n    \$globalNoteMe value=\$state;\r\
@@ -2302,12 +2299,21 @@
     \n    :do {\r\
     \n\r\
     \n        :local state (\"Removing existing DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
-    \n        \$globalNoteMe value=\$state;       /ip dhcp-server lease remove [find address=\$newIp];\r\
+    \n        \$globalNoteMe value=\$state;       \r\
+    \n        /ip dhcp-server lease remove [find address=\$newIp];\r\
     \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\r\
     \n\r\
     \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
     \n        \$globalNoteMe value=\$state;\r\
-    \n        /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\r\
+    \n        \r\
+    \n       :if ([ :len [ /ip dhcp-server find where name=\"\$mainDHCP\" ] ] > 0) do={\r\
+    \n            /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\r\
+    \n            :local state (\"Done.\");\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n       } else={\r\
+    \n        :local state (\"Cant find DHCP server \$mainDHCP. SKIPPED.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n       }\r\
     \n\r\
     \n    } on-error={\r\
     \n\r\
@@ -2322,7 +2328,15 @@
     \n        /ip dhcp-server lease remove [find address=\$newBlockedIp];\r\
     \n        :local state (\"Adding DHCP configuration for (\$newBlockedIp/\$newMac) on \$guestDHCP (preventing connections to guest network)\");\r\
     \n        \$globalNoteMe value=\$state;\r\
-    \n        /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\r\
+    \n\r\
+    \n       :if ([ :len [ /ip dhcp-server find where name=\"\$guestDHCP\" ] ] > 0) do={\r\
+    \n          /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\r\
+    \n          :local state (\"Done.\");\r\
+    \n          \$globalNoteMe value=\$state;\r\
+    \n       } else={\r\
+    \n        :local state (\"Cant find DHCP server \$guestDHCP. SKIPPED.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n       }\r\
     \n\r\
     \n    } on-error={\r\
     \n\r\
@@ -2339,7 +2353,15 @@
     \n        /ip arp remove [find address=\$newIp];\r\
     \n        /ip arp remove [find address=\$newBlockedIp];\r\
     \n        /ip arp remove [find mac-address=\$newMac];\r\
+    \n\r\
+    \n     :if ([ :len [ /interface find where name=\"\$arpInterface\" ] ] > 0) do={\r\
     \n        /ip arp add address=\$newIp interface=\$arpInterface mac-address=\$newMac comment=\$comment\r\
+    \n        :local state (\"Done.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n       } else={\r\
+    \n        :local state (\"Cant find interface \$arpInterface. SKIPPED.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n       }\r\
     \n\r\
     \n    } on-error={\r\
     \n\r\
