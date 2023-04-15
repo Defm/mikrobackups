@@ -1,4 +1,4 @@
-# apr/15/2023 18:34:53 by RouterOS 7.7
+# apr/15/2023 18:39:39 by RouterOS 7.7
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -2731,10 +2731,10 @@
     \n\r\r\
     \n:local sysver \"NA\"\r\r\
     \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\r\
-    \n  :local sysver [/system package get system version]\r\r\
+    \n  :set sysver [/system package get system version]\r\r\
     \n}\r\r\
     \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\r\
-    \n  :local sysver [/system package get routeros version]\r\r\
+    \n  :set sysver [/system package get routeros version]\r\r\
     \n}\r\r\
     \n\r\r\
     \n:local scriptname \"doBackup\"\r\r\
