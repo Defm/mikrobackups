@@ -1,4 +1,4 @@
-# apr/15/2023 18:03:16 by RouterOS 7.7
+# apr/15/2023 18:05:45 by RouterOS 7.7
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -1525,4 +1525,4 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n}\r\
     \n"
 /tool bandwidth-server set authenticate=no
-/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 tls=starttls user=defm.kopcap@gmail.com
+/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 tls=yes user=defm.kopcap@gmail.com
