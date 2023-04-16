@@ -1,4 +1,4 @@
-# apr/15/2023 18:39:39 by RouterOS 7.7
+# apr/16/2023 21:00:03 by RouterOS 7.7
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -734,7 +734,9 @@
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
-/system note set note="Idenity: anna | Uptime:  1w2d07:19:12 | Public IP:  46.39.51.172 | "
+/system note set note="anna 7.7 | 1w3d09:39:13 | 46.39.51.172 | hcy086pz6xz.sn.mynetname.net | \
+    \napr/16/2023 20:50:12 | ya.ru latency: 8 ms | 46.39.51.172 | hcy086pz6xz.sn.mynetname.net | \
+    \n"
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
@@ -995,13 +997,54 @@
     \n:local content \"\"\r\
     \n:local logcontenttemp \"\"\r\
     \n:local logcontent \"\"\r\
+    \n\r\r\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
+    \n\r\r\
+    \n:local sysver \"NA\"\r\r\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\r\
+    \n  :set sysver [/system package get system version]\r\r\
+    \n}\r\r\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\r\
+    \n  :set sysver [/system package get routeros version]\r\r\
+    \n}\r\
     \n \r\
-    \n:set logcontenttemp \"Idenity: \$[/system identity get name]\"\r\
+    \n:set logcontenttemp \"\$[/system identity get name] \$sysver\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"Uptime:  \$[/system resource get uptime]\"\r\
+    \n:set logcontenttemp \"\$[/system resource get uptime]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"Public IP:  \$[/ip cloud get public-address]\"\r\
+    \n:set logcontenttemp \"\$[/ip cloud get public-address]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n:set logcontenttemp \"\$[/ip cloud get dns-name]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \\n\")\r\
+    \n\r\
+    \n:local hostname \"ya.ru\";\r\
+    \n:local host  [:resolve \$hostname ];\r\
+    \n:local ms 20;\r\
+    \n\r\
+    \n:local avgRttA value=0;\r\
+    \n:local numPing value=6;\r\
+    \n:local toPingIP value=\$host;\r\
+    \n\r\
+    \n:for tmpA from=1 to=\$numPing step=1 do={\r\
+    \n\r\
+    \n /tool flood-ping count=1 size=38 address=\$toPingIP do={\r\
+    \n  :set avgRttA (\$\"avg-rtt\" + \$avgRttA);\r\
+    \n }\r\
+    \n\r\
+    \n /delay delay-time=1;\r\
+    \n\r\
+    \n}\r\
+    \n\r\
+    \n \r\
+    \n:set logcontenttemp \"\$[/system clock get date] \$[/system clock get time]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n:set logcontenttemp \"\$hostname latency: \$[:tostr (\$avgRttA / \$numPing )] ms\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n:set logcontenttemp \"\$[/ip cloud get public-address]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n:set logcontenttemp \"\$[/ip cloud get dns-name]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \\n\")\r\
+    \n\r\
     \n\r\
     \n/system note set note=\"\$logcontent\"  "
 /system script add dont-require-permissions=yes name=doIpsecPolicyUpd owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local PolicyComment \"UBUNTU VPN traffic\"\r\
