@@ -1,4 +1,4 @@
-# apr/16/2023 21:00:03 by RouterOS 7.7
+# apr/21/2023 21:00:03 by RouterOS 7.7
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -235,8 +235,6 @@
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=yes interface="wan A" use-peer-dns=no use-peer-ntp=no
 /ip dhcp-server lease add address=192.168.90.200 comment="AlxATV (wireless)" mac-address=90:DD:5D:C8:46:AB server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.90.80 address-lists=alist-osx-hosts client-id=1:78:31:c1:cf:9e:70 comment="MbpAlx (wireless)" mac-address=78:31:C1:CF:9E:70 server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.90.90 address-lists=alist-osx-hosts comment="MbpAlx (wire)" mac-address=38:C9:86:51:D2:B3 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.223 block-access=yes client-id=1:54:2b:8d:77:38:a0 comment="iPhoneAlxr(blocked)" mac-address=54:2B:8D:77:38:A0 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.40 comment=NAS mac-address=00:11:32:2C:A7:85 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.150 client-id=1:54:2b:8d:77:38:a0 comment=iPhoneAlxr mac-address=54:2B:8D:77:38:A0 server=main-dhcp-server
@@ -260,7 +258,7 @@
 /ip dhcp-server lease add address=192.168.98.3 block-access=yes comment="WB (wireless)(blocked)" mac-address=F0:C8:14:48:5B:9A server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.205 comment="SamsungTV(wire)" mac-address=F8:3F:51:0D:88:0B server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.205 block-access=yes comment="SamsungTV(wire)(blocked)" mac-address=F8:3F:51:0D:88:0B server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.100 comment="AsusPC(wire)" mac-address=88:88:88:88:87:88 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.90.100 comment="Hare's AsusPC(wire)" mac-address=88:88:88:88:87:88 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.100 block-access=yes comment="AsusPC(wire)(blocked)" mac-address=88:88:88:88:87:88 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.201 comment="AlxATV(wire)" mac-address=90:DD:5D:CA:8F:B0 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.201 block-access=yes comment="AlxATV(wire)(blocked)" mac-address=90:DD:5D:CA:8F:B0 server=guest-dhcp-server
@@ -307,7 +305,6 @@
 /ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
 /ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhone.home ttl=5m
-/ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
 /ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m
 /ip dns static add address=192.168.90.80 comment=<AUTO:DHCP:main-dhcp-server> name=MBP-Uzer.home ttl=5m
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bbs|\\.chan|\\.cyb|\\.dyn|\\.geek|\\.gopher|\\.indy|\\.libre|\\.neo|\\.null|\\.o)\$" type=FWD
@@ -734,8 +731,8 @@
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
-/system note set note="anna 7.7 | 1w3d09:39:13 | 46.39.51.172 | hcy086pz6xz.sn.mynetname.net | \
-    \napr/16/2023 20:50:12 | ya.ru latency: 8 ms | 46.39.51.172 | hcy086pz6xz.sn.mynetname.net | \
+/system note set note="anna 7.7 | 2w1d09:39:13 | apr/21/2023 20:50:12 | ya.ru latency: 7 ms | \
+    \nCHR 185.13.148.14 | MIK 85.174.193.102 | ANNA 46.39.51.172 | \
     \n"
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
@@ -1012,10 +1009,7 @@
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
     \n:set logcontenttemp \"\$[/system resource get uptime]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"\$[/ip cloud get public-address]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"\$[/ip cloud get dns-name]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \\n\")\r\
+    \n\r\
     \n\r\
     \n:local hostname \"ya.ru\";\r\
     \n:local host  [:resolve \$hostname ];\r\
@@ -1039,10 +1033,13 @@
     \n:set logcontenttemp \"\$[/system clock get date] \$[/system clock get time]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
     \n:set logcontenttemp \"\$hostname latency: \$[:tostr (\$avgRttA / \$numPing )] ms\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \\n\")\r\
+    \n\r\
+    \n:set logcontenttemp \"CHR \$[:resolve accb195e0dffc6bb.sn.mynetname.net]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"\$[/ip cloud get public-address]\"\r\
+    \n:set logcontenttemp \"MIK \$[:resolve 673706ed7949.sn.mynetname.net]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"\$[/ip cloud get dns-name]\"\r\
+    \n:set logcontenttemp \"ANNA \$[:resolve hcy086pz6xz.sn.mynetname.net]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \\n\")\r\
     \n\r\
     \n\r\
