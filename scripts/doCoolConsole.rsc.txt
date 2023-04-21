@@ -5,12 +5,53 @@ $globalScriptBeforeRun "doCoolConsole";
 :local content ""
 :local logcontenttemp ""
 :local logcontent ""
+
+:local rosVer [:tonum [:pick [/system resource get version] 0 1]]
+
+:local sysver "NA"
+:if ( [ :len [ /system package find where name="system" and disabled=no ] ] > 0 and $rosVer = 6 ) do={
+  :set sysver [/system package get system version]
+}
+:if ( [ :len [ /system package find where name="routeros" and disabled=no ] ] > 0 and $rosVer = 7 ) do={
+  :set sysver [/system package get routeros version]
+}
  
-:set logcontenttemp "Idenity: $[/system identity get name]"
+:set logcontenttemp "$[/system identity get name] $sysver"
 :set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
-:set logcontenttemp "Uptime:  $[/system resource get uptime]"
+:set logcontenttemp "$[/system resource get uptime]"
 :set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
-:set logcontenttemp "Public IP:  $[/ip cloud get public-address]"
+
+
+:local hostname "ya.ru";
+:local host  [:resolve $hostname ];
+:local ms 20;
+
+:local avgRttA value=0;
+:local numPing value=6;
+:local toPingIP value=$host;
+
+:for tmpA from=1 to=$numPing step=1 do={
+
+ /tool flood-ping count=1 size=38 address=$toPingIP do={
+  :set avgRttA ($"avg-rtt" + $avgRttA);
+ }
+
+ /delay delay-time=1;
+
+}
+
+ 
+:set logcontenttemp "$[/system clock get date] $[/system clock get time]"
 :set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
+:set logcontenttemp "$hostname latency: $[:tostr ($avgRttA / $numPing )] ms"
+:set logcontent ("$logcontent" ."$logcontenttemp" ." | \n")
+
+:set logcontenttemp "CHR $[:resolve accb195e0dffc6bb.sn.mynetname.net]"
+:set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
+:set logcontenttemp "MIK $[:resolve 673706ed7949.sn.mynetname.net]"
+:set logcontent ("$logcontent" ."$logcontenttemp" ." | ")
+:set logcontenttemp "ANNA $[:resolve hcy086pz6xz.sn.mynetname.net]"
+:set logcontent ("$logcontent" ."$logcontenttemp" ." | \n")
+
 
 /system note set note="$logcontent"  
