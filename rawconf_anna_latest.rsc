@@ -1,4 +1,4 @@
-# apr/21/2023 21:00:03 by RouterOS 7.7
+# apr/23/2023 14:47:52 by RouterOS 7.7
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -98,8 +98,6 @@
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx (wire)@main-dhcp-server (10:DD:B1:9E:19:5E)" queue=default/default target=192.168.90.70/32 total-queue=default
-/queue simple add comment=dtq,78:31:C1:CF:9E:70,MBP-Uzer name="MbpAlx (wireless)@main-dhcp-server (78:31:C1:CF:9E:70)" queue=default/default target=192.168.90.80/32 total-queue=default
-/queue simple add comment=dtq,38:C9:86:51:D2:B3, name="MbpAlx (wire)@main-dhcp-server (38:C9:86:51:D2:B3)" queue=default/default target=192.168.90.90/32 total-queue=default
 /queue simple add comment=dtq,00:11:32:2C:A7:85,nas name="NAS@main-dhcp-server (00:11:32:2C:A7:85)" queue=default/default target=192.168.90.40/32 total-queue=default
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle@main-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.90.170/32 total-queue=default
 /queue simple add comment=dtq,FC:F5:C4:79:ED:D8, name="Twinkle(blocked)@guest-dhcp-server (FC:F5:C4:79:ED:D8)" queue=default/default target=192.168.98.170/32 total-queue=default
@@ -116,7 +114,7 @@
 /queue simple add comment=dtq,18:FD:74:13:6E:33,capxl name="capxl(wire)@main-dhcp-server (18:FD:74:13:6E:33)" queue=default/default target=192.168.90.10/32 total-queue=default
 /queue simple add comment=dtq,F8:3F:51:0D:88:0B,localhost name="SamsungTV(wire)@main-dhcp-server (F8:3F:51:0D:88:0B)" queue=default/default target=192.168.90.205/32 total-queue=default
 /queue simple add comment=dtq,F8:3F:51:0D:88:0B, name="SamsungTV(wire)(blocked)@guest-dhcp-server (F8:3F:51:0D:88:0B)" queue=default/default target=192.168.98.205/32 total-queue=default
-/queue simple add comment=dtq,88:88:88:88:87:88,DESKTOP-QMUE5PH name="AsusPC(wire)@main-dhcp-server (88:88:88:88:87:88)" queue=default/default target=192.168.90.100/32 total-queue=default
+/queue simple add comment=dtq,88:88:88:88:87:88,DESKTOP-QMUE5PH name="Hare's AsusPC(wire)@main-dhcp-server (88:88:88:88:87:88)" queue=default/default target=192.168.90.100/32 total-queue=default
 /queue simple add comment=dtq,88:88:88:88:87:88, name="AsusPC(wire)(blocked)@guest-dhcp-server (88:88:88:88:87:88)" queue=default/default target=192.168.98.100/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:CA:8F:B0,AlxATV name="AlxATV(wire)@main-dhcp-server (90:DD:5D:CA:8F:B0)" queue=default/default target=192.168.90.201/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:CA:8F:B0, name="AlxATV(wire)(blocked)@guest-dhcp-server (90:DD:5D:CA:8F:B0)" queue=default/default target=192.168.98.201/32 total-queue=default
@@ -128,12 +126,9 @@
 /queue tree add name=7Z packet-mark=7z-mark parent="Total Bandwidth" queue=default
 /queue tree add name=ZIP packet-mark=zip-mark parent="Total Bandwidth" queue=default
 /routing id add comment="OSPF Common" id=10.255.255.3 name=anna-10.255.255.3
-/routing ospf instance add comment="OSPF Common - inject into \"rmark-vpn-redirect\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-rmark-vpn-redirect originate-default=never redistribute="" router-id=anna-10.255.255.3 routing-table=rmark-vpn-redirect
 /routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-main originate-default=never redistribute="" router-id=anna-10.255.255.3
-/routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-rmark-vpn-redirect name=anna-space-vpn type=stub
-/routing ospf area add disabled=no instance=routes-inject-into-rmark-vpn-redirect name=backbone
+/routing ospf area add disabled=no instance=routes-inject-into-main name=backbone
 /routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-main name=anna-space-main type=stub
-/routing ospf area add disabled=no instance=routes-inject-into-main name=bb1
 /routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
 /routing table add comment="tunnel swing" fib name=rmark-telegram-redirect
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
@@ -274,7 +269,6 @@
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
 /ip dns set allow-remote-requests=yes cache-max-ttl=1d max-concurrent-queries=200 max-concurrent-tcp-sessions=30 query-server-timeout=3s servers=217.10.36.5,217.10.34.2 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
-/ip dns static add address=46.39.51.172 name=ftpserver.org
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 name=anna.home
@@ -306,11 +300,12 @@
 /ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhone.home ttl=5m
 /ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m
-/ip dns static add address=192.168.90.80 comment=<AUTO:DHCP:main-dhcp-server> name=MBP-Uzer.home ttl=5m
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bbs|\\.chan|\\.cyb|\\.dyn|\\.geek|\\.gopher|\\.indy|\\.libre|\\.neo|\\.null|\\.o)\$" type=FWD
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.oss|\\.oz|\\.parody|\\.pirate|\\.opennic.glue|\\.dns\\.opennic\\.glue)\$" type=FWD
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bazar|\\.coin|\\.emc|\\.lib|\\.fur1|\\.bit|\\.ku|\\.te|\\.ti|\\.uu)\$" type=FWD
 /ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=HONOR9X-e57500d48bf17173.home ttl=5m
+/ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
+/ip dns static add address=46.39.51.172 name=ftpserver.org
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -692,10 +687,7 @@
 /routing filter rule add chain=ospf-in comment="set default remote route mark and pref src" disabled=no rule="if ( protocol ospf && dst-len==0) { set pref-src 10.0.0.3 ; set comment GLOBAL-VPN ; accept; }"
 /routing filter rule add chain=ospf-in disabled=yes rule="reject;"
 /routing filter rule add chain=ospf-in comment="set default remote route mark and pref src" disabled=no rule="accept;"
-/routing ospf interface-template add area=anna-space-vpn cost=10 disabled=yes interfaces=ospf-loopback-br networks=10.255.255.3/32 passive priority=1
-/routing ospf interface-template add area=backbone cost=10 disabled=no interfaces=tunnel networks=10.0.0.0/29 priority=1 type=ptp
-/routing ospf interface-template add area=bb1 cost=10 disabled=no interfaces=tunnel networks=10.0.0.0/29 priority=1 type=ptp
-/routing ospf interface-template add area=anna-space-vpn cost=10 disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive priority=1
+/routing ospf interface-template add area=backbone disabled=no interfaces=tunnel networks=10.0.0.0/29 type=ptp
 /routing ospf interface-template add area=anna-space-main cost=10 disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive priority=1
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.98.0/24 src-address=192.168.90.0/24
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.90.0/24 src-address=192.168.98.0/24
@@ -731,7 +723,7 @@
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
-/system note set note="anna 7.7 | 2w1d09:39:13 | apr/21/2023 20:50:12 | ya.ru latency: 7 ms | \
+/system note set note="anna 7.7 | 00:11:54 | apr/23/2023 14:30:12 | ya.ru latency: 7 ms | \
     \nCHR 185.13.148.14 | MIK 85.174.193.102 | ANNA 46.39.51.172 | \
     \n"
 /system ntp client set enabled=yes
