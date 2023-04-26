@@ -1,4 +1,4 @@
-# apr/23/2023 14:47:52 by RouterOS 7.7
+# apr/26/2023 21:00:02 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -128,7 +128,7 @@
 /routing id add comment="OSPF Common" id=10.255.255.3 name=anna-10.255.255.3
 /routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-main originate-default=never redistribute="" router-id=anna-10.255.255.3
 /routing ospf area add disabled=no instance=routes-inject-into-main name=backbone
-/routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-main name=anna-space-main type=stub
+/routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-main name=anna-space-main no-summaries type=stub
 /routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
 /routing table add comment="tunnel swing" fib name=rmark-telegram-redirect
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
@@ -684,11 +684,11 @@
 /ip upnp interfaces add interface=main-infrastructure-br type=internal
 /ip upnp interfaces add interface=guest-infrastructure-br type=internal
 /routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf && ospf-type intra) { set comment DISCARDED-INTRA-AREA ; reject; }"
-/routing filter rule add chain=ospf-in comment="set default remote route mark and pref src" disabled=no rule="if ( protocol ospf && dst-len==0) { set pref-src 10.0.0.3 ; set comment GLOBAL-VPN ; accept; }"
-/routing filter rule add chain=ospf-in disabled=yes rule="reject;"
-/routing filter rule add chain=ospf-in comment="set default remote route mark and pref src" disabled=no rule="accept;"
+/routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0) { set pref-src 10.0.0.3 ; set comment GLOBAL-VPN ; accept; }"
+/routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter) { set comment LOCAL-AREA ; set pref-src 10.0.0.3 ; accept; }"
+/routing filter rule add chain=ospf-in comment="DROP OTHERS" disabled=no rule="reject;"
 /routing ospf interface-template add area=backbone disabled=no interfaces=tunnel networks=10.0.0.0/29 type=ptp
-/routing ospf interface-template add area=anna-space-main cost=10 disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive priority=1
+/routing ospf interface-template add area=anna-space-main disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.98.0/24 src-address=192.168.90.0/24
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.90.0/24 src-address=192.168.98.0/24
 /routing rule add action=lookup-only-in-table comment=API.TELEGRAM.ORG disabled=yes dst-address=149.154.167.0/24 table=rmark-vpn-redirect
@@ -723,8 +723,8 @@
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
-/system note set note="anna 7.7 | 00:11:54 | apr/23/2023 14:30:12 | ya.ru latency: 7 ms | \
-    \nCHR 185.13.148.14 | MIK 85.174.193.102 | ANNA 46.39.51.172 | \
+/system note set note="anna 7.8 | 3d05:09:43 | apr/26/2023 20:50:12 | ya.ru latency: 4 ms | \
+    \nCHR 185.13.148.14 | MIK 46.158.193.138 | ANNA 46.39.51.172 | \
     \n"
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes

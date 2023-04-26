@@ -1,4 +1,4 @@
-# apr/23/2023 14:48:40 by RouterOS 7.8
+# apr/26/2023 21:00:02 by RouterOS 7.8
 # software id = 
 #
 /interface bridge add arp=proxy-arp fast-forward=no name="main infrastructure"
@@ -8,6 +8,7 @@
 /interface l2tp-server add name=tunnel-anna user=vpn-remote-anna
 /interface l2tp-server add name=tunnel-mikrotik user=vpn-remote-mic
 /disk set disk1 slot=disk1
+/disk set slot1 slot=slot1
 /interface list add comment="trusted interfaces" name=trusted
 /interface list add comment="neighbors allowed interfaces" name=neighbors
 /interface list add comment="includes l2tp client interfaces when UP" name=l2tp-dynamic-tun
@@ -294,7 +295,7 @@
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
-/system note set note="Idenity: CHR | Uptime:  00:11:24 | Public IP:  185.13.148.14 | "
+/system note set note="Idenity: CHR | Uptime:  03:04:09 | Public IP:  185.13.148.14 | "
 /system ntp client set enabled=yes
 /system ntp client servers add address=85.21.78.91
 /system ntp client servers add address=46.254.216.9
