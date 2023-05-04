@@ -311,7 +311,7 @@
                 :local state "CLIENT TEMPLATE certificates generation as IP...  $USERNAME";
                 $globalNoteMe value=$state;
 
-                :set tname "$USERNAME@$scepAlias";
+                :set tname "S.$USERNAME@$scepAlias";
 
                 /certificate add name="$tname" common-name="$USERNAME@$scepAlias" subject-alt-name="IP:$USERNAME,DNS:$fakeDomain" key-usage=$prefs country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365;
 
@@ -320,7 +320,7 @@
                 :local state "CLIENT TEMPLATE certificates generation as EMAIL...  $USERNAME";
                 $globalNoteMe value=$state;
 
-                :set tname "$USERNAME@$scepAlias";
+                :set tname "C.$USERNAME@$scepAlias";
 
                 /certificate add name="$tname" common-name="$USERNAME@$scepAlias" subject-alt-name="email:$USERNAME@$fakeDomain" key-usage=$prefs  country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365
 
