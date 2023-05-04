@@ -1,5 +1,5 @@
 #Force sync time
-/ip cloud force-update;
+#/ip cloud force-update;
 
 :log warning "Starting script: doStartupScript";
 :put "Starting script: doStartupScript"
@@ -11,6 +11,8 @@
 /system script run doEnvironmentSetup;
 
 /system script run doImperialMarch;
+
+/system script run doCoolConsole;
 
 #wait some for all tunnels to come up after reboot and VPN to work
 

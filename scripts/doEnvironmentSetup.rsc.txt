@@ -238,8 +238,9 @@
 
 
 #Example call
-#$globalNewClientCert argClients="alx.iphone.rw.2021, alx.mini.rw.2021" argUsage="tls-client,digital-signature,key-encipherment"
-#$globalNewClientCert argClients="182.13.148.14" argUsage="tls-server" argBindAsIP="any"
+#$globalNewClientCert argClients="anna.ipsec, mikrouter.ipsec" argUsage="tls-client,digital-signature,key-encipherment"
+#$globalNewClientCert argClients="anna.capsman, mikrouter.capsman" argUsage="digital-signature,key-encipherment"
+#$globalNewClientCert argClients="185.13.148.14" argUsage="tls-server" argBindAsIP="any"
 :if (!any $globalNewClientCert) do={
   :global globalNewClientCert do={
 
@@ -278,7 +279,6 @@
       :local IDs [:toarray "$clients"];
       :local fakeDomain "myvpn.fake.org"
       :local scepAlias "CHR"
-      :local sysver [/system package get system version]
       :local state ("Started requests generation");
 
       $globalNoteMe value=$state;
