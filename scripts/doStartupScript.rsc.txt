@@ -1,22 +1,60 @@
-#Force sync time
-/ip cloud force-update;
+#Force sync time (awoid CHR initial clock bug)
 
-:log warning "Starting script: doStartupScript";
-:put "Starting script: doStartupScript"
+:if ([/system resource get board-name]!="CHR") do={
+    /ip cloud force-update;
+
+} else={
+    /system clock set date=JAN/01/2019
+    /system clock set time=14:30:00
+    /system clock set time-zone-autodetect=no
+    /system clock set time-zone-name=Europe/Moscow
+
+};
 
 :delay 3s;
 
-/system script run doEnvironmentClearance;
+:do {
+    :log warning "Starting script: doStartupScript";
+    :put "Starting script: doStartupScript"
+    /system script run doEnvironmentClearance;
+} on-error= {
+    :log error "FAIL Starting script: doStartupScript";
+    :put "FAIL Starting script: doStartupScript"
+};
 
-/system script run doEnvironmentSetup;
+:do {
+    :log warning "Starting script: doEnvironmentSetup";
+    :put "Starting script: doEnvironmentSetup"
+    /system script run doEnvironmentSetup;
+} on-error= {
+    :log error "FAIL Starting script: doEnvironmentSetup";
+    :put "FAIL Starting script: doEnvironmentSetup"
+};
 
-/system script run doImperialMarch;
+:do {
+    :log warning "Starting script: doImperialMarch";
+    :put "Starting script: doImperialMarch"
+    /system script run doImperialMarch;
+} on-error= {
+    :log error "FAIL Starting script: doImperialMarch";
+    :put "FAIL Starting script: doImperialMarch"
+};
+
+:do {
+    :log warning "Starting script: doCoolConsole";
+    :put "Starting script: doCoolConsole"
+    /system script run doEnvironmentSetup;
+} on-error= {
+    :log error "FAIL Starting script: doCoolConsole";
+    :put "FAIL Starting script: doCoolConsole"
+};
+
 
 #wait some for all tunnels to come up after reboot and VPN to work
 
 :local inf "Wait some for all tunnels to come up after reboot and VPN to work.." ;
 :global globalNoteMe;
-$globalNoteMe value=$inf;
+:if (any $globalNoteMe ) do={ $globalNoteMe value=$inf; }
 
 :delay 25s;
 
@@ -24,10 +62,8 @@ $globalNoteMe value=$inf;
 :local scriptname "doStartupScript";
 
 :local inf "$scriptname on $sysname: system restart detected" ;
-$globalNoteMe value=$inf;
+:if (any $globalNoteMe ) do={ $globalNoteMe value=$inf; }
 
 :global globalTgMessage;
-$globalTgMessage value=$inf;
+:if (any $globalTgMessage ) do={ $globalTgMessage value=$inf; }
       
-
-
