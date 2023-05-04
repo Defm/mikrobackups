@@ -10,6 +10,8 @@
 
 /system script run doEnvironmentSetup;
 
+/system script run SAT!start;
+
 /system script run doImperialMarch;
 
 #wait some for all tunnels to come up after reboot and VPN to work
