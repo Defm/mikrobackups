@@ -1,4 +1,4 @@
-# may/04/2023 16:53:30 by RouterOS 7.9
+# may/04/2023 16:57:32 by RouterOS 7.9
 # software id = 
 #
 /interface bridge add arp=proxy-arp fast-forward=no name=main-infrastructure-br
