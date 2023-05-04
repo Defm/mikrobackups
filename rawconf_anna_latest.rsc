@@ -1,4 +1,4 @@
-# may/01/2023 21:00:02 by RouterOS 7.8
+# may/04/2023 12:12:20 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -89,7 +89,7 @@
     \n\r\
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
 /ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
-/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1418 max-mtu=1418 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
+/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1360 max-mtu=1360 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
 /queue simple add comment=dtq,54:2B:8D:77:38:A0, name="iPhoneAlxr(blocked)@guest-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhone name="iPhoneAlxr@main-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.90.150/32 total-queue=default
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
@@ -133,25 +133,26 @@
 /routing table add comment="tunnel swing" fib name=rmark-telegram-redirect
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
+/system logging action set 0 memory-lines=300
 /system logging action set 1 disk-file-name=journal
-/system logging action add name=IpsecOnScreenLog target=memory
-/system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
-/system logging action add disk-file-count=20 disk-file-name=ErrorDiskLog disk-lines-per-file=30000 name=ErrorDiskLog target=disk
+/system logging action add memory-lines=300 name=IpsecOnScreenLog target=memory
+/system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
+/system logging action add disk-file-count=20 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
-/system logging action add memory-lines=500 name=OnScreenLog target=memory
-/system logging action add name=DHCPOnScreenLog target=memory
-/system logging action add name=DNSOnScreenLog target=memory
-/system logging action add name=RouterControlLog target=memory
-/system logging action add name=OSPFOnscreenLog target=memory
-/system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=30000 name=AuthDiskLog target=disk
-/system logging action add memory-lines=10000 name=CertificatesOnScreenLog target=memory
-/system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
-/system logging action add name=CAPSOnScreenLog target=memory
-/system logging action add name=FirewallOnScreenLog target=memory
-/system logging action add name=SSHOnScreenLog target=memory
-/system logging action add name=PoEOnscreenLog target=memory
-/system logging action add name=EmailOnScreenLog target=memory
+/system logging action add memory-lines=300 name=OnScreenLog target=memory
+/system logging action add memory-lines=300 name=DHCPOnScreenLog target=memory
+/system logging action add memory-lines=300 name=DNSOnScreenLog target=memory
+/system logging action add memory-lines=300 name=RouterControlLog target=memory
+/system logging action add memory-lines=300 name=OSPFOnscreenLog target=memory
+/system logging action add memory-lines=300 name=L2TPOnScreenLog target=memory
+/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
+/system logging action add memory-lines=300 name=CertificatesOnScreenLog target=memory
+/system logging action add memory-lines=300 name=ParseMemoryLog target=memory
+/system logging action add memory-lines=300 name=CAPSOnScreenLog target=memory
+/system logging action add memory-lines=300 name=FirewallOnScreenLog target=memory
+/system logging action add memory-lines=300 name=SSHOnScreenLog target=memory
+/system logging action add memory-lines=300 name=PoEOnscreenLog target=memory
+/system logging action add memory-lines=300 name=EmailOnScreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
@@ -190,6 +191,7 @@
 /ip settings set accept-source-route=yes rp-filter=loose tcp-syncookies=yes
 /ipv6 settings set disable-ipv6=yes
 /interface detect-internet set detect-interface-list=all internet-interface-list=list-autodetect-INTERNET lan-interface-list=list-autodetect-LAN wan-interface-list=list-autodetect-WAN
+/interface l2tp-server server set keepalive-timeout=disabled
 /interface list member add comment="MGTS, GPON via Huavei" interface="wan A" list=list-untrusted
 /interface list member add comment="GUEST WLAN" interface=guest-infrastructure-br list=list-guest-wireless
 /interface list member add comment="LAN, WLAN" interface=main-infrastructure-br list=list-trusted
@@ -664,8 +666,8 @@
 /ip hotspot service-port set ftp disabled=yes
 /ip ipsec identity add auth-method=digital-signature certificate=anna.ipsec@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore
-/ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
+/ip ipsec policy set 0 disabled=yes proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
 /ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
@@ -714,17 +716,25 @@
 /system logging add action=AuthDiskLog topics=account
 /system logging add action=CertificatesOnScreenLog topics=certificate
 /system logging add action=AuthDiskLog topics=manager
-/system logging add action=ParseMemoryLog topics=account
-/system logging add action=ParseMemoryLog topics=wireless
+/system logging add action=ParseMemoryLog topics=warning
 /system logging add action=CAPSOnScreenLog topics=caps
 /system logging add action=FirewallOnScreenLog topics=firewall
 /system logging add action=CAPSOnScreenLog topics=wireless
-/system logging add action=ParseMemoryLog topics=info,system
+/system logging add action=ParseMemoryLog topics=system
 /system logging add action=SSHOnScreenLog topics=ssh
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
-/system note set note="anna 7.8 | 1w1d05:09:42 | may/01/2023 20:50:12 | ya.ru latency: 4 ms | \
-    \nCHR 185.13.148.14 | MIK 85.174.193.108 | ANNA 46.39.51.172 | \
+/system logging add action=ParseMemoryLog topics=error
+/system logging add action=ParseMemoryLog topics=account
+/system logging add action=ParseMemoryLog topics=critical
+/system note set note="anna: \t\t7.8 \
+    \nUptime:\t\t12:07:39  \
+    \nTime:\t\tmay/04/2023 12:10:12  \
+    \nya.ru latency:\t4 ms  \
+    \nCHR:\t\t185.13.148.14  \
+    \nMIK:\t\t85.174.193.108  \
+    \nANNA:\t\t46.39.51.172  \
+    \nClock:\t\tsynchronized  \
     \n"
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
@@ -747,8 +757,9 @@
 /system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=06:05:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
-/system scheduler add comment="added by function FuncSchedScriptAdd" interval=30s name="Run script TLGRMcall--05:46:15" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=07:00:00
+/system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/02/2023 start-time=22:36:20
+/system scheduler add comment="added by function FuncSchedScriptAdd" interval=10s name="Run script TLGRMcall-may/04/2023-00:02:19" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -986,21 +997,21 @@
     \n:local content \"\"\r\
     \n:local logcontenttemp \"\"\r\
     \n:local logcontent \"\"\r\
-    \n\r\r\
-    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
-    \n\r\r\
-    \n:local sysver \"NA\"\r\r\
-    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\r\
-    \n  :set sysver [/system package get system version]\r\r\
-    \n}\r\r\
-    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\r\
-    \n  :set sysver [/system package get routeros version]\r\r\
+    \n\r\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\
+    \n\r\
+    \n:local sysver \"NA\"\r\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\
+    \n  :set sysver [/system package get system version]\r\
+    \n}\r\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\
+    \n  :set sysver [/system package get routeros version]\r\
     \n}\r\
     \n \r\
-    \n:set logcontenttemp \"\$[/system identity get name] \$sysver\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"\$[/system resource get uptime]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n:set logcontenttemp \"\$[/system identity get name]: \t\t\$sysver\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\")\r\
+    \n:set logcontenttemp \"Uptime:\t\t\$[/system resource get uptime]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
     \n\r\
     \n:local hostname \"ya.ru\";\r\
@@ -1022,17 +1033,20 @@
     \n}\r\
     \n\r\
     \n \r\
-    \n:set logcontenttemp \"\$[/system clock get date] \$[/system clock get time]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"\$hostname latency: \$[:tostr (\$avgRttA / \$numPing )] ms\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \\n\")\r\
+    \n:set logcontenttemp \"Time:\t\t\$[/system clock get date] \$[/system clock get time]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
+    \n:set logcontenttemp \"\$hostname latency:\t\$[:tostr (\$avgRttA / \$numPing )] ms\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
-    \n:set logcontenttemp \"CHR \$[:resolve accb195e0dffc6bb.sn.mynetname.net]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"MIK \$[:resolve 673706ed7949.sn.mynetname.net]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"ANNA \$[:resolve hcy086pz6xz.sn.mynetname.net]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \\n\")\r\
+    \n:set logcontenttemp \"CHR:\t\t\$[:resolve accb195e0dffc6bb.sn.mynetname.net]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
+    \n:set logcontenttemp \"MIK:\t\t\$[:resolve 673706ed7949.sn.mynetname.net]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
+    \n:set logcontenttemp \"ANNA:\t\t\$[:resolve hcy086pz6xz.sn.mynetname.net]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
+    \n\r\
+    \n:set logcontenttemp \"Clock:\t\t\$[/system ntp client get status]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
     \n\r\
     \n/system note set note=\"\$logcontent\"  "
@@ -1572,7 +1586,7 @@
     \n\r\
     \n/system script run doEnvironmentSetup;\r\
     \n\r\
-    \n/system script run SATELLITEstart;\r\
+    \n/system script run SAT!start;\r\
     \n\r\
     \n/system script run doImperialMarch;\r\
     \n\r\
@@ -3869,327 +3883,316 @@
     \n\r\
     \n    } while=([/certificate print count-only where fingerprint=\"4348a0e9444c78cb265e058d5e8944b4d84f9662bd26db257f8934a443c70161\"]=0);\r\
     \n} if=([/certificate print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);"
-/system script add comment="STARTER SATELLITE" dont-require-permissions=no name=SATELLITEstart owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
-    \n# start SATELLITE Library functions for TLGRM by Serkov S.V. (Sertik) 24/04/2022 version 1.8\r\
-    \n#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
+/system script add comment="keeps scripts and schedules owner constant" dont-require-permissions=yes name=doKeepScriptsOwner owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \"doKeepScriptsOwner\";\r\
     \n\r\
-    \n# user settings:\r\
+    \n:local state \"\";\r\
+    \n:local mgmtUsername \"owner\"; # main administrator \r\
+    \n:global globalCallFetch;\r\
+    \n:global globalNoteMe;\r\
     \n\r\
-    \n:global Emoji \"%E2%9B%BA\";    # Router Emoji for Tele\r\
-    \n:global botID \"bot798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";          # you Telegram`s bot  ID;\r\
-    \n:global myChatID \"-1001798127067\";      # you Telegram`s chat ID;\r\
-    \n:global ADMINPHONE;       # admin phone number;\r\
-    \n:global ADMINMAIL \"ayugov@icloud.com\";       # admin e-mail;\r\
-    \n:local callTLGRM  00:00:30;         # circulation script TLGRM period;\r\
-    \n:global fMirror false;               # mirror command name changed;\r\
-    \n:global broadCast false;           # broadCast flag;\r\
-    \n:local SATSchedAdd true;         # add to Scheduler flag;\r\
+    \n:local impersonate false; # user password needed when true\r\
+    \n:local thePass \"\";\r\
     \n\r\
-    \n:log info \"\"\r\
-    \n:log warning \"Running the SETUP library SATELLITE v. 1.8 24-04-2022:\"\r\
-    \n:log info \"\"\r\
-    \n:local Trel do={:if ([:len \$0]!=0) do={\r\
-    \n:beep frequency=1760 length=67ms; :delay 77ms; :beep frequency=2093 length=67ms; :delay 77ms; :beep frequency=2637 length=67ms; :delay 77ms; :beep frequency=3520 length=268ms; :delay 278ms;}}\r\
-    \n\r\
-    \n/system script run SATELLITE1; [\$Trel]\r\
-    \n/system script run SATELLITE1ext; [\$Trel]\r\
-    \n/system script run SATELLITE2; [\$Trel]\r\
-    \n/system script run SATELLITE3; [\$Trel]\r\
-    \n\r\
-    \n:delay 1s\r\
-    \n:beep frequency=600 length=165ms; :delay 165ms; :beep frequency=700 length=275ms; :delay 275ms; :beep frequency=800 length=275ms; :delay 275ms; :beep frequency=900 length=110ms; :delay 110ms;\r\
-    \n\r\
-    \n:global FuncTelegramSender\r\
-    \n:global FuncSATLogo\r\
-    \n:global FuncSATList\r\
-    \n\r\
-    \n[\$FuncSATLogo]\r\
     \n:do {\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\" Router \".\"\$[/system identity get name]\".\" Satellite Script Library 1.8 is running ...\")]\r\
-    \n} on-error={}\r\
     \n\r\
-    \n:if (\$SATSchedAdd) do={\r\
-    \n:global FuncSchedScriptAdd\r\
-    \n:local Date \"\"\r\
+    \n    # We now need to change script and schedules ownage from *sys user\r\
+    \n    # This can be done via ftp impersonation - here is the trick (the only way to change SCHEDULE owner is to recreate entry UNDER this user)\r\
+    \n    # In RouterOS it is possible to automatically execute scripts - your script file has to be named anything.auto.rsc \r\
+    \n    # once this file is uploaded using FTP to the router, it will automatically be executed, just like with the '/import' command. \r\
+    \n    # This method only works with FTP\r\
     \n\r\
-    \n/system scheduler remove [find name~\"Run script TLGRMcall\"];\r\
+    \n    :local scriptCount [:len [/system script find where owner!=\"\$mgmtUsername\"]];\r\
+    \n    :local schedCount  [:len [/system scheduler find where owner!=\"\$mgmtUsername\"]];\r\
     \n\r\
-    \n:local ScriptAddTLGRM [\$FuncSchedScriptAdd TLGRMcall  \$Date startup \$callTLGRM];\r\
-    \n:delay 1s;\r\
-    \n:if (\$ScriptAddTLGRM=\"OK\") do={\r\
-    \n:log info \"Polling TLGRM script scheduled OK\"\r\
-    \n} else={:log error \$ScriptAddTLGRM}\r\
-    \n}\r\
+    \n    :if (\$scriptCount = 0 and \$schedCount = 0) do={\r\
+    \n        :set state \"No scripts and schedules owner change needed\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        :error \$state;\r\
+    \n    };    \r\
     \n\r\
-    \n:put [\$FuncSATList]\r\
+    \n    :if ([:len [/user find name=\"\$mgmtUsername\"]] > 0) do={\r\
+    \n \r\
+    \n        :if (\$impersonate) do={\r\
     \n\r\
-    \n#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
+    \n            :local buffer \"\\r\\ \r\
+    \n                            \\n # we can change script owner as usual\\r\\\r\
+    \n                            \\n /system script set owner=\\\"\$mgmtUsername\\\" [find where owner!=\\\"\$mgmtUsername\\\"];\\r\\\r\
+    \n                            \\n\\r\\ \r\
+    \n                            \\n # the only way to change schedule owner is to recreate entry\\r\\\r\
+    \n                            \\n /system scheduler;\\r\\ \r\
+    \n                            \\n :foreach schEndpoint in=[find  where owner!=\\\"\$mgmtUsername\\\"] do={\\r\\\r\
+    \n                            \\n  :local name [get value-name=name \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      :local startTime [get value-name=start-time \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      :local onEvent [get value-name=on-event \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      :local interval [get value-name=interval \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      :local startDate [get value-name=start-date \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      :local comment [get value-name=comment \\\$schEndpoint];\\r\\\r\
+    \n                            \\n      remove \\\$schEndpoint;\\r\\\r\
+    \n                            \\n      add name=\\\"\\\$name\\\" start-time=\\\"\\\$startTime\\\"  on-event=\\\"\\\$onEvent\\\" interval=\\\"\\\$interval\\\" start-date=\\\"\\\$startDate\\\" comment=\\\"\\\$comment\\\";\\r\\\r\
+    \n                            \\n      }\\r\\\r\
+    \n                            \\n;\";\r\
+    \n\r\
+    \n            # delete all previous files\r\
+    \n            :local rsc \"ownage.rsc.txt\";\r\
+    \n            /file remove [/file find where name=\"\$rsc\"];\r\
+    \n            # create the file as it doesn't exist yet\r\
+    \n            /file print file=\"\$rsc\";\r\
+    \n            # wait for filesystem to create file\r\
+    \n            :delay 6;\r\
+    \n            # write the buffer into it\r\
+    \n            :set state \"Creating script file '\$rsc' with commands '\$buffer'\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            # i will not remove this file later to got a chance to manually reproduce fetch if it fail via this script\r\
+    \n            /file set [/file find where name=\"\$rsc\"] contents=\"\$buffer\";    \r\
+    \n            :local filecontent [/file get [/file find where name=\"\$rsc\"] contents];\r\
+    \n            :set state \"Created command file '\$rsc' with content '\$filecontent'\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            # push it and and autorun under mgmtUsername account\r\
+    \n            :set state \"Pushing autorun command file as user '\$mgmtUsername' via FTP\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :local fetchCmd  \"/tool fetch address=127.0.0.1 mode=ftp src-path=\$rsc dst-path=ownage.auto.rsc user=\\\"\$mgmtUsername\\\" password=\\\"\$thePass\\\" host=\\\"\\\" upload=\\\"yes\\\"\";\r\
+    \n\r\
+    \n            \$globalCallFetch \$fetchCmd;\r\
+    \n\r\
+    \n            /file remove [/file find where name=\"\$rsc\"];\r\
+    \n\r\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        } else={\r\
+    \n\r\
+    \n            /system script set owner=\"\$mgmtUsername\" [find where owner!=\"\$mgmtUsername\"];\r\
+    \n            # the only way to change schedule owner is to recreate entry\\r\\\r\
+    \n            /system scheduler;\r\
+    \n            :foreach schEndpoint in=[find  where owner!=\"\$mgmtUsername\"] do={\r\
+    \n              :local name [get value-name=name \$schEndpoint];\r\
+    \n                  :local startTime [get value-name=start-time \$schEndpoint];\r\
+    \n                  :local onEvent [get value-name=on-event \$schEndpoint];\r\
+    \n                  :local interval [get value-name=interval \$schEndpoint];\r\
+    \n                  :local startDate [get value-name=start-date \$schEndpoint];\r\
+    \n                  :local comment [get value-name=comment \$schEndpoint];\r\
+    \n                  remove \$schEndpoint;\r\
+    \n                  add name=\"\$name\" start-time=\"\$startTime\"  on-event=\"\$onEvent\" interval=\"\$interval\" start-date=\"\$startDate\" comment=\"\$comment\";\r\
+    \n                  };\r\
+    \n\r\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n        }  \r\
     \n\r\
     \n\r\
-    \n# examples usage:\r\
+    \n    } else={\r\
+    \n        :set state \"Cant find user '\$mgmtUsername' for impersonation call\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n    }\r\
     \n\r\
-    \n# :log info [\$FuncStatus]\r\
-    \n# :log info [\$FuncReport]\r\
+    \n} on-error={ \r\
+    \n    :set state \"Changing scripts and schedules ownage - ERROR\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n}"
+/system script add dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \"doFlushLogs\";\r\
     \n\r\
-    \n# :log warning (\"\C7\E0\EF\E8\F1\E5\E9 \E2 address: \".\"\$[\$FuncAddress]\")\r\
-    \n# :global FuncTelegramSender\r\
-    \n# [\$FuncTelegramSender (\"\C7\E0\EF\E8\F1\E5\E9 \E2 address:\".\"\$[\$FuncAddress]\")]\r\
+    \n:local state \"\"\r\
     \n\r\
-    \n# [\$FuncBackup]\r\
+    \n:set state \"FLUSHING logs..\"\r\
+    \n\$globalNoteMe value=\$state;\r\
     \n\r\
-    \n# :log warning (\"\D1\EA\F0\E8\EF\F2\EE\E2 \E2 \F0\E5\EF\EE\E7\E8\F2\EE\F0\E8\E8: \".\"\$[\$FuncScriptList]\")\r\
-    \n# :log warning (\"\D1\E5\E9\F7\E0\F1 \E0\EA\F2\E8\E2\ED\FB\F5 \F4\F3\ED\EA\F6\E8\E9 \E2 \EE\EA\F0\F3\E6\E5\ED\E8\E8 \".\"\$[\$FuncFuncList]\")\r\
-    \n# :log warning (\"\C3\EB\EE\E1\E0\EB\FC\ED\FB\F5 \EF\E5\F0\E5\EC\E5\ED\ED\FB\F5 \".\"\$[\$FuncGlobalVarList]\")\r\
+    \n/system/logging/action/set memory-lines=1 [find target=memory]\r\
+    \n/system/logging/action/set memory-lines=300 [find target=memory]\r\
+    \n"
+/system script add dont-require-permissions=no name=TLGRMcall owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# Name: TLGRMcall\r\
+    \n# Description: Start script TLGRM, w/WatchDog\r\
     \n\r\
-    \n# :log warning [\$FuncVPN]\r\
-    \n# :log warning [\$FuncVpnUser]\r\
-    \n\r\
-    \n# :put [\$FuncWifi]\r\
-    \n# :log warning [\$FuncWifiAccess]\r\
-    \n# :log warning [\$FuncWifiReg]\r\
-    \n# :put [\$FuncWifiPass]\r\
-    \n\r\
-    \n# :log warning [\$FuncSATClear]"
-/system script add comment="module 1 SATELLITE for TLGRM" dont-require-permissions=no name=SATELLITE1 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#------------------------------------------------------------------------------------------------------------------------\r\
-    \n# SATELLITE1 module  for TLGRM version 1.8 by Sertik (Serkov S.V.) 24/04/2022\r\
-    \n#------------------------------------------------------------------------------------------------------------------------\r\
+    \nlocal jobScript \"TLGRM\"\r\
+    \nif ([len [system script job find script=\$\"jobScript\"]] !=0) do={\r\
+    \n} else={\r\
+    \nsystem script run \$jobScript\r\
+    \n}"
+/system script add comment="module 2 SATELLITE for TLGRM" dont-require-permissions=no name=SAT2 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#--------------------------------------------------------------------------------------------------------------------------\r\
+    \n# SATELLITE2 module  for TLGRM version 2.2 by Sertik (Serkov S.V.) 25/10/2022\r\
+    \n#--------------------------------------------------------------------------------------------------------------------------\r\
     \n\r\
     \n# declare functions:\r\
     \n\r\
-    \n:global FuncSATLogo\r\
-    \n:global FuncSATList\r\
-    \n:global FuncArp\r\
-    \n:global FuncAddress\r\
-    \n:global FuncBackup\r\
-    \n:global FuncLease\r\
-    \n:global FuncReport \r\
-    \n:global FuncStatus\r\
-    \n:global FuncVPN \r\
-    \n:global FuncVpnUser \r\
-    \n:global FuncWifi \r\
-    \n:global FuncWifiReg \r\
-    \n:global FuncWifiAccess\r\
-    \n:global FuncWifiPass\r\
-    \n:global FuncScriptList\r\
-    \n:global FuncFuncList\r\
-    \n:global FuncSchedList\r\
-    \n:global FuncGlobalVarList\r\
+    \n:global health\r\
+    \n:global report\r\
+    \n:global lease\r\
+    \n:global dhcpclient\r\
+    \n:global wificonnect\r\
+    \n:global users\r\
+    \n:global log\r\
+    \n:global logreset\r\
+    \n:global pingpong\r\
+    \n:global FuncPing\r\
+    \n:global mailsend\r\
+    \n:global smssend\r\
+    \n:global modeminfo\r\
+    \n:global satclear\r\
     \n\r\
     \n\r\
-    \n# \E2\FB\E4\E0\F7\E0 \EB\EE\E3\EE\F2\E8\EF\E0 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8 \E2 \EB\EE\E3\r\
-    \n#              FuncSATlogo\r\
-    \n# ---------------------------------------------------------\r\
-    \n\r\
-    \n:set FuncSATLogo do={\r\
+    \n:set health do={\r\
     \n:if ([:len \$0]!=0) do={\r\
-    \n:log warning \"\";\r\
-    \n:log warning \"#------------------------------------------------------------------------#\";\r\
-    \n:log warning \"#                 Library SATELLITE for TLGRM\" ;\r\
-    \n:log warning \"#   \C1\E8\E1\EB\E8\EE\F2\E5\EA\E0 \D1\CF\D3\D2\CD\C8\CA \E4\EB\FF \F1\EA\F0\E8\EF\F2\E0 TLGRM\";\r\
-    \n:log warning \"#       by Serkov S.V. (Sertik) update 24/04/2022\";\r\
-    \n:log warning \"#                                 version 1.8\"; \r\
-    \n:log warning \"#------------------------------------------------------------------------#\";\r\
-    \n:log warning \"\";\r\
-    \n }\r\
-    \n:return []}\r\
     \n\r\
+    \n# Script view health of device by Enternight\r\
+    \n# https://forummikrotik.ru/viewtopic.php\?t=7924\r\
+    \n# tested on ROS 6.49.5\r\
+    \n# updated 2022/04/21\r\
     \n\r\
-    \n# \EF\E5\F7\E0\F2\FC \F1\EF\E8\F1\EA\E0 \EA\EE\EC\E0\ED\E4-\F4\F3\ED\EA\F6\E8\E9 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8\r\
-    \n#                FuncSATList \E2 \F7\E0\F2 \D2\E5\EB\E5\E3\F0\E0\EC\EC\r\
-    \n# -----------------------------------------------------------------------\r\
-    \n\r\
-    \n:set FuncSATList do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
     \n:global Emoji\r\
     \n:global FuncTelegramSender\r\
     \n\r\
-    \n# send list function SATELITE to Telegram\r\
-    \nif ([:len \$1]=0) do={\r\
-    \n:local arrayCom [:toarray {\"/FuncArp\"=\"\F1\EF\E8\F1\EE\EA arp\";\r\
-    \n                                        \"/FuncAddress\"=\"\F1\EF\E8\F1\EE\EA /ip addresses\";\r\
-    \n                                        \"/FuncBackup\"=\"\F0\E5\E7\E5\F0\E2\ED\EE\E5 \EA\EE\EF\E8\F0\EE\E2\E0\ED\E8\E5 \EA\EE\ED\F4\E8\E3\F3\F0\E0\F6\E8\E8 \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                         \"/FuncLease\"=\"\F1\EF\E8\F1\EE\EA DHCP liase\";\r\
-    \n                                         \"/FuncReport\"=\"\EE\F2\F7\E5\F2 \F1\F2\E0\F2\F3\F1\E0 \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                         \"/FuncStatus\"=\"\EF\E0\F0\E0\EC\E5\F2\F0\FB \F1\E8\F1\F2\E5\EC\FB\";\r\
-    \n                                         \"/FuncVpnUser\"=\"\ED\E0\F1\F2\F0\EE\E5\ED\ED\FB\E5 VPN-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8 \F1 \EF\E0\F0\EE\EB\FF\EC\E8\";\r\
-    \n                                         \"/FuncVPN\"=\"\F1\E5\F0\E2\E5\F0\FB \E8 \EA\EB\E8\E5\ED\F2\FB VPN \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                          \"/FuncWifi\"=\"wifi-\E8\ED\F2\E5\F0\F4\E5\E9\F1\FB \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                          \"/FuncWifiReg\"=\"\E7\E0\F0\E5\E3\E8\F1\F2\F0\E8\F0\EE\E2\E0\ED\ED\FB\E5 \E2 \F1\E5\F2\E8 wifi-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8\";\r\
-    \n                                          \"/FuncWifiAccess\"=\"\F0\E0\E7\F0\E5\F8\E5\ED\ED\FB\E5 wifi-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8\";\r\
-    \n                                          \"/FuncWifiConnect\"=\"wifi-\EA\EB\E8\E5\ED\F2\F1\EA\E8\E5 \F1\F2\E0\ED\F6\E8\E8\";\r\
-    \n                                          \"/FuncWifiPass\"=\"\EF\E0\F0\EE\EB\E8 wifi-\F1\E5\F2\E8/\E5\E9\";\r\
-    \n                                          \"/FuncHealth\"=\"\EE\F2\F7\B8\F2 \EE \E7\E4\EE\F0\EE\E2\FC\E5 \F0\EE\F3\F2\E5\F0\E0\"\r\
-    \n                                          \"/FuncDHCPclient\"=\"\F0\EE\F3\F2\E5\F0-\EA\EB\E8\E5\ED\F2 DHCP\";\r\
-    \n                                          \"/FuncUsers\"=\"\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8 \F0\EE\F3\F2\E5\F0\E0 \E8 \EF\E0\F0\EE\EB\E8\";\r\
-    \n                                           \"/FuncScriptList\"=\"\F1\EF\E8\F1\EE\EA \F1\EA\F0\E8\EF\F2\EE\E2 \F0\EE\F3\F2\E5\F0\E0 \F1 \EA\EE\EC\EC\E5\F2\E0\F0\E8\FF\EC\E8\";\r\
-    \n                                           \"/FuncLog\"=\"\E2\FB\E4\E0\F2\FC \F1\F2\F0\EE\EA\E8 \EB\EE\E3\E0 \E2 \D2\E5\EB\E5\E3\F0\E0\EC\EC\";\r\
-    \n                                           \"/FuncLogReset\"=\"\EE\F7\E8\F1\F2\EA\E0 \EB\EE\E3\E0\";\r\
-    \n                                           \"/FuncPingPong\"=\"\EF\F0\EE\E2\E5\F0\EA\E0 \F5\EE\F1\F2\E0 \ED\E0 \EF\E8\ED\E3\";\r\
-    \n                                           \"/FuncMail\"=\"\F4\F3\ED\EA\F6\E8\FF \EE\F2\EF\F0\E0\E2\EA\E8 \EF\EE\F7\F2\FB\";\r\
-    \n                                           \"/FuncSMSsend\"=\"\EE\F2\EF\F0\E0\E2\EA\E0 SMS \F7\E5\F0\E5\E7 \EC\EE\E4\E5\EC \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                           \"/FuncModemInfo\"=\"\EF\EE\E8\F1\EA \E8 \EE\F2\F7\B8\F2 \EC\EE\E4\E5\EC\EE\E2 \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                           \"/FuncFuncList\"=\"\F1\EF\E8\F1\EE\EA \E0\EA\F2\E8\E2\ED\FB\F5 \F4\F3\ED\EA\F6\E8\E9 \E2 Environment\"; \r\
-    \n                                           \"/FuncSchedList\"=\"\F1\EF\E8\F1\EE\EA \E7\E0\E4\E0\ED\E8\E9 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA\E0\"; \r\
-    \n                                           \"/FuncGlobalVarList\"=\"\E3\EB\EE\E1\E0\EB\FC\ED\FB\E5 \EF\E5\F0\E5\EC\E5\ED\ED\FB\E5 \E8 \E8\F5 \E7\ED\E0\F7\E5\ED\E8\FF\"}]\r\
-    \n;\r\
-    \n:local count 0\r\
-    \n:local TXTmessage \"\"\r\
-    \n:foreach k,v in=\$arrayCom do={:set count (\$count+1);\r\
-    \n:local command\r\
-    \n:global fMirror\r\
-    \n:if (\$fMirror) do={\r\
-    \n:set command (\"/\".\"\$[:pick \$k 5 [:len \$k]]\")\r\
-    \n:set TXTmessage (\"\$TXTmessage        \".\"\$count \".\"\$command  -  \$v\". \"%0A\")} else={ \r\
-    \n:set TXTmessage (\"\$TXTmessage        \".\"\$count \".\"\$k  -  \$v\". \"%0A\")}}\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \". \"Router \$[system identity get name]\".\"  function complex SATELITE available for execution:\".\"%0A\".\"\$TXTmessage\")]\r\
-    \n:return \$count }\r\
+    \n:do {\r\
+    \n  :local hddTotal [/system resource get total-hdd-spac];\r\
+    \n  :local hddFree  [/system resource get free-hdd-space];\r\
+    \n  :local badBlock [/system resource get bad-blocks    ];\r\
+    \n  :local memTotal [/system resource get total-memory  ];\r\
+    \n  :local memFree  [/system resource get free-memory   ];\r\
+    \n  :local cpuA     [/system resource get cpu];\r\
+    \n  :local arhA      [/system resource get arch];\r\
+    \n  :local cpuZ     [/system resource get cpu-load      ];\r\
+    \n  :local currFW   [/system routerbo get upgrade-firmwa];\r\
+    \n  :local upgrFW   [/system routerbo get current-firmwa];\r\
+    \n   :if ([/system resource get board-name]!=\"CHR\") do={\r\
+    \n         :local tempC    0;\r\
+    \n         :local volt     0;\r\
+    \n          }\r\
+    \n  :local smplVolt (\$volt/10);\r\
+    \n  :local lowVolt  ((\$volt-(\$smplVolt*10))*10);\r\
+    \n  :local inVolt   (\"\$smplVolt.\$[:pick \$lowVolt 0 3]\");\r\
+    \n  :set   hddFree  (\$hddFree/(\$hddTotal/100));\r\
+    \n  :set   memFree  (\$memFree/(\$memTotal/100));\r\
+    \n  :local message  (\"\$Emoji \$[system identity get name] Health report:\");\r\
+    \n  :set   message  (\"\$message %0AModel \$[system resource get board-name]\");\r\
+    \n  :set   message  (\"\$message %0ACPU \$cpuA\");\r\
+    \n  :set   message  (\"\$message %0Aarchitecture \$arhA\");\r\
+    \n  :set   message  (\"\$message %0AROS v.\$[system resource get version]\");\r\
+    \n    :if (\$currFW != \$upgrFW) do={set message (\"\$message %0A*FW is not updated*\")}\r\
+    \n    :set   message  (\"\$message %0AUptime \$[system resource get uptime]\");\r\
+    \n    :if (\$cpuZ < 90) do={:set message (\"\$message %0ACPU load \$cpuZ%\");\r\
+    \n    } else={:set message (\"\$message %0A*Large CPU usage \$cpuZ%*\")}\r\
+    \n    :if (\$memFree > 17) do={:set message (\"\$message %0AMem free \$memFree%\");\r\
+    \n    } else={:set message (\"\$message %0A*Low free mem \$memFree%*\")}\r\
+    \n    :if (\$hddFree > 6) do={:set message (\"\$message %0AHDD free \$hddFree%\");\r\
+    \n    } else={:set message (\"\$message %0A*Low free HDD \$hddFree%*\")}\r\
+    \n    :if ([:len \$badBlock] > 0) do={\r\
+    \n        :if (\$badBlock = 0) do={:set message (\"\$message %0ABad blocks \$badBlock%\");\r\
+    \n        } else={:set message (\"\$message %0A*Present bad blocks \$badBlock%*\")} }\r\
+    \n    :if ([:len \$volt] > 0) do={\r\
+    \n        :if (\$smplVolt > 4 && \$smplVolt < 50) do={:set message (\"\$message %0AVoltage \$inVolt V\");\r\
+    \n        } else={:set message (\"\$message %0A*Bad voltage \$inVolt V*\")} }\r\
+    \n    :if ([:len \$tempC] > 0) do={\r\
+    \n        :if (\$tempC > 10 && \$tempC < 40) do={:set message (\"\$message %0ATemp \$tempC C\");\r\
+    \n        } else={:set message (\"\$message %0A*Abnorm temp \$tempC C*\")} }\r\
     \n\r\
-    \n# send list special function to Telegram\r\
-    \n:if (\$1=\"special\") do={\r\
-    \n:local arraySpecial [:toarray {\"/FuncTelegramSender\"=\"\EE\F2\EF\F0\E0\E2\EA\E0 \F1\EE\EE\E1\F9\E5\ED\E8\E9 \E2 Telegram\";\r\
-    \n                                                        \"/FuncSchedFuncAdd\"=\"\E4\EE\E1\E0\E2\EB\E5\ED\E8\E5 \F4\F3\ED\EA\F6\E8\E8-\E7\E0\E4\E0\ED\E8\FF \E2 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA\";\r\
-    \n                                                        \"/FuncSchedScriptAdd\"=\"\E4\EE\E1\E0\E2\EB\E5\ED\E8\E5 \F1\EA\F0\E8\EF\F2\E0-\E7\E0\E4\E0\ED\E8\FF \E2 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA\";\r\
-    \n                                                        \"/FuncSchedRemove\"=\"\F3\E4\E0\EB\E5\ED\E8\E5 \E7\E0\E4\E0\ED\E8\FF \E8\E7 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA\E0\";\r\
-    \n                                                        \"/FuncEpochTime\"=\"\EF\F0\E5\EE\E1\F0\E0\E7\EE\E2\E0\ED\E8\E5 \E2\F0\E5\EC\E5\ED\E8 \E2 \DE\EB\E8\E0\ED\F1\EA\EE\E5\";\r\
-    \n                                                        \"/FuncUnixTimeToFormat\"=\"\EF\F0\E5\EE\E1\F0\E0\E7\EE\E2\E0\ED\E8\E5 Unix-\E2\F0\E5\EC\E5\ED\E8 \E2 \EF\F0\E8\E2\FB\F7\ED\FB\E9 \F4\EE\F0\EC\E0\F2\";\r\
-    \n                                                        \"/FuncSATClear\"=\"\E2\FB\E3\F0\F3\E7\E8\F2\FC \E1\E8\E1\EB\E8\EE\F2\E5\EA\F3 SATELLITE\"}]\r\
-    \n;\r\
-    \n:local count1 0\r\
-    \n:local TXTmessage1 \"\"\r\
+    \n    :local gwList [:toarray \"\"];\r\
+    \n    :local count 0;\r\
+    \n    :local routeISP [/ip route find dst-address=0.0.0.0/0];\r\
+    \n    :if ([:len \$routeISP] > 0) do={\r\
     \n\r\
-    \n:foreach k,v in=\$arraySpecial do={:set count1 (\$count1+1);\r\
-    \n:local command1 \r\
-    \n:set TXTmessage1 (\"\$TXTmessage1        \".\"\$count1 \".\"\$k -  \$v\". \"%0A\")}\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \". \"Router \$[system identity get name]\".\"  special function complex SATELITE:\".\"%0A\".\"\$TXTmessage1\")]\r\
-    \n:return \$count1}\r\
+    \n        # Listing all gateways\r\
+    \n        :foreach inetGate in=\$routeISP do={\r\
+    \n            :local gwStatus [:tostr [/ip route get \$inetGate gateway-status]];\r\
+    \n            :if (([:len [:find \$gwStatus \"unreachable\"]]=0) && ([:len [:find \$gwStatus \"inactive\"]]=0)) do={\r\
     \n\r\
-    \n  }\r\
-    \n}\r\
+    \n                # Formation of interface name\r\
+    \n                :local ifaceISP \"\";\r\
+    \n                :foreach idName in=[/interface find] do={\r\
+    \n                    :local ifName [/interface get \$idName name];\r\
+    \n                    :if ([:len [find key=\$ifName in=\$gwStatus]] > 0) do={:set ifaceISP \$ifName}\r\
+    \n                }\r\
+    \n                :if ([:len \$ifaceISP] > 0) do={\r\
     \n\r\
+    \n                    # Checking the interface for entering the Bridge\r\
+    \n                    :if ([:len [/interface bridge find name=\$ifaceISP]] > 0) do={\r\
+    \n#                        :local ipAddrGate [:pick \$gwStatus 0 ([:find \$gwStatus \"reachable\"] -1)];\r\
+    \n                        :local ipAddrGate [:tostr [/ip route get \$inetGate gateway]];\r\
+    \n                        :if ([:find \$ipAddrGate \"%\"] > 0) do={\r\
+    \n                            :set \$ipAddrGate [:pick \$ipAddrGate ([:len [:pick \$ipAddrGate 0 [:find \$ipAddrGate \"%\"]] ] +1) [:len \$ipAddrGate]];\r\
+    \n                        }\r\
+    \n                        :if (\$ipAddrGate~\"[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}\") do={\r\
+    \n                            :local mcAddrGate [/ip arp get [find address=\$ipAddrGate interface=\$ifaceISP] mac-address];\r\
+    \n                            :if (\$mcAddrGate~\"[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]\") do={\r\
+    \n                               :set ifaceISP [/interface bridge host get [find mac-address=\$mcAddrGate] interface];\r\
+    \n                           } else={:set ifaceISP \"\"}\r\
+    \n                       } else={:set ifaceISP \"\"}\r\
+    \n                    }\r\
+    \n                    :if ([:len \$ifaceISP] > 0) do={\r\
     \n\r\
-    \n#\r\
-    \n#   \CA\CE\CC\C0\CD\C4\DB \C1\C8\C1\CB\C8\CE\D2\C5\CA\C8 SATELLITE\r\
-    \n#\r\
+    \n                        # Checking the repetition of interface name\r\
+    \n                        :if ([:len [find key=\$ifaceISP in=\$gwList]] = 0) do={\r\
+    \n                            :set (\$gwList->\$count) \$ifaceISP;\r\
+    \n                            :set count (\$count+1);\r\
+    \n                            :local rxByte [/interface get \$ifaceISP rx-byte];\r\
+    \n                            :local txByte [/interface get \$ifaceISP tx-byte];\r\
+    \n                            :local simpleGbRxReport (\$rxByte/1073741824);\r\
+    \n                            :local simpleGbTxReport (\$txByte/1073741824);\r\
+    \n                            :local lowGbRxReport (((\$rxByte-(\$simpleGbRxReport*1073741824))*1000000000)/1048576);\r\
+    \n                            :local lowGbTxReport (((\$txByte-(\$simpleGbTxReport*1073741824))*1000000000)/1048576);\r\
+    \n                            :local gbRxReport (\"\$simpleGbRxReport.\$[:pick \$lowGbRxReport 0 2]\");\r\
+    \n                            :local gbTxReport (\"\$simpleGbTxReport.\$[:pick \$lowGbTxReport 0 2]\");\r\
+    \n                            :set message (\"\$message %0ATraffic via '\$ifaceISP' Rx/Tx \$gbRxReport/\$gbTxReport Gb\");\r\
+    \n                        }\r\
+    \n                    }\r\
+    \n                }\r\
+    \n            }\r\
+    \n        }\r\
+    \n    } else={:set message (\"\$message %0AWAN iface not found\")}\r\
     \n\r\
-    \n# arp tabl - > Telegram\r\
-    \n# ----------------------------------\r\
-    \n:set FuncArp do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:local TXTarp\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local count 0\r\
-    \n:local WS\r\
-    \n:local TT\r\
-    \nforeach i in=[ /ip arp find] do={\r\
-    \n:local active [/ip arp get \$i disabled]\r\
-    \n:if (\$active) do={:set WS \"enable\"; :set TT \"%F0%9F%94%B4\"} else={:set WS \"disable\"; :set TT \"%F0%9F%94%B5\"}\r\
-    \n:local ipARPaddress [/ip arp get \$i address];\r\
-    \n:local ipARPmacaddress [/ip arp get \$i mac];\r\
-    \n:local ARPface [/ip arp get \$i interface];\r\
-    \n:local ARPcomment [/ip arp get \$i comment];\r\
-    \n:if ([:len \$ipARPmacaddress]!=0) do={:set count (\$count+1); :set \$TXTarp (\"\$TXTarp\".\"\$count \".\"\$TT \".\"\$ipARPaddress \".\" \$ipARPmacaddress \".\" \$ARPface \".\" \$ARPcomment\".\"%0A\")\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$[/system identity get name]\".\" arp tabl:\".\"%0A\".\"\$TXTarp\")]\r\
-    \n:return \$count\r\
+    \n    :if ([/ppp active find]) do={\r\
+    \n   :foreach i in=[/ppp active find] do={\r\
+    \n   :set \$name [/ppp active get \$i name]; :set \$type [/ppp active get \$i service]; :set \$enc [/ppp active get \$i encoding]; :set \$addr [/ppp active get \$i address]; :set \$ltu [/ppp active get \$i uptime]\r\
+    \n   :set \$vpnuser (\"\$vpnuser\".\"\$name\".\" {\".\"\$type\".\"}\".\" \$addr\".\" uptime: \".\"\$ltu\".\"%0A\");}\r\
+    \n   :set \$message (\"\$message\".\"%0A\".\"\$vpnuser\")\r\
+    \n   } else={:set message (\"\$message %0ANo active VPN-channels\")}\r\
+    \n   [\$FuncTelegramSender \$message]\r\
+    \n   :return []\r\
+    \n} on-error={:log warning (\"Error, can't show health status\"); :return \"ERROR\"}\r\
     \n }\r\
     \n}\r\
     \n\r\
-    \n# ip addresses tabl - > Telegram\r\
-    \n# ---------------------------------------------\r\
-    \n:set FuncAddress do={\r\
+    \n# report router`s to Telegram\r\
+    \n# ---------------------\r\
+    \n:set report do={\r\
     \n:if ([:len \$0]!=0) do={\r\
+    \n:global ADMINMAIL\r\
+    \n:global mailsend\r\
+    \n:global ADMINPHONE\r\
+    \n:global smssend\r\
+    \n\r\
     \n:global Emoji\r\
     \n:global FuncTelegramSender\r\
-    \n:local system [/system identity get name]\r\
-    \n:local WS\r\
-    \n:local listAL\r\
-    \n:local TT\r\
-    \n:local count 0\r\
-    \n\r\
-    \n:foreach AddrList in=[/ip address find true] do={\r\
-    \n:local Aname [/ip address get \$AddrList]\r\
-    \n:local Aadr (\$Aname->\"address\")\r\
-    \n:local Acomment (\$Aname->\"comment\")\r\
-    \n:local Anetwork (\$Aname->\"network\")\r\
-    \n:local Aface (\$Aname->\"actual-interface\")\r\
-    \n:local WsState [/ip address get \$AddrList disabled]\r\
-    \n:if (\$WsState) do={:set WS \"enable\"; :set TT \"%F0%9F%94%B4\"} else={:set WS \"disable\"; :set TT \"%F0%9F%94%B5\"}\r\
-    \n:set count (\$count+1)\r\
-    \n:set listAL (\"\$listAL\".\"\$count\".\" \$TT\".\" \$Aadr\".\" \$Acomment\".\" \$Anetwork\".\" \$Aface\".\"%0A\")\r\
-    \n}\r\
-    \n\r\
-    \n:if ([:len \$listAL]!=0) do={\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$system\".\" /ip address :%0A\".\"\$listAL\")]\r\
-    \n   }\r\
-    \n :return \$count\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# backup  - > Telegram\r\
-    \n# ----------------------------------\r\
-    \n:set FuncBackup do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n# send or no send on E-mail\r\
-    \n:local mailsend false\r\
-    \n:global ADMINMAIL;  \r\
-    \n:local mailBox \$ADMINMAIL;  \r\
-    \n\r\
-    \n:log warning \"Starting Backup Script...\";\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local sysver [/system package get system version];\r\
-    \n:log info \"Flushing DNS cache...\";\r\
-    \n/ip dns cache flush;\r\
-    \n:delay 2;\r\
-    \n:log info \"Deleting last Backups...\";\r\
-    \n:foreach i in=[/file find] do={:if (([:typeof [:find [/file get \$i name] \\\r\
-    \n\"\$sysname-backup-\"]]!=\"nil\") or ([:typeof [:find [/file get \$i name] \\\r\
-    \n\"\$sysname-script-\"]]!=\"nil\")) do={/file remove \$i}};\r\
-    \n:delay 2;\r\
-    \n:local backupfile (\"\$sysname-backup-\" . \\\r\
-    \n[:pick [/system clock get date] 7 11] . [:pick [/system \\\r\
-    \nclock get date] 0 3] . [:pick [/system clock get date] 4 6] . \".backup\");\r\
-    \n:log warning \"Creating new Full Backup file...\$backupfile\";\r\
-    \n/system backup save name=\$backupfile;\r\
-    \n:delay 5;\r\
-    \n:local exportfile (\"\$sysname-backup-\" . \\\r\
-    \n[:pick [/system clock get date] 7 11] . [:pick [/system \\\r\
-    \nclock get date] 0 3] . [:pick [/system clock get date] 4 6] . \".rsc\");\r\
-    \n:log warning \"Creating new Setup Script file...\$exportfile\";\r\
-    \n/export verbose file=\$exportfile;\r\
-    \n:delay 5;\r\
-    \n:local scriptfile (\"\$sysname-script-\" . \\\r\
-    \n[:pick [/system clock get date] 7 11] . [:pick [/system \\\r\
-    \nclock get date] 0 3] . [:pick [/system clock get date] 4 6] . \".rsc\");\r\
-    \n:log warning \"Creating new file export all scripts ...\$scriptfile\";\r\
-    \n/system script export file=\$scriptfile;\r\
-    \n:delay 2;\r\
-    \n:log warning \"All System Backups and export all Scripts created successfully.\\nBackuping completed.\";\r\
-    \n\r\
-    \nif (\$mailsend) do={\r\
-    \n:log warning \"Sending Setup Script file via E-mail...\";\r\
-    \n:local smtpserv [:resolve \"smtp.mail.ru\"];\r\
-    \n:local Eaccount [/tool e-mail get user];\r\
-    \n:local pass [/tool e-mail get password];\r\
-    \n/tool e-mail send from=\"<\$Eaccount>\" to=\$mailBox server=\$smtpserv \\\r\
-    \nport=587 user=\$Eaccount password=\$pass start-tls=yes file=(\$backupfile, \$exportfile, \$scriptfile) \\\r\
-    \nsubject=(\"\$sysname Setup Script Backup (\" . [/system clock get date] . \\\r\
-    \n\")\") body=(\"\$sysname Setup Script file see in attachment.\\nRouterOS \\\r\
-    \nversion: \$sysver\\nTime and Date stamp: \" . [/system clock get time] . \" \\\r\
-    \n\" . [/system clock get date]);\r\
-    \n:log warning \"Setup Script file e-mail send\";\r\
-    \n:delay 5;\r\
-    \n  }\r\
-    \n:return \"backup is done\"\r\
+    \n:if (([:len \$1]=0) or (\$1=\"tlgrm\")) do={\r\
+    \n:do {\r\
+    \n[\$FuncTelegramSender (\"\$Emoji\".\" Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
+    \n} on-error={:return \"ERROR tlgrm send\"}\r\
+    \n:return \"tlgrm\";}\r\
+    \n:if ((\$1=\"mail\") or (\$1=\"email\")) do={\r\
+    \n:do {\r\
+    \n[\$mailsend Email=\$ADMINMAIL Mailtext=(\"Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
+    \n} on-error={:return \"ERROR email send\"}\r\
+    \n:return \$1}\r\
+    \n:if (\$1=\"sms\") do={\r\
+    \n:do {\r\
+    \n[\$smssend (\"Router \".\"\$[/system identity get name]\".\" ONLINE\") \$ADMINPHONE]\r\
+    \n# /system routerboard usb power-reset duration=2s;\r\
+    \n} on-error={:return \"ERROR sms send\"}\r\
+    \n:return \$1}\r\
+    \n:if (\$1=\"all\") do={\r\
+    \n:do {\r\
+    \n[\$FuncTelegramSender (\"\$Emoji\".\" Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
+    \n[\$mailsend Email=\$ADMINMAIL Mailtext=(\"Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
+    \n[\$smssend (\"Router \".\"\$[/system identity get name]\".\" ONLINE\") \$ADMINPHONE]\r\
+    \n} on-error={:return \"ERROR \$0 all send\"}\r\
+    \n:return \$1}\r\
     \n }\r\
     \n}\r\
     \n\r\
     \n# lease tabl - > Telegram\r\
     \n# -----------------------------------\r\
-    \n:set FuncLease do={\r\
+    \n:set lease do={\r\
     \n:if ([:len \$0]!=0) do={\r\
     \n:local count 0\r\
     \n:local txt\r\
@@ -4216,497 +4219,10 @@
     \n }\r\
     \n}\r\
     \n\r\
-    \n# report router`s to Telegram\r\
-    \n# -----------------------------------------\r\
-    \n:set FuncReport do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global ADMINMAIL\r\
-    \n:global FuncMail\r\
-    \n:global ADMINPHONE\r\
-    \n:global FuncSMSsend\r\
-    \n\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:if (([:len \$1]=0) or (\$1=\"tlgrm\")) do={\r\
-    \n:do {\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\" Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
-    \n} on-error={:return \"ERROR tlgrm send\"}\r\
-    \n:return \"tlgrm\";}\r\
-    \n:if (\$1=\"mail\") do={\r\
-    \n:do {\r\
-    \n[\$FuncMail Email=\$ADMINMAIL Mailtext=(\"Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
-    \n} on-error={:return \"ERROR email send\"}\r\
-    \n:return \$1}\r\
-    \n:if (\$1=\"sms\") do={\r\
-    \n:do {\r\
-    \n[\$FuncSMSsend (\"Router \".\"\$[/system identity get name]\".\" ONLINE\") \$ADMINPHONE]\r\
-    \n# /system routerboard usb power-reset duration=2s;\r\
-    \n} on-error={:return \"ERROR sms send\"}\r\
-    \n:return \$1}\r\
-    \n:if (\$1=\"all\") do={\r\
-    \n:do {\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\" Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
-    \n[\$FuncMail Email=\$ADMINMAIL Mailtext=(\"Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
-    \n[\$FuncSMSsend (\"Router \".\"\$[/system identity get name]\".\" ONLINE\") \$ADMINPHONE]\r\
-    \n} on-error={:return \"\$0 all send\"}\r\
-    \n:return \$1}\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# all resurces - > Telegram\r\
-    \n# --------------------------------------\r\
-    \n:set FuncStatus do={\r\
-    \n  :if ([:len \$0]!=0) do={\r\
-    \n    :global Emoji;\r\
-    \n    :global FuncTelegramSender\r\
-    \n    :local systemName       [/system identity get name];\r\
-    \n    :local uptime           [/system resource get uptime];\r\
-    \n    :local FreeMemory       [/system resource get free-memory];\r\
-    \n    :local TotalMemory      [/system resource get total-memory];\r\
-    \n    :local cpu              [/system resource get cpu];\r\
-    \n    :local cpuCount         [/system resource get cpu-count];\r\
-    \n    :local cpuFrequency     [/system resource get cpu-frequency];\r\
-    \n    :local cpuLoad          [/system resource get cpu-load];\r\
-    \n    :local freeHdd          [/system resource get free-hdd-space];\r\
-    \n    :local totalHdd         [/system resource get total-hdd-space];\r\
-    \n    :local architectureName [/system resource get arch]\r\
-    \n#  :local license          [/system license get level];\r\
-    \n    :local boardName        [/system resource get board-name];\r\
-    \n    :local version          [/system resource get version];\r\
-    \n\r\
-    \n:local TXT (\"\$Emoji \".\"\$systemName\".\" status:\".\"%0A\".\"Uptime: \".\"\$uptime\".\"%0A\".\"Free Memory: \".\"\$FreeMemory\".\" B\".\"%0A\".\"Total Memory: \".\"\$TotalMemory\".\" B\".\"%0A\".\"CPU \". \"\$cpu\".\"%0A\".\"CPU Count: \".\"\$cpuCount\".\"%0A\".\"CPU Frequency: \".\"\$cpuFrequency\".\"MHz\".\"%0A\".\"CPU Load: \".\"\$cpuLoad\".\"% \".\"%0A\".\"Free HDD Space \".\"\$freeHdd\".\" B \".\"%0A\".\"Total HDD Space: \".\"\$totalHdd\".\" B\".\"%0A\".\"Architecture: \".\"\$architectureName \".\"%0A\".\"License Level: \".\"\$license\".\"%0A\".\"Board Name:  \".\"\$boardName\".\" %0A\".\"Version: \". \"\$version\")\r\
-    \n:do {\r\
-    \n[\$FuncTelegramSender \$TXT]\r\
-    \n} on-error={}\r\
-    \n:return [];\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# function VPN-tonnel scanning & Telegram chat send\r\
-    \n# used: [\$FuncTonnel \"tonnelType\"]\r\
-    \n# for example: [\$FuncTonnel \"pptp-client\"]\r\
-    \n\r\
-    \n:set FuncVPN do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:local FuncTonnel do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local system [/system identity get name]\r\
-    \n:local count 0\r\
-    \n:local Cto\r\
-    \n:local listVpn\r\
-    \n:foreach Vpn in=[[:parse \"[/interface \$1 find]\"]] do={\r\
-    \n  :local TT \"%F0%9F%94%B5\"\r\
-    \n  :local nameVpn [[:parse \"[/interface \$1 get \$Vpn name]\"]]\r\
-    \n  :local commentVpn [[:parse \"[/interface \$1 get \$Vpn comment]\"]]\r\
-    \n  :local typeVpn [:pick [/interface get \$nameVpn type] ([:find [/interface get \$nameVpn type] \"-\"]+1) [:len [/interface get \$nameVpn type]]]\r\
-    \n  :if (\$typeVpn=\"out\") do={:set Cto (\"connect to \".\"\$[[:parse \"[/interface \$1 get \$nameVpn connect-to]\"]]\")} else={:set Cto \"\"}\r\
-    \n  :local VpnState [[:parse \"[/interface \$1 monitor \$Vpn once as-value]\"]]\r\
-    \n  :local cuVpnStatus (\$VpnState->\"status\")\r\
-    \n  :local ladr (\$VpnState->\"local-address\")\r\
-    \n  :local radr (\$VpnState->\"remote-address\")\r\
-    \n  :local uptime (\$VpnState->\"uptime\")\r\
-    \n\r\
-    \n    :if (\$cuVpnStatus~\"terminating\") do={\r\
-    \n    :set cuVpnStatus \"disabled\";  set TT \"\"\r\
-    \n    }\r\
-    \n    :if ([:typeof \$cuVpnStatus]=\"nothing\") do={\r\
-    \n    :set cuVpnStatus \"disconnected\";  set TT \"%F0%9F%94%B4\"\r\
-    \n    }\r\
-    \n    :if (\$cuVpnStatus=\"disabled\") do={ :set TT \"%F0%9F%94%B3\"\r\
-    \n    }\r\
-    \n  :set count (\$count+1)\r\
-    \n :if ((\$cuVpnStatus=\"disconnected\") or (\$cuVpnStatus=\"disabled\")) do={\r\
-    \n  :set listVpn (\$listVpn.\"\".\$count. \" \".\$TT.\" \".\$nameVpn.\" \".\$commentVpn.\": \".\$cuVpnStatus.\"%0A\")\r\
-    \n} else={:set listVpn (\"\$listVpn\".\"\$count\".\" \$TT\".\" \$nameVpn\".\" \$commentVpn:\".\" \$cuVpnStatus\".\" uptime: \".\"\$uptime\".\"%0A\".\"          \$Cto\".\" local-address: \".\"\$ladr\".\" remote-address: \".\"\$radr\".\"%0A\")}\r\
-    \n}\r\
-    \n:if ([:len \$listVpn]!=0) do={\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$system\".\" \$1:%0A\".\"\$listVpn\")]\r\
-    \n }\r\
-    \n}\r\
-    \n:return []}\r\
-    \n\r\
-    \n\r\
-    \n# main block of the script\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n[\$FuncTelegramSender (\"<b>\".\"\$Emoji \".\" \$system\".\" --- VPN Interface Informer --- : </b> %0A %0A\") \"html\"]\r\
-    \n:log info \"\"\r\
-    \n:log warning (\"\$system\".\"VPN Interface Informer script is start up ... \")\r\
-    \n\r\
-    \n[\$FuncTonnel \"l2tp-client\"]\r\
-    \n[\$FuncTonnel \"l2tp-server\"]\r\
-    \n[\$FuncTonnel \"pptp-client\"]\r\
-    \n[\$FuncTonnel \"pptp-server\"]\r\
-    \n[\$FuncTonnel \"ovpn-client\"]\r\
-    \n[\$FuncTonnel \"ovpn-server\"]\r\
-    \n[\$FuncTonnel \"ppp-client\"]\r\
-    \n[\$FuncTonnel \"ppp-server\"]\r\
-    \n[\$FuncTonnel \"sstp-client\"]\r\
-    \n[\$FuncTonnel \"sstp-server\"]\r\
-    \n[\$FuncTonnel \"pppoe-client\"]\r\
-    \n[\$FuncTonnel \"pppoe-server\"]\r\
-    \n\r\
-    \n:log warning \"VPN Interface Informer scanning is done and Telegram chat send\"\r\
-    \n:return \"done\"\r\
-    \n}}\r\
-    \n\r\
-    \n\r\
-    \n# print vpnuser seckret & active vpn user`s - > Telegram\r\
-    \n# \E2\E5\F0\F1\E8\FF 01.10.2021\r\
-    \n# ------------------------------------------------------------\r\
-    \n:set FuncVpnUser do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:local name;\r\
-    \n:local enc;\r\
-    \n:local addr;\r\
-    \n:local ltu;\r\
-    \n:local pass;\r\
-    \n:local type;\r\
-    \n:local vpnuser\r\
-    \n:local vpnuserT\r\
-    \n:local vpnuserL\r\
-    \n:local vpnuserTlg\r\
-    \n:local calc\r\
-    \n:global ADMINPHONE\r\
-    \n:global Emoji\r\
-    \n\r\
-    \n\r\
-    \n#:log info \"\";\r\
-    \n#:log warning \"\CD\E0\F1\F2\F0\EE\E5\ED\ED\FB\E5 VPN-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8:\"\r\
-    \n\r\
-    \n:foreach i in=[/ppp secret find] do={\r\
-    \n:set name [/ppp secret get \$i name]; :set pass [/ppp secret get \$name password]; set type [/ppp secret get \$i service]\r\
-    \n:set calc (\$calc+1); \r\
-    \n# :log info (\"\$calc \".\"\$name\".\" [\".\" \$type\".\"]\".\" \$pass\");\r\
-    \n:set vpnuser (\"\$vpnuser\".\"\$calc\".\"  \$name\".\"  <\".\" \$type \".\">\".\" \$pass\".\"%0A\");\r\
-    \n}\r\
-    \n\r\
-    \n# :log warning \$calc; :log info \"\";\r\
-    \n:do {\r\
-    \n:global FuncTelegramSender; [\$FuncTelegramSender (\"\$Emoji \".\"* \$[/system identity get name]*\".\" VPN-users name, type and password set:\".\"%0A------------------------------------------------------------------------------------%0A\".\"\$vpnuser\") \"markdown\"]\r\
-    \n} on-error={:log error \"Error send to Telegram message\"}\r\
-    \n\r\
-    \n:set vpnuser;\r\
-    \n:set calc\r\
-    \n\r\
-    \n#:log info \"\";\r\
-    \n#:log warning \"\CF\EE\E4\EA\EB\FE\F7\E5\ED\ED\FB\E5 VPN-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8:\"\r\
-    \n\r\
-    \n:foreach i in=[/ppp active find] do={\r\
-    \n:set \$name [/ppp active get \$i name]; :set \$type [/ppp active get \$i service]; :set \$enc [/ppp active get \$i encoding]; :set \$addr [/ppp active get \$i address]; :set \$ltu [/ppp active get \$i uptime]\r\
-    \n# :log info (\"\$name\".\" [\".\"\$type\".\"]\".\" \$enc\".\" \$addr\");\r\
-    \n:set \$vpnuser (\"\$vpnuser\".\"\$name\".\"\\n\");\r\
-    \n:set vpnuserTlg (\"\$vpnuserTlg\".\"\$name\".\"  {\".\"\$type\".\"}\".\" \$addr\". \" uptime: \$ltu\".\"%0A\");\r\
-    \n}\r\
-    \n\r\
-    \n:set calc [:len [/ppp active find]]\r\
-    \n\r\
-    \ndo {\r\
-    \n:local SMSdevice [/tool sms get port];\r\
-    \n/tool sms send \$SMSdevice  phone=\$ADMINPHONE message=(\"active VPN-users \".\"\$calc\".\":\".\"\\n\".\"\$vpnuser\");\r\
-    \n} on-error={:log error \"Error send SMS message\"}\r\
-    \n\r\
-    \ndo {\r\
-    \n:global FuncTelegramSender;\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\"* \$[/system identity get name]*\".\" VPN-active\". \" \$calc\".\" users: \".\"%0A-----------------------------------------------------------------------%0A\".\"\$vpnuserTlg\") \"markdown\"]\r\
-    \n} on-error={:log error \"Error send to Telegram message\"}\r\
-    \n  :return \$calc\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# print wifi Interfaces, SSID and Band to Telegram\r\
-    \n# \E2\E5\F0\F1\E8\FF 06.03.2022\r\
-    \n# ----------------------------------------------\r\
-    \n:set FuncWifi do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local system [/system identity get name]\r\
-    \n:local WS\r\
-    \n:local listWS\r\
-    \n:local logWS\r\
-    \n:local TT\r\
-    \n:local count 0\r\
-    \n\r\
-    \n:foreach wirelessClient in=[/interface wireless find true] do={\r\
-    \n:local WsName [/interface get \$wirelessClient name]\r\
-    \n:local WsComment [/interface get \$wirelessClient comment]\r\
-    \n:local WsSID [/interface wireless get \$wirelessClient ssid] \r\
-    \n:local WsBand [/interface wireless get \$wirelessClient band] \r\
-    \n:local WsMode [/interface wireless get \$wirelessClient mode] \r\
-    \n:local WsState (![/interface get \$wirelessClient disabled])\r\
-    \n:local WsProf  [/interface wireless get \$wirelessClient security-profile]\r\
-    \n:local Ws2Key [/interface wireless security-profiles get \$WsProf wpa2-pre-shared-key];\r\
-    \n:if ([:len \$WsBand]=0) do={:set WsMode \"virtual wifi\"}\r\
-    \n:if (\$WsState) do={:set WS \"enable\"; :set TT \"%F0%9F%94%B5\"} else={:set WS \"disable\"; :set TT \"%F0%9F%94%B4\"}\r\
-    \n# :local WD [/interface monitor \$wirelessClient once as-value]\r\
-    \n:set count (\$count+1)\r\
-    \n:set listWS (\"\$listWS\".\"\$count\".\" \$TT\".\" \$WsName\".\" \$WsComment\".\" [ \$WsMode ]\".\" SSID:\".\" \$WsSID\".\" \$WsBand\".\"%0A\")\r\
-    \n:set logWS (\"\$logWS\".\"\$count\".\" \$WsSID \".\"\$Ws2Key\".\"\\n\")\r\
-    \n}\r\
-    \n\r\
-    \n:if ([:len \$listWS]!=0) do={\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$system\".\" wifi interface and SSID:%0A\".\"\$listWS\")]\r\
-    \n   }\r\
-    \n :return \$logWS;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# wifiaccess tabl to Telegram\r\
-    \n# ------------------------------------------\r\
-    \n:set FuncWifiAccess do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local identity [/system identity get name]\r\
-    \n:local count\r\
-    \n:local output;\r\
-    \n:foreach activeIndex in=[/interface wireless access find true] do={\r\
-    \n      :set count (\$count+1);\r\
-    \n              :local RegVal [/interface wireless access get \$activeIndex]\r\
-    \n                :local iFace (\$RegVal->\"interface\")\r\
-    \n                :local MACAddr (\$RegVal->\"mac-address\")\r\
-    \n                :local comment (\$RegVal->\"comment\")\r\
-    \n                :local time (\$RegVal->\"time\")\r\
-    \n     :if (\$RegVal->\"disabled\") do={\r\
-    \n             :set output (\"\$output\".\"\$count\".\" %F0%9F%94%B4 \".\" \$comment\".\" \$iFace\".\" \$MACAddr\".\" \$time\".\"%0A\");\r\
-    \n} else={ :set output (\"\$output\".\"\$count\".\" %F0%9F%94%B7  \".\" \$comment\".\" \$iFace\".\" \$MACAddr\".\" \$time\".\"%0A\");}\r\
-    \n\r\
-    \n          }\r\
-    \n\r\
-    \nif ([:len \$output] >0) do={[\$FuncTelegramSender (\"\$Emoji\".\" *Router\".\" \$identity\".\" wireless access-tabl:*\".\"%0A\".\"-------------------------------------------------------------------------------------------------------------- \".\"%0A\".\"\$output\") \"markdown\"]\r\
-    \n} else={[\$FuncTelegramSender (\"\$Emoji\".\" *Router\".\" \$identity\".\" wireless access-tabl is empty*\") \"markdown\"]}\r\
-    \n  :return \$count;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# wifi users registry tabl - > Telegram\r\
-    \n# -----------------------------------------------------\r\
-    \n:set FuncWifiReg do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji;\r\
-    \n:global botID;\r\
-    \n:global myChatID;\r\
-    \n:global FuncTelegramSender\r\
-    \n:local count\r\
-    \n:local identity [/system identity get name];\r\
-    \n\r\
-    \n:local output;\r\
-    \n:foreach activeIndex in=[/interface wireless registration-table find] do={\r\
-    \n            :if ([:typeof \$activeIndex]!=\"nothing\") do={\r\
-    \n                         :local WifiFace [/interface wireless registration-table get value-name=\"interface\" \$activeIndex];\r\
-    \n                         :local WifiComment [/interface wireless registration-table get value-name=\"comment\" \$activeIndex];\r\
-    \n                         :local activeMACAddr [/interface wireless registration-table get value-name=\"mac-address\" \$activeIndex];\r\
-    \n                         :local activeIPadr [/interface wireless registration-table get value-name=\"last-ip\" \$activeIndex];\r\
-    \n                         :local WSignal [/interface wireless registration-table get value-name=\"signal-strength\" \$activeIndex];\r\
-    \n                         :set count (\$count+1)\r\
-    \n                         :set output (\"\$output\".\"\$count\".\"  \$WifiFace\".\" \$activeMACAddr \".\"\$activeIPadr\".\" \$WifiComment\".\"%0A\".\"      signal strength: \".\"\$WSignal\".\"%0A\");\r\
-    \n                  }\r\
-    \n          }\r\
-    \n\r\
-    \nif ([:len \$output] >0) do={[\$FuncTelegramSender (\"\$Emoji\".\" <b>Router  \$identity wireless registration-tabl:</b>\".\"%0A\".\" \$output1\") \"html\"]\r\
-    \n} else={[\$FuncTelegramSender (\"\$Emoji\".\" <b>Router  \$identity wireless registration-tabl: is empty</b>\") \"html\"]}\r\
-    \n:return \$count;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# wifi SSID & pass - > Telegram and SMS \$ADMINPHONE\r\
-    \n# ---------------------------------------------------------------------------------\r\
-    \n:set FuncWifiPass do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:global ADMINPHONE\r\
-    \n:global FuncWifi\r\
-    \n:local SMSmessage [\$FuncWifi]\r\
-    \n:log warning (\"\\n\".\"Router \".\"\$[/system identity get name]\".\" wlan SSID and passwords:\".\"\\n\".\"\$SMSmessage\")\r\
-    \ndo {\r\
-    \n:local SMSdevice [/tool sms get port];\r\
-    \n /tool sms send \$SMSdevice  phone=\$ADMINPHONE message=(\"Router \".\"\$[/system identity get name]\".\" wifi:\".\"\\n\".\"\$SMSmessage\")\r\
-    \n} on-error={:log error \"Error send SMS message\"}\r\
-    \n   :return [];\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# function FuncScriptList ->Telegram\r\
-    \n# ---------------------------------------------------\r\
-    \n:set FuncScriptList do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji; :global FuncTelegramSender; :global fMirror\r\
-    \n:local ScriptArray [:toarray \"\"]; :local CommentArray [:toarray \"\"]\r\
-    \n:local nlist 900\r\
-    \n:local name\r\
-    \n:local comment\r\
-    \n:local count 0\r\
-    \n\r\
-    \n# seek all scripts\r\
-    \n:foreach i in=[system script find] do={:set \$name [/system script get \$i name]; set comment [/system script get \$i comment]\r\
-    \n:set (\$ScriptArray->\$count) \$name; :set (\$CommentArray->\$count) \$comment;:set count (\$count+1);}\r\
-    \n:local a \"\"; :local b; :local c; :local d;\r\
-    \n:local block 0\r\
-    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\"); :set \$d (\"\$CommentArray\"->\"\$i\");:set b (\$i+1)\r\
-    \n:if (\$fMirror) do={:set a (\"\$a\".\"\$b \".\"/\".\"\$c\".\" \$d\".\"%0A\")} else={:set a (\"\$a\".\"\$b \".\"\$c\".\" \$d\".\"%0A\")}\r\
-    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
-    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository script list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
-    \n:set a \"\";\r\
-    \n  }\r\
-    \n}\r\
-    \n:set block (\$block+1)\r\
-    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository script list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
-    \n  :return [:len \$ScriptArray]\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# function FuncFuncList ->Telegram\r\
-    \n# ---------------------------------------------------\r\
-    \n:set FuncFuncList do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji; :global FuncTelegramSender; :global fMirror;\r\
-    \n:local ScriptArray [:toarray \"\"];\r\
-    \n:local ValArray [:toarray \"\"];\r\
-    \n:local nlist 900\r\
-    \n:local name\r\
-    \n:local val\r\
-    \n:local comment\r\
-    \n:local count 0\r\
-    \n\r\
-    \n# seek all global\r\
-    \n:foreach i in=[/system script environment find] do={:set \$name [/system script environment get \$i name]; \r\
-    \n:if (([/system script environment get \$i value]=\"(code\") or  ([:len [:find [/system script environment get \$i value] \"(eval\"]]>0)) do={\r\
-    \n:set (\$ScriptArray->\$count) \$name;\r\
-    \n:set count (\$count+1);\r\
-    \n}}\r\
-    \n:local a \"\"; :local b 0; :local c;\r\
-    \n:local block 0\r\
-    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\");\r\
-    \n:if ([:len \$c]!=0) do={\r\
-    \n:if (\$fMirror) do={:set b (\$b+1); :set a (\"\$a\".\" - \".\"\$b  \".\"/\".\"\$c \".\"%0A\")} else={\r\
-    \n:set b (\$b+1); :set a (\"\$a\".\" - \".\"\$b  \".\"\$c \".\"%0A\")}\r\
-    \n}\r\
-    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
-    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment active Functions list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
-    \n:set a \"\";\r\
-    \n  }\r\
-    \n}\r\
-    \n:set block (\$block+1)\r\
-    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment active Functions list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
-    \n     :return \$count;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# function FuncSchedList ->Telegram\r\
-    \n# ---------------------------------------------------\r\
-    \n\r\
-    \n:set FuncSchedList do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji; :global FuncTelegramSender;\r\
-    \n:local ScriptArray [:toarray \"\"]; :local CommentArray [:toarray \"\"]; :local StartTimeArray [:toarray \"\"]; :local IntervalArray [:toarray \"\"]; local StatusArray [:toarray \"\"];\r\
-    \n:local nlist 900\r\
-    \n:local count 0\r\
-    \n# seek all scheduler\r\
-    \n:foreach i in=[system scheduler find] do={\r\
-    \n:set (\$StatusArray->\$count) [/system scheduler get \$i disabled]\r\
-    \n:set (\$ScriptArray->\$count) [/system scheduler get \$i name]\r\
-    \n:set (\$CommentArray->\$count) [/system scheduler get \$i comment]\r\
-    \n:set (\$StartTimeArray->\$count) [/system scheduler get \$i \"start-time\"]\r\
-    \n:set (\$IntervalArray->\$count) [/system scheduler get \$i interval]\r\
-    \n:set count (\$count+1);}\r\
-    \n\r\
-    \n:local a \"\"; :local e; :local b; :local c; :local d; :local t; local v\r\
-    \n:local block 0\r\
-    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\"); :set \$d (\"\$CommentArray\"->\"\$i\"); set \$t (\"\$StartTimeArray\"->\"\$i\"); set \$v (\"\$IntervalArray\"->\"\$i\"); \r\
-    \n:if (\$StatusArray->\"\$i\") do={:set e \"%F0%9F%94%B4\"} else={:set e \"%F0%9F%94%B7\"}\r\
-    \n:set b (\$i+1);\r\
-    \n:set a (\"\$a\".\" \$e\".\" \$b\".\" \$c\".\" \$d\".\" [ \$t ]\".\" [ \$v ]\".\"%0A\")\r\
-    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
-    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] scheduler list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
-    \n:set a \"\";\r\
-    \n  }\r\
-    \n}\r\
-    \n:set block (\$block+1)\r\
-    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] scheduler list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
-    \n  :return [:len \$ScriptArray]\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# function FuncGlobalVarList ->Telegram\r\
-    \n# ---------------------------------------------------------\r\
-    \n:set FuncGlobalVarList do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji; :global FuncTelegramSender;\r\
-    \n:local ScriptArray [:toarray \"\"];\r\
-    \n:local ValArray [:toarray \"\"];\r\
-    \n:local nlist 900\r\
-    \n:local name\r\
-    \n:local val\r\
-    \n:local comment\r\
-    \n:local count 0\r\
-    \n# seek all global\r\
-    \n:foreach i in=[/system script environment find] do={:set \$name [/system script environment get \$i name]; \r\
-    \n:if (([/system script environment get \$i value]!=\"(code\") and  ([:len [:find [/system script environment get \$i value] \"(eval\"]]!=1)) do={\r\
-    \n:set \$val [/system script environment get \$i value];} else={:set val; set name}\r\
-    \n:set (\$ScriptArray->\$count) \$name; :set (\$ValArray->\$count) \$val;\r\
-    \n:set count (\$count+1);\r\
-    \n}\r\
-    \n:local a \"\"; :local b 0; :local c; :local d;\r\
-    \n:local block 0\r\
-    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\"); :set \$d (\"\$ValArray\"->\"\$i\");\r\
-    \n:if ([:len \$c]!=0) do={:set b (\$b+1)\r\
-    \n:set a (\"\$a\".\" - \".\"\$b  \".\"\$c \".\"\$d\".\"%0A\")}\r\
-    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
-    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment Global var list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
-    \n:set a \"\";\r\
-    \n  }\r\
-    \n}\r\
-    \n:set block (\$block+1)\r\
-    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment Global var list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
-    \n         :return \$b;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n:log info \"  -    SATELLITE1 module is set\"\r\
-    \n\r\
-    \n"
-/system script add comment="module 2 SATELLITE for TLGRM" dont-require-permissions=no name=SATELLITE2 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#------------------------------------------------------------------------------------------------------------------------\r\
-    \n# SATELLITE2 module  for TLGRM version 1.8 by Sertik (Serkov S.V.) 24/04/2022\r\
-    \n#------------------------------------------------------------------------------------------------------------------------\r\
-    \n\r\
-    \n\r\
-    \n# declare functions:\r\
-    \n:global FuncDHCPclient\r\
-    \n:global FuncWifiConnect\r\
-    \n:global FuncUsers\r\
-    \n:global FuncLog\r\
-    \n:global FuncLogReset\r\
-    \n:global FuncPingPong\r\
-    \n:global FuncPing\r\
-    \n:global FuncMail\r\
-    \n:global FuncSMSsend\r\
-    \n:global FuncModemInfo\r\
-    \n:global FuncSATMirror\r\
-    \n:global FuncSATClear\r\
-    \n\r\
-    \n\r\
-    \n\r\
     \n\r\
     \n# DHCP-clients -> Telegram\r\
     \n# ---------------------------------------\r\
-    \n:set FuncDHCPclient do={\r\
+    \n:set dhcpclient do={\r\
     \n:if ([:len \$0]!=0) do={\r\
     \n:local count\r\
     \n:local output\r\
@@ -4734,7 +4250,7 @@
     \n\r\
     \n#  wifi connect table -> Telegram \r\
     \n# ------------------------------------------------------------\r\
-    \n:set FuncWifiConnect do={\r\
+    \n:set wificonnect do={\r\
     \n:if ([:len \$0]!=0) do={\r\
     \n:global Emoji\r\
     \n:global FuncTelegramSender\r\
@@ -4767,7 +4283,7 @@
     \n\r\
     \n#  Router`s user table -> Telegram \r\
     \n# ------------------------------------------------------------\r\
-    \n:set FuncUsers do={\r\
+    \n:set users do={\r\
     \n:if ([:len \$0]!=0) do={\r\
     \n:global Emoji\r\
     \n:global FuncTelegramSender\r\
@@ -4810,7 +4326,7 @@
     \n\r\
     \n# Routers modem info -> Telegram\r\
     \n\r\
-    \n:global FuncModemInfo do={\r\
+    \n:set modeminfo do={\r\
     \n:if ([:len \$0]!=0) do={\r\
     \n\r\
     \n:global Emoji\r\
@@ -4848,7 +4364,7 @@
     \n:local lteComment [/interface lte get \$i comment]\r\
     \nif ([/interface lte get \$i value-name=disabled] = false) do={\r\
     \n\r\
-    \n:set LteModem [/interface lte info [find name=\$lteiFace] once as-value]\r\
+    \n:set LteModem [/interface lte monitor [find name=\$lteiFace] once as-value]\r\
     \n\r\
     \n:set pinstatus (\$LteModem->\"pin-status\");\r\
     \n:set registrationstatus (\$LteModem->\"registration-status\");\r\
@@ -4911,7 +4427,7 @@
     \n\r\
     \n# - Log in-> Telegram\r\
     \n\r\
-    \n:set FuncLog do={\r\
+    \n:set log do={\r\
     \n:if ([:len \$0]!=0) do={\r\
     \n\r\
     \n:global Emoji\r\
@@ -4943,7 +4459,7 @@
     \n\r\
     \n\r\
     \n# - Reset Logging and setup length log (\$1)\r\
-    \n:set FuncLogReset do={\r\
+    \n:set logreset do={\r\
     \nif ([:len \$0]!=0) do={\r\
     \n:local LineLog \r\
     \n:if ([:len \$1]=0) do={:set LineLog 1000} else={:set LineLog \$1}\r\
@@ -4954,10 +4470,10 @@
     \n }\r\
     \n}\r\
     \n\r\
-    \n# - FuncPingPong 15/04/2022 \D4\F3\ED\EA\F6\E8\FF \EF\F0\EE\E2\E5\F0\EA\E8 \E4\EE\F1\F2\F3\EF\ED\EE\F1\F2\E8 \F3\F1\F2\F0\EE\E9\F1\F2\E2\E0 \E2 \F1\E5\F2\E8\r\
+    \n# - pingpong 15/04/2022 \D4\F3\ED\EA\F6\E8\FF \EF\F0\EE\E2\E5\F0\EA\E8 \E4\EE\F1\F2\F3\EF\ED\EE\F1\F2\E8 \F3\F1\F2\F0\EE\E9\F1\F2\E2\E0 \E2 \F1\E5\F2\E8\r\
     \n#   c \EE\EF\EE\E2\E5\F9\E5\ED\E8\E5\EC \E2 \D2\E5\EB\E5\E3\F0\E0\EC\EC. \C8\F1\EF\EE\EB\FC\E7\F3\E5\F2 FuncPing\r\
     \n\r\
-    \n:set FuncPingPong do={\r\
+    \n:set pingpong do={\r\
     \n:if ([:len \$0]!=0) do={\r\
     \n:global Emoji\r\
     \n:global FuncTelegramSender\r\
@@ -5009,12 +4525,8 @@
     \n# PingRoutingTabl - \F2\E0\E1\EB\E8\F6\E0 \EC\E0\F0\F8\F0\F3\F2\EE\E2 (\E5\F1\EB\E8 \ED\E5 \F3\EA\E0\E7\E0\ED\E0 \E8\F1\EF\EE\EB\FC\E7\F3\E5\F2\F1\FF \F2\E0\E1\EB\E8\F6\E0 main\r\
     \n\r\
     \n# \E2\F1\E5 \EF\E0\F0\E0\EC\EC\E5\F2\F0\FB \EF\E8\ED\E3\E0 \EC\EE\E3\F3\F2 \E1\FB\F2\FC \EF\E5\F0\E5\E4\E0\ED\FB \D2\CE\CB\DC\CA\CE ! \E2 \E8\EC\E5\ED\EE\E2\E0\ED\ED\FB\F5 \EF\E0\F0\E0\EC\E5\F2\F0\E0\F5\r\
-    \n\r\
     \n# :put [\$FuncPing PingAdr=8.8.8.8 PingCount=3 PingInterface=ether1 PingRoutingTabl=main]\r\
-    \n# :put [\$FuncPing PingAdr=8.8.8.8 PingCount=3 PingInterface=ether1]\r\
-    \n# :put [\$FuncPing PingAdr=8.8.8.8 PingCount=3]\r\
-    \n# :put [\$FuncPing PingAdr=8.8.8.8]\r\
-    \n# :put [\$FuncPing]\r\
+    \n\r\
     \n\r\
     \n# \EE\F2\E2\E5\F2 \F4\F3\ED\EA\F6\E8\E8 \E2\EE\E7\E2\F0\E0\F9\E0\E5\F2\F1\FF \E2 \E2\E8\E4\E5:\r\
     \n# \"OK\" - \F3\F1\F2\F0\EE\E9\F1\F2\E2\EE \E4\EE\F1\F2\F3\EF\ED\EE \E2 \F1\E5\F2\E8\r\
@@ -5044,13 +4556,10 @@
     \n }\r\
     \n}\r\
     \n\r\
-    \n# - FuncMail - \D4\F3\ED\EA\F6\E8\FF \EE\F2\EF\F0\E0\E2\EA\E8 \EF\EE\F7\F2\FB \r\
-    \n#    by Sergej Serkov 17/01/2021\r\
-    \n#------------------------------------------------------\r\
     \n\r\
-    \n# \CF\F0\E8\EC\E5\ED\E5\ED\E8\E5:\r\
-    \n# [\$FuncMail Email=\"user@mail.ru\" Mailtext=\"test letter\"]\r\
-    \n# \E2\EB\EE\E6\E5\ED\E8\E5 \F4\E0\E9\EB\EE\E2 \ED\E5 \EF\EE\E4\E4\E5\F0\E6\E8\E2\E0\E5\F2\F1\FF\r\
+    \n# - mailsend - \F4\F3\ED\EA\F6\E8\FF \EE\F2\EF\F0\E0\E2\EA\E8 \EF\EE\F7\F2\FB \r\
+    \n#    by Sergej Serkov 25/10/2022\r\
+    \n#-------------------------------------------------------\r\
     \n\r\
     \n# \E4\EB\FF \EA\EE\F0\F0\E5\EA\F2\ED\EE\E9 \F0\E0\E1\EE\F2\FB \F4\F3\ED\EA\F6\E8\E8 \EF\EE\F7\F2\EE\E2\FB\E9 \F1\E5\F0\E2\E8\F1 Router OS /tool email \E4\EE\EB\E6\E5\ED \E1\FB\F2\FC \ED\E0\F1\F2\F0\EE\E5\ED \E2\E5\F0\ED\EE \EF\EE \F3\EC\EE\EB\F7\E0\ED\E8\FE\r\
     \n# \E0\E4\F0\E5\F1 \EF\EE\EB\F3\F7\E0\F2\E5\EB\FF \E8 \F2\E5\EA\F1\F2 \EF\E8\F1\FC\EC\E0 \EC\EE\E3\F3\F2 \E1\FB\F2\FC \EF\E5\F0\E5\E4\E0\ED\FB \E2 \E8\EC\E5\ED\EE\E2\E0\ED\ED\FB\F5 \EB\E8\E1\EE \EF\EE\E7\E8\F6\E8\EE\ED\ED\FB\F5 \EF\E0\F0\E0\EC\E5\F2\F0\E0\F5 (\E8\EB\E8/\E8\EB\E8)\r\
@@ -5058,10 +4567,10 @@
     \n# \EF\F0\E8 \EF\E5\F0\E5\E4\E0\F7\E5 \E0\E4\F0\E5\F1\E0 \E8 \F2\E5\EA\F1\F2\E0 \EF\E8\F1\FC\EC\E0 \E2 \E8\EC\E5\ED\EE\E2\E0\ED\ED\FB\F5 \EF\E0\F0\E0\EC\E5\F2\F0\E0\F5 (Email \E8 Mailtext) - \E8\F5 \EF\EE\F0\FF\E4\EE\EA \ED\E5 \E2\E0\E6\E5\ED\r\
     \n\r\
     \n# for example:\r\
-    \n# :log info [\$FuncMail Email=\"user@mail.ru\" Mailtext=\"\CF\F0\E8\E2\E5\F2 !\"]; # (\F1 \E8\EC\E5\ED\EE\E2\E0\ED\ED\FB\EC\E8 \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC\E8) \r\
-    \n# :log info [\$FuncMail user@mail.ru \"\CF\F0\E8\E2\E5\F2 !\"]; # (c \EF\EE\E7\E8\F6\E8\EE\ED\ED\FB\EC\E8 \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC\E8)\r\
+    \n# :log info [\$mailsend Email=\"user@mail.ru\" Mailtext=\"\CF\F0\E8\E2\E5\F2 !\"]; # (\F1 \E8\EC\E5\ED\EE\E2\E0\ED\ED\FB\EC\E8 \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC\E8) \r\
+    \n# :log info [\$mailsend user@mail.ru \"\CF\F0\E8\E2\E5\F2 !\"]; # (c \EF\EE\E7\E8\F6\E8\EE\ED\ED\FB\EC\E8 \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC\E8)\r\
     \n\r\
-    \n:set FuncMail do={\r\
+    \n:set mailsend do={\r\
     \n:if ([:len \$0]!=0) do={ \r\
     \n:local Etls \"yes\"; # \E5\F1\EB\E8 TLS \ED\E5 \E8\F1\EF\EE\EB\FC\E7\F3\E5\F2\F1\FF \F3\F1\F2\E0\ED\EE\E2\E8\F2\FC \E2 \"no\"\r\
     \n:local smtpserv;\r\
@@ -5077,7 +4586,7 @@
     \n:if ((any \$MA) and (any \$MT)) do={\r\
     \n:log info \" \"; :log warning \"FuncMail start mail sending ... to e-mail: \$Email\";\r\
     \ndo {[/tool e-mail send from=\"<\$Eaccount>\" to=\$MA server=\$smtpserv \\\r\
-    \n port=\$Eport user=\$Eaccount password=\$pass start-tls=\$Etls subject=(\"from \$0 Router \$[/system identity get name]\") \\\r\
+    \n port=\$Eport user=\$Eaccount password=\$pass tls=starttls subject=(\"from \$0 Router \$[/system identity get name]\") \\\r\
     \n body=\$MT;];\r\
     \n              } on-error={:log info \"\"; :log error (\"Call ERROR function \$0 ERROR e-mail send\"); \r\
     \n                                                                                      :return \"ERROR: <\$0 e-mail send>\"}\r\
@@ -5087,17 +4596,15 @@
     \n}\r\
     \n\r\
     \n\r\
-    \n# FuncSMSsend \r\
-    \n# -----------------------------------\r\
+    \n# smssend \r\
+    \n# --------------\r\
     \n\r\
-    \n# [\$FuncSMSsend \"Hello \CF\F0\E8\E2\E5\F2 \EC\E8\F0\" +79104797777]\r\
+    \n# [\$smssend \"Hello \CF\F0\E8\E2\E5\F2 \EC\E8\F0\" +79104797777]\r\
     \n\r\
     \n# local function transliteration\r\
     \n# string for transliteration is set in the parametr name \"string\"\r\
     \n\r\
-    \n\r\
-    \n:set FuncSMSsend do={\r\
-    \n\r\
+    \n:set smssend do={\r\
     \n:local FuncSatTranslite do={\r\
     \n#  table of the codes of Russian letters Translite\r\
     \n:local rsimv [:toarray {\"\C0\"=\"A\"; \"\C1\"=\"B\"; \"\C2\"=\"V\"; \"\C3\"=\"G\"; \"\C4\"=\"D\"; \"\C5\"=\"E\"; \"\C6\"=\"ZH\"; \"\C7\"=\"Z\"; \"\C8\"=\"I\"; \"\C9\"=\"J\"; \"\CA\"=\"K\"; \"\CB\"=\"L\"; \"\CC\"=\"M\"; \"\CD\"=\"N\"; \"\CE\"=\"O\"; \"\CF\"=\"P\"; \"\D0\"=\"R\"; \"\D1\"=\"S\"; \"\D2\"=\"T\"; \"\D3\"=\"U\"; \"\D4\"=\"F\"; \"\D5\"=\"KH\"; \"\D6\"=\"C\"; \"\D7\"=\"CH\"; \"\D8\"=\"SH\"; \"\D9\"=\"SCH\"; \"\DA\"=\"``\"; \"\DB\"=\"Y`\"; \"\DC\"=\"`\"; \"\DD\"=\"E`\"; \"\DE\"=\"JU\"; \"\DF\"=\"YA\"; \"\E0\"=\"a\"; \"\E1\"=\"b\"; \"\E2\"=\"v\"; \"\E3\"=\"g\"; \"\E4\"=\"d\"; \"\E5\"=\"e\"; \"\E6\"=\"zh\"; \"\E7\"=\"z\"; \"\E8\"=\"i\"; \"\E9\"=\"j\"; \"\EA\"=\"k\"; \"\EB\"=\"l\"; \"\EC\"=\"m\"; \"\ED\"=\"n\"; \"\EE\"=\"o\"; \"\EF\"=\"p\"; \"\F0\"=\"r\"; \"\F1\"=\"s\"; \"\F2\"=\"t\"; \"\F3\"=\"u\"; \"\F4\"=\"f\"; \"\F5\"=\"kh\"; \"\F6\"=\"c\"; \"\F7\"=\"ch\"; \"\F8\"=\"sh\"; \"\F9\"=\"sch\"; \"\FA\"=\"``\"; \"\FB\"=\"y`\"; \"\FC\"=\"`\"; \"\FD\"=\"e`\"; \"\FE\"=\"ju\"; \"\FF\"=\"ya\"; \"\A8\"=\"Yo\"; \"\B8\"=\"yo\"; \"\B9\"=\"#\"}]\r\
@@ -5119,7 +4626,6 @@
     \n :set \$StrTele (\"\$StrTele\".\"\$code\")}\r\
     \n:return \$StrTele\r\
     \n}\r\
-    \n\r\
     \n\r\
     \n         :if ([:len \$0]!=0) do={\r\
     \n         :local SMSdevice [/tool sms get port];\r\
@@ -5146,143 +4652,1275 @@
     \n    } else={:log error \"ERROR \$0 sms send but no message text\"; :return \"ERROR sms\" }\r\
     \n}\r\
     \n\r\
-    \n# function FuncSATMirror\r\
+    \n\r\
+    \n# function satclear \r\
     \n# ------------------------------------------------------------\r\
-    \n\r\
-    \n:set FuncSATMirror do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global fMirror;\r\
-    \n\r\
-    \n:if (!\$fMirror) do={\r\
-    \n:global FuncSATLogo; :global SATLogo \$FuncSATLogo; :set FuncSATLogo\r\
-    \n:global FuncSATList; :global SATList \$FuncSATList; :set FuncSATList \r\
-    \n:global FuncArp; :global Arp \$FuncArp; :set FuncArp\r\
-    \n:global FuncAddress; :global Address \$FuncAddress; :set FuncAddress\r\
-    \n:global FuncBackup; :global Backup \$FuncBackup; :set FuncBackup\r\
-    \n:global FuncLease; :global Lease \$FuncLease; :set FuncLease\r\
-    \n:global FuncReport; :global Report \$FuncReport; :set FuncReport\r\
-    \n:global FuncStatus; :global Status \$FuncStatus; :set FuncStatus\r\
-    \n:global FuncVPN; :global VPN \$FuncVPN; :set FuncVPN\r\
-    \n:global FuncVpnUser; :global VpnUser \$FuncVpnUser; :set FuncVpnUser\r\
-    \n:global FuncWifi; :global Wifi \$FuncWifi; :set FuncWifi\r\
-    \n:global FuncWifiReg; :global WifiReg \$FuncWifiReg; :set FuncWifiReg\r\
-    \n:global FuncWifiAccess; :global WifiAccess \$FuncWifiAccess; :set FuncWifiAccess\r\
-    \n:global FuncWifiConnect; :global WifiConnect \$FuncWifiConnect; :set FuncWifiConnect\r\
-    \n:global FuncHealth; :global Health \$FuncHealth; :set FuncHealth\r\
-    \n:global FuncDHCPclient; :global DHCPclient \$FuncDHCPclient; :set FuncDHCPclient\r\
-    \n:global FuncDHCPclient; :global DHCPclient \$FuncDHCPclient; :set FuncDHCPclient\r\
-    \n:global FuncUsers; :global Users \$FuncUsers; :set FuncUsers;\r\
-    \n:global FuncScriptList; :global ScriptList \$FuncScriptList; :set FuncScriptList\r\
-    \n:global FuncFuncList; :global FuncList \$FuncFuncList; :set FuncFuncList\r\
-    \n:global FuncSchedList; :global SchedList \$FuncSchedList; :set FuncSchedList\r\
-    \n:global FuncLog; :global Log \$FuncLog; :set FuncLog\r\
-    \n:global FuncLogReset; :global LogReset \$FuncLogReset; :set FuncLogReset\r\
-    \n:global FuncPingPong; :global PingPong \$FuncPingPong; :set FuncPingPong\r\
-    \n:global FuncModemInfo; :global ModemInfo \$FuncModemInfo; :set FuncModemInfo\r\
-    \n:global FuncGlobalVarList; :global GlobalVarList \$FuncGlobalVarList; :set FuncGlobalVarList\r\
-    \n:global FuncSATMirror; :global SATMirror \$FuncSATMirror; :set FuncSATMirror\r\
-    \n:global FuncSATClear; :global SATClear \$FuncSATClear; :set FuncSATClear\r\
-    \n        :put  (\"\$[/system identity get name] \".\"function mirror reflected. Short names set\")\r\
-    \n        :log error \"Conversion completed. Funcnames --> to short name\";\r\
-    \n:global fMirror true\r\
-    \n:global broadCast true;\r\
-    \n        :return (\"library SATELLITE mirror is reflected. Short names set\")\r\
-    \n} else={\r\
-    \n:global SATLogo; :global FuncSATLogo \$SATlogo; :set SATLogo\r\
-    \n:global SATList; :global FuncSATList \$SATList; :set SATList \r\
-    \n:global Arp; :global FuncArp \$Arp; :set Arp\r\
-    \n:global Address; :global FuncAddress \$Address; :set Address\r\
-    \n:global Backup; :global FuncBackup \$Backup; :set Backup\r\
-    \n:global Lease; :global FuncLease \$Lease; :set Lease\r\
-    \n:global Report; :global FuncReport \$Report; :set Report\r\
-    \n:global Status; :global FuncStatus \$Status; :set Status\r\
-    \n:global VPN; :global FuncVPN \$VPN; :set VPN\r\
-    \n:global VpnUser; :global FuncVpnUser \$VpnUser; :set VpnUser\r\
-    \n:global Wifi; :global FuncWifi \$Wifi; :set Wifi\r\
-    \n:global WifiReg; :global FuncWifiReg \$WifiReg; :set WifiReg\r\
-    \n:global WifiAccess; :global FuncWifiAccess \$WifiAccess; :set WifiAccess\r\
-    \n:global WifiConnect; :global FuncWifiConnect \$WifiConnect; :set WifiConnect\r\
-    \n:global WifiPass; :global FuncWifiPass \$WifiPass; :set WifiPass\r\
-    \n:global Health; :global FuncHealth \$Health; :set Health\r\
-    \n:global DHCPclient; :global FuncDHCPclient \$DHCPclient; :set DHCPclient\r\
-    \n:global Users; :global FuncUsers \$Users; :set Users;\r\
-    \n:global ScriptList; :global FuncScriptList \$ScriptList; :set ScriptList\r\
-    \n:global FuncList; :global FuncFuncList \$FuncList; :set FuncList\r\
-    \n:global SchedList; :global FuncSchedList \$SchedList; :set SchedList\r\
-    \n:global Log; :global FuncLog \$Log; :set Log\r\
-    \n:global LogReset; :global FuncLogReset \$LogReset; :set LogReset\r\
-    \n:global PingPong; :global FuncPingPong \$PingPong; :set PingPong\r\
-    \n:global ModemInfo; :global FuncModemInfo \$ModemInfo; :set ModemInfo\r\
-    \n:global GlobalVarList; :global FuncGlobalVarList \$GlobalVarList; :set GlobalVarList\r\
-    \n:global SATMirror; :global FuncSATMirror \$SATMirror; :set SATMirror\r\
-    \n:global SATClear; :global FuncSATClear \$SATClear; :set SATClear\r\
-    \n        :put  (\"\$[/system identity get name] \".\"function \".\"\$0 \".\"function long names restored\")\r\
-    \n        :log warning \"Conversion completed short names --> to Funcnames\";\r\
-    \n:global fMirror false\r\
-    \n:global broadCast false;\r\
-    \n        :return (\"library SATELLITE function \".\"\$0 \".\"function long names restored\")}\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# function FuncSATClear \r\
-    \n# ------------------------------------------------------------\r\
-    \n:set FuncSATClear do={\r\
+    \n:set satclear do={\r\
     \n:if ([:len \$0]!=0) do={\r\
     \n\r\
-    \n:global fMirror\r\
-    \n:if ([:len [/system script environment find name=\"SATMirror\"]]!=0) do={\r\
-    \n:if (\$fMirror=true) do={:global SATMirror; [\$SATMirror]; :delay 2s}}\r\
-    \n:global FuncSATLogo; :set FuncSATLogo\r\
-    \n:global FuncSATList; :set FuncSATList \r\
-    \n:global FuncArp; :set FuncArp\r\
-    \n:global FuncAddress; :set FuncAddress\r\
-    \n:global FuncBackup; :set FuncBackup\r\
-    \n:global FuncLease; :set FuncLease\r\
-    \n:global FuncReport; :set FuncReport\r\
-    \n:global FuncStatus; :set FuncStatus\r\
-    \n:global FuncVPN; :set FuncVPN\r\
-    \n:global FuncVpnUser; :set FuncVpnUser\r\
-    \n:global FuncWifi; :set FuncWifi\r\
-    \n:global FuncWifiReg; :set FuncWifiReg\r\
-    \n:global FuncWifiAccess; :set FuncWifiAccess\r\
-    \n:global FuncWifiConnect; :set FuncWifiConnect\r\
-    \n:global FuncWifiPass; :set FuncWifiPass\r\
-    \n:global FuncHealth; :set FuncHealth\r\
-    \n:global FuncDHCPclient; :set FuncDHCPclient\r\
-    \n:global FuncUsers; :set FuncUsers;\r\
-    \n:global FuncScriptList; :set FuncScriptList\r\
-    \n:global FuncSchedList; :set FuncSchedList\r\
-    \n:global FuncFuncList; :set FuncFuncList\r\
-    \n:global FuncLog; :set FuncLog\r\
-    \n:global FuncLogReset; :set FuncLogReset\r\
-    \n:global FuncPingPong; :set FuncPingPong\r\
-    \n:global FuncModemInfo; :set FuncModemInfo\r\
-    \n:global FuncGlobalVarList; :set FuncGlobalVarList\r\
-    \n     :if (\$1=\"all\") do={\r\
+    \n:global satlogo; :set satlogo\r\
+    \n:global satlist; :set satlist \r\
+    \n:global arp; :set arp\r\
+    \n:global address; :set address\r\
+    \n:global backup; :set backup\r\
+    \n:global lease; :set lease\r\
+    \n:global report; :set report\r\
+    \n:global status; :set status\r\
+    \n:global vpn; :set vpn\r\
+    \n:global vpnuser; :set vpnuser\r\
+    \n:global wifi; :set wifi\r\
+    \n:global wifireg; :set wifireg\r\
+    \n:global wifiaccess; :set wifiaccess\r\
+    \n:global wificonnect; :set wificonnect\r\
+    \n:global wifipass; :set wifipass\r\
+    \n:global health; :set health\r\
+    \n:global dhcpclient; :set dhcpclient\r\
+    \n:global users; :set users;\r\
+    \n:global scriptlist; :set scriptlist\r\
+    \n:global SchedList; :set SchedList\r\
+    \n:global funclist; :set funclist\r\
+    \n:global log; :set log\r\
+    \n:global logreset; :set logreset\r\
+    \n:global pingpong; :set pingpong\r\
+    \n:global mailsend; :set mailsend\r\
+    \n:global smssend; :set smssend\r\
+    \n:global modeminfo; :set modeminfo\r\
+    \n:global globalvarlist; :set globalvarlist\r\
+    \n   \r\
+    \n  :if (\$1=\"all\") do={\r\
+    \n:global satlist; :set satlist \r\
     \n:global FuncPing; :set FuncPing; \r\
-    \n:global FuncMail; :set FuncMail;\r\
-    \n:global FuncSMSsend; :set FuncSMSsend;\r\
     \n:global FuncSchedFuncAdd; :set FuncSchedFuncAdd;\r\
     \n:global FuncSchedScriptAdd; :set FuncSchedScriptAdd;\r\
     \n:global FuncSchedRemove; :set FuncSchedRemove;\r\
     \n:global FuncUnixTimeToFormat; :set FuncUnixTimeToFormat;\r\
     \n:global FuncEpochTime; :set FuncEpochTime;\r\
-    \n:global FuncSATMirror; :set FuncSATMirror;\r\
     \n:global FuncTelegramSender; :set FuncTelegramSender;\r\
-    \n:global fMirror; :set fMirror;\r\
-    \n:global broadCast; :set broadCast;\r\
     \n}\r\
-    \n:global FuncSATClear; :set FuncSATClear\r\
-    \n:global SATClear; :set SATClear\r\
+    \n:global satclear; :set satclear\r\
+    \n:global tlgrmcmd; :if (any \$tlgrmcmd) do={:local arCom [:toarray {\"satstart\"=\"\F3\F1\F2\E0\ED\EE\E2\EA\E0 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8 SATELLITE \E2 \EE\EA\F0\F3\E6\E5\ED\E8\E5\"}];\r\
+    \n:log warning (\"list of commands of the SATELLITE library in the Telegram chatbot erase is \$[\$tlgrmcmd \$arCom]\")}\r\
     \n        :put  (\"\$[/system identity get name]\".\" \$0 unload\")\r\
     \n        :return (\"library \$0 \".\" is unload\")\r\
     \n }\r\
     \n}\r\
     \n\r\
     \n:log info \"  -    SATELLITE2 module is set\""
-/system script add comment="module 3 SATELLITE for TLGRM" dont-require-permissions=no name=SATELLITE3 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#------------------------------------------------------------------------------------------------------------------------\r\
-    \n# SATELLITE3 module  for TLGRM version 1.8 by Sertik (Serkov S.V.) 24/04/2022\r\
-    \n#------------------------------------------------------------------------------------------------------------------------\r\
+/system script add comment="module 1 SATELLITE for TLGRM" dont-require-permissions=no name=SAT1 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#--------------------------------------------------------------------------------------------------------------------------\r\
+    \n# SATELLITE1 module  for TLGRM version 2.2 by Sertik (Serkov S.V.) 25/10/2022\r\
+    \n#--------------------------------------------------------------------------------------------------------------------------\r\
+    \n\r\
+    \n# declare functions:\r\
+    \n\r\
+    \n:global arp\r\
+    \n:global address\r\
+    \n:global backup\r\
+    \n:global status\r\
+    \n:global vpn \r\
+    \n:global vpnuser\r\
+    \n:global wifi \r\
+    \n:global wifireg \r\
+    \n:global wifiaccess\r\
+    \n:global wifipass\r\
+    \n:global scriptlist\r\
+    \n:global funclist\r\
+    \n:global schedlist\r\
+    \n:global globalvarlist\r\
+    \n\r\
+    \n\r\
+    \n#\r\
+    \n#   \CA\CE\CC\C0\CD\C4\DB \C1\C8\C1\CB\C8\CE\D2\C5\CA\C8 SATELLITE\r\
+    \n#\r\
+    \n\r\
+    \n# arp tabl - > Telegram\r\
+    \n# ---\r\
+    \n:set arp do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:local TXTarp\r\
+    \n:global Emoji\r\
+    \n:global FuncTelegramSender\r\
+    \n:local count 0\r\
+    \n:local WS\r\
+    \n:local TT\r\
+    \nforeach i in=[ /ip arp find] do={\r\
+    \n:local active [/ip arp get \$i disabled]\r\
+    \n:if (\$active) do={:set WS \"enable\"; :set TT \"%F0%9F%94%B4\"} else={:set WS \"disable\"; :set TT \"%F0%9F%94%B5\"}\r\
+    \n:local ipARPaddress [/ip arp get \$i address];\r\
+    \n:local ipARPmacaddress [/ip arp get \$i mac];\r\
+    \n:local ARPface [/ip arp get \$i interface];\r\
+    \n:local ARPcomment [/ip arp get \$i comment];\r\
+    \n:if ([:len \$ipARPmacaddress]!=0) do={:set count (\$count+1); :set \$TXTarp (\"\$TXTarp\".\"\$count \".\"\$TT \".\"\$ipARPaddress \".\" \$ipARPmacaddress \".\" \$ARPface \".\" \$ARPcomment\".\"%0A\")\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$[/system identity get name]\".\" arp tabl:\".\"%0A\".\"\$TXTarp\")]\r\
+    \n:return \$count\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n# ip addresses tabl - > Telegram\r\
+    \n# ----\r\
+    \n:set address do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:global Emoji\r\
+    \n:global FuncTelegramSender\r\
+    \n:local system [/system identity get name]\r\
+    \n:local WS\r\
+    \n:local listAL\r\
+    \n:local TT\r\
+    \n:local count 0\r\
+    \n\r\
+    \n:foreach AddrList in=[/ip address find true] do={\r\
+    \n:local Aname [/ip address get \$AddrList]\r\
+    \n:local Aadr (\$Aname->\"address\")\r\
+    \n:local Acomment (\$Aname->\"comment\")\r\
+    \n:local Anetwork (\$Aname->\"network\")\r\
+    \n:local Aface (\$Aname->\"actual-interface\")\r\
+    \n:local WsState [/ip address get \$AddrList disabled]\r\
+    \n:if (\$WsState) do={:set WS \"enable\"; :set TT \"%F0%9F%94%B4\"} else={:set WS \"disable\"; :set TT \"%F0%9F%94%B5\"}\r\
+    \n:set count (\$count+1)\r\
+    \n:set listAL (\"\$listAL\".\"\$count\".\" \$TT\".\" \$Aadr\".\" \$Acomment\".\" \$Anetwork\".\" \$Aface\".\"%0A\")\r\
+    \n}\r\
+    \n:if ([:len \$listAL]!=0) do={\r\
+    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$system\".\" /ip address :%0A\".\"\$listAL\")]\r\
+    \n   }\r\
+    \n :return \$count\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n# backup  - > Telegram\r\
+    \n# ---\r\
+    \n:set backup do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n# send or no send on E-mail\r\
+    \n:local mailsend false\r\
+    \n:global ADMINMAIL;  \r\
+    \n:local mailBox \$ADMINMAIL;  \r\
+    \n\r\
+    \n:log warning \"Starting Backup Script...\";\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local sysver [/system package get system version];\r\
+    \n:log info \"Flushing DNS cache...\";\r\
+    \n/ip dns cache flush;\r\
+    \n:delay 2;\r\
+    \n:log info \"Deleting last Backups...\";\r\
+    \n:foreach i in=[/file find] do={:if (([:typeof [:find [/file get \$i name] \\\r\
+    \n\"\$sysname-backup-\"]]!=\"nil\") or ([:typeof [:find [/file get \$i name] \\\r\
+    \n\"\$sysname-script-\"]]!=\"nil\")) do={/file remove \$i}};\r\
+    \n:delay 2;\r\
+    \n:local backupfile (\"\$sysname-backup-\" . \\\r\
+    \n[:pick [/system clock get date] 7 11] . [:pick [/system \\\r\
+    \nclock get date] 0 3] . [:pick [/system clock get date] 4 6] . \".backup\");\r\
+    \n:log warning \"Creating new Full Backup file...\$backupfile\";\r\
+    \n/system backup save name=\$backupfile;\r\
+    \n:delay 5;\r\
+    \n:local exportfile (\"\$sysname-backup-\" . \\\r\
+    \n[:pick [/system clock get date] 7 11] . [:pick [/system \\\r\
+    \nclock get date] 0 3] . [:pick [/system clock get date] 4 6] . \".rsc\");\r\
+    \n:log warning \"Creating new Setup Script file...\$exportfile\";\r\
+    \n/export verbose file=\$exportfile;\r\
+    \n:delay 5;\r\
+    \n:local scriptfile (\"\$sysname-script-\" . \\\r\
+    \n[:pick [/system clock get date] 7 11] . [:pick [/system \\\r\
+    \nclock get date] 0 3] . [:pick [/system clock get date] 4 6] . \".rsc\");\r\
+    \n:log warning \"Creating new file export all scripts ...\$scriptfile\";\r\
+    \n/system script export file=\$scriptfile;\r\
+    \n:delay 2;\r\
+    \n:log warning \"All System Backups and export all Scripts created successfully.\\nBackuping completed.\";\r\
+    \n\r\
+    \nif (\$mailsend) do={\r\
+    \n:log warning \"Sending Setup Script file via E-mail...\";\r\
+    \n:local smtpserv [:resolve \"smtp.mail.ru\"];\r\
+    \n:local Eaccount [/tool e-mail get user];\r\
+    \n:local pass [/tool e-mail get password];\r\
+    \n/tool e-mail send from=\"<\$Eaccount>\" to=\$mailBox server=\$smtpserv \\\r\
+    \nport=587 user=\$Eaccount password=\$pass tls=starttls file=(\$backupfile, \$exportfile, \$scriptfile) \\\r\
+    \nsubject=(\"\$sysname Setup Script Backup (\" . [/system clock get date] . \\\r\
+    \n\")\") body=(\"\$sysname Setup Script file see in attachment.\\nRouterOS \\\r\
+    \nversion: \$sysver\\nTime and Date stamp: \" . [/system clock get time] . \" \\\r\
+    \n\" . [/system clock get date]);\r\
+    \n:log warning \"Setup Script file e-mail send\";\r\
+    \n:delay 5;\r\
+    \n  }\r\
+    \n:return \"backup is done\"\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n# all resurces - > Telegram\r\
+    \n# ---\r\
+    \n:set status do={\r\
+    \n  :if ([:len \$0]!=0) do={\r\
+    \n    :global Emoji;\r\
+    \n    :global FuncTelegramSender\r\
+    \n    :local systemName       [/system identity get name];\r\
+    \n    :local uptime           [/system resource get uptime];\r\
+    \n    :local FreeMemory       [/system resource get free-memory];\r\
+    \n    :local TotalMemory      [/system resource get total-memory];\r\
+    \n    :local cpu              [/system resource get cpu];\r\
+    \n    :local cpuCount         [/system resource get cpu-count];\r\
+    \n    :local cpuFrequency     [/system resource get cpu-frequency];\r\
+    \n    :local cpuLoad          [/system resource get cpu-load];\r\
+    \n    :local freeHdd          [/system resource get free-hdd-space];\r\
+    \n    :local totalHdd         [/system resource get total-hdd-space];\r\
+    \n    :local architectureName [/system resource get arch]\r\
+    \n#  :local license          [/system license get level];\r\
+    \n    :local boardName        [/system resource get board-name];\r\
+    \n    :local version          [/system resource get version];\r\
+    \n\r\
+    \n:local TXT (\"\$Emoji \".\"\$systemName\".\" status:\".\"%0A\".\"Uptime: \".\"\$uptime\".\"%0A\".\"Free Memory: \".\"\$FreeMemory\".\" B\".\"%0A\".\"Total Memory: \".\"\$TotalMemory\".\" B\".\"%0A\".\"CPU \". \"\$cpu\".\"%0A\".\"CPU Count: \".\"\$cpuCount\".\"%0A\".\"CPU Frequency: \".\"\$cpuFrequency\".\"MHz\".\"%0A\".\"CPU Load: \".\"\$cpuLoad\".\"% \".\"%0A\".\"Free HDD Space \".\"\$freeHdd\".\" B \".\"%0A\".\"Total HDD Space: \".\"\$totalHdd\".\" B\".\"%0A\".\"Architecture: \".\"\$architectureName \".\"%0A\".\"License Level: \".\"\$license\".\"%0A\".\"Board Name:  \".\"\$boardName\".\" %0A\".\"Version: \". \"\$version\")\r\
+    \n:do {\r\
+    \n[\$FuncTelegramSender \$TXT]\r\
+    \n} on-error={}\r\
+    \n:return [];\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n# function VPN-tonnel scanning & Telegram chat send\r\
+    \n\r\
+    \n:set vpn do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n# used: [\$FuncTonnel \"tonnelType\"]\r\
+    \n:local FuncTonnel do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:global Emoji\r\
+    \n:global FuncTelegramSender\r\
+    \n:local system [/system identity get name]\r\
+    \n:local count 0\r\
+    \n:local Cto\r\
+    \n:local listVpn\r\
+    \n:foreach Vpn in=[[:parse \"[/interface \$1 find]\"]] do={\r\
+    \n  :local TT \"%F0%9F%94%B5\"\r\
+    \n  :local nameVpn [[:parse \"[/interface \$1 get \$Vpn name]\"]]\r\
+    \n  :local commentVpn [[:parse \"[/interface \$1 get \$Vpn comment]\"]]\r\
+    \n  :local typeVpn [:pick [/interface get \$nameVpn type] ([:find [/interface get \$nameVpn type] \"-\"]+1) [:len [/interface get \$nameVpn type]]]\r\
+    \n  :if (\$typeVpn=\"out\") do={:set Cto (\"connect to \".\"\$[[:parse \"[/interface \$1 get \$nameVpn connect-to]\"]]\")} else={:set Cto \"\"}\r\
+    \n  :local VpnState [[:parse \"[/interface \$1 monitor \$Vpn once as-value]\"]]\r\
+    \n  :local cuVpnStatus (\$VpnState->\"status\")\r\
+    \n  :local ladr (\$VpnState->\"local-address\")\r\
+    \n  :local radr (\$VpnState->\"remote-address\")\r\
+    \n  :local uptime (\$VpnState->\"uptime\")\r\
+    \n\r\
+    \n    :if (\$cuVpnStatus~\"terminating\") do={\r\
+    \n    :set cuVpnStatus \"disabled\";  set TT \"\"}\r\
+    \n    :if ([:typeof \$cuVpnStatus]=\"nothing\") do={\r\
+    \n    :set cuVpnStatus \"disconnected\";  set TT \"%F0%9F%94%B4\"}\r\
+    \n    :if (\$cuVpnStatus=\"disabled\") do={ :set TT \"%F0%9F%94%B3\"}\r\
+    \n  :set count (\$count+1)\r\
+    \n :if ((\$cuVpnStatus=\"disconnected\") or (\$cuVpnStatus=\"disabled\")) do={\r\
+    \n  :set listVpn (\$listVpn.\"\".\$count. \" \".\$TT.\" \".\$nameVpn.\" \".\$commentVpn.\": \".\$cuVpnStatus.\"%0A\")\r\
+    \n} else={:set listVpn (\"\$listVpn\".\"\$count\".\" \$TT\".\" \$nameVpn\".\" \$commentVpn:\".\" \$cuVpnStatus\".\" uptime: \".\"\$uptime\".\"%0A\".\"          \$Cto\".\" local-address: \".\"\$ladr\".\" remote-address: \".\"\$radr\".\"%0A\")}\r\
+    \n}\r\
+    \n:if ([:len \$listVpn]!=0) do={:global xcount; :set xcount (\$xcount+1)\r\
+    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$system\".\" \$1:%0A\".\"\$listVpn\")]\r\
+    \n }\r\
+    \n}\r\
+    \n:return \$count}\r\
+    \n\r\
+    \n\r\
+    \n# main block of the script\r\
+    \n:global Emoji\r\
+    \n:global FuncTelegramSender\r\
+    \n[\$FuncTelegramSender (\"<b>\".\"\$Emoji \".\" \$system\".\" --- VPN Interface Informer --- : </b> %0A %0A\") \"html\"]\r\
+    \n:log info \"\"\r\
+    \n:log warning (\"\$system\".\"VPN Interface Informer script is start up ... \")\r\
+    \n:global xcount 0\r\
+    \n[\$FuncTonnel \"l2tp-client\"]\r\
+    \n[\$FuncTonnel \"l2tp-server\"]\r\
+    \n[\$FuncTonnel \"pptp-client\"]\r\
+    \n[\$FuncTonnel \"pptp-server\"]\r\
+    \n[\$FuncTonnel \"ovpn-client\"]\r\
+    \n[\$FuncTonnel \"ovpn-server\"]\r\
+    \n[\$FuncTonnel \"sstp-client\"]\r\
+    \n[\$FuncTonnel \"sstp-server\"]\r\
+    \n:if (\$xcount=0) do={[\$FuncTelegramSender (\"<b>\".\"\$Emoji \".\" \$system\".\" --- No find PPP VPN Interface  --- : </b> %0A %0A\") \"html\"]}\r\
+    \n# [\$FuncTonnel \"ppp-client\"]\r\
+    \n# [\$FuncTonnel \"ppp-server\"]\r\
+    \n# [\$FuncTonnel \"pppoe-client\"]\r\
+    \n# [\$FuncTonnel \"pppoe-server\"]\r\
+    \n:set xcount\r\
+    \n\r\
+    \n:log warning \"VPN Interface Informer scanning is done and Telegram chat send\"\r\
+    \n:return \"done\"\r\
+    \n}}\r\
+    \n\r\
+    \n\r\
+    \n# print vpnuser seckret & active vpn user`s - > Telegram\r\
+    \n# \E2\E5\F0\F1\E8\FF 01.10.2021\r\
+    \n# ---\r\
+    \n:set vpnuser do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:local name;\r\
+    \n:local enc;\r\
+    \n:local addr;\r\
+    \n:local ltu;\r\
+    \n:local pass;\r\
+    \n:local type;\r\
+    \n:local vpnuser\r\
+    \n:local vpnuserT\r\
+    \n:local vpnuserL\r\
+    \n:local vpnuserTlg\r\
+    \n:local calc\r\
+    \n:global ADMINPHONE\r\
+    \n:global Emoji\r\
+    \n\r\
+    \n\r\
+    \n#:log warning \"\CD\E0\F1\F2\F0\EE\E5\ED\ED\FB\E5 VPN-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8:\"\r\
+    \n\r\
+    \n:foreach i in=[/ppp secret find] do={\r\
+    \n:set name [/ppp secret get \$i name]; :set pass [/ppp secret get \$name password]; set type [/ppp secret get \$i service]\r\
+    \n:set calc (\$calc+1); \r\
+    \n# :log info (\"\$calc \".\"\$name\".\" [\".\" \$type\".\"]\".\" \$pass\");\r\
+    \n:set vpnuser (\"\$vpnuser\".\"\$calc\".\"  \$name\".\"  <\".\" \$type \".\">\".\" \$pass\".\"%0A\");\r\
+    \n}\r\
+    \n\r\
+    \n# :log warning \$calc; :log info \"\";\r\
+    \n:do {\r\
+    \n:global FuncTelegramSender; [\$FuncTelegramSender (\"\$Emoji \".\"* \$[/system identity get name]*\".\" VPN-users name, type and password set:\".\"%0A------------------------------------------------------------------------------------%0A\".\"\$vpnuser\") \"markdown\"]\r\
+    \n} on-error={:log error \"Error send to Telegram message\"}\r\
+    \n\r\
+    \n:set vpnuser;\r\
+    \n:set calc\r\
+    \n\r\
+    \n#:log warning \"\CF\EE\E4\EA\EB\FE\F7\E5\ED\ED\FB\E5 VPN-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8:\"\r\
+    \n\r\
+    \n:foreach i in=[/ppp active find] do={\r\
+    \n:set \$name [/ppp active get \$i name]; :set \$type [/ppp active get \$i service]; :set \$enc [/ppp active get \$i encoding]; :set \$addr [/ppp active get \$i address]; :set \$ltu [/ppp active get \$i uptime]\r\
+    \n# :log info (\"\$name\".\" [\".\"\$type\".\"]\".\" \$enc\".\" \$addr\");\r\
+    \n:set \$vpnuser (\"\$vpnuser\".\"\$name\".\"\\n\");\r\
+    \n:set vpnuserTlg (\"\$vpnuserTlg\".\"\$name\".\"  {\".\"\$type\".\"}\".\" \$addr\". \" uptime: \$ltu\".\"%0A\");\r\
+    \n}\r\
+    \n\r\
+    \n:set calc [:len [/ppp active find]]\r\
+    \n\r\
+    \ndo {\r\
+    \n:local SMSdevice [/tool sms get port];\r\
+    \n/tool sms send \$SMSdevice  phone=\$ADMINPHONE message=(\"active VPN-users \".\"\$calc\".\":\".\"\\n\".\"\$vpnuser\");\r\
+    \n} on-error={:log error \"Error send SMS message\"}\r\
+    \n\r\
+    \ndo {\r\
+    \n:global FuncTelegramSender;\r\
+    \n[\$FuncTelegramSender (\"\$Emoji \".\"* \$[/system identity get name]*\".\" VPN-active\". \" \$calc\".\" users: \".\"%0A-----------------------------------------------------------------------%0A\".\"\$vpnuserTlg\") \"markdown\"]\r\
+    \n} on-error={:log error \"Error send to Telegram message\"}\r\
+    \n  :return \$calc\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n# print wifi Interfaces, SSID and Band to Telegram\r\
+    \n# \E2\E5\F0\F1\E8\FF 06.03.2022\r\
+    \n# ---\r\
+    \n:set wifi do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:global Emoji\r\
+    \n:global FuncTelegramSender\r\
+    \n:local system [/system identity get name]\r\
+    \n:local WS\r\
+    \n:local listWS\r\
+    \n:local logWS\r\
+    \n:local TT\r\
+    \n:local count 0\r\
+    \n\r\
+    \n:foreach wirelessClient in=[/interface wireless find true] do={\r\
+    \n:local WsName [/interface get \$wirelessClient name]\r\
+    \n:local WsComment [/interface get \$wirelessClient comment]\r\
+    \n:local WsSID [/interface wireless get \$wirelessClient ssid] \r\
+    \n:local WsBand [/interface wireless get \$wirelessClient band] \r\
+    \n:local WsMode [/interface wireless get \$wirelessClient mode] \r\
+    \n:local WsState (![/interface get \$wirelessClient disabled])\r\
+    \n:local WsProf  [/interface wireless get \$wirelessClient security-profile]\r\
+    \n:local Ws2Key [/interface wireless security-profiles get \$WsProf wpa2-pre-shared-key];\r\
+    \n:if ([:len \$WsBand]=0) do={:set WsMode \"virtual wifi\"}\r\
+    \n:if (\$WsState) do={:set WS \"enable\"; :set TT \"%F0%9F%94%B5\"} else={:set WS \"disable\"; :set TT \"%F0%9F%94%B4\"}\r\
+    \n# :local WD [/interface monitor \$wirelessClient once as-value]\r\
+    \n:set count (\$count+1)\r\
+    \n:set listWS (\"\$listWS\".\"\$count\".\" \$TT\".\" \$WsName\".\" \$WsComment\".\" [ \$WsMode ]\".\" SSID:\".\" \$WsSID\".\" \$WsBand\".\"%0A\")\r\
+    \n:set logWS (\"\$logWS\".\"\$count\".\" \$WsSID \".\"\$Ws2Key\".\"\\n\")\r\
+    \n}\r\
+    \n\r\
+    \n:if ([:len \$listWS]!=0) do={\r\
+    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$system\".\" wifi interface and SSID:%0A\".\"\$listWS\")]\r\
+    \n   }\r\
+    \n :return \$logWS;\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n# wifiaccess tabl to Telegram\r\
+    \n# ---\r\
+    \n:set wifiaccess do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:global Emoji\r\
+    \n:global FuncTelegramSender\r\
+    \n:local identity [/system identity get name]\r\
+    \n:local count\r\
+    \n:local output;\r\
+    \n:foreach activeIndex in=[/interface wireless access find true] do={\r\
+    \n      :set count (\$count+1);\r\
+    \n              :local RegVal [/interface wireless access get \$activeIndex]\r\
+    \n                :local iFace (\$RegVal->\"interface\")\r\
+    \n                :local MACAddr (\$RegVal->\"mac-address\")\r\
+    \n                :local comment (\$RegVal->\"comment\")\r\
+    \n                :local time (\$RegVal->\"time\")\r\
+    \n     :if (\$RegVal->\"disabled\") do={\r\
+    \n             :set output (\"\$output\".\"\$count\".\" %F0%9F%94%B4 \".\" \$comment\".\" \$iFace\".\" \$MACAddr\".\" \$time\".\"%0A\");\r\
+    \n} else={ :set output (\"\$output\".\"\$count\".\" %F0%9F%94%B7  \".\" \$comment\".\" \$iFace\".\" \$MACAddr\".\" \$time\".\"%0A\");}\r\
+    \n\r\
+    \n          }\r\
+    \n\r\
+    \nif ([:len \$output] >0) do={[\$FuncTelegramSender (\"\$Emoji\".\" *Router\".\" \$identity\".\" wireless access-tabl:*\".\"%0A\".\"-------------------------------------------------------------------------------------------------------------- \".\"%0A\".\"\$output\") \"markdown\"]\r\
+    \n} else={[\$FuncTelegramSender (\"\$Emoji\".\" *Router\".\" \$identity\".\" wireless access-tabl is empty*\") \"markdown\"]}\r\
+    \n  :return \$count;\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n# wifi users registry tabl - > Telegram\r\
+    \n# ---\r\
+    \n:set wifireg do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:global Emoji;\r\
+    \n:global botID;\r\
+    \n:global myChatID;\r\
+    \n:global FuncTelegramSender\r\
+    \n:local count\r\
+    \n:local identity [/system identity get name];\r\
+    \n\r\
+    \n:local output;\r\
+    \n:foreach activeIndex in=[/interface wireless registration-table find] do={\r\
+    \n            :if ([:typeof \$activeIndex]!=\"nothing\") do={\r\
+    \n                         :local WifiFace [/interface wireless registration-table get value-name=\"interface\" \$activeIndex];\r\
+    \n                         :local WifiComment [/interface wireless registration-table get value-name=\"comment\" \$activeIndex];\r\
+    \n                         :local activeMACAddr [/interface wireless registration-table get value-name=\"mac-address\" \$activeIndex];\r\
+    \n                         :local activeIPadr [/interface wireless registration-table get value-name=\"last-ip\" \$activeIndex];\r\
+    \n                         :local WSignal [/interface wireless registration-table get value-name=\"signal-strength\" \$activeIndex];\r\
+    \n                         :set count (\$count+1)\r\
+    \n                         :set output (\"\$output\".\"\$count\".\"  \$WifiFace\".\" \$activeMACAddr \".\"\$activeIPadr\".\" \$WifiComment\".\"%0A\".\"      signal strength: \".\"\$WSignal\".\"%0A\");\r\
+    \n                  }\r\
+    \n          }\r\
+    \n\r\
+    \nif ([:len \$output] >0) do={[\$FuncTelegramSender (\"\$Emoji\".\" <b>Router  \$identity wireless registration-tabl:</b>\".\"%0A\".\" \$output1\") \"html\"]\r\
+    \n} else={[\$FuncTelegramSender (\"\$Emoji\".\" <b>Router  \$identity wireless registration-tabl: is empty</b>\") \"html\"]}\r\
+    \n:return \$count;\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n# wifi SSID & pass - > Telegram and SMS \$ADMINPHONE\r\
+    \n# ---\r\
+    \n:set wifipass do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:global Emoji\r\
+    \n:global FuncTelegramSender\r\
+    \n:global ADMINPHONE\r\
+    \n:global FuncWifi\r\
+    \n:local SMSmessage [\$FuncWifi]\r\
+    \n:log warning (\"\\n\".\"Router \".\"\$[/system identity get name]\".\" wlan SSID and passwords:\".\"\\n\".\"\$SMSmessage\")\r\
+    \ndo {\r\
+    \n:local SMSdevice [/tool sms get port];\r\
+    \n /tool sms send \$SMSdevice  phone=\$ADMINPHONE message=(\"Router \".\"\$[/system identity get name]\".\" wifi:\".\"\\n\".\"\$SMSmessage\")\r\
+    \n} on-error={:log error \"Error send SMS message\"}\r\
+    \n   :return [];\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n# function scriptlist ->Telegram\r\
+    \n# ---\r\
+    \n:set scriptlist do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:global Emoji; :global FuncTelegramSender; :global GroupChat; :global broadCast;\r\
+    \n:local Router [/system identity get name]\r\
+    \n:local ScriptArray [:toarray \"\"]; :local CommentArray [:toarray \"\"]\r\
+    \n:local nlist 900\r\
+    \n:local name\r\
+    \n:local comment\r\
+    \n:local count 0\r\
+    \n:if (([:len \$1]>0) and (\$1!=\"fastcall\")) do={:return \"Function \$0 bad parametr \$1\"}\r\
+    \n\r\
+    \n# seek all scripts or ONLY which can be launched from the chat !\r\
+    \n:if (\$1=\"fastcall\") do={\r\
+    \n:foreach i in=[system script find] do={\r\
+    \n:if (([:len [:find [/system script get \$i name] \"_\"]]=0) && ([:len [:find [/system script get \$i name] \" \"]]=0)) do={\r\
+    \n:set \$name [/system script get \$i name]; set comment [/system script get \$i comment]\r\
+    \n:set (\$ScriptArray->\$count) \$name; :set (\$CommentArray->\$count) \$comment;:set count (\$count+1);}\r\
+    \n }\r\
+    \n} else={\r\
+    \n:foreach i in=[system script find] do={\r\
+    \n:set \$name [/system script get \$i name]; set comment [/system script get \$i comment]\r\
+    \n:set (\$ScriptArray->\$count) \$name; :set (\$CommentArray->\$count) \$comment;:set count (\$count+1);}\r\
+    \n}\r\
+    \n\r\
+    \n:local a \"\"; :local b; :local c; :local d;\r\
+    \n:local block 0\r\
+    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\"); :set \$d (\"\$CommentArray\"->\"\$i\");:set b (\$i+1)\r\
+    \n\r\
+    \n# \F3\F7\E8\F2\FB\E2\E0\F2\FC \F4\EB\E0\E3 \F0\E5\E6\E8\EC\E0 \F8\E8\F0\EE\EA\EE\E2\E5\F9\E0\F2\E5\EB\FC\ED\EE\E9 \F0\E0\F1\F1\FB\EB\EA\E8\r\
+    \n:if (!\$broadCast) do={:set a (\"\$a\".\"\$b \".\"/\".\"\$Router\".\"_\".\"\$c\$GroupChat\".\" \$d\".\"%0A\")} else={:set a (\"\$a\".\"\$b \".\"/\".\"\$c\".\" \$d\".\"%0A\")}\r\
+    \n\r\
+    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
+    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
+    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository script list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
+    \n:set a \"\";\r\
+    \n  }\r\
+    \n}\r\
+    \n:set block (\$block+1)\r\
+    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
+    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository script list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
+    \n  :return [:len \$ScriptArray]\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n# function funclist ->Telegram\r\
+    \n# ---\r\
+    \n:set funclist do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:global Emoji; :global FuncTelegramSender; :global broadCast; global GroupChat;\r\
+    \n:local Router [/system identity get name]\r\
+    \n:local ScriptArray [:toarray \"\"];\r\
+    \n:local ValArray [:toarray \"\"];\r\
+    \n:local nlist 900\r\
+    \n:local name\r\
+    \n:local val\r\
+    \n:local comment\r\
+    \n:local count 0\r\
+    \n\r\
+    \n# seek all global\r\
+    \n:foreach i in=[/system script environment find] do={:set \$name [/system script environment get \$i name]; \r\
+    \n:if (([/system script environment get \$i value]=\"(code\") or  ([:len [:find [/system script environment get \$i value] \"(eval\"]]>0)) do={\r\
+    \n:set (\$ScriptArray->\$count) \$name;\r\
+    \n:set count (\$count+1);\r\
+    \n}}\r\
+    \n:local a \"\"; :local b 0; :local c;\r\
+    \n:local block 0\r\
+    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\");\r\
+    \n:if ([:len \$c]!=0) do={\r\
+    \n\r\
+    \n# \F3\F7\E8\F2\FB\E2\E0\F2\FC \F4\EB\E0\E3 \F8\E8\F0\EE\EA\EE\E2\E5\F9\E0\F2\E5\EB\FC\ED\EE\E9 \F0\E0\F1\F1\FB\EB\EA\E8\r\
+    \n:if (!\$broadCast) do={:set b (\$b+1); :set a (\"\$a\".\" - \".\"\$b  \".\"/\".\"\$Router\".\"_\".\"\$c\$GroupChat\".\"%0A\")} else={:set b (\$b+1); :set a (\"\$a\".\" - \".\"\$b  \".\"/\".\"\$c \".\"%0A\")}\r\
+    \n\r\
+    \n}\r\
+    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
+    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
+    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment active Functions list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
+    \n:set a \"\";\r\
+    \n  }\r\
+    \n}\r\
+    \n:set block (\$block+1)\r\
+    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
+    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment active Functions list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
+    \n     :return \$count;\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n# function schedlist ->Telegram\r\
+    \n# ---\r\
+    \n:set schedlist do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:global Emoji; :global FuncTelegramSender;\r\
+    \n:local ScriptArray [:toarray \"\"]; :local CommentArray [:toarray \"\"]; :local StartTimeArray [:toarray \"\"]; :local IntervalArray [:toarray \"\"]; local StatusArray [:toarray \"\"];\r\
+    \n:local nlist 900\r\
+    \n:local count 0\r\
+    \n# seek all scheduler\r\
+    \n:foreach i in=[system scheduler find] do={\r\
+    \n:set (\$StatusArray->\$count) [/system scheduler get \$i disabled]\r\
+    \n:set (\$ScriptArray->\$count) [/system scheduler get \$i name]\r\
+    \n:set (\$CommentArray->\$count) [/system scheduler get \$i comment]\r\
+    \n:set (\$StartTimeArray->\$count) [/system scheduler get \$i \"start-time\"]\r\
+    \n:set (\$IntervalArray->\$count) [/system scheduler get \$i interval]\r\
+    \n:set count (\$count+1);}\r\
+    \n\r\
+    \n:local a \"\"; :local e; :local b; :local c; :local d; :local t; local v\r\
+    \n:local block 0\r\
+    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\"); :set \$d (\"\$CommentArray\"->\"\$i\"); set \$t (\"\$StartTimeArray\"->\"\$i\"); set \$v (\"\$IntervalArray\"->\"\$i\"); \r\
+    \n:if (\$StatusArray->\"\$i\") do={:set e \"%F0%9F%94%B4\"} else={:set e \"%F0%9F%94%B7\"}\r\
+    \n:set b (\$i+1);\r\
+    \n:set a (\"\$a\".\" \$e\".\" \$b\".\" \$c\".\" \$d\".\" [ \$t ]\".\" [ \$v ]\".\"%0A\")\r\
+    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
+    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
+    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] scheduler list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
+    \n:set a \"\";\r\
+    \n  }\r\
+    \n}\r\
+    \n:set block (\$block+1)\r\
+    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
+    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] scheduler list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
+    \n  :return [:len \$ScriptArray]\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n# function globalvarlist ->Telegram\r\
+    \n# ---\r\
+    \n:set globalvarlist do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:global Emoji; :global FuncTelegramSender;\r\
+    \n:local ScriptArray [:toarray \"\"];\r\
+    \n:local ValArray [:toarray \"\"];\r\
+    \n:local nlist 900\r\
+    \n:local name\r\
+    \n:local val\r\
+    \n:local comment\r\
+    \n:local count 0\r\
+    \n# seek all global\r\
+    \n:foreach i in=[/system script environment find] do={:set \$name [/system script environment get \$i name]; \r\
+    \n:if (([/system script environment get \$i value]!=\"(code\") and  ([:len [:find [/system script environment get \$i value] \"(eval\"]]!=1)) do={\r\
+    \n:set \$val [/system script environment get \$i value];} else={:set val; set name}\r\
+    \n:set (\$ScriptArray->\$count) \$name; :set (\$ValArray->\$count) \$val;\r\
+    \n:set count (\$count+1);\r\
+    \n}\r\
+    \n:local a \"\"; :local b 0; :local c; :local d;\r\
+    \n:local block 0\r\
+    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\"); :set \$d (\"\$ValArray\"->\"\$i\");\r\
+    \n:if ([:len \$c]!=0) do={:set b (\$b+1)\r\
+    \n:set a (\"\$a\".\" - \".\"\$b  \".\"\$c \".\"\$d\".\"%0A\")}\r\
+    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
+    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
+    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment Global var list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
+    \n:set a \"\";\r\
+    \n  }\r\
+    \n}\r\
+    \n:set block (\$block+1)\r\
+    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
+    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment Global var list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
+    \n         :return \$b;\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n:log info \"  -    SATELLITE1 module is set\"\r\
+    \n\r\
+    \n"
+/system script add comment="module 0 SATELLITE for TLGRM" dont-require-permissions=no name=SAT0 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#--------------------------------------------------------------------------------------------------------------------------\r\
+    \n# SATELLITE0 module  for TLGRM version 2.2 by Sertik (Serkov S.V.) 25/10/2022\r\
+    \n#--------------------------------------------------------------------------------------------------------------------------\r\
+    \n\r\
+    \n# declare functions:\r\
+    \n\r\
+    \n:global satlogo\r\
+    \n:global satlist\r\
+    \n\r\
+    \n\r\
+    \n# \E2\FB\E4\E0\F7\E0 \EB\EE\E3\EE\F2\E8\EF\E0 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8 \E2 \EB\EE\E3\r\
+    \n#              satlogo\r\
+    \n# ---------------------------------------------------------\r\
+    \n\r\
+    \n:set satlogo do={\r\
+    \n:if ([:len \$0]!=0) do={\r\
+    \n:global fSATversion\r\
+    \n:global GroupChat\r\
+    \n:log warning \"\";\r\
+    \n:log warning \"#-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-#\";\r\
+    \n:log warning \"#                 Library SATELLITE for TLGRM\" ;\r\
+    \n:log warning \"#   \C1\E8\E1\EB\E8\EE\F2\E5\EA\E0 \D1\CF\D3\D2\CD\C8\CA \E4\EB\FF \EF\E0\F0\F1\E5\F0\E0 TLGRM\";\r\
+    \n:log warning \"#       by Serkov S.V. (Sertik) update 25/10/2022\";\r\
+    \n:log warning \"#                                 version \$fSATversion\"; \r\
+    \n:log warning \"#-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-#\";\r\
+    \n:log error  (\"To display a list of commands, type in the your chat: \".\"/\");  \r\
+    \n:log info \"\";\r\
+    \n }\r\
+    \n:return []}\r\
+    \n\r\
+    \n\r\
+    \n# \F3\F1\F2\E0\ED\EE\E2\EA\E0 \F1\EF\E8\F1\EA\E0 \EA\EE\EC\E0\ED\E4-\F4\F3\ED\EA\F6\E8\E9 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8\r\
+    \n#                satlist \E2 \F7\E0\F2 \D2\E5\EB\E5\E3\F0\E0\EC\EC\r\
+    \n# -----------------------------------------------------------------------\r\
+    \n\r\
+    \n# update 25/10/2022 works only with function tlgrmcmd in TLGRM script\r\
+    \n\r\
+    \n# \$1 - key array list commands\r\
+    \n# \$2 - may be =\"identity\", \"forall\", []\r\
+    \n\r\
+    \n:set satlist do={\r\
+    \n# \F1\EA\F0\E8\EF\F2 \F3\F1\F2\E0\ED\EE\E2\EA\E8 \F1\EF\E8\F1\EA\E0 \EA\EE\EC\E0\ED\E4 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8 SATELLITE \E2 \F7\E0\F2\E1\EE\F2 \D2\E5\EB\E5\E3\F0\E0\EC\EC\r\
+    \n# the script for installing the list of commands of the SATELLITE library in the Telegram chatbot\r\
+    \n\r\
+    \n:global broadCast\r\
+    \n:global tlgrmcmd; :if (any \$tlgrmcmd) do={\r\
+    \n:local arrayCom [:toarray {\"arp\"=\"\F1\EF\E8\F1\EE\EA arp\";\r\
+    \n                                 \"address\"=\"\F1\EF\E8\F1\EE\EA ip addresses\";\r\
+    \n                                 \"backup\"=\"\F0\E5\E7\E5\F0\E2\ED\EE\E5 \EA\EE\EF\E8\F0\EE\E2\E0\ED\E8\E5 \EA\EE\ED\F4\E8\E3\F3\F0\E0\F6\E8\E8 \F0\EE\F3\F2\E5\F0\E0\";\r\
+    \n                                 \"lease\"=\"\F1\EF\E8\F1\EE\EA DHCP liase\";\r\
+    \n                                  \"report\"=\"\EE\F2\F7\E5\F2 \F1\F2\E0\F2\F3\F1\E0 \F0\EE\F3\F2\E5\F0\E0\";\r\
+    \n                                  \"status\"=\"\EF\E0\F0\E0\EC\E5\F2\F0\FB \F1\E8\F1\F2\E5\EC\FB\";\r\
+    \n                                  \"vpnuser\"=\"\ED\E0\F1\F2\F0\EE\E5\ED\ED\FB\E5 VPN-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8 \F1 \EF\E0\F0\EE\EB\FF\EC\E8\";\r\
+    \n                                   \"vpn\"=\"\F1\E5\F0\E2\E5\F0\FB \E8 \EA\EB\E8\E5\ED\F2\FB VPN \F0\EE\F3\F2\E5\F0\E0\";\r\
+    \n                                   \"wifi\"=\"wifi-\E8\ED\F2\E5\F0\F4\E5\E9\F1\FB \F0\EE\F3\F2\E5\F0\E0\";\r\
+    \n                                    \"wifireg\"=\"\E7\E0\F0\E5\E3\E8\F1\F2\F0\E8\F0\EE\E2\E0\ED\ED\FB\E5 \E2 \F1\E5\F2\E8 wifi-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8\";\r\
+    \n                                    \"wifiaccess\"=\"\F0\E0\E7\F0\E5\F8\E5\ED\ED\FB\E5 wifi-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8\";\r\
+    \n                                     \"wificonnect\"=\"wifi-\EA\EB\E8\E5\ED\F2\F1\EA\E8\E5 \F1\F2\E0\ED\F6\E8\E8\";\r\
+    \n                                     \"wifipass\"=\"\EF\E0\F0\EE\EB\E8 wifi-\F1\E5\F2\E8/\E5\E9\";\r\
+    \n                                      \"dhcpclient\"=\"\F0\EE\F3\F2\E5\F0-\EA\EB\E8\E5\ED\F2 DHCP\";\r\
+    \n                                      \"users\"=\"\ED\E0\F1\F2\F0\EE\E5\ED\ED\FB\E5 \E8 \E0\EA\F2\E8\E2\ED\FB\E5 \EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8 \F0\EE\F3\F2\E5\F0\E0\";\r\
+    \n                                     \"log\"=\"\E2\FB\E4\E0\F2\FC \F1\F2\F0\EE\EA\E8 \EB\EE\E3\E0 \E2 \D2\E5\EB\E5\E3\F0\E0\EC\EC\";\r\
+    \n                                     \"logreset\"=\"\EE\F7\E8\F1\F2\EA\E0 \EB\EE\E3\E0\";\r\
+    \n                                     \"pingpong\"=\"\EF\F0\EE\E2\E5\F0\EA\E0 \F5\EE\F1\F2\E0 \ED\E0 \EF\E8\ED\E3\";\r\
+    \n                                     \"mail\"=\"\F4\F3\ED\EA\F6\E8\FF \EE\F2\EF\F0\E0\E2\EA\E8 \EF\EE\F7\F2\FB\";\r\
+    \n                                      \"smssend\"=\"\EE\F2\EF\F0\E0\E2\EA\E0 SMS \F7\E5\F0\E5\E7 \EC\EE\E4\E5\EC \F0\EE\F3\F2\E5\F0\E0\";\r\
+    \n                                     \"modeminfo\"=\"\EF\EE\E8\F1\EA \E8 \EE\F2\F7\B8\F2 \EC\EE\E4\E5\EC\EE\E2 \F0\EE\F3\F2\E5\F0\E0\";\r\
+    \n                                      \"scriptlist\"=\"\F1\EF\E8\F1\EE\EA \F1\EA\F0\E8\EF\F2\EE\E2 \F0\EE\F3\F2\E5\F0\E0 \F1 \EA\EE\EC\EC\E5\F2\E0\F0\E8\FF\EC\E8\";\r\
+    \n                                      \"funclist\"=\"\F1\EF\E8\F1\EE\EA \E0\EA\F2\E8\E2\ED\FB\F5 \F4\F3\ED\EA\F6\E8\E9 \E2 Environment\"; \r\
+    \n                                       \"schedlist\"=\"\F1\EF\E8\F1\EE\EA \E7\E0\E4\E0\ED\E8\E9 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA\E0\"; \r\
+    \n                                       \"globalvarlist\"=\"\E3\EB\EE\E1\E0\EB\FC\ED\FB\E5 \EF\E5\F0\E5\EC\E5\ED\ED\FB\E5 \E8 \E8\F5 \E7\ED\E0\F7\E5\ED\E8\FF\"}]\r\
+    \n\r\
+    \n:if (\$broadCast) do={:log warning (\" list of commands of the SATELLITE library in the Telegram chatbot set is \".\"\$[\$tlgrmcmd \$arrayCom]\")} else={\r\
+    \n:log warning (\" list of commands of the SATELLITE library in the Telegram chatbot set is \".\"\$[\$tlgrmcmd \$arrayCom identity]\")}\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n\r\
+    \n:log info \"  -    SATELLITE0 module is set\"\r\
+    \n\r\
+    \n"
+/system script add comment="\F1\F2\E0\F0\F2\EE\E2\FB\E9 \F4\E0\E9\EB \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8 SATELLITE (\EA\EE\F0\EE\F2\EA\E8\E5 \EA\EE\EC\E0\ED\E4\FB)" dont-require-permissions=no name=SAT!start owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
+    \n# start SATELLITE Library functions for TLGRM by Serkov S.V. (Sertik) 25/10/2022 version 2.2\r\
+    \n#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
+    \n\r\
+    \n:global fSATversion \"2.2_special\"\r\
+    \n\r\
+    \n# user settings:\r\
+    \n\r\
+    \n:global Emoji \"%E2%9B%BA\";                                                                                                    # Router Emoji for Telegram;\r\
+    \n:global botID \"bot798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";          # you Telegram`s bot  ID;\r\
+    \n:global myChatID \"-1001798127067\";                                                                                              # you Telegram`s chat ID;\r\
+    \n:global ADMINPHONE;                    #:global ADMINPHONE \"+7910777777\";                                                                                    # admin phone number;\r\
+    \n:global ADMINMAIL ayugov@icloud.com;                                                                                             # admin e-mail;\r\
+    \n:global allowTlgrm true;                   # flag allow/bun run TLGRM; \r\
+    \n:local callTLGRM  00:00:10;            # circulation script TLGRM period;                                                                                                # period calling to script TLGRM;\r\
+    \n:global broadCast false;                     # \F0\E5\E6\E8\EC \E0\E4\F0\E5\F1\E0\F6\E8\E8 \EA\EE\EC\E0\ED\E4;                                                                                                      # broadCast flag;\r\
+    \n:global GroupChat;                           # \EF\EE\E4\E4\E5\F0\E6\EA\E0 \EA\EE\EC\E0\ED\E4 \E4\EB\FF \E3\F0\F3\EF\EF\EE\E2\EE\E3\EE \F7\E0\F2\E0 @;                                                                          # GroupChat Name or empty\r\
+    \n#                                                      #  \E5\F1\EB\E8 \ED\E5 \ED\F3\E6\E5\ED - \F2\E8\EF \"nil\" (\EF\F3\F1\F2), \E5\F1\EB\E8 \ED\F3\E6\E5\ED = \"@botName\";         \r\
+    \n:local SATSchedAdd true;              # \F4\EB\E0\E3 \E4\EE\E1\E0\E2\EB\E5\ED\E8\FF \E7\E0\E4\E0\ED\E8\FF \E2\FB\E7\EE\E2\E0 TLGRM \E2 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA;                                               # add to Scheduler flag;\r\
+    \n:global launchScr true;                     # Permission to execute scripts\r\
+    \n:global launchFnc true;                    # Permission to perform functions\r\
+    \n:global launchCmd true;                   # Permission to execute commands\r\
+    \n:local setSatList true;                         # \F3\F1\F2\E0\ED\E0\E2\EB\E8\E2\E0\F2\FC \E8\EB\E8 \ED\E5\F2 \F1\EF\E8\F1\EE\EA \EA\EE\EC\E0\ED\E4 \E2 \F7\E0\F2\E1\EE\F2 \EF\F0\E8 \F1\F2\E0\F0\F2\E5 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8\r\
+    \n\r\
+    \n:log info \"\"\r\
+    \n:log warning \"Running the SETUP library SATELLITE v. \$fSATversion 25-10-2022:\"\r\
+    \n:log info \"\"\r\
+    \n:local Trel do={:if ([:len \$0]!=0) do={\r\
+    \n:beep frequency=1760 length=67ms; :delay 77ms; :beep frequency=2093 length=67ms; :delay 77ms; :beep frequency=2637 length=67ms; :delay 77ms; :beep frequency=3520 length=268ms; :delay 278ms;}}\r\
+    \n\r\
+    \n/system script run SAT0; [\$Trel]\r\
+    \n/system script run SAT1; [\$Trel]\r\
+    \n/system script run SAT2; [\$Trel]\r\
+    \n/system script run SAT3; [\$Trel]\r\
+    \n\r\
+    \n:delay 1s\r\
+    \n:beep frequency=600 length=165ms; :delay 165ms; :beep frequency=700 length=275ms; :delay 275ms; :beep frequency=800 length=275ms; :delay 275ms; :beep frequency=900 length=110ms; :delay 110ms;\r\
+    \n\r\
+    \n:global FuncTelegramSender\r\
+    \n:global satlogo\r\
+    \n\r\
+    \n[\$satlogo]\r\
+    \n:delay 1s\r\
+    \n:do {\r\
+    \n[\$FuncTelegramSender (\"\$Emoji\".\" Router \".\"\$[/system identity get name]\".\" Satellite Script Library \$fSATversion is running ...\")]\r\
+    \n} on-error={}\r\
+    \n\r\
+    \n:if (\$SATSchedAdd) do={\r\
+    \n:if ([/system scheduler find name~\"Run script TLGRMcall\"]) do={/system scheduler remove [find name~\"Run script TLGRMcall\"]}\r\
+    \n:global FuncSchedScriptAdd\r\
+    \n:local Date [/system clock get date]\r\
+    \n\r\
+    \n:local ScriptAddTLGRM [\$FuncSchedScriptAdd TLGRMcall  \$Date startup \$callTLGRM];\r\
+    \n:delay 1s;\r\
+    \n:if (\$ScriptAddTLGRM=\"OK\") do={\r\
+    \n/system scheduler set [find name~\"Run script TLGRMcall\"] disabled=no;\r\
+    \n} else={:log error \$ScriptAddTLGRM}\r\
+    \n}\r\
+    \n\r\
+    \n:if (\$setSatList) do={\r\
+    \n:global satlist; [\$satlist]}\r\
+    \n#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
+    \n\r\
+    \n"
+/system script add comment="\EF\E0\F0\F1\E5\F0-\F3\E2\E5\E4\EE\EC\E8\F2\E5\EB\FC \E4\EB\FF \E1\EE\F2\EE\E2 \D2\E5\EB\E5\E3\F0\E0\EC\EC !!!" dont-require-permissions=no name=TLGRM owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# TLGRM - combined notifications script & launch of commands (scripts & functions) via Telegram\r\
+    \n# Script uses ideas by Sertik, Virtue, Pepelxl, Dimonw, -13-, Jotne, Alice Tails, Chupaka, drPioneer, Brook\r\
+    \n# https://forummikrotik.ru/viewtopic.php\?p=81945#p81945\r\
+    \n# tested on ROS 6.49.6\r\
+    \n# updated 2022/10/04 added support for function prefix Ros format: \$funcName or [\$funcName]\r\
+    \n# updated 2022/10/11 added support smile-commands\r\
+    \n# updated 2022/10/17 added ignore registre identity\r\
+    \n# updated 2022/10/25 added global functions tlgrmcmd and tlgrm for set command list in chatbot and set flags\r\
+    \n\r\
+    \n:global allowTlgrm;        # Flag allow run TLGRM (true - allow, false - ban)\r\
+    \n:global scriptTlgrm;        # Flag of the running script:   false=>in progress, true=>idle\r\
+    \n\r\
+    \n:if ([:typeof \$allowTlgrm]!=\"bool\") do={:set allowTlgrm true}\r\
+    \n:if (\$allowTlgrm) do={\r\
+    \n\r\
+    \n    :global Emoji; # router Emoji in chat\r\
+    \n    :global botID \r\
+    \n    :global myChatID\r\
+    \n    :global broadCast; # reception mode\r\
+    \n    :global launchScr;  # Permission to execute scripts\r\
+    \n    :global launchFnc;  # Permission to perform functions\r\
+    \n    :global launchCmd;  # Permission to execute commands\r\
+    \n\r\
+    \n:do {\r\
+    \n\r\
+    \n    # Function of searching comments for MAC-address\r\
+    \n    # https://forummikrotik.ru/viewtopic.php\?p=73994#p73994\r\
+    \n    :local FindMacAddr do={\r\
+    \n        :if (\$1~\"[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]\") do={\r\
+    \n            :foreach idx in=[/ip dhcp-server lease find disabled=no] do={\r\
+    \n                :local mac [/ip dhcp-server lease get \$idx mac-address];\r\
+    \n                :if (\$1~\"\$mac\") do={:return (\"\$1 [\$[/ip dhcp-server lease get \$idx address]/\$[/ip dhcp-server lease get \$idx comment]].\")};\r\
+    \n            }\r\
+    \n            :foreach idx in=[/interface bridge host find] do={\r\
+    \n                :local mac [/interface bridge host get \$idx mac-address];\r\
+    \n                :if (\$1~\"\$mac\") do={:return (\"\$1 [\$[/interface bridge host get \$idx on-interface]].\")};\r\
+    \n            }\r\
+    \n        }\r\
+    \n        :return (\$1);\r\
+    \n    }\r\
+    \n\r\
+    \n    # Function of converting CP1251 to UTF8\r\
+    \n    # https://forummikrotik.ru/viewtopic.php\?p=81457#p81457\r\
+    \n    :local CP1251toUTF8 do={\r\
+    \n        :local cp1251 [:toarray {\r\
+    \n            \"\\20\";\"\\01\";\"\\02\";\"\\03\";\"\\04\";\"\\05\";\"\\06\";\"\\07\";\"\\08\";\"\\09\";\"\\0A\";\"\\0B\";\"\\0C\";\"\\0D\";\"\\0E\";\"\\0F\";\\\r\
+    \n            \"\\10\";\"\\11\";\"\\12\";\"\\13\";\"\\14\";\"\\15\";\"\\16\";\"\\17\";\"\\18\";\"\\19\";\"\\1A\";\"\\1B\";\"\\1C\";\"\\1D\";\"\\1E\";\"\\1F\";\\\r\
+    \n            \"\\21\";\"\\22\";\"\\23\";\"\\24\";\"\\25\";\"\\26\";\"\\27\";\"\\28\";\"\\29\";\"\\2A\";\"\\2B\";\"\\2C\";\"\\2D\";\"\\2E\";\"\\2F\";\"\\3A\";\\\r\
+    \n            \"\\3B\";\"\\3C\";\"\\3D\";\"\\3E\";\"\\3F\";\"\\40\";\"\\5B\";\"\\5C\";\"\\5D\";\"\\5E\";\"\\5F\";\"\\60\";\"\\7B\";\"\\7C\";\"\\7D\";\"\\7E\";\\\r\
+    \n            \"\\C0\";\"\\C1\";\"\\C2\";\"\\C3\";\"\\C4\";\"\\C5\";\"\\C6\";\"\\C7\";\"\\C8\";\"\\C9\";\"\\CA\";\"\\CB\";\"\\CC\";\"\\CD\";\"\\CE\";\"\\CF\";\\\r\
+    \n            \"\\D0\";\"\\D1\";\"\\D2\";\"\\D3\";\"\\D4\";\"\\D5\";\"\\D6\";\"\\D7\";\"\\D8\";\"\\D9\";\"\\DA\";\"\\DB\";\"\\DC\";\"\\DD\";\"\\DE\";\"\\DF\";\\\r\
+    \n            \"\\E0\";\"\\E1\";\"\\E2\";\"\\E3\";\"\\E4\";\"\\E5\";\"\\E6\";\"\\E7\";\"\\E8\";\"\\E9\";\"\\EA\";\"\\EB\";\"\\EC\";\"\\ED\";\"\\EE\";\"\\EF\";\\\r\
+    \n            \"\\F0\";\"\\F1\";\"\\F2\";\"\\F3\";\"\\F4\";\"\\F5\";\"\\F6\";\"\\F7\";\"\\F8\";\"\\F9\";\"\\FA\";\"\\FB\";\"\\FC\";\"\\FD\";\"\\FE\";\"\\FF\";\\\r\
+    \n            \"\\A8\";\"\\B8\";\"\\B9\"}];\r\
+    \n        :local utf8 [:toarray {\r\
+    \n            \"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"000A\";\"0020\";\"0020\";\"000D\";\"0020\";\"0020\";\\\r\
+    \n            \"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\\\r\
+    \n            \"0021\";\"0022\";\"0023\";\"0024\";\"0025\";\"0026\";\"0027\";\"0028\";\"0029\";\"002A\";\"002B\";\"002C\";\"002D\";\"002E\";\"002F\";\"003A\";\\\r\
+    \n            \"003B\";\"003C\";\"003D\";\"003E\";\"003F\";\"0040\";\"005B\";\"005C\";\"005D\";\"005E\";\"005F\";\"0060\";\"007B\";\"007C\";\"007D\";\"007E\";\\\r\
+    \n            \"D090\";\"D091\";\"D092\";\"D093\";\"D094\";\"D095\";\"D096\";\"D097\";\"D098\";\"D099\";\"D09A\";\"D09B\";\"D09C\";\"D09D\";\"D09E\";\"D09F\";\\\r\
+    \n            \"D0A0\";\"D0A1\";\"D0A2\";\"D0A3\";\"D0A4\";\"D0A5\";\"D0A6\";\"D0A7\";\"D0A8\";\"D0A9\";\"D0AA\";\"D0AB\";\"D0AC\";\"D0AD\";\"D0AE\";\"D0AF\";\\\r\
+    \n            \"D0B0\";\"D0B1\";\"D0B2\";\"D0B3\";\"D0B4\";\"D0B5\";\"D0B6\";\"D0B7\";\"D0B8\";\"D0B9\";\"D0BA\";\"D0BB\";\"D0BC\";\"D0BD\";\"D0BE\";\"D0BF\";\\\r\
+    \n            \"D180\";\"D181\";\"D182\";\"D183\";\"D184\";\"D185\";\"D186\";\"D187\";\"D188\";\"D189\";\"D18A\";\"D18B\";\"D18C\";\"D18D\";\"D18E\";\"D18F\";\\\r\
+    \n            \"D001\";\"D191\";\"2116\"}];\r\
+    \n        :local convStr \"\"; \r\
+    \n        :local code \"\";\r\
+    \n        :for i from=0 to=([:len \$1]-1) do={\r\
+    \n            :local symb [:pick \$1 \$i (\$i+1)]; \r\
+    \n            :local idx [:find \$cp1251 \$symb];\r\
+    \n            :local key (\$utf8->\$idx);\r\
+    \n            :if ([:len \$key]!=0) do={\r\
+    \n                :set \$code (\"%\$[:pick (\$key) 0 2]%\$[:pick (\$key) 2 4]\");\r\
+    \n                :if ([pick \$code 0 3]=\"%00\") do={:set \$code ([:pick \$code 3 6])};\r\
+    \n            } else={:set code (\$symb)}; \r\
+    \n            :set \$convStr (\$convStr.\$code);\r\
+    \n        }\r\
+    \n        :return (\$convStr);\r\
+    \n    }\r\
+    \n\r\
+    \n# convert string to lowstring\r\
+    \n:local fsLowStr do={\r\
+    \n  :local fsLowerChar do={\r\
+    \n    :local \"fs_lower\" \"0123456789abcdefghijklmnopqrstuvwxyz\";\r\
+    \n    :local \"fs_upper\" \"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\";\r\
+    \n    :local pos [:find \$\"fs_upper\" \$1]\r\
+    \n      :if (\$pos > -1) do={:return [:pick \$\"fs_lower\" \$pos];}\r\
+    \n       :return \$1}\r\
+    \n:local result \"\"; :local in \$1\r\
+    \n  :for i from=0 to=([:len \$in] - 1) do={\r\
+    \n    :set result (\$result . [\$fsLowerChar [:pick \$in \$i]])}\r\
+    \n    :return \$result;\r\
+    \n}\r\
+    \n\r\
+    \n    # Telegram messenger response parsing function\r\
+    \n    # https://habr.com/ru/post/482802/\r\
+    \n    :local MsgParser do={\r\
+    \n        :local variaMod (\"\\\"\".\$2.\"\\\"\");\r\
+    \n        :if ([:len [:find \$1 \$variaMod -1]]=0) do={:return (\"'unknown'\")};\r\
+    \n        :local startLoc ([:find \$1 \$variaMod -1]+[:len \$variaMod]+1);\r\
+    \n        :local commaLoc ([:find \$1 \",\" \$startLoc]);\r\
+    \n        :local brakeLoc ([:find \$1 \"}\" \$startLoc]);\r\
+    \n        :local endLoc \$commaLoc;\r\
+    \n        :local startSymbol [:pick \$1 \$startLoc];\r\
+    \n        :if (\$brakeLoc!=0 and (\$commaLoc=0 or \$brakeLoc<\$commaLoc)) do={:set endLoc \$brakeLoc};\r\
+    \n        :if (\$startSymbol=\"{\") do={:set endLoc (\$brakeLoc+1)};\r\
+    \n        :if (\$3=true) do={:set startLoc (\$startLoc+1); :set endLoc (\$endLoc-1)};\r\
+    \n        :if (\$endLoc<\$startLoc) do={:set endLoc (\$startLoc+1)};\r\
+    \n        :return ([:pick \$1 \$startLoc \$endLoc]);\r\
+    \n    }\r\
+    \n\r\
+    \n    # Time translation function to UNIX-time\r\
+    \n    # https://forum.mikrotik.com/viewtopic.php\?t=75555#p790745\r\
+    \n    # Usage: \$EpochTime [time input]\r\
+    \n    # Get current time: put [\$EpochTime]\r\
+    \n    # Read log time in one of three format: \"hh:mm:ss\", \"mmm/dd hh:mm:ss\" or \"mmm/dd/yyyy hh:mm:ss\"\r\
+    \n    :local EpochTime do={\r\
+    \n        :local ds [/system clock get date];\r\
+    \n        :local ts [/system clock get time];\r\
+    \n        :if ([:len \$1]>19) do={:set ds \"\$[:pick \$1 0 11]\"; :set ts [:pick \$1 12 20]};\r\
+    \n        :if ([:len \$1]>8 && [:len \$1]<20) do={:set ds \"\$[:pick \$1 0 6]/\$[:pick \$ds 7 11]\"; :set ts [:pick \$1 7 15]};\r\
+    \n        :local yesterday false;\r\
+    \n        :if ([:len \$1]=8) do={\r\
+    \n            :if ([:totime \$1]>ts) do={:set yesterday (true)};\r\
+    \n            :set ts \$1;\r\
+    \n        }\r\
+    \n        :local months;\r\
+    \n        :if ((([:pick \$ds 9 11]-1)/4)!=(([:pick \$ds 9 11])/4)) do={\r\
+    \n            :set months {\"an\"=0;\"eb\"=31;\"ar\"=60;\"pr\"=91;\"ay\"=121;\"un\"=152;\"ul\"=182;\"ug\"=213;\"ep\"=244;\"ct\"=274;\"ov\"=305;\"ec\"=335};\r\
+    \n        } else={\r\
+    \n            :set months {\"an\"=0;\"eb\"=31;\"ar\"=59;\"pr\"=90;\"ay\"=120;\"un\"=151;\"ul\"=181;\"ug\"=212;\"ep\"=243;\"ct\"=273;\"ov\"=304;\"ec\"=334};\r\
+    \n        }\r\
+    \n        :set ds (([:pick \$ds 9 11]*365)+(([:pick \$ds 9 11]-1)/4)+(\$months->[:pick \$ds 1 3])+[:pick \$ds 4 6]);\r\
+    \n        :set ts (([:pick \$ts 0 2]*3600)+([:pick \$ts 3 5]*60)+[:pick \$ts 6 8]);\r\
+    \n        :if (yesterday) do={:set ds (\$ds-1)};\r\
+    \n        :return (\$ds*86400+\$ts+946684800-[/system clock get gmt-offset]);\r\
+    \n    }\r\
+    \n\r\
+    \n    # Time conversion function from UNIX-time\r\
+    \n    # https://forummikrotik.ru/viewtopic.php\?t=11636\r\
+    \n    # usage: [\$UnixTimeToFormat \"timeStamp\" \"type\"]\r\
+    \n    # type: \"unspecified\" - month/dd/yyyy <only>    (Mikrotik sheduller format)\r\
+    \n    #                   1 - yyyy/mm/dd hh:mm:ss\r\
+    \n    #                   2 - dd:mm:yyyy hh:mm:ss\r\
+    \n    #                   3 - dd month yyy hh mm ss\r\
+    \n    #                   4 - yyyy month dd hh mm ss\r\
+    \n    #                   5 - month/dd/yyyy-hh:mm:ss  (Mikrotik sheduller format)\r\
+    \n    :local UnixTimeToFormat do={\r\
+    \n        :local decodedLine \"\";\r\
+    \n        :local timeStamp \$1;\r\
+    \n        :local timeS (\$timeStamp%86400);\r\
+    \n        :local timeH (\$timeS/3600);\r\
+    \n        :local timeM (\$timeS%3600 /60);\r\
+    \n        :set  \$timeS (\$timeS-\$timeH*3600-\$timeM*60);\r\
+    \n        :local dateD (\$timeStamp/86400);\r\
+    \n        :local dateM 2;\r\
+    \n        :local dateY 1970;\r\
+    \n        :local leap false;\r\
+    \n        :while ((\$dateD/365)>0) do={\r\
+    \n            :set \$dateD (\$dateD-365);\r\
+    \n            :set \$dateY (\$dateY+1);\r\
+    \n            :set \$dateM (\$dateM+1);\r\
+    \n            :if (\$dateM=4) do={\r\
+    \n                :set \$dateM 0;\r\
+    \n                :if ((\$dateY%400=0) or (\$dateY%100!=0)) do={:set \$leap true; :set \$dateD (\$dateD-1)};\r\
+    \n            } else={:set \$leap false};\r\
+    \n        }\r\
+    \n        :local months [:toarray (0,31,28,31,30,31,30,31,31,30,31,30,31)];\r\
+    \n        :if (leap) do={:set \$dateD (\$dateD+1); :set (\$months->2) 29};\r\
+    \n        :do {\r\
+    \n            :for i from=1 to=12 do={\r\
+    \n                :if ((\$months->\$i)>\$dateD) do={\r\
+    \n                    :set \$dateM \$i;\r\
+    \n                    :set \$dateD (\$dateD+1);\r\
+    \n                    break;\r\
+    \n                } else={:set \$dateD (\$dateD-(\$months->\$i))};\r\
+    \n            }\r\
+    \n        } on-error={};\r\
+    \n        :local tmod;\r\
+    \n        :if ([:len \$2]!=0) do={:set \$tmod \$2} else={:set \$tmod (:nothing)};\r\
+    \n        :local sl \"/\";\r\
+    \n        :local mstr {\"jan\";\"feb\";\"mar\";\"apr\";\"may\";\"jun\";\"jul\";\"aug\";\"sep\";\"oct\";\"nov\";\"dec\"};\r\
+    \n        :local strY [:tostr \$dateY];\r\
+    \n        :local strN;\r\
+    \n        :local strD;\r\
+    \n        :local strH;\r\
+    \n        :local strM;\r\
+    \n        :local strS;\r\
+    \n        :if (\$dateM>9) do={:set \$strN [:tostr \$dateM]} else={:set \$strN (\"0\".[:tostr \$dateM])};\r\
+    \n        :if (\$dateD>9) do={:set \$strD [:tostr \$dateD]} else={:set \$strD (\"0\".[:tostr \$dateD])};\r\
+    \n        :if (\$timeH>9) do={:set \$strH [:tostr \$timeH]} else={:set \$strH (\"0\".[:tostr \$timeH])};\r\
+    \n        :if (\$timeM>9) do={:set \$strM [:tostr \$timeM]} else={:set \$strM (\"0\".[:tostr \$timeM])};\r\
+    \n        :if (\$timeS>9) do={:set \$strS [:tostr \$timeS]} else={:set \$strS (\"0\".[:tostr \$timeS])};\r\
+    \n        :do {\r\
+    \n            :if ([:len \$tmod]=0) do={:local mt (\$mstr->(\$dateM-1)); :set \$decodedLine (\"\$mt/\".\"\$strD/\".\"\$strY\"); break};\r\
+    \n            :if (\$tmod=1) do={:set \$decodedLine \"\$strY\$sl\$strN\$sl\$strD \$strH:\$strM:\$strS\"; break};\r\
+    \n            :if (\$tmod=2) do={:set \$decodedLine \"\$strD\$sl\$strN\$sl\$strY \$strH:\$strM:\$strS\"; break};\r\
+    \n            :if (\$tmod=3) do={:set \$decodedLine (\"\$strD \".(\$mstr->(\$dateM-1)).\" \$strY \$strH:\$strM:\$strS\"); break};\r\
+    \n            :if (\$tmod=4) do={:set \$decodedLine (\"\$strY \".(\$mstr->(\$dateM-1)).\" \$strD \$strH:\$strM:\$strS\"); break};\r\
+    \n            :if (\$tmod=5) do={:local m (\$mstr->(\$dateM-1)); :set \$decodedLine (\"\$m/\".\"\$strD/\".\"\$strY\".\"-\$strH:\$strM:\$strS\"); break};\r\
+    \n        } on-error={};\r\
+    \n        :return (\$decodedLine);\r\
+    \n    }\r\
+    \n\r\
+    \n    # Main body of the script\r\
+    \n    :global timeAct;\r\
+    \n    :global timeLog;\r\
+    \n# updated 2022/10/17 added ignore registre identity\r\
+    \n    :local  nameID [\$fsLowStr [/system identity get name]];\r\
+    \n    :local  timeOf [/system clock get gmt-offset];\r\
+    \n    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Start of TLGRM-script on '\$nameID' router.\");\r\
+    \n    :if ([:len \$scriptTlgrm]=0) do={:set scriptTlgrm true};\r\
+    \n    :if (\$scriptTlgrm) do={\r\
+    \n        :set scriptTlgrm false;\r\
+    \n        :if ([:len \$timeAct]>0) do={:put (\"\$[\$UnixTimeToFormat (\$timeAct+\$timeOf) 1] - Time when the last command was launched.\")};\r\
+    \n        :if ([:len \$timeLog]>0) do={:put (\"\$[\$UnixTimeToFormat (\$timeLog+\$timeOf) 1] - Time when the log entries were last sent.\")};\r\
+    \n    \r\
+    \n        # Part of the script body to launch via Telegram\r\
+    \n        # https://forummikrotik.ru/viewtopic.php\?p=78085\r\
+    \n        :local timeStmp [\$EpochTime];\r\
+    \n        :local urlString \"https://api.telegram.org/\$botID/getUpdates\\\?offset=-1&limit=1&allowed_updates=message\";\r\
+    \n        :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - *** Stage of launch scripts, function & commands via Telegram:\");\r\
+    \n        :if ([:len \$timeAct]=0) do={\r\
+    \n            :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Time of the last launch of the command was not found.\");\r\
+    \n            :set timeAct \$timeStmp;\r\
+    \n        } else={\r\
+    \n            :local httpResp [/tool fetch url=\$urlString as-value output=user];\r\
+    \n            :local content (\$httpResp->\"data\");\r\
+    \n            :if ([:len \$content]>30) do={\r\
+    \n                :local msgTxt [\$MsgParser \$content \"text\" true];\r\
+    \n                :set  msgTxt ([:pick \$msgTxt ([:find \$msgTxt \"/\" -1]+1) [:len \$msgTxt]]);\r\
+    \n                :if (\$msgTxt ~\"@\") do={:set \$msgTxt [:pick \$msgTxt 0 [:find \$msgTxt \"@\"]]}\r\
+    \n                :local newStr \"\";\r\
+    \n                :local change \"\";\r\
+    \n                :for i from=0 to=([:len \$msgTxt]-1) do={\r\
+    \n                    :local symb [:pick \$msgTxt \$i (\$i+1)]; \r\
+    \n                    :if (\$symb=\"_\") do={:set change (\" \")} else={:set change (\$symb)}; \r\
+    \n                    :set \$newStr (\$newStr.\$change);\r\
+    \n                }\r\
+    \n                :set msgTxt \$newStr;\r\
+    \n                :local msgAddr \"\";\r\
+    \n                :if (\$broadCast) do={:set \$msgAddr \$nameID} else={\r\
+    \n                    :set msgAddr ([:pick \$msgTxt 0 [:find \$msgTxt \" \" -1]]);\r\
+    \n# updated 2022/10/17 added ignore registre identity\r\
+    \n                    :set msgAddr [\$fsLowStr \$msgAddr]\r\
+    \n                    :if ([:len [:find \$msgTxt \" \"]]=0) do={:set msgAddr (\"\$msgTxt \")};\r\
+    \n                    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Recipient of the Telegram message: '\$msgAddr'\");\r\
+    \n                    :set msgTxt ([:pick \$msgTxt ([:find \$msgTxt \$msgAddr -1]+[:len \$msgAddr]+1) [:len \$msgTxt]]);\r\
+    \n                }\r\
+    \n      # added 04/10/2022 skipping the function prefix \"\$\" \E8\EB\E8 [\$ .....]\r\
+    \n                :if ([:pick \$msgTxt 0 1]=\"\\\$\") do={:set \$msgTxt [:pick \$msgTxt 1 [:len \$msgTxt]]}\r\
+    \n                :if (([:pick \$msgTxt 0 2]=\"[\\\$\") and ([:pick \$msgTxt ([:len \$msgTxt]-1) [:len \$msgTxt]]=\"]\")) do={:set \$msgTxt [:pick \$msgTxt 2 ([:len \$msgTxt]-1)]}\r\
+    \n\r\
+    \n                :if (\$msgAddr=\$nameID or \$msgAddr=\"forall\") do={\r\
+    \n                    :local chatID [\$MsgParser [\$MsgParser \$content \"chat\"] \"id\"];\r\
+    \n                    :local userNm [\$MsgParser \$content \"username\"];\r\
+    \n                    :set timeStmp [\$MsgParser \$content \"date\"];\r\
+    \n                    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Sender of the Telegram message: \$userNm\");\r\
+    \n                    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Command to execute: '\$msgTxt'\");\r\
+    \n                    :local restline [];\r\
+    \n                    :if ([:len [:find \$msgTxt \" \"]]!=0) do={\r\
+    \n                        :set restline [:pick \$msgTxt ([:find \$msgTxt \" \"]+1) [:len \$msgTxt]];\r\
+    \n                        :set msgTxt [:pick \$msgTxt 0 [:find \$msgTxt \" \"]];\r\
+    \n                    }\r\
+    \n                    :if (\$chatID=\$myChatID && \$timeAct<\$timeStmp) do={\r\
+    \n                        :set timeAct \$timeStmp;\r\
+    \n                        :if ([/system script environment find name=\$msgTxt]!=\"\" && \$launchFnc=true) do={   \r\
+    \n                            :if (([/system script environment get [/system script environment find name=\$msgTxt] value]=\"(code)\") \\\r\
+    \n                                or ([:len [:find [/system script environment get [/system script environment find name=\$msgTxt] value] \"(evl\"]]>0)) do={\r\
+    \n                                :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Telegram user \$userNm launches function '\$msgTxt'.\");\r\
+    \n                                :log warning (\"Telegram user \$userNm launches function '\$msgTxt'.\");\r\
+    \n#                                [:parse \":global \$msgTxt; [\\\$\$msgTxt \$restline]\"];\r\
+    \n                        :execute script=\"[:parse [\\\$\$msgTxt \$restline]]\";\r\
+    \n                            } else={\r\
+    \n                                :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - '\$msgTxt' is a global variable and not a function - no execute.\");\r\
+    \n                                :log warning (\"'\$msgTxt' is a global variable and not a function - no execute.\");\r\
+    \n                            }\r\
+    \n                        }\r\
+    \n# added 07/10/2022 allow to perform emodji !\r\
+    \n   :if ([:pick \$msgTxt 0 1]=\"\\5C\") do={:set \$msgTxt [:pick \$msgTxt 1 [:len \$msgTxt]]\r\
+    \n   :if ([:find \$msgTxt \"\\5C\"]!=0) do={:local a [:pick \$msgTxt 0 [:find \$msgTxt \"\\5C\"]]; :local b [:pick \$msgTxt ([:find \$msgTxt \"\\5C\"]+1) [:len \$msgTxt]]; :set \$msgTxt (\$a.\$b)}}\r\
+    \n                        :if ([/system script find name=\$msgTxt]!=\"\" && \$launchScr=true) do={\r\
+    \n                            :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Telegram user \$userNm activates script '\$msgTxt'.\");\r\
+    \n                            :log warning (\"Telegram user \$userNm activates script '\$msgTxt'.\");\r\
+    \n#                            [[:parse \"[:parse [/system script get \$msgTxt source]] \$restline\"]];\r\
+    \n                         :execute script=\"[[:parse \\\"[:parse [/system script get \$msgTxt source]] \$restline\\\"]]\";\r\
+    \n                        }\r\
+    \n                        :if ([/system script find name=\$msgTxt]=\"\" && [/system script environment find name=\$msgTxt]=\"\" && \$launchCmd=true) do={\r\
+    \n                            :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Telegram user \$userNm is trying to execute command '\$msgTxt'.\");\r\
+    \n                            :log warning (\"Telegram user \$userNm is trying to execute command '\$msgTxt'.\");\r\
+    \n#                              :do {[:parse \"/\$msgTxt \$restline\"]} on-error={};\r\
+    \n                            :do {:execute script=\"[:parse \\\"/\$msgTxt \$restline\\\"]\"} on-error={};\r\
+    \n                        }\r\
+    \n                    } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Wrong time to launch.\")};\r\
+    \n                } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - No command found for this device.\")};\r\
+    \n            } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Completion of response from Telegram.\")};\r\
+    \n        }\r\
+    \n\r\
+    \n        # Part of the script body for notifications in Telegram\r\
+    \n        # https://www.reddit.com/r/mikrotik/comments/onusoj/sending_log_alerts_to_telegram/\r\
+    \n        :local outMsg \"\";\r\
+    \n        :local logGet [:toarray [/log find ((\$buffer=ParseMemoryLog) and (\$topics~\"warning\" or \$topics~\"error\" or \$topics~\"critical\" or \$topics~\"caps\" or \$topics~\"wireless\" or \$message~\"logged in\"))]];\r\
+    \n        :local logCnt [:len \$logGet];\r\
+    \n        :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - *** Stage of sending notifications to Telegram:\");\r\
+    \n        :if ([:len \$timeLog]=0) do={ \r\
+    \n            :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Time of the last log entry was not found.\");\r\
+    \n            :set outMsg (\">\$[/system clock get time] Telegram notification started.\");\r\
+    \n        }\r\
+    \n        :if (\$logCnt>0) do={\r\
+    \n            :local lastTime [\$EpochTime [/log get [:pick \$logGet (\$logCnt-1)] time]];\r\
+    \n            :local index 0;\r\
+    \n            :local tempTim \"\";\r\
+    \n            :local tempMsg \"\";\r\
+    \n            :local tempTpc \"\";\r\
+    \n            :local unixTim \"\";\r\
+    \n            :do {\r\
+    \n                :set index (\$index+1); \r\
+    \n                :set tempTim [/log get [:pick \$logGet (\$logCnt-\$index)] time];\r\
+    \n                :set tempTpc [/log get [:pick \$logGet (\$logCnt-\$index)] topics];\r\
+    \n                :set tempMsg [/log get [:pick \$logGet (\$logCnt-\$index)] message];\r\
+    \n                :set tempMsg (\">\$tempTim \$tempMsg\");\r\
+    \n                :local findMacMsg ([\$FindMacAddr \$tempMsg]);\r\
+    \n                :set unixTim [\$EpochTime \$tempTim];\r\
+    \n                :if ((\$unixTim>\$timeLog) && (!((\$tempTpc~\"caps\" or \$tempTpc~\"wireless\" or \$tempTpc~\"dhcp\") && (\$tempMsg!=\$findMacMsg)))) do={\r\
+    \n                    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Found log entry: \$findMacMsg\");\r\
+    \n                    :set outMsg (\$findMacMsg.\"\\n\".\$outMsg);\r\
+    \n                }\r\
+    \n            } while=((\$unixTim>\$timeLog) && (\$index<\$logCnt));\r\
+    \n            :if (([:len \$timeLog]<1) or (([:len \$timeLog]>0) && (\$timeLog!=\$lastTime) && ([:len \$outMsg]>8))) do={\r\
+    \n                :set timeLog \$lastTime;\r\
+    \n                :if ([:len \$outMsg]>4096) do={:set outMsg ([:pick \$outMsg 0 4096])};\r\
+    \n                :set outMsg [\$CP1251toUTF8 \$outMsg];\r\
+    \n                :set outMsg (\"\$Emoji \".\"\$[/system identity get name]\".\":\".\"%0A\".\"\$outMsg\");\r\
+    \n                :local urlString (\"https://api.telegram.org/\$botID/sendmessage\\\?chat_id=\$myChatID&text=\$outMsg\");\r\
+    \n                :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Generated string for Telegram:\\r\\n\".\$urlString);\r\
+    \n                /tool fetch url=\$urlString as-value output=user;\r\
+    \n            } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - There are no log entries to send.\")};\r\
+    \n        } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Necessary log entries were not found.\")};\r\
+    \n        :set scriptTlgrm true;\r\
+    \n    } else={:put \"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Script already being executed...\"};\r\
+    \n    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - End of TLGRM-script on '\$nameID' router.\");\r\
+    \n} on-error={\r\
+    \n    :set scriptTlgrm true;\r\
+    \n    :put (\"Script error: something didn't work when sending a request to Telegram.\");\r\
+    \n    :put (\"*** First, check the correctness of the values of the variables botID & myChatID. ***\"); \r\
+    \n}\r\
+    \n\r\
+    \n# add 25/10/2022 \r\
+    \n# function set commands list key array in \$1 to Telegram chatbot \r\
+    \n:global tlgrmcmd; :if (!any \$tlgrmcmd) do={:global tlgrmcmd do={\r\
+    \n:if ([:typeof \$0]=\"lookup\") do={\r\
+    \n\r\
+    \n#--function teSetMyCommands by Brook 2022 --\r\
+    \n:local teSetMyCommands do={\r\
+    \n  :local TbotID \$fBotID\r\
+    \n  :local tgUrl []; :local content []\r\
+    \n  :local commandsList [:toarray \$fCommands]\r\
+    \n  :local cmdItems []\r\
+    \n  :local command []\r\
+    \n  :local end []\r\
+    \n\r\
+    \n  :foreach i in=\$commandsList do={\r\
+    \n    :local command [:pick \$i 0 [find \$i \";\"]]\r\
+    \n    :local description [:pick \$i ([find \$i \";\"] + 1) [:len \$i]]\r\
+    \n    :local startCommand \"\\7B\\22command\\22:\\22\$command\\22\"\r\
+    \n    :local commandDescription \",\\22description\\22:\\22\$description\\22\\7D,\"\r\
+    \n    :set command \"\$startCommand\$commandDescription\$endCommand\"\r\
+    \n    :set \$cmdItems (\$cmdItems . \$command)\r\
+    \n  }\r\
+    \n  :set cmdItems [:pick \$cmdItems 0 ([:len \$cmdItems] - 1)]\r\
+    \n\r\
+    \n  :local start \"\\5B\"; :local end \"\\5D\";\r\
+    \n  :set commandsList \"\$start\$cmdItems\$end\"\r\
+    \n\r\
+    \n  :set tgUrl \"https://api.telegram.org/\$TbotID/setMyCommands\\\?commands=\$commandsList\"\r\
+    \n\r\
+    \ndo {\r\
+    \n    :set content [:tool fetch ascii=yes url=\$tgUrl as-value output=user]\r\
+    \n    :if (\$content->\"status\" = \"finished\") do={ :return true }\r\
+    \n  } on-error={ :return false }\r\
+    \n }\r\
+    \n\r\
+    \n\r\
+    \n# --function convert string to lowstring by Osama, modified Sertik--\r\
+    \n:local fsLowStr do={\r\
+    \n  :local fsLowerChar do={\r\
+    \n    :local \"fs_lower\" \"0123456789abcdefghijklmnopqrstuvwxyz\";\r\
+    \n    :local \"fs_upper\" \"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\";\r\
+    \n    :local pos [:find \$\"fs_upper\" \$1]\r\
+    \n      :if (\$pos > -1) do={:return [:pick \$\"fs_lower\" \$pos];}\r\
+    \n       :return \$1}\r\
+    \n:local result \"\"; :local in \$1\r\
+    \n  :for i from=0 to=([:len \$in] - 1) do={\r\
+    \n    :set result (\$result . [\$fsLowerChar [:pick \$in \$i]])}\r\
+    \n    :return \$result;\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n# -- Function of converting CP1251 to UTF8 by DrPioneer --\r\
+    \n    # https://forummikrotik.ru/viewtopic.php\?p=81457#p81457\r\
+    \n    :local CP1251toUTF8 do={\r\
+    \n        :local cp1251 [:toarray {\r\
+    \n            \"\\20\";\"\\01\";\"\\02\";\"\\03\";\"\\04\";\"\\05\";\"\\06\";\"\\07\";\"\\08\";\"\\09\";\"\\0A\";\"\\0B\";\"\\0C\";\"\\0D\";\"\\0E\";\"\\0F\";\\\r\
+    \n            \"\\10\";\"\\11\";\"\\12\";\"\\13\";\"\\14\";\"\\15\";\"\\16\";\"\\17\";\"\\18\";\"\\19\";\"\\1A\";\"\\1B\";\"\\1C\";\"\\1D\";\"\\1E\";\"\\1F\";\\\r\
+    \n            \"\\21\";\"\\22\";\"\\23\";\"\\24\";\"\\25\";\"\\26\";\"\\27\";\"\\28\";\"\\29\";\"\\2A\";\"\\2B\";\"\\2C\";\"\\2D\";\"\\2E\";\"\\2F\";\"\\3A\";\\\r\
+    \n            \"\\3B\";\"\\3C\";\"\\3D\";\"\\3E\";\"\\3F\";\"\\40\";\"\\5B\";\"\\5C\";\"\\5D\";\"\\5E\";\"\\5F\";\"\\60\";\"\\7B\";\"\\7C\";\"\\7D\";\"\\7E\";\\\r\
+    \n            \"\\C0\";\"\\C1\";\"\\C2\";\"\\C3\";\"\\C4\";\"\\C5\";\"\\C6\";\"\\C7\";\"\\C8\";\"\\C9\";\"\\CA\";\"\\CB\";\"\\CC\";\"\\CD\";\"\\CE\";\"\\CF\";\\\r\
+    \n            \"\\D0\";\"\\D1\";\"\\D2\";\"\\D3\";\"\\D4\";\"\\D5\";\"\\D6\";\"\\D7\";\"\\D8\";\"\\D9\";\"\\DA\";\"\\DB\";\"\\DC\";\"\\DD\";\"\\DE\";\"\\DF\";\\\r\
+    \n            \"\\E0\";\"\\E1\";\"\\E2\";\"\\E3\";\"\\E4\";\"\\E5\";\"\\E6\";\"\\E7\";\"\\E8\";\"\\E9\";\"\\EA\";\"\\EB\";\"\\EC\";\"\\ED\";\"\\EE\";\"\\EF\";\\\r\
+    \n            \"\\F0\";\"\\F1\";\"\\F2\";\"\\F3\";\"\\F4\";\"\\F5\";\"\\F6\";\"\\F7\";\"\\F8\";\"\\F9\";\"\\FA\";\"\\FB\";\"\\FC\";\"\\FD\";\"\\FE\";\"\\FF\";\\\r\
+    \n            \"\\A8\";\"\\B8\";\"\\B9\"}];\r\
+    \n        :local utf8 [:toarray {\r\
+    \n            \"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"000A\";\"0020\";\"0020\";\"000D\";\"0020\";\"0020\";\\\r\
+    \n            \"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\\\r\
+    \n            \"0021\";\"0022\";\"0023\";\"0024\";\"0025\";\"0026\";\"0027\";\"0028\";\"0029\";\"002A\";\"002B\";\"002C\";\"002D\";\"002E\";\"002F\";\"003A\";\\\r\
+    \n            \"003B\";\"003C\";\"003D\";\"003E\";\"003F\";\"0040\";\"005B\";\"005C\";\"005D\";\"005E\";\"005F\";\"0060\";\"007B\";\"007C\";\"007D\";\"007E\";\\\r\
+    \n            \"D090\";\"D091\";\"D092\";\"D093\";\"D094\";\"D095\";\"D096\";\"D097\";\"D098\";\"D099\";\"D09A\";\"D09B\";\"D09C\";\"D09D\";\"D09E\";\"D09F\";\\\r\
+    \n            \"D0A0\";\"D0A1\";\"D0A2\";\"D0A3\";\"D0A4\";\"D0A5\";\"D0A6\";\"D0A7\";\"D0A8\";\"D0A9\";\"D0AA\";\"D0AB\";\"D0AC\";\"D0AD\";\"D0AE\";\"D0AF\";\\\r\
+    \n            \"D0B0\";\"D0B1\";\"D0B2\";\"D0B3\";\"D0B4\";\"D0B5\";\"D0B6\";\"D0B7\";\"D0B8\";\"D0B9\";\"D0BA\";\"D0BB\";\"D0BC\";\"D0BD\";\"D0BE\";\"D0BF\";\\\r\
+    \n            \"D180\";\"D181\";\"D182\";\"D183\";\"D184\";\"D185\";\"D186\";\"D187\";\"D188\";\"D189\";\"D18A\";\"D18B\";\"D18C\";\"D18D\";\"D18E\";\"D18F\";\\\r\
+    \n            \"D001\";\"D191\";\"2116\"}];\r\
+    \n        :local convStr \"\"; \r\
+    \n        :local code \"\";\r\
+    \n        :for i from=0 to=([:len \$1]-1) do={\r\
+    \n            :local symb [:pick \$1 \$i (\$i+1)]; \r\
+    \n            :local idx [:find \$cp1251 \$symb];\r\
+    \n            :local key (\$utf8->\$idx);\r\
+    \n            :if ([:len \$key]!=0) do={\r\
+    \n                :set \$code (\"%\$[:pick (\$key) 0 2]%\$[:pick (\$key) 2 4]\");\r\
+    \n                :if ([pick \$code 0 3]=\"%00\") do={:set \$code ([:pick \$code 3 6])};\r\
+    \n            } else={:set code (\$symb)}; \r\
+    \n            :set \$convStr (\$convStr.\$code);\r\
+    \n        }\r\
+    \n        :return (\$convStr);\r\
+    \n    }\r\
+    \n\r\
+    \n\r\
+    \n:global botID\r\
+    \n:global GroupChat\r\
+    \n:global broadCast\r\
+    \n:local Identity \"\";\r\
+    \n\r\
+    \n:if (\$2=\"identity\") do={:set Identity [\$fsLowStr [/system identity get name]]; :set Identity (\"\$Identity\".\"_\")}\r\
+    \n:if (\$2=\"forall\") do={:set Identity (\"\$2\".\"_\")}\r\
+    \n:if ([:len \$2]=0) do={:set Identity \"\"}\r\
+    \n:local count 0\r\
+    \n:local TXTmessage \"\"\r\
+    \n:foreach k,v in=\$1 do={\r\
+    \n:set \$v [\$CP1251toUTF8 \$v]\r\
+    \n:set TXTmessage (\"\$TXTmessage\".\"\$Identity\".\"\$k;\$v\".\",\")\r\
+    \n }\r\
+    \n:set TXTmessage [:pick \$TXTmessage 0 ([:len \$TXTmessage]-1)]\r\
+    \n:if ([\$teSetMyCommands fBotID=\$botID fCommands=\$TXTmessage]) do={:return OK} else={:return ERR}\r\
+    \n  }\r\
+    \n }\r\
+    \n}\r\
+    \n\r\
+    \n:global tlgrm; :if (!any \$tlgrm) do={:global tlgrm do={\r\
+    \n:if (any \$0) do={\r\
+    \n:if (\$1=\"help\") do={:global Emoji; :global FuncTelegramSender; [\$FuncTelegramSender (\"\$Emoji \$[/system identity get name]:%0A [/\$[:pick \$0 1 [:len \$0]]] service function tlgrm parameters:%0A \$0 allow, bun, on, off, Scr, Fnc, Cmd, GroupChat, broadCast\")]; :return []}\r\
+    \n:if ((\$1=\"allow\") && ([:len \$2]=0)) do={:global allowTlgrm; :set allowTlgrm true; :return \$1}\r\
+    \n:if ((\$1=\"bun\") && ([:len \$2]=0)) do={:global allowTlgrm; :set allowTlgrm false; :return \$1}\r\
+    \n:if ((\$1=\"on\") && ([:len \$2]=0)) do={:global tlgrm; [\$tlgrm launchScr true];  [\$tlgrm launchFnc true];  [\$tlgrm launchCmd true]; :return \$1}\r\
+    \n:if ((\$1=\"off\") && ([:len \$2]=0)) do={:global tlgrm; [\$tlgrm launchScr false];  [\$tlgrm launchFnc false];  [\$tlgrm launchCmd false]; :return \$1}\r\
+    \n:if ([:len \$1]=0) do={:global tlgrm; [\$tlgrm help]\r\
+    \n :return []}\r\
+    \n:if ((\$1=\"GroupChat\") && ([:typeof \$2]=\"str\") && ([:pick \$2 0 1]=\"@\")) do={:global GroupChat; :set GroupChat \$2; :return \$2}\r\
+    \n:if ((\$1=\"GroupChat\") && ([:len \$2]=0)) do={:global GroupChat; :set GroupChat []; :return \$2}\r\
+    \n:local fSet\r\
+    \n :if ((\$2=\"true\") or (\$2=\"false\")) do={\r\
+    \n  :if (\$2=\"true\") do={:set fSet true} else={:set fSet false}\r\
+    \n  :if (\$1=\"broadCast\") do={:global broadCast; :set broadCast \$fSet;}    \r\
+    \n    :return \$2}\r\
+    \n  :if (\$1=\"Scr\") do={:global  launchScr; :set  launchScr \$fSet; :return \$2}\r\
+    \n  :if (\$1=\"Fnc\") do={:global  launchFnc; :set  launchFnc \$fSet; :return \$2}\r\
+    \n  :if (\$1=\"Cmd\") do={:global  launchCmd; :set  launchCmd \$fSet; :return \$2}\r\
+    \n } else={:return \"ERROR function \$0 parameter \$1 \$2\"}\r\
+    \n :return \"ERROR function \$0 parameter <\$1>\"\r\
+    \n     }\r\
+    \n   }\r\
+    \n }\r\
+    \n}\r\
+    \n"
+/system script add comment="cmd satstart SATELLITE Lib" dont-require-permissions=no name=satstart owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="/system script run SAT!start"
+/system script add comment="module 3 SATELLITE for TLGRM" dont-require-permissions=no name=SAT3 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#-------------------------------------------------------------------------------------------------------------------------\r\
+    \n# SATELLITE3 module  for TLGRM version 2.2 by Sertik (Serkov S.V.) 25/10/2022\r\
+    \n#-------------------------------------------------------------------------------------------------------------------------\r\
     \n\r\
     \n\r\
     \n# declare functions:\r\
@@ -5307,14 +5945,13 @@
     \n\r\
     \n#  table of the codes of Russian letters UTF8 + some characters are not supported by Telegram\r\
     \n\r\
-    \n:local rsimv [:toarray {\"\C0\"=\"D090\"; \"\C1\"=\"D091\"; \"\C2\"=\"D092\"; \"\C3\"=\"D093\"; \"\C4\"=\"D094\"; \"\C5\"=\"D095\"; \"\C6\"=\"D096\"; \"\C7\"=\"D097\"; \"\C8\"=\"D098\"; \"\C9\"=\"D099\"; \"\CA\"=\"D09A\"; \"\CB\"=\"D09B\"; \"\CC\"=\"D09C\"; \"\CD\"=\"D09D\"; \"\CE\"=\"D09E\"; \"\CF\"=\"D09F\"; \"\D0\"=\"D0A0\"; \"\D1\"=\"D0A1\"; \"\D2\"=\"D0A2\"; \"\D3\"=\"D0A3\"; \"\D4\"=\"D0A4\"; \"\D5\"=\"D0A5\"; \"\D6\"=\"D0A6\"; \"\D7\"=\"D0A7\"; \"\D8\"=\"D0A8\"; \"\D9\"=\"D0A9\"; \"\DA\"=\"D0AA\"; \"\DB\"=\"D0AB\"; \"\DC\"=\"D0AC\"; \"\DD\"=\"D0AD\"; \"\DE\"=\"D0AE\"; \"\DF\"=\"D0AF\"; \"\E0\"=\"D0B0\"; \"\E1\"=\"D0B1\"; \"\E2\"=\"D0B2\"; \"\E3\"=\"D0B3\"; \"\E4\"=\"D0B4\"; \"\E5\"=\"D0B5\"; \"\E6\"=\"D0B6\"; \"\E7\"=\"D0B7\"; \"\E8\"=\"D0B8\"; \"\E9\"=\"D0B9\"; \"\EA\"=\"D0BA\"; \"\EB\"=\"D0BB\"; \"\EC\"=\"D0BC\"; \"\ED\"=\"D0BD\"; \"\EE\"=\"D0BE\"; \"\EF\"=\"D0BF\"; \"\F0\"=\"D180\"; \"\F1\"=\"D181\"; \"\F2\"=\"D182\"; \"\F3\"=\"D183\"; \"\F4\"=\"D184\"; \"\F5\"=\"D185\"; \"\F6\"=\"D186\"; \"\F7\"=\"D187\"; \"\F8\"=\"D188\"; \"\F9\"=\"D189\"; \"\FA\"=\"D18A\"; \"\FB\"=\"D18B\"; \"\FC\"=\"D18C\"; \"\FD\"=\"D18D\"; \"\FE\"=\"D18E\"; \"\FF\"=\"D18F\"; \"\A8\"=\"D001\"; \"\B8\"=\"D191\"; \"\B9\"=\"0023\"; \" \"=\"0020\"; \"&\"=\"0026\"; \"`\"=\"0027\"; \"+\"=\"002B\";\"[\"=\"005B\"; \"\\\"=\"005C\"; \"]\"=\"005D\"; \"_\"=\"005F\"; \"'\"=\"0060\"}]\r\
+    \n:local rsimv [:toarray {\"\C0\"=\"D090\"; \"\C1\"=\"D091\"; \"\C2\"=\"D092\"; \"\C3\"=\"D093\"; \"\C4\"=\"D094\"; \"\C5\"=\"D095\"; \"\C6\"=\"D096\"; \"\C7\"=\"D097\"; \"\C8\"=\"D098\"; \"\C9\"=\"D099\"; \"\CA\"=\"D09A\"; \"\CB\"=\"D09B\"; \"\CC\"=\"D09C\"; \"\CD\"=\"D09D\"; \"\CE\"=\"D09E\"; \"\CF\"=\"D09F\"; \"\D0\"=\"D0A0\"; \"\D1\"=\"D0A1\"; \"\D2\"=\"D0A2\"; \"\D3\"=\"D0A3\"; \"\D4\"=\"D0A4\"; \"\D5\"=\"D0A5\"; \"\D6\"=\"D0A6\"; \"\D7\"=\"D0A7\"; \"\D8\"=\"D0A8\"; \"\D9\"=\"D0A9\"; \"\DA\"=\"D0AA\"; \"\DB\"=\"D0AB\"; \"\DC\"=\"D0AC\"; \"\DD\"=\"D0AD\"; \"\DE\"=\"D0AE\"; \"\DF\"=\"D0AF\"; \"\E0\"=\"D0B0\"; \"\E1\"=\"D0B1\"; \"\E2\"=\"D0B2\"; \"\E3\"=\"D0B3\"; \"\E4\"=\"D0B4\"; \"\E5\"=\"D0B5\"; \"\E6\"=\"D0B6\"; \"\E7\"=\"D0B7\"; \"\E8\"=\"D0B8\"; \"\E9\"=\"D0B9\"; \"\EA\"=\"D0BA\"; \"\EB\"=\"D0BB\"; \"\EC\"=\"D0BC\"; \"\ED\"=\"D0BD\"; \"\EE\"=\"D0BE\"; \"\EF\"=\"D0BF\"; \"\F0\"=\"D180\"; \"\F1\"=\"D181\"; \"\F2\"=\"D182\"; \"\F3\"=\"D183\"; \"\F4\"=\"D184\"; \"\F5\"=\"D185\"; \"\F6\"=\"D186\"; \"\F7\"=\"D187\"; \"\F8\"=\"D188\"; \"\F9\"=\"D189\"; \"\FA\"=\"D18A\"; \"\FB\"=\"D18B\"; \"\FC\"=\"D18C\"; \"\FD\"=\"D18D\"; \"\FE\"=\"D18E\"; \"\FF\"=\"D18F\"; \"\A8\"=\"D001\"; \"\B8\"=\"D191\"; \"\B9\"=\"0023\"; \" \"=\"0020\"; \"&\"=\"0026\"; \"`\"=\"0027\"; \"+\"=\"002B\";\"[\"=\"005B\"; \"\\\\\"=\"005C\"; \"]\"=\"005D\"; \"_\"=\"005F\"; \"'\"=\"0060\"}]\r\
     \n\r\
     \n# encoding of the symbols and \E0ssembly line\r\
     \n:local StrTele \"\"; :local code \"\";\r\
     \n:for i from=0 to=([:len \$string]-1) do={:local keys [:pick \$string \$i (1+\$i)]; :local key (\$rsimv->\$keys); if ([:len \$key]!=0) do={:set \$code (\"%\".\"\$[:pick (\$rsimv->\$keys) 0 2]\".\"%\".\"\$[:pick (\$rsimv->\$keys) 2 4]\");:if ([pick \$code 0 3] =\"%00\") do={:set \$code [:pick \$code 3 6]}} else={:set \$code \$keys}; :set \$StrTele (\"\$StrTele\".\"\$code\")}\r\
     \n\r\
     \ndo {\r\
-    \n\r\
     \n/tool fetch url=\"https://api.telegram.org/\$botID/sendmessage\\\?chat_id=\$myChatID&parse_mode=\$Tstyle&text=\$StrTele\" keep-result=no; :return \"Done\"\r\
     \n} on-error={:log info; :log error \"Error function \$0 fetch\"; :log info \"\"; :return \"Error fetch\"}\r\
     \n    } else={:log info; log error \"Parametrs function \$0 mismatch\"; :log info \"\"; :return \"Error parametrs mismatch\"}\r\
@@ -5542,584 +6179,6 @@
     \n\r\
     \n:log info \"  -    SATELLITE3 module is set\"\r\
     \n"
-/system script add dont-require-permissions=no name=TLGRMcall owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# Name: TLGRMcall\r\
-    \n# Description: Start script TLGRM, w/WatchDog\r\
-    \n\r\
-    \nlocal jobScript \"TLGRM\"\r\
-    \nif ([len [system script job find script=\$\"jobScript\"]] !=0) do={\r\
-    \n} else={\r\
-    \nsystem script run \$jobScript\r\
-    \n}"
-/system script add dont-require-permissions=no name=SATELLITE1ext owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#------------------------------------------------------------------------------------------------------------------------\r\
-    \n# SATELLITE1ext module  for TLGRM version 1.8 by Sertik (Serkov S.V.) 24/04/2022\r\
-    \n#------------------------------------------------------------------------------------------------------------------------\r\
-    \n\r\
-    \n# declare functions:\r\
-    \n\r\
-    \n:global FuncHealth\r\
-    \n\r\
-    \n\r\
-    \n# health Router ->Telegram\r\
-    \n# ---------------------------------------\r\
-    \n\r\
-    \n:set FuncHealth do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n\r\
-    \n# Script view health of device by Enternight\r\
-    \n# https://forummikrotik.ru/viewtopic.php\?t=7924\r\
-    \n# tested on ROS 6.49.5\r\
-    \n# updated 2022/04/21\r\
-    \n\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n\r\
-    \n:do {\r\
-    \n    :local hddTotal [/system resource get total-hdd-spac];\r\
-    \n    :local hddFree  [/system resource get free-hdd-space];\r\
-    \n   :local badBlock [/system resource get bad-blocks    ];\r\
-    \n    :local memTotal [/system resource get total-memory  ];\r\
-    \n    :local memFree  [/system resource get free-memory   ];\r\
-    \n    :local cpuA     [/system resource get cpu];\r\
-    \n    :local arhA      [/system resource get arch];\r\
-    \n    :local cpuZ     [/system resource get cpu-load      ];\r\
-    \n    :local currFW   [/system routerbo get upgrade-firmwa];\r\
-    \n    :local upgrFW   [/system routerbo get current-firmwa];\r\
-    \n    :if ([/system resource get board-name]!=\"CHR\") do={\r\
-    \n         :local tempC    [/system health   get temperature   ];\r\
-    \n         :local volt     [/system health   get voltage       ];\r\
-    \n          }\r\
-    \n    :local smplVolt (\$volt/10);\r\
-    \n    :local lowVolt  ((\$volt-(\$smplVolt*10))*10);\r\
-    \n    :local inVolt   (\"\$smplVolt.\$[:pick \$lowVolt 0 3]\");\r\
-    \n    :set   hddFree  (\$hddFree/(\$hddTotal/100));\r\
-    \n    :set   memFree  (\$memFree/(\$memTotal/100));\r\
-    \n    :local message  (\"\$Emoji \$[system identity get name] Health report:\");\r\
-    \n    :set   message  (\"\$message %0AModel \$[system resource get board-name]\");\r\
-    \n    :set   message  (\"\$message %0ACPU \$cpuA\");\r\
-    \n    :set   message  (\"\$message %0Aarchitecture \$arhA\");\r\
-    \n    :set   message  (\"\$message %0AROS v.\$[system resource get version]\");\r\
-    \n    :if (\$currFW != \$upgrFW) do={set message (\"\$message %0A*FW is not updated*\")}\r\
-    \n    :set   message  (\"\$message %0AUptime \$[system resource get uptime]\");\r\
-    \n    :if (\$cpuZ < 90) do={:set message (\"\$message %0ACPU load \$cpuZ%\");\r\
-    \n    } else={:set message (\"\$message %0A*Large CPU usage \$cpuZ%*\")}\r\
-    \n    :if (\$memFree > 17) do={:set message (\"\$message %0AMem free \$memFree%\");\r\
-    \n    } else={:set message (\"\$message %0A*Low free mem \$memFree%*\")}\r\
-    \n    :if (\$hddFree > 6) do={:set message (\"\$message %0AHDD free \$hddFree%\");\r\
-    \n    } else={:set message (\"\$message %0A*Low free HDD \$hddFree%*\")}\r\
-    \n    :if ([:len \$badBlock] > 0) do={\r\
-    \n        :if (\$badBlock = 0) do={:set message (\"\$message %0ABad blocks \$badBlock%\");\r\
-    \n        } else={:set message (\"\$message %0A*Present bad blocks \$badBlock%*\")} }\r\
-    \n    :if ([:len \$volt] > 0) do={\r\
-    \n        :if (\$smplVolt > 4 && \$smplVolt < 50) do={:set message (\"\$message %0AVoltage \$inVolt V\");\r\
-    \n        } else={:set message (\"\$message %0A*Bad voltage \$inVolt V*\")} }\r\
-    \n    :if ([:len \$tempC] > 0) do={\r\
-    \n        :if (\$tempC > 10 && \$tempC < 40) do={:set message (\"\$message %0ATemp \$tempC C\");\r\
-    \n        } else={:set message (\"\$message %0A*Abnorm temp \$tempC C*\")} }\r\
-    \n\r\
-    \n    :local gwList [:toarray \"\"];\r\
-    \n    :local count 0;\r\
-    \n    :local routeISP [/ip route find dst-address=0.0.0.0/0];\r\
-    \n    :if ([:len \$routeISP] > 0) do={\r\
-    \n\r\
-    \n        # Listing all gateways\r\
-    \n        :foreach inetGate in=\$routeISP do={\r\
-    \n            :local gwStatus [:tostr [/ip route get \$inetGate gateway-status]];\r\
-    \n            :if (([:len [:find \$gwStatus \"unreachable\"]]=0) && ([:len [:find \$gwStatus \"inactive\"]]=0)) do={\r\
-    \n\r\
-    \n                # Formation of interface name\r\
-    \n                :local ifaceISP \"\";\r\
-    \n                :foreach idName in=[/interface find] do={\r\
-    \n                    :local ifName [/interface get \$idName name];\r\
-    \n                    :if ([:len [find key=\$ifName in=\$gwStatus]] > 0) do={:set ifaceISP \$ifName}\r\
-    \n                }\r\
-    \n                :if ([:len \$ifaceISP] > 0) do={\r\
-    \n\r\
-    \n                    # Checking the interface for entering the Bridge\r\
-    \n                    :if ([:len [/interface bridge find name=\$ifaceISP]] > 0) do={\r\
-    \n#                        :local ipAddrGate [:pick \$gwStatus 0 ([:find \$gwStatus \"reachable\"] -1)];\r\
-    \n                        :local ipAddrGate [:tostr [/ip route get \$inetGate gateway]];\r\
-    \n                        :if ([:find \$ipAddrGate \"%\"] > 0) do={\r\
-    \n                            :set \$ipAddrGate [:pick \$ipAddrGate ([:len [:pick \$ipAddrGate 0 [:find \$ipAddrGate \"%\"]] ] +1) [:len \$ipAddrGate]];\r\
-    \n                        }\r\
-    \n                        :if (\$ipAddrGate~\"[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}\") do={\r\
-    \n                            :local mcAddrGate [/ip arp get [find address=\$ipAddrGate interface=\$ifaceISP] mac-address];\r\
-    \n                            :if (\$mcAddrGate~\"[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]\") do={\r\
-    \n                               :set ifaceISP [/interface bridge host get [find mac-address=\$mcAddrGate] interface];\r\
-    \n                           } else={:set ifaceISP \"\"}\r\
-    \n                       } else={:set ifaceISP \"\"}\r\
-    \n                    }\r\
-    \n                    :if ([:len \$ifaceISP] > 0) do={\r\
-    \n\r\
-    \n                        # Checking the repetition of interface name\r\
-    \n                        :if ([:len [find key=\$ifaceISP in=\$gwList]] = 0) do={\r\
-    \n                            :set (\$gwList->\$count) \$ifaceISP;\r\
-    \n                            :set count (\$count+1);\r\
-    \n                            :local rxByte [/interface get \$ifaceISP rx-byte];\r\
-    \n                            :local txByte [/interface get \$ifaceISP tx-byte];\r\
-    \n                            :local simpleGbRxReport (\$rxByte/1073741824);\r\
-    \n                            :local simpleGbTxReport (\$txByte/1073741824);\r\
-    \n                            :local lowGbRxReport (((\$rxByte-(\$simpleGbRxReport*1073741824))*1000000000)/1048576);\r\
-    \n                            :local lowGbTxReport (((\$txByte-(\$simpleGbTxReport*1073741824))*1000000000)/1048576);\r\
-    \n                            :local gbRxReport (\"\$simpleGbRxReport.\$[:pick \$lowGbRxReport 0 2]\");\r\
-    \n                            :local gbTxReport (\"\$simpleGbTxReport.\$[:pick \$lowGbTxReport 0 2]\");\r\
-    \n                            :set message (\"\$message %0ATraffic via '\$ifaceISP' Rx/Tx \$gbRxReport/\$gbTxReport Gb\");\r\
-    \n                        }\r\
-    \n                    }\r\
-    \n                }\r\
-    \n            }\r\
-    \n        }\r\
-    \n    } else={:set message (\"\$message %0AWAN iface not found\")}\r\
-    \n\r\
-    \n    :if ([/ppp active find]) do={\r\
-    \n   :foreach i in=[/ppp active find] do={\r\
-    \n   :set \$name [/ppp active get \$i name]; :set \$type [/ppp active get \$i service]; :set \$enc [/ppp active get \$i encoding]; :set \$addr [/ppp active get \$i address]; :set \$ltu [/ppp active get \$i uptime]\r\
-    \n   :set \$vpnuser (\"\$vpnuser\".\"\$name\".\" {\".\"\$type\".\"}\".\" \$addr\".\" uptime: \".\"\$ltu\".\"%0A\");}\r\
-    \n   :set \$message (\"\$message\".\"%0A\".\"\$vpnuser\")\r\
-    \n   } else={:set message (\"\$message %0ANo active VPN-channels\")}\r\
-    \n   [\$FuncTelegramSender \$message]\r\
-    \n   :return []\r\
-    \n} on-error={:log warning (\"Error, can't show health status\"); :return \"ERROR\"}\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n:log info \"  -    SATELLITE1ext module is set\""
-/system script add dont-require-permissions=no name=TLGRM owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# TLGRM - combined notifications script & launch of commands (scripts & functions) via Telegram\r\
-    \n# Script uses ideas by Sertik, Virtue, Pepelxl, Dimonw, Jotne, Alice Tails, drPioneer, Chupakabra\r\
-    \n# https://forummikrotik.ru/viewtopic.php\?p=81945#p81945\r\
-    \n# tested on ROS 6.49.5\r\
-    \n# updated 2022/04/01\r\
-    \n\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"TLGRM\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n\r\
-    \n:global Emoji;\r\
-    \n:global botID\r\
-    \n:global myChatID\r\
-    \n:global broadCast;\r\
-    \n\r\
-    \n:do {\r\
-    \n    :local launchScr true;\r\
-    \n    :local launchFnc true;\r\
-    \n    :local launchCmd true;\r\
-    \n\r\
-    \n    # Function of searching comments for MAC-address\r\
-    \n    # https://forummikrotik.ru/viewtopic.php\?p=73994#p73994\r\
-    \n    :local FindMacAddr do={\r\
-    \n        :if (\$1~\"[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]\") do={\r\
-    \n            :foreach idx in=[/ip dhcp-server lease find dynamic=no disabled=no] do={\r\
-    \n                :local mac  [/ip dhcp-server lease get \$idx mac-address];\r\
-    \n                :if (\$1~\"\$mac\") do={ \r\
-    \n                    :return (\"\$1 [\$[/ip dhcp-server lease get \$idx address]/\$[/ip dhcp-server lease get \$idx comment]].\"); \r\
-    \n                } \r\
-    \n            }\r\
-    \n            :foreach idx in=[/interface bridge host find] do={\r\
-    \n                :local mac  [/interface bridge host get \$idx mac-address];\r\
-    \n                :if (\$1~\"\$mac\") do={:return (\"\$1 [\$[/interface bridge host get \$idx on-interface]].\")}\r\
-    \n            }\r\
-    \n        }\r\
-    \n        :return (\$1);\r\
-    \n    }\r\
-    \n\r\
-    \n    # Function of converting CP1251 to UTF8\r\
-    \n    # https://forummikrotik.ru/viewtopic.php\?p=81457#p81457\r\
-    \n    :local CP1251toUTF8 do={\r\
-    \n        :local cp1251 [:toarray {\"\\20\";\"\\01\";\"\\02\";\"\\03\";\"\\04\";\"\\05\";\"\\06\";\"\\07\";\"\\08\";\"\\09\";\"\\0A\";\"\\0B\";\"\\0C\";\"\\0D\";\"\\0E\";\"\\0F\"; \\\r\
-    \n                                 \"\\10\";\"\\11\";\"\\12\";\"\\13\";\"\\14\";\"\\15\";\"\\16\";\"\\17\";\"\\18\";\"\\19\";\"\\1A\";\"\\1B\";\"\\1C\";\"\\1D\";\"\\1E\";\"\\1F\"; \\\r\
-    \n                                 \"\\21\";\"\\22\";\"\\23\";\"\\24\";\"\\25\";\"\\26\";\"\\27\";\"\\28\";\"\\29\";\"\\2A\";\"\\2B\";\"\\2C\";\"\\2D\";\"\\2E\";\"\\2F\";\"\\3A\"; \\\r\
-    \n                                 \"\\3B\";\"\\3C\";\"\\3D\";\"\\3E\";\"\\3F\";\"\\40\";\"\\5B\";\"\\5C\";\"\\5D\";\"\\5E\";\"\\5F\";\"\\60\";\"\\7B\";\"\\7C\";\"\\7D\";\"\\7E\"; \\\r\
-    \n                                 \"\\C0\";\"\\C1\";\"\\C2\";\"\\C3\";\"\\C4\";\"\\C5\";\"\\C6\";\"\\C7\";\"\\C8\";\"\\C9\";\"\\CA\";\"\\CB\";\"\\CC\";\"\\CD\";\"\\CE\";\"\\CF\"; \\\r\
-    \n                                 \"\\D0\";\"\\D1\";\"\\D2\";\"\\D3\";\"\\D4\";\"\\D5\";\"\\D6\";\"\\D7\";\"\\D8\";\"\\D9\";\"\\DA\";\"\\DB\";\"\\DC\";\"\\DD\";\"\\DE\";\"\\DF\"; \\\r\
-    \n                                 \"\\E0\";\"\\E1\";\"\\E2\";\"\\E3\";\"\\E4\";\"\\E5\";\"\\E6\";\"\\E7\";\"\\E8\";\"\\E9\";\"\\EA\";\"\\EB\";\"\\EC\";\"\\ED\";\"\\EE\";\"\\EF\"; \\\r\
-    \n                                 \"\\F0\";\"\\F1\";\"\\F2\";\"\\F3\";\"\\F4\";\"\\F5\";\"\\F6\";\"\\F7\";\"\\F8\";\"\\F9\";\"\\FA\";\"\\FB\";\"\\FC\";\"\\FD\";\"\\FE\";\"\\FF\"; \\\r\
-    \n                                 \"\\A8\";\"\\B8\";\"\\B9\"}];\r\
-    \n        :local utf8   [:toarray {\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"000A\";\"0020\";\"0020\";\"000D\";\"0020\";\"0020\"; \\\r\
-    \n                                 \"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\"; \\\r\
-    \n                                 \"0021\";\"0022\";\"0023\";\"0024\";\"0025\";\"0026\";\"0027\";\"0028\";\"0029\";\"002A\";\"002B\";\"002C\";\"002D\";\"002E\";\"002F\";\"003A\"; \\\r\
-    \n                                 \"003B\";\"003C\";\"003D\";\"003E\";\"003F\";\"0040\";\"005B\";\"005C\";\"005D\";\"005E\";\"005F\";\"0060\";\"007B\";\"007C\";\"007D\";\"007E\"; \\\r\
-    \n                                 \"D090\";\"D091\";\"D092\";\"D093\";\"D094\";\"D095\";\"D096\";\"D097\";\"D098\";\"D099\";\"D09A\";\"D09B\";\"D09C\";\"D09D\";\"D09E\";\"D09F\"; \\\r\
-    \n                                 \"D0A0\";\"D0A1\";\"D0A2\";\"D0A3\";\"D0A4\";\"D0A5\";\"D0A6\";\"D0A7\";\"D0A8\";\"D0A9\";\"D0AA\";\"D0AB\";\"D0AC\";\"D0AD\";\"D0AE\";\"D0AF\"; \\\r\
-    \n                                 \"D0B0\";\"D0B1\";\"D0B2\";\"D0B3\";\"D0B4\";\"D0B5\";\"D0B6\";\"D0B7\";\"D0B8\";\"D0B9\";\"D0BA\";\"D0BB\";\"D0BC\";\"D0BD\";\"D0BE\";\"D0BF\"; \\\r\
-    \n                                 \"D180\";\"D181\";\"D182\";\"D183\";\"D184\";\"D185\";\"D186\";\"D187\";\"D188\";\"D189\";\"D18A\";\"D18B\";\"D18C\";\"D18D\";\"D18E\";\"D18F\"; \\\r\
-    \n                                 \"D001\";\"D191\";\"2116\"}];\r\
-    \n        :local convStr \"\"; \r\
-    \n        :local code    \"\";\r\
-    \n        :for i from=0 to=([:len \$1]-1) do={\r\
-    \n            :local symb [:pick \$1 \$i (\$i+1)]; \r\
-    \n            :local idx  [:find \$cp1251 \$symb];\r\
-    \n            :local key  (\$utf8->\$idx);\r\
-    \n            :if ([:len \$key] != 0) do={\r\
-    \n                :set \$code (\"%\$[:pick (\$key) 0 2]%\$[:pick (\$key) 2 4]\");\r\
-    \n                :if ([pick \$code 0 3] = \"%00\") do={:set \$code ([:pick \$code 3 6])}\r\
-    \n            } else={:set code (\$symb)}; \r\
-    \n            :set \$convStr (\$convStr.\$code);\r\
-    \n        }\r\
-    \n        :return (\$convStr);\r\
-    \n    }\r\
-    \n\r\
-    \n    # Telegram messenger response parsing function\r\
-    \n    # https://habr.com/ru/post/482802/\r\
-    \n    :local MsgParser do={\r\
-    \n        :local variaMod (\"\\\"\".\$2.\"\\\"\");\r\
-    \n        :if ([:len [:find \$1 \$variaMod -1]]=0) do={:return (\"'unknown'\")}\r\
-    \n        :local startLoc ([:find \$1 \$variaMod -1] + [:len \$variaMod] +1);\r\
-    \n        :local commaLoc ([:find \$1 \",\" \$startLoc]);\r\
-    \n        :local brakeLoc ([:find \$1 \"}\" \$startLoc]);\r\
-    \n        :local endLoc \$commaLoc;\r\
-    \n        :local startSymbol [:pick \$1 \$startLoc];\r\
-    \n        :if (\$brakeLoc != 0 and (\$commaLoc = 0 or \$brakeLoc < \$commaLoc)) do={:set endLoc \$brakeLoc};\r\
-    \n        :if (\$startSymbol = \"{\") do={:set endLoc (\$brakeLoc + 1)};\r\
-    \n        :if (\$3 = true) do={\r\
-    \n            :set startLoc (\$startLoc + 1);\r\
-    \n            :set endLoc   (\$endLoc   - 1);\r\
-    \n        }\r\
-    \n        :if (\$endLoc < \$startLoc) do={:set endLoc (\$startLoc + 1)};\r\
-    \n        :return ([:pick \$1 \$startLoc \$endLoc]);\r\
-    \n    }\r\
-    \n    \r\
-    \n    # Time translation function to UNIX-time\r\
-    \n    # https://forum.mikrotik.com/viewtopic.php\?t=75555#p790745\r\
-    \n    # Usage: \$EpochTime [time input]\r\
-    \n    # Get current time: put [\$EpochTime]\r\
-    \n    # Read log time in one of three format: \"hh:mm:ss\", \"mmm/dd hh:mm:ss\" or \"mmm/dd/yyyy hh:mm:ss\"\r\
-    \n    :local EpochTime do={\r\
-    \n        :local ds [/system clock get date];\r\
-    \n        :local ts [/system clock get time];\r\
-    \n        :if ([:len \$1] > 19) do={\r\
-    \n            :set ds \"\$[:pick \$1 0 11]\";\r\
-    \n            :set ts [:pick \$1 12 20];\r\
-    \n        }\r\
-    \n        :if ([:len \$1] > 8 && [:len \$1] < 20) do={\r\
-    \n            :set ds \"\$[:pick \$1 0 6]/\$[:pick \$ds 7 11]\";\r\
-    \n            :set ts [:pick \$1 7 15];\r\
-    \n        }\r\
-    \n        :local yesterday false;\r\
-    \n        :if ([:len \$1] = 8) do={\r\
-    \n            :if ([:totime \$1] > ts) do={:set yesterday (true)}\r\
-    \n            :set ts \$1;\r\
-    \n        }\r\
-    \n        :local months;\r\
-    \n        :if ((([:pick \$ds 9 11]-1)/4) != (([:pick \$ds 9 11])/4)) do={\r\
-    \n            :set months {\"an\"=0;\"eb\"=31;\"ar\"=60;\"pr\"=91;\"ay\"=121;\"un\"=152;\"ul\"=182;\"ug\"=213;\"ep\"=244;\"ct\"=274;\"ov\"=305;\"ec\"=335};\r\
-    \n        } else={\r\
-    \n            :set months {\"an\"=0;\"eb\"=31;\"ar\"=59;\"pr\"=90;\"ay\"=120;\"un\"=151;\"ul\"=181;\"ug\"=212;\"ep\"=243;\"ct\"=273;\"ov\"=304;\"ec\"=334};\r\
-    \n        }\r\
-    \n        :set ds (([:pick \$ds 9 11]*365)+(([:pick \$ds 9 11]-1)/4)+(\$months->[:pick \$ds 1 3])+[:pick \$ds 4 6]);\r\
-    \n        :set ts (([:pick \$ts 0 2]*3600)+([:pick \$ts 3 5]*60)+[:pick \$ts 6 8]);\r\
-    \n        :if (yesterday) do={:set ds (\$ds-1)}\r\
-    \n        :return (\$ds*86400 + \$ts + 946684800 - [/system clock get gmt-offset]);\r\
-    \n    }\r\
-    \n\r\
-    \n    # Time conversion function from UNIX-time\r\
-    \n    # https://forummikrotik.ru/viewtopic.php\?t=11636\r\
-    \n    # usage: [\$UnixTimeToFormat \"timeStamp\" \"type\"]\r\
-    \n    # type: \"unspecified\" - month/dd/yyyy <only>    (Mikrotik sheduller format)\r\
-    \n    #                   1 - yyyy/mm/dd hh:mm:ss\r\
-    \n    #                   2 - dd:mm:yyyy hh:mm:ss\r\
-    \n    #                   3 - dd month yyy hh mm ss\r\
-    \n    #                   4 - yyyy month dd hh mm ss\r\
-    \n    #                   5 - month/dd/yyyy-hh:mm:ss  (Mikrotik sheduller format)\r\
-    \n    :local UnixTimeToFormat do={\r\
-    \n        :local decodedLine \"\";\r\
-    \n        :local timeStamp \$1;\r\
-    \n        :local timeS (\$timeStamp % 86400);\r\
-    \n        :local timeH (\$timeS / 3600);\r\
-    \n        :local timeM (\$timeS % 3600 / 60);\r\
-    \n        :set  \$timeS (\$timeS - \$timeH * 3600 - \$timeM * 60);\r\
-    \n        :local dateD (\$timeStamp / 86400);\r\
-    \n        :local dateM 2;\r\
-    \n        :local dateY 1970;\r\
-    \n        :local leap false;\r\
-    \n        :while ((\$dateD / 365) > 0) do={\r\
-    \n            :set \$dateD (\$dateD - 365);\r\
-    \n            :set \$dateY (\$dateY + 1);\r\
-    \n            :set \$dateM (\$dateM + 1);\r\
-    \n            :if (\$dateM = 4) do={\r\
-    \n                :set \$dateM 0;\r\
-    \n                :if ((\$dateY % 400 = 0) or (\$dateY % 100 != 0)) do={\r\
-    \n                    :set \$leap true;\r\
-    \n                    :set \$dateD (\$dateD - 1);\r\
-    \n                }\r\
-    \n            } else={:set \$leap false}\r\
-    \n        }\r\
-    \n        :local months [:toarray (0,31,28,31,30,31,30,31,31,30,31,30,31)];\r\
-    \n        :if (leap) do={\r\
-    \n            :set \$dateD (\$dateD + 1);\r\
-    \n            :set (\$months->2) 29;\r\
-    \n        }\r\
-    \n        :do {\r\
-    \n            :for i from=1 to=12 do={\r\
-    \n                :if ((\$months->\$i) > \$dateD) do={\r\
-    \n                    :set \$dateM \$i;\r\
-    \n                    :set \$dateD (\$dateD + 1);\r\
-    \n                    break;\r\
-    \n                } else={:set \$dateD (\$dateD - (\$months->\$i))}\r\
-    \n            }\r\
-    \n        } on-error={}\r\
-    \n        :local tmod;\r\
-    \n        :if ([:len \$2]!=0) do={:set \$tmod \$2} else={:set \$tmod (:nothing)}\r\
-    \n        :local s \"/\";\r\
-    \n        :local nf true;\r\
-    \n        :local mstr {\"jan\";\"feb\";\"mar\";\"apr\";\"may\";\"jun\";\"jul\";\"aug\";\"sep\";\"oct\";\"nov\";\"dec\"};\r\
-    \n        :local strY [:tostr \$dateY];\r\
-    \n        :local strMn;\r\
-    \n        :local strD;\r\
-    \n        :local strH;\r\
-    \n        :local strM;\r\
-    \n        :local strS;\r\
-    \n        :if (\$nf) do={\r\
-    \n            :if (\$dateM > 9) do={:set \$strMn [:tostr \$dateM]} else={:set \$strMn (\"0\".[:tostr \$dateM])}\r\
-    \n            :if (\$dateD > 9) do={:set \$strD  [:tostr \$dateD]} else={:set \$strD  (\"0\".[:tostr \$dateD])}\r\
-    \n            :if (\$timeH > 9) do={:set \$strH  [:tostr \$timeH]} else={:set \$strH  (\"0\".[:tostr \$timeH])}\r\
-    \n            :if (\$timeM > 9) do={:set \$strM  [:tostr \$timeM]} else={:set \$strM  (\"0\".[:tostr \$timeM])}\r\
-    \n            :if (\$timeS > 9) do={:set \$strS  [:tostr \$timeS]} else={:set \$strS  (\"0\".[:tostr \$timeS])}\r\
-    \n        } else={\r\
-    \n            :set strMn [:tostr \$dateM];\r\
-    \n            :set strD  [:tostr \$dateD];\r\
-    \n            :set strH  [:tostr \$timeH];\r\
-    \n            :set strM  [:tostr \$timeM];\r\
-    \n            :set strS  [:tostr \$timeS];\r\
-    \n        }\r\
-    \n        :do {\r\
-    \n            :if ([:len \$tmod]=0) do={:local mt (\$mstr->(\$dateM - 1)); :set \$decodedLine (\"\$mt/\".\"\$strD/\".\"\$strY\"); break}\r\
-    \n            :if (\$tmod = 1) do={:set \$decodedLine \"\$strY\$s\$strMn\$s\$strD \$strH:\$strM:\$strS\"; break}\r\
-    \n            :if (\$tmod = 2) do={:set \$decodedLine \"\$strD\$s\$strMn\$s\$strY \$strH:\$strM:\$strS\"; break}\r\
-    \n            :if (\$tmod = 3) do={:set \$decodedLine (\"\$strD \".(\$mstr->(\$dateM - 1)).\" \$strY \$strH:\$strM:\$strS\"); break}\r\
-    \n            :if (\$tmod = 4) do={:set \$decodedLine (\"\$strY \".(\$mstr->(\$dateM - 1)).\" \$strD \$strH:\$strM:\$strS\"); break}\r\
-    \n            :if (\$tmod = 5) do={:local m (\$mstr->(\$dateM - 1)); :set \$decodedLine (\"\$m/\".\"\$strD/\".\"\$strY\".\"-\$strH:\$strM:\$strS\"); break}\r\
-    \n        } on-error={}\r\
-    \n        :return (\$decodedLine);\r\
-    \n    }\r\
-    \n\r\
-    \n    # Main body of the script\r\
-    \n    :global timeAct;\r\
-    \n    :global timeLog;\r\
-    \n    :local  nameID [/system identity get name];\r\
-    \n    :local  timeOf [/system clock get gmt-offset];\r\
-    \n    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Start of TLGRM-script on '\$nameID' router.\");\r\
-    \n    :if ([:len \$timeAct] > 0) do={:put (\"\$[\$UnixTimeToFormat (\$timeAct + \$timeOf) 1] - Time when the last command was launched.\")}\r\
-    \n    :if ([:len \$timeLog] > 0) do={:put (\"\$[\$UnixTimeToFormat (\$timeLog + \$timeOf) 1] - Time when the log entries were last sent.\")}\r\
-    \n\r\
-    \n    # Part of the script body to launch via Telegram\r\
-    \n    # https://forummikrotik.ru/viewtopic.php\?p=78085\r\
-    \n    :local  timeStamp [\$EpochTime];\r\
-    \n    :local  urlString \"https://api.telegram.org/\$botID/getUpdates\\\?offset=-1&limit=1&allowed_updates=message\";\r\
-    \n    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - *** Stage of launch scripts, function & commands via Telegram:\");\r\
-    \n    :if ([:len \$timeAct] = 0) do={\r\
-    \n        :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Time of the last launch of the command was not found.\");\r\
-    \n        :set timeAct \$timeStamp;\r\
-    \n    } else={\r\
-    \n        :local httpResp [/tool fetch url=\$urlString as-value output=user];\r\
-    \n        :local content (\$httpResp->\"data\");\r\
-    \n        :if ([:len \$content] > 30) do={\r\
-    \n            :local msgTxt   [\$MsgParser \$content \"text\" true];\r\
-    \n            :set   msgTxt  ([:pick \$msgTxt  ([:find \$msgTxt \"/\" -1] +1)  [:len \$msgTxt]]);\r\
-    \n            :local msgAddr \"\";\r\
-    \n            :if (\$broadCast) do={:set \$msgAddr \$nameID} else={\r\
-    \n                :set msgAddr ([:pick \$msgTxt 0 [:find \$msgTxt \" \" -1]]);\r\
-    \n                :if ([:len [:find \$msgTxt \" \"]]=0) do={:set msgAddr (\"\$msgTxt \")}\r\
-    \n                :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Recipient of the Telegram message: '\$msgAddr'\");\r\
-    \n                :set msgTxt ([:pick \$msgTxt ([:find \$msgTxt \$msgAddr -1] + [:len \$msgAddr] +1) [:len \$msgTxt]]);\r\
-    \n            }\r\
-    \n            :if (\$msgAddr=\$nameID or \$msgAddr=\"forall\") do={\r\
-    \n                :local chat     [\$MsgParser \$content \"chat\"];\r\
-    \n                :local chatId   [\$MsgParser \$chat    \"id\"];\r\
-    \n                :local userName [\$MsgParser \$content \"username\"];\r\
-    \n                :set  timeStamp [\$MsgParser \$content \"date\"];\r\
-    \n                :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Sender of the Telegram message: \$userName\");\r\
-    \n                :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Command to execute: '\$msgTxt'\");\r\
-    \n                :local restline [];\r\
-    \n                :if ([:len [:find \$msgTxt \" \"]] !=0) do={\r\
-    \n                    :set restline [:pick \$msgTxt  ([:find \$msgTxt \" \"] +1) [:len \$msgTxt]];\r\
-    \n                    :set msgTxt [:pick \$msgTxt 0 [:find \$msgTxt \" \"]];\r\
-    \n                }\r\
-    \n                :if (\$chatId=\$myChatID && \$timeAct<\$timeStamp) do={\r\
-    \n                    :set timeAct \$timeStamp;\r\
-    \n                    :if ([/system script environment find name=\$msgTxt]!=\"\" && \$launchFnc=true) do={   \r\
-    \n                        :if (([/system script environment get [/system script environment find name=\$msgTxt] value]=\"(code)\") \\\r\
-    \n                            or  ([:len [:find [/system script environment get [/system script environment find name=\$msgTxt] value] \"(eval\"]]>0)) do={\r\
-    \n                            :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Telegram user \$userName launches function '\$msgTxt'.\");\r\
-    \n                            :log warning (\"Telegram user \$userName launches function '\$msgTxt'.\");\r\
-    \n                            [:parse \":global \$msgTxt; [\\\$\$msgTxt \$restline]\"];\r\
-    \n                        } else={\r\
-    \n                            :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - '\$msgTxt' is a global variable and not a function - no execute.\");\r\
-    \n                            :log warning (\"'\$msgTxt' is a global variable and not a function - no execute.\");\r\
-    \n                        }\r\
-    \n                    }\r\
-    \n                    :if ([/system script find name=\$msgTxt]!=\"\" && \$launchScr=true) do={\r\
-    \n                        :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Telegram user \$userName activates script '\$msgTxt'.\");\r\
-    \n                        :log warning (\"Telegram user \$userName activates script '\$msgTxt'.\");\r\
-    \n                        [[:parse \"[:parse [/system script get \$msgTxt source]] \$restline\"]];\r\
-    \n                    }\r\
-    \n                    :if ([/system script find name=\$msgTxt]=\"\" && [/system script environment find name=\$msgTxt;]=\"\" && \$launchCmd=true) do={\r\
-    \n                        :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Telegram user \$userName is trying to execute command '\$msgTxt'.\");\r\
-    \n                        :log warning (\"Telegram user \$userName is trying to execute command '\$msgTxt'.\");\r\
-    \n                        :do {[:parse \"/\$msgTxt \$restline\"]} on-error={}\r\
-    \n                    }\r\
-    \n                } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Wrong time to launch.\")}\r\
-    \n            } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - No command found for this device.\")}\r\
-    \n        } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Completion of response from Telegram.\")}\r\
-    \n    }\r\
-    \n\r\
-    \n    # Part of the script body for notifications in Telegram\r\
-    \n    # https://www.reddit.com/r/mikrotik/comments/onusoj/sending_log_alerts_to_telegram/\r\
-    \n    :local outMsg \"\";\r\
-    \n    :local logGet [:toarray [/log find (\$topics~\"warning\" or \$topics~\"error\" or \$topics~\"critical\" or \$topics~\"caps\" or \\\r\
-    \n        \$topics~\"wireless\" or \$message~\"logged in\" or \$message~\"TCP connection\")]];\r\
-    \n    :local logCnt [:len \$logGet];\r\
-    \n    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - *** Stage of sending notifications to Telegram:\");\r\
-    \n    :if ([:len \$timeLog] = 0) do={ \r\
-    \n        :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Time of the last log entry was not found.\");\r\
-    \n        :set outMsg (\">\$[/system clock get time] Telegram notification started.\");\r\
-    \n    }\r\
-    \n    :if (\$logCnt > 0) do={\r\
-    \n        :local lastTime [\$EpochTime [/log get [:pick \$logGet (\$logCnt-1)] time]];\r\
-    \n        :local index 0;\r\
-    \n        :local tempTime;\r\
-    \n        :local tempMessage;\r\
-    \n        :local tempTopic;\r\
-    \n        :local unixTime;\r\
-    \n        :do {\r\
-    \n            :set index        (\$index + 1); \r\
-    \n            :set tempTime     [/log get [:pick \$logGet (\$logCnt - \$index)]    time];\r\
-    \n            :set tempTopic    [/log get [:pick \$logGet (\$logCnt - \$index)]  topics];\r\
-    \n            :set tempMessage  [/log get [:pick \$logGet (\$logCnt - \$index)] message];\r\
-    \n            :set tempMessage  (\">\".\$tempTime.\" \".\$tempMessage);\r\
-    \n            :local findMacMsg ([\$FindMacAddr \$tempMessage]);\r\
-    \n            :set unixTime [\$EpochTime \$tempTime];\r\
-    \n            :if ((\$unixTime > \$timeLog) && (!((\$tempTopic~\"caps\" or \$tempTopic~\"wireless\" or \$tempTopic~\"dhcp\") \\\r\
-    \n                && (\$tempMessage != \$findMacMsg)))) do={\r\
-    \n                :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Found log entry: \$findMacMsg\");\r\
-    \n                :set outMsg (\$findMacMsg.\"\\n\".\$outMsg);\r\
-    \n            }\r\
-    \n        } while=((\$unixTime > \$timeLog) && (\$index < \$logCnt));\r\
-    \n        :if (([:len \$timeLog] < 1) or (([:len \$timeLog] > 0) && (\$timeLog != \$lastTime) && ([:len \$outMsg] > 8) )) do={\r\
-    \n            :set timeLog \$lastTime;\r\
-    \n            :if ([:len \$outMsg] > 4096) do={:set outMsg ([:pick \$outMsg 0 4096])}\r\
-    \n            :set outMsg [\$CP1251toUTF8 \$outMsg];\r\
-    \n            :set outMsg (\"\$Emoji \".\"\$nameID\".\":\".\"%0A\".\"\$outMsg\");\r\
-    \n            :local urlString (\"https://api.telegram.org/\$botID/sendmessage\\\?chat_id=\$myChatID&text=\$outMsg\");\r\
-    \n            :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Generated string for Telegram:\\r\\n\".\$urlString);\r\
-    \n            /tool fetch url=\$urlString as-value output=user;\r\
-    \n        } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - There are no log entries to send.\")}\r\
-    \n    } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - Necessary log entries were not found.\")}\r\
-    \n    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime] + \$timeOf) 1] - End of TLGRM-script on '\$nameID' router.\");\r\
-    \n} on-error={ \r\
-    \n    :put (\"Script error: something didn't work when sending a request to Telegram.\");\r\
-    \n    :put (\"*** First, check the correctness of the values of the variables botID & myChatID. ***\"); \r\
-    \n}\r\
-    \n\r\
-    \n"
-/system script add comment="keeps scripts and schedules owner constant" dont-require-permissions=yes name=doKeepScriptsOwner owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doKeepScriptsOwner\";\r\
-    \n\r\
-    \n:local state \"\";\r\
-    \n:local mgmtUsername \"owner\"; # main administrator \r\
-    \n:global globalCallFetch;\r\
-    \n:global globalNoteMe;\r\
-    \n\r\
-    \n:local impersonate false; # user password needed when true\r\
-    \n:local thePass \"\";\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \n    # We now need to change script and schedules ownage from *sys user\r\
-    \n    # This can be done via ftp impersonation - here is the trick (the only way to change SCHEDULE owner is to recreate entry UNDER this user)\r\
-    \n    # In RouterOS it is possible to automatically execute scripts - your script file has to be named anything.auto.rsc \r\
-    \n    # once this file is uploaded using FTP to the router, it will automatically be executed, just like with the '/import' command. \r\
-    \n    # This method only works with FTP\r\
-    \n\r\
-    \n    :local scriptCount [:len [/system script find where owner!=\"\$mgmtUsername\"]];\r\
-    \n    :local schedCount  [:len [/system scheduler find where owner!=\"\$mgmtUsername\"]];\r\
-    \n\r\
-    \n    :if (\$scriptCount = 0 and \$schedCount = 0) do={\r\
-    \n        :set state \"No scripts and schedules owner change needed\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :error \$state;\r\
-    \n    };    \r\
-    \n\r\
-    \n    :if ([:len [/user find name=\"\$mgmtUsername\"]] > 0) do={\r\
-    \n \r\
-    \n        :if (\$impersonate) do={\r\
-    \n\r\
-    \n            :local buffer \"\\r\\ \r\
-    \n                            \\n # we can change script owner as usual\\r\\\r\
-    \n                            \\n /system script set owner=\\\"\$mgmtUsername\\\" [find where owner!=\\\"\$mgmtUsername\\\"];\\r\\\r\
-    \n                            \\n\\r\\ \r\
-    \n                            \\n # the only way to change schedule owner is to recreate entry\\r\\\r\
-    \n                            \\n /system scheduler;\\r\\ \r\
-    \n                            \\n :foreach schEndpoint in=[find  where owner!=\\\"\$mgmtUsername\\\"] do={\\r\\\r\
-    \n                            \\n  :local name [get value-name=name \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local startTime [get value-name=start-time \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local onEvent [get value-name=on-event \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local interval [get value-name=interval \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local startDate [get value-name=start-date \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local comment [get value-name=comment \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      remove \\\$schEndpoint;\\r\\\r\
-    \n                            \\n      add name=\\\"\\\$name\\\" start-time=\\\"\\\$startTime\\\"  on-event=\\\"\\\$onEvent\\\" interval=\\\"\\\$interval\\\" start-date=\\\"\\\$startDate\\\" comment=\\\"\\\$comment\\\";\\r\\\r\
-    \n                            \\n      }\\r\\\r\
-    \n                            \\n;\";\r\
-    \n\r\
-    \n            # delete all previous files\r\
-    \n            :local rsc \"ownage.rsc.txt\";\r\
-    \n            /file remove [/file find where name=\"\$rsc\"];\r\
-    \n            # create the file as it doesn't exist yet\r\
-    \n            /file print file=\"\$rsc\";\r\
-    \n            # wait for filesystem to create file\r\
-    \n            :delay 6;\r\
-    \n            # write the buffer into it\r\
-    \n            :set state \"Creating script file '\$rsc' with commands '\$buffer'\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n            # i will not remove this file later to got a chance to manually reproduce fetch if it fail via this script\r\
-    \n            /file set [/file find where name=\"\$rsc\"] contents=\"\$buffer\";    \r\
-    \n            :local filecontent [/file get [/file find where name=\"\$rsc\"] contents];\r\
-    \n            :set state \"Created command file '\$rsc' with content '\$filecontent'\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n            # push it and and autorun under mgmtUsername account\r\
-    \n            :set state \"Pushing autorun command file as user '\$mgmtUsername' via FTP\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n            :local fetchCmd  \"/tool fetch address=127.0.0.1 mode=ftp src-path=\$rsc dst-path=ownage.auto.rsc user=\\\"\$mgmtUsername\\\" password=\\\"\$thePass\\\" host=\\\"\\\" upload=\\\"yes\\\"\";\r\
-    \n\r\
-    \n            \$globalCallFetch \$fetchCmd;\r\
-    \n\r\
-    \n            /file remove [/file find where name=\"\$rsc\"];\r\
-    \n\r\
-    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n        } else={\r\
-    \n\r\
-    \n            /system script set owner=\"\$mgmtUsername\" [find where owner!=\"\$mgmtUsername\"];\r\
-    \n            # the only way to change schedule owner is to recreate entry\\r\\\r\
-    \n            /system scheduler;\r\
-    \n            :foreach schEndpoint in=[find  where owner!=\"\$mgmtUsername\"] do={\r\
-    \n              :local name [get value-name=name \$schEndpoint];\r\
-    \n                  :local startTime [get value-name=start-time \$schEndpoint];\r\
-    \n                  :local onEvent [get value-name=on-event \$schEndpoint];\r\
-    \n                  :local interval [get value-name=interval \$schEndpoint];\r\
-    \n                  :local startDate [get value-name=start-date \$schEndpoint];\r\
-    \n                  :local comment [get value-name=comment \$schEndpoint];\r\
-    \n                  remove \$schEndpoint;\r\
-    \n                  add name=\"\$name\" start-time=\"\$startTime\"  on-event=\"\$onEvent\" interval=\"\$interval\" start-date=\"\$startDate\" comment=\"\$comment\";\r\
-    \n                  };\r\
-    \n\r\
-    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n        }  \r\
-    \n\r\
-    \n\r\
-    \n    } else={\r\
-    \n        :set state \"Cant find user '\$mgmtUsername' for impersonation call\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n    }\r\
-    \n\r\
-    \n} on-error={ \r\
-    \n    :set state \"Changing scripts and schedules ownage - ERROR\";\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n}"
 /tool bandwidth-server set enabled=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 tls=yes user=defm.kopcap@gmail.com
 /tool graphing set page-refresh=50
