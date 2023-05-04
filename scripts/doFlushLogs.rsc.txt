@@ -1,0 +1,12 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doFlushLogs";
+
+:local state ""
+
+:set state "FLUSHING logs.."
+$globalNoteMe value=$state;
+
+/system/logging/action/set memory-lines=1 [find target=memory]
+/system/logging/action/set memory-lines=300 [find target=memory]
+

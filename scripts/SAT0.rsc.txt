@@ -1,0 +1,82 @@
+#--------------------------------------------------------------------------------------------------------------------------
+# SATELLITE0 module  for TLGRM version 2.2 by Sertik (Serkov S.V.) 25/10/2022
+#--------------------------------------------------------------------------------------------------------------------------
+
+# declare functions:
+
+:global satlogo
+:global satlist
+
+
+# выдача логотипа библиотеки в лог
+#              satlogo
+# ---------------------------------------------------------
+
+:set satlogo do={
+:if ([:len $0]!=0) do={
+:global fSATversion
+:global GroupChat
+:log warning "";
+:log warning "#-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-#";
+:log warning "#                 Library SATELLITE for TLGRM" ;
+:log warning "#   Библиотека СПУТНИК для парсера TLGRM";
+:log warning "#       by Serkov S.V. (Sertik) update 25/10/2022";
+:log warning "#                                 version $fSATversion"; 
+:log warning "#-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-#";
+:log error  ("To display a list of commands, type in the your chat: "."/");  
+:log info "";
+ }
+:return []}
+
+
+# установка списка команд-функций библиотеки
+#                satlist в чат Телеграмм
+# -----------------------------------------------------------------------
+
+# update 25/10/2022 works only with function tlgrmcmd in TLGRM script
+
+# $1 - key array list commands
+# $2 - may be ="identity", "forall", []
+
+:set satlist do={
+# скрипт установки списка команд библиотеки SATELLITE в чатбот Телеграмм
+# the script for installing the list of commands of the SATELLITE library in the Telegram chatbot
+
+:global broadCast
+:global tlgrmcmd; :if (any $tlgrmcmd) do={
+:local arrayCom [:toarray {"arp"="список arp";
+                                 "address"="список ip addresses";
+                                 "backup"="резервное копирование конфигурации роутера";
+                                 "lease"="список DHCP liase";
+                                  "report"="отчет статуса роутера";
+                                  "status"="параметры системы";
+                                  "vpnuser"="настроенные VPN-пользователи с паролями";
+                                   "vpn"="серверы и клиенты VPN роутера";
+                                   "wifi"="wifi-интерфейсы роутера";
+                                    "wifireg"="зарегистрированные в сети wifi-пользователи";
+                                    "wifiaccess"="разрешенные wifi-пользователи";
+                                     "wificonnect"="wifi-клиентские станции";
+                                     "wifipass"="пароли wifi-сети/ей";
+                                      "dhcpclient"="роутер-клиент DHCP";
+                                      "users"="настроенные и активные пользователи роутера";
+                                     "log"="выдать строки лога в Телеграмм";
+                                     "logreset"="очистка лога";
+                                     "pingpong"="проверка хоста на пинг";
+                                     "mail"="функция отправки почты";
+                                      "smssend"="отправка SMS через модем роутера";
+                                     "modeminfo"="поиск и отчёт модемов роутера";
+                                      "scriptlist"="список скриптов роутера с комметариями";
+                                      "funclist"="список активных функций в Environment"; 
+                                       "schedlist"="список заданий Планировщика"; 
+                                       "globalvarlist"="глобальные переменные и их значения"}]
+
+:if ($broadCast) do={:log warning (" list of commands of the SATELLITE library in the Telegram chatbot set is "."$[$tlgrmcmd $arrayCom]")} else={
+:log warning (" list of commands of the SATELLITE library in the Telegram chatbot set is "."$[$tlgrmcmd $arrayCom identity]")}
+ }
+}
+
+
+
+:log info "  -    SATELLITE0 module is set"
+
+
