@@ -1,4 +1,4 @@
-# may/04/2023 12:12:20 by RouterOS 7.8
+# may/04/2023 12:29:07 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -728,8 +728,8 @@
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=critical
 /system note set note="anna: \t\t7.8 \
-    \nUptime:\t\t12:07:39  \
-    \nTime:\t\tmay/04/2023 12:10:12  \
+    \nUptime:\t\t12:17:39  \
+    \nTime:\t\tmay/04/2023 12:20:12  \
     \nya.ru latency:\t4 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
@@ -1585,8 +1585,6 @@
     \n/system script run doEnvironmentClearance;\r\
     \n\r\
     \n/system script run doEnvironmentSetup;\r\
-    \n\r\
-    \n/system script run SAT!start;\r\
     \n\r\
     \n/system script run doImperialMarch;\r\
     \n\r\
@@ -3162,7 +3160,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
