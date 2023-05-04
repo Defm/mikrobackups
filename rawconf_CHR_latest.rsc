@@ -1,7 +1,5 @@
-# apr/11/2023 21:00:02 by RouterOS 6.49.6
+# apr/26/2023 21:00:02 by RouterOS 7.8
 # software id = 
-#
-#
 #
 /interface bridge add arp=proxy-arp fast-forward=no name="main infrastructure"
 /interface bridge add arp=proxy-arp fast-forward=no name=ospf-loopback
@@ -9,9 +7,12 @@
 /interface l2tp-server add disabled=yes name=rw-alx user=vpn-user-alx
 /interface l2tp-server add name=tunnel-anna user=vpn-remote-anna
 /interface l2tp-server add name=tunnel-mikrotik user=vpn-remote-mic
+/disk set disk1 slot=disk1
+/disk set slot1 slot=slot1
 /interface list add comment="trusted interfaces" name=trusted
 /interface list add comment="neighbors allowed interfaces" name=neighbors
 /interface list add comment="includes l2tp client interfaces when UP" name=l2tp-dynamic-tun
+/interface lte apn set [ find default=yes ] ip-type=ipv4 use-network-apn=no
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=roadwarrior-ipsec
@@ -20,8 +21,8 @@
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=IOS/OSX
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=WINDOWS
-/ip ipsec peer add address=85.174.204.244/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=85.174.204.244/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, remotely updated via SSH)" disabled=yes exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-STATIC-IP-RANGE passive=yes profile=ROUTEROS send-initial-contact=no
+/ip ipsec peer add address=85.174.195.133/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=MIC-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=46.39.51.172/32 comment="IPSEC IKEv2 VPN PHASE1 (ANNA, outer-tunnel encryption, RSA, port-override, MGTS ip range)" exchange-mode=ike2 local-address=185.13.148.14 name=ANNA-OUTER-IP-REMOTE-CONTROLLABLE passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=10.0.0.3/32 comment="IPSEC IKEv2 VPN PHASE1 (ANNA, traffic-only encryption)" local-address=10.0.0.1 name=ANNA-INNER passive=yes profile=ROUTEROS send-initial-contact=no
 /ip ipsec peer add address=10.0.0.2/32 comment="IPSEC IKEv2 VPN PHASE1 (MIC, traffic-only encryption)" local-address=10.0.0.1 name=MIC-INNER passive=yes profile=ROUTEROS send-initial-contact=no
@@ -35,56 +36,79 @@
 /ip pool add name=vpn-clients ranges=10.0.0.0/29
 /ip pool add name=int-clients ranges=192.168.97.0/29
 /ip pool add name=rw-clients ranges=10.10.10.8/29
-/ip dhcp-server add add-arp=yes address-pool=int-clients bootp-support=none disabled=no interface=wan name=internal
+/ip dhcp-server add add-arp=yes address-pool=int-clients bootp-support=none interface=wan name=internal
 /ip ipsec mode-config add address-pool=vpn-clients address-prefix-length=30 name=common-setup static-dns=8.8.8.8 system-dns=no
 /ip ipsec mode-config add address-pool=rw-clients address-prefix-length=32 name=roadwarrior-setup
+/port set 0 name=serial0
+/port set 1 name=serial1
 /ppp profile add address-list=l2tp-active-clients dns-server=8.8.8.8,8.8.4.4 interface-list=l2tp-dynamic-tun local-address=10.0.0.1 name=l2tp-no-encrypt-site2site only-one=no remote-address=vpn-clients
 /ppp profile add address-list=l2tp-active-clients dns-server=8.8.8.8,8.8.4.4 interface-list=l2tp-dynamic-tun local-address=10.0.0.1 name=l2tp-no-encrypt-ios-rw only-one=no remote-address=rw-clients
-/routing ospf area add area-id=0.0.0.1 default-cost=1 inject-summary-lsas=no name=chr-space type=stub
-/routing ospf instance set [ find default=yes ] distribute-default=if-installed-as-type-2 name=routes-provider-chr router-id=10.255.255.1
+/routing bgp template set default disabled=no output.network=bgp-networks
+/routing id add comment="OSPF Common" id=10.255.255.1 name=chr-10.255.255.1
+/routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-main originate-default=never redistribute="" router-id=chr-10.255.255.1
+/routing ospf area add disabled=no instance=routes-inject-into-main name=backbone
+/routing ospf area add area-id=0.0.0.1 default-cost=1 disabled=no instance=routes-inject-into-main name=chr-space-main no-summaries type=stub
+/routing table add fib name=mark-site-over-vpn
+/routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
+/routing table add comment="tunnel swing" fib name=rmark-telegram-redirect
 /snmp community set [ find default=yes ] addresses=0.0.0.0/0 disabled=yes
 /snmp community add addresses=::/0 name=globus
-/system logging action add memory-lines=10000 name=IpsecOnScreenLog target=memory
-/system logging action add disk-file-count=20 disk-file-name=ScriptsDiskLog disk-lines-per-file=3000 name=ScriptsDiskLog target=disk
-/system logging action add disk-file-count=10 disk-file-name=ErrorDiskLog disk-lines-per-file=30000 name=ErrorDiskLog target=disk
+/system logging action set 1 disk-file-name=journal
+/system logging action add name=IpsecOnScreenLog target=memory
+/system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
+/system logging action add disk-file-count=20 disk-file-name=ErrorDiskLog disk-lines-per-file=30000 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
 /system logging action add memory-lines=500 name=OnScreenLog target=memory
 /system logging action add name=DHCPOnScreenLog target=memory
 /system logging action add name=DNSOnScreenLog target=memory
-/system logging action add name=RouterControlDiskLog target=memory
-/system logging action add name=OSFTOnScreenLog target=memory
-/system logging action add memory-lines=10000 name=L2TPOnScreenLog target=memory
+/system logging action add name=RouterControlLog target=memory
+/system logging action add name=OSPFOnscreenLog target=memory
+/system logging action add name=L2TPOnScreenLog target=memory
 /system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=30000 name=AuthDiskLog target=disk
-/system logging action add name=CertificatesOnScreenLog target=memory
-/system logging action add memory-lines=10000 name=SSHOnscreenLog target=memory
-/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!write,!policy,!sensitive,!dude
-/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,tikapp,!ftp,!reboot,!policy,!sensitive,!dude
-/user group set full policy=local,telnet,ssh,ftp,reboot,read,write,policy,test,winbox,password,web,sniff,sensitive,api,romon,dude,tikapp
-/user group add name=remote policy=ssh,read,write,winbox,!local,!telnet,!ftp,!reboot,!policy,!test,!password,!web,!sniff,!sensitive,!api,!romon,!dude,!tikapp
+/system logging action add memory-lines=10000 name=CertificatesOnScreenLog target=memory
+/system logging action add memory-lines=6000 name=ParseMemoryLog target=memory
+/system logging action add name=CAPSOnScreenLog target=memory
+/system logging action add name=FirewallOnScreenLog target=memory
+/system logging action add name=SSHOnScreenLog target=memory
+/system logging action add name=PoEOnscreenLog target=memory
+/system logging action add name=EmailOnScreenLog target=memory
+/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
+/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
+/user group add name=remote policy=ssh,read,write,winbox,!local,!telnet,!ftp,!reboot,!policy,!test,!password,!web,!sniff,!sensitive,!api,!romon,!rest-api
 /certificate scep-server add ca-cert=ca@CHR days-valid=365 next-ca-cert=ca@CHR path=/scep/grant request-lifetime=5m
 /certificate settings set crl-download=yes crl-use=yes
-#error exporting /interface bridge calea
+#error exporting /interface/bridge/calea
 /interface bridge settings set allow-fast-path=no use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes
 /ip neighbor discovery-settings set discover-interface-list=neighbors
-/ip settings set accept-source-route=yes allow-fast-path=no rp-filter=loose
+/ip settings set accept-source-route=yes allow-fast-path=no max-neighbor-entries=8192 rp-filter=loose
+/ipv6 settings set disable-ipv6=yes max-neighbor-entries=8192
 /interface detect-internet set detect-interface-list=all
-/interface l2tp-server server set authentication=mschap2 default-profile=l2tp-no-encrypt-site2site enabled=yes ipsec-secret=123 max-mru=1418 max-mtu=1418
+/interface l2tp-server server set authentication=mschap2 default-profile=l2tp-no-encrypt-site2site enabled=yes max-mru=1418 max-mtu=1418
 /interface list member add comment="neighbors lookup" interface=tunnel-mikrotik list=neighbors
 /interface list member add comment="neighbors lookup" interface="main infrastructure" list=neighbors
-/ip accounting set enabled=yes
+/interface ovpn-server server set auth=sha1,md5
 /ip address add address=192.168.97.1/29 comment="local IP" interface="main infrastructure" network=192.168.97.0
 /ip address add address=10.255.255.1 comment="ospf router-id binding" interface=ospf-loopback network=10.255.255.1
 /ip cloud set ddns-enabled=yes update-time=yes
-/ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=no interface=wan use-peer-ntp=no
+/ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname interface=wan use-peer-ntp=no
 /ip dhcp-server network add address=10.0.0.0/29 dns-server=8.8.8.8,8.8.4.4 gateway=10.0.0.1
 /ip dhcp-server network add address=192.168.97.0/29 gateway=192.168.97.1
 /ip dns set cache-max-ttl=1d
-/ip dns static add address=10.0.0.1 name=CHR
 /ip dns static add address=192.168.90.70 name=minialx.home
+/ip dns static add cname=minialx.home name=minialx type=CNAME
 /ip dns static add address=192.168.90.40 name=nas.home
+/ip dns static add cname=nas.home name=nas type=CNAME
 /ip dns static add address=192.168.99.1 name=mikrouter.home
-/ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
+/ip dns static add cname=mikrouter.home name=mikrouter type=CNAME
+/ip dns static add address=192.168.90.1 name=anna.home
+/ip dns static add cname=anna.home name=anna type=CNAME
+/ip dns static add address=192.168.90.2 name=wb.home
+/ip dns static add cname=wb.home name=wb type=CNAME
+/ip dns static add address=192.168.97.1 name=chr.home
+/ip dns static add cname=chr.home name=chr type=CNAME
+/ip dns static add address=192.168.90.10 name=capxl.home
+/ip dns static add cname=capxl.home name=capxl type=CNAME
 /ip dns static add address=185.13.148.14 name=ftpserver.org
 /ip firewall address-list add address=8.8.8.8 list=dns-accept
 /ip firewall address-list add address=192.168.97.0/29 list=mis-network
@@ -99,12 +123,12 @@
 /ip firewall address-list add address=2ip.ru list=vpn-sites
 /ip firewall address-list add address=10.0.0.0/29 list=mic-network
 /ip firewall address-list add address=10.0.0.1 list=mis-network
-/ip firewall address-list add address=185.13.148.14 list=alist-nat-external-ip
 /ip firewall address-list add address=10.0.0.0/29 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.99.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.97.0/24 list=alist-fw-vpn-subnets
-#error exporting /ip firewall calea
+/ip firewall address-list add address=185.13.148.14 list=alist-nat-external-ip
+#error exporting /ip/firewall/calea
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=#OSFP protocol=ospf
 /ip firewall filter add action=accept chain=input comment="Bandwidth test allow" port=2000 protocol=tcp
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -194,36 +218,36 @@
 /ip firewall mangle add action=mark-connection chain=forward comment="Mark IPsec" ipsec-policy=in,ipsec new-connection-mark=ipsec passthrough=yes
 /ip firewall nat add action=dst-nat chain=dstnat dst-port=8888 protocol=tcp to-addresses=192.168.99.1 to-ports=80
 /ip firewall nat add action=dst-nat chain=dstnat comment="FTP pass through" dst-port=2121 protocol=tcp to-addresses=192.168.90.40 to-ports=21
-/ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX pass through" dst-port=9999 protocol=tcp to-addresses=192.168.90.1 to-ports=8291
+/ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX ANNA pass through" dst-port=9999 protocol=tcp to-addresses=192.168.90.1 to-ports=8291
+/ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX CAPXL pass through" dst-port=9998 protocol=tcp to-addresses=192.168.90.10 to-ports=8291
+/ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX MIKROUTER pass through" dst-port=9997 protocol=tcp to-addresses=10.0.0.2 to-ports=8291
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=mic-network log-prefix=#VPN src-address-list=mis-network
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=mis-network log-prefix=#VPN src-address-list=mic-network
 /ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel-anna
 /ip firewall nat add action=masquerade chain=srcnat comment="all cable allowed"
 /ip firewall service-port set tftp disabled=yes
-/ip firewall service-port set irc disabled=yes
 /ip firewall service-port set h323 disabled=yes
 /ip firewall service-port set sip disabled=yes
 /ip firewall service-port set pptp disabled=yes
 /ip firewall service-port set udplite disabled=yes
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
-/ip ipsec identity add comment=to-MIKROTIK-traffic-only-encryption-PSK generate-policy=port-strict mode-config=common-setup peer=MIC-INNER policy-template-group=inside-ipsec-encryption secret=123
+/ip ipsec identity add comment=to-MIKROTIK-traffic-only-encryption-PSK generate-policy=port-strict mode-config=common-setup peer=MIC-INNER policy-template-group=inside-ipsec-encryption
 /ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR disabled=yes generate-policy=port-override mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-ipsec
-/ip ipsec identity add disabled=yes generate-policy=port-strict mode-config=common-setup peer=WIN policy-template-group=inside-ipsec-encryption secret=123
+/ip ipsec identity add disabled=yes generate-policy=port-strict mode-config=common-setup peer=WIN policy-template-group=inside-ipsec-encryption
 /ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR comment=to-MIKROTIK-outer-tunnel-encryption-RSA generate-policy=port-override mode-config=common-setup peer=MIC-OUTER-IP-REMOTE-CONTROLLABLE policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR disabled=yes generate-policy=port-override mode-config=common-setup peer=MIC-OUTER-STATIC-IP-RANGE policy-template-group=outside-ipsec-encryption
-/ip ipsec identity add comment=to-ANNA-traffic-only-encryption-PSK generate-policy=port-strict mode-config=common-setup peer=ANNA-INNER policy-template-group=inside-ipsec-encryption secret=123
+/ip ipsec identity add comment=to-ANNA-traffic-only-encryption-PSK generate-policy=port-strict mode-config=common-setup peer=ANNA-INNER policy-template-group=inside-ipsec-encryption
 /ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR comment=to-ANNA-outer-tunnel-encryption-RSA generate-policy=port-override mode-config=common-setup peer=ANNA-OUTER-IP-REMOTE-CONTROLLABLE policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR disabled=yes generate-policy=port-override mode-config=common-setup peer=ANNA-OUTER-STATIC-IP-RANGE policy-template-group=outside-ipsec-encryption
 /ip ipsec policy set 0 disabled=yes
 /ip ipsec policy add comment="Roadwarrior IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption)" disabled=yes dst-address=10.10.10.8/29 group=roadwarrior-ipsec proposal="IPSEC IKEv2 VPN PHASE2 IOS/OSX" src-address=0.0.0.0/0 template=yes
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption) MIKROUTER" dst-address=192.168.99.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/29 template=yes
-/ip ipsec policy add comment=MIC-OUTER-IP-REMOTE-CONTROLLABLE dst-address=85.174.204.244/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
+/ip ipsec policy add comment=MIC-OUTER-IP-REMOTE-CONTROLLABLE dst-address=85.174.195.133/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip ipsec policy add comment=ANNA-OUTER-IP-REMOTE-CONTROLLABLE dst-address=46.39.51.172/32 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip ipsec policy add comment="Common IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption, MGTS dst-IP range 2)" disabled=yes dst-address=91.79.0.0/16 group=outside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=185.13.148.14/32 template=yes
 /ip ipsec policy add comment="Common IPSEC TUNNEL TEMPLATE (traffic-only encryption) ANNA" dst-address=192.168.90.0/24 group=inside-ipsec-encryption proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.97.0/29 template=yes
-/ip route add comment="GLOBAL VPN" disabled=yes distance=110 gateway=10.0.0.3 pref-src=10.0.0.1 routing-mark=mark-site-over-vpn
-/ip route add check-gateway=ping comment=GLOBAL distance=10 gateway=185.13.148.1
+/ip route add check-gateway=ping comment=GLOBAL disabled=no distance=10 dst-address=0.0.0.0/0 gateway=185.13.148.1
 /ip service set telnet disabled=yes
 /ip service set ssh port=2222
 /ip service set api disabled=yes
@@ -233,25 +257,21 @@
 /ip upnp set show-dummy-rule=no
 /ppp secret add local-address=10.0.0.1 name=vpn-remote-mic profile=l2tp-no-encrypt-site2site remote-address=10.0.0.2 service=l2tp
 /ppp secret add local-address=10.0.0.1 name=vpn-remote-anna profile=l2tp-no-encrypt-site2site remote-address=10.0.0.3 service=l2tp
-/routing filter add action=discard chain=ospf-in comment="discard intra area routes" ospf-type=intra-area
-/routing filter add action=accept chain=ospf-in comment="set pref source" set-pref-src=10.0.0.1
-/routing filter add action=accept chain=ospf-in comment="set default remote route mark" prefix-length=0 set-pref-src=10.0.0.1 set-route-comment=GLOBAL set-routing-mark=mark-site-over-vpn
-/routing ospf interface add cost=99 interface=ospf-loopback network-type=broadcast passive=yes
-/routing ospf interface add cost=7 interface="main infrastructure" network-type=broadcast passive=yes
-/routing ospf interface add cost=30 interface=tunnel-anna network-type=point-to-point
-/routing ospf interface add cost=70 interface=tunnel-mikrotik network-type=point-to-point
-/routing ospf nbma-neighbor add address=10.255.255.2
-/routing ospf nbma-neighbor add address=10.255.255.3
-/routing ospf network add area=backbone network=10.0.0.0/29
-/routing ospf network add area=chr-space network=192.168.97.0/29
-/routing ospf network add area=chr-space disabled=yes network=10.255.255.1/32
+/routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf && ospf-type intra) { set comment DISCARDED-INTRA-AREA ; reject; }"
+/routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0) { set pref-src 10.0.0.1 ; set comment GLOBAL-VPN ; accept; }"
+/routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter) { set comment LOCAL-AREA ; set pref-src 10.0.0.1 ; accept; }"
+/routing filter rule add chain=ospf-in comment="DROP OTHERS" disabled=no rule="reject;"
+/routing ospf interface-template add area=chr-space-main auth-id=1 auth-key="" cost=10 disabled=no interfaces="main infrastructure" networks=192.168.97.0/29 passive priority=1
+/routing ospf interface-template add area=backbone comment="ANNA routes" disabled=no interfaces=tunnel-anna networks=10.0.0.0/29 type=ptp
+/routing ospf interface-template add area=backbone comment="MIKROTIK routes" disabled=yes interfaces=tunnel-mikrotik networks=10.0.0.0/29 type=ptp
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-community=globus trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=CHR
-/system logging set 0 action=OnScreenLog topics=info,!ipsec,!script
+/system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
 /system logging set 3 action=TerminalConsoleLog
+/system logging add action=IpsecOnScreenLog topics=ipsec,!debug
 /system logging add action=ErrorDiskLog topics=critical
 /system logging add action=ErrorDiskLog topics=error
 /system logging add action=ScriptsDiskLog topics=script
@@ -260,15 +280,25 @@
 /system logging add action=OnScreenLog topics=critical
 /system logging add action=DHCPOnScreenLog topics=dhcp
 /system logging add action=DNSOnScreenLog topics=dns
-/system logging add action=OSFTOnScreenLog topics=ospf,!raw
+/system logging add action=OSPFOnscreenLog topics=ospf,!raw
+/system logging add action=OnScreenLog topics=event
 /system logging add action=L2TPOnScreenLog topics=l2tp
 /system logging add action=AuthDiskLog topics=account
 /system logging add action=CertificatesOnScreenLog topics=certificate
 /system logging add action=AuthDiskLog topics=manager
-/system logging add action=IpsecOnScreenLog topics=ipsec,!debug,!packet
-/system logging add action=SSHOnscreenLog topics=ssh
-/system note set note="Idenity: CHR | Uptime:  28w5d01:19:36 | Public IP:  185.13.148.14 | "
-/system ntp client set enabled=yes primary-ntp=85.21.78.91 secondary-ntp=46.254.216.9
+/system logging add action=ParseMemoryLog topics=account
+/system logging add action=ParseMemoryLog topics=wireless
+/system logging add action=CAPSOnScreenLog topics=caps
+/system logging add action=FirewallOnScreenLog topics=firewall
+/system logging add action=CAPSOnScreenLog topics=wireless
+/system logging add action=ParseMemoryLog topics=info,system
+/system logging add action=SSHOnScreenLog topics=ssh
+/system logging add action=PoEOnscreenLog topics=poe-out
+/system logging add action=EmailOnScreenLog topics=e-mail
+/system note set note="Idenity: CHR | Uptime:  03:04:09 | Public IP:  185.13.148.14 | "
+/system ntp client set enabled=yes
+/system ntp client servers add address=85.21.78.91
+/system ntp client servers add address=46.254.216.9
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=aug/04/2020 start-time=21:00:00
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
 /system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=08:00:00
@@ -276,159 +306,169 @@
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jan/26/2022 start-time=14:34:19
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=apr/08/2023 start-time=16:06:04
-/system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,read,write,policy,test,password,sensitive source=":global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doBackup\";\r\
+/system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,read,write,policy,test,password,sensitive source=":global globalScriptBeforeRun;\r\r\
+    \n\$globalScriptBeforeRun \"doBackup\";\r\r\
+    \n\r\r\
+    \n:local sysname [/system identity get name]\r\r\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
+    \n\r\r\
+    \n:local sysver \"NA\"\r\r\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
+    \n  :local sysver [/system package get system version]\r\r\
+    \n}\r\r\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] = 0 and \$rosVer = 7 ) do={\r\r\
+    \n  :local sysver [/system package get routeros version]\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:local scriptname \"doBackup\"\r\r\
+    \n:local saveSysBackup true\r\r\
+    \n:local encryptSysBackup false\r\r\
+    \n:local saveRawExport true\r\r\
+    \n:local verboseRawExport false\r\r\
+    \n:local state \"\"\r\r\
+    \n\r\r\
+    \n:local ts [/system clock get time]\r\r\
+    \n:set ts ([:pick \$ts 0 2].[:pick \$ts 3 5].[:pick \$ts 6 8])\r\r\
+    \n:local ds [/system clock get date]\r\r\
+    \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\r\
+    \n\r\r\
+    \n#directories have to exist!\r\r\
+    \n:local FTPEnable true\r\r\
+    \n:local FTPServer \"nas.home\"\r\r\
+    \n:local FTPPort 21\r\r\
+    \n:local FTPUser \"git\"\r\r\
+    \n:local FTPPass \"git\"\r\r\
+    \n:local FTPRoot \"/REPO/backups/\"\r\r\
+    \n:local FTPGitEnable true\r\r\
+    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_latest.rsc\"\r\r\
+    \n\r\r\
+    \n:local SMTPEnable true\r\r\
+    \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\r\
+    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\r\
+    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\r\
+    \n\r\r\
+    \n:global globalNoteMe;\r\r\
+    \n\r\r\
+    \n:local itsOk true;\r\r\
+    \n\r\r\
+    \n:do {\r\r\
+    \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\r\
+    \n} on-error={ \r\r\
+    \n  :set state \"FTP server looks like to be unreachable\"\r\r\
+    \n  \$globalNoteMe value=\$state;\r\r\
+    \n  :set itsOk false;\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:local fname (\"BACKUP-\$sysname-\$ds-\$ts\")\r\r\
+    \n\r\r\
+    \n:if (\$saveSysBackup and \$itsOk) do={\r\r\
+    \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\r\
+    \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\r\
+    \n  :delay 2s;\r\r\
+    \n  \$globalNoteMe value=\"System Backup Finished\"\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:if (\$saveRawExport and \$itsOk) do={\r\r\
+    \n  :if (\$FTPGitEnable ) do={\r\r\
+    \n     #do not apply hide-sensitive flag\r\r\
+    \n     :if (\$verboseRawExport = true) do={ /export terse verbose file=(\$fname.\".safe.rsc\") }\r\r\
+    \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\r\
+    \n     :delay 2s;\r\r\
+    \n  }\r\r\
+    \n  \$globalNoteMe value=\"Raw configuration script export Finished\"\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:delay 5s\r\r\
+    \n\r\r\
+    \n:local buFile \"\"\r\r\
+    \n\r\r\
+    \n:foreach backupFile in=[/file find] do={\r\r\
+    \n  :set buFile ([/file get \$backupFile name])\r\r\
+    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\" and \$itsOk) do={\r\r\
+    \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\r\
+    \n    if (\$FTPEnable and \$itsOk) do={\r\r\
+    \n        :do {\r\r\
+    \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\r\
+    \n        \$globalNoteMe value=\$state\r\r\
+    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\r\
+    \n        \$globalNoteMe value=\"Done\"\r\r\
+    \n        } on-error={ \r\r\
+    \n          :set state \"Error When \$state\"\r\r\
+    \n          \$globalNoteMe value=\$state;\r\r\
+    \n          :set itsOk false;\r\r\
+    \n       }\r\r\
+    \n\r\r\
+    \n        #special ftp upload for git purposes\r\r\
+    \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\r\
+    \n            :do {\r\r\
+    \n            :set state \"Uploading \$buFile to GIT-FTP (RAW, \$FTPRawGitName)\"\r\r\
+    \n            \$globalNoteMe value=\$state\r\r\
+    \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\r\
+    \n            \$globalNoteMe value=\"Done\"\r\r\
+    \n            } on-error={ \r\r\
+    \n              :set state \"Error When \$state\"\r\r\
+    \n              \$globalNoteMe value=\$state;\r\r\
+    \n              :set itsOk false;\r\r\
+    \n           }\r\r\
+    \n        }\r\r\
+    \n\r\r\
+    \n    }\r\r\
+    \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\r\
+    \n        :do {\r\r\
+    \n        :set state \"Uploading \$buFile to SMTP\"\r\r\
+    \n        \$globalNoteMe value=\$state\r\r\
+    \n\r\r\
+    \n        #email works in background, delay needed\r\r\
+    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile tls=starttls\r\r\
+    \n\r\r\
+    \n        #waiting for email to be delivered\r\r\
+    \n        :delay 15s;\r\r\
+    \n\r\r\
+    \n        :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\r\r\
+    \n\r\r\
+    \n        if (!\$emlResult) do={\r\r\
+    \n\r\r\
+    \n          :set state \"Error When \$state\"\r\r\
+    \n          \$globalNoteMe value=\$state;\r\r\
+    \n          :set itsOk false;\r\r\
+    \n\r\r\
+    \n        } else={\r\r\
+    \n\r\r\
+    \n          \$globalNoteMe value=\"Done\"\r\r\
+    \n       \r\r\
+    \n        }\r\r\
+    \n\r\r\
+    \n        } on-error={ \r\r\
+    \n          :set state \"Error When \$state\"\r\r\
+    \n          \$globalNoteMe value=\$state;\r\r\
+    \n          :set itsOk false;\r\r\
+    \n       }\r\r\
+    \n    }\r\r\
+    \n\r\r\
+    \n    :delay 2s;\r\r\
+    \n    /file remove \$backupFile;\r\r\
+    \n\r\r\
+    \n  }\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:local inf \"\"\r\r\
+    \n:if (\$itsOk) do={\r\r\
+    \n  :set inf \"\$scriptname on \$sysname: Automatic Backup Completed Successfully\"\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:if (!\$itsOk) do={\r\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n\$globalNoteMe value=\$inf\r\r\
+    \n\r\r\
+    \n:if (!\$itsOk) do={\r\r\
+    \n\r\r\
+    \n  :global globalTgMessage;\r\r\
+    \n  \$globalTgMessage value=\$inf;\r\r\
+    \n  \r\r\
+    \n}\r\r\
     \n\r\
-    \n:local sysname [/system identity get name]\r\
-    \n:local sysver [/system package get system version]\r\
-    \n:local scriptname \"doBackup\"\r\
-    \n:local saveSysBackup true\r\
-    \n:local encryptSysBackup false\r\
-    \n:local saveRawExport true\r\
-    \n:local verboseRawExport false\r\
-    \n:local state \"\"\r\
-    \n\r\
-    \n:local ts [/system clock get time]\r\
-    \n:set ts ([:pick \$ts 0 2].[:pick \$ts 3 5].[:pick \$ts 6 8])\r\
-    \n:local ds [/system clock get date]\r\
-    \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\
-    \n\r\
-    \n#directories have to exist!\r\
-    \n:local FTPEnable true\r\
-    \n:local FTPServer \"nas.home\"\r\
-    \n:local FTPPort 21\r\
-    \n:local FTPUser \"git\"\r\
-    \n:local FTPPass \"git\"\r\
-    \n:local FTPRoot \"/REPO/backups/\"\r\
-    \n:local FTPGitEnable true\r\
-    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_latest.rsc\"\r\
-    \n\r\
-    \n:local SMTPEnable true\r\
-    \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\
-    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\
-    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n\r\
-    \n:local itsOk true;\r\
-    \n\r\
-    \n:do {\r\
-    \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
-    \n} on-error={ \r\
-    \n  :set state \"FTP server looks like to be unreachable\"\r\
-    \n  \$globalNoteMe value=\$state;\r\
-    \n  :set itsOk false;\r\
-    \n}\r\
-    \n\r\
-    \n:local fname (\"BACKUP-\$sysname-\$ds-\$ts\")\r\
-    \n\r\
-    \n:if (\$saveSysBackup and \$itsOk) do={\r\
-    \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\
-    \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\
-    \n  :delay 2s;\r\
-    \n  \$globalNoteMe value=\"System Backup Finished\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (\$saveRawExport and \$itsOk) do={\r\
-    \n  :if (\$FTPGitEnable ) do={\r\
-    \n     #do not apply hide-sensitive flag\r\
-    \n     :if (\$verboseRawExport = true) do={ /export terse verbose file=(\$fname.\".safe.rsc\") }\r\
-    \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\
-    \n     :delay 2s;\r\
-    \n  }\r\
-    \n  \$globalNoteMe value=\"Raw configuration script export Finished\"\r\
-    \n}\r\
-    \n\r\
-    \n:delay 5s\r\
-    \n\r\
-    \n:local buFile \"\"\r\
-    \n\r\
-    \n:foreach backupFile in=[/file find] do={\r\
-    \n  :set buFile ([/file get \$backupFile name])\r\
-    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\" and \$itsOk) do={\r\
-    \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\
-    \n    if (\$FTPEnable and \$itsOk) do={\r\
-    \n        :do {\r\
-    \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\
-    \n        \$globalNoteMe value=\$state\r\
-    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\
-    \n        \$globalNoteMe value=\"Done\"\r\
-    \n        } on-error={ \r\
-    \n          :set state \"Error When \$state\"\r\
-    \n          \$globalNoteMe value=\$state;\r\
-    \n          :set itsOk false;\r\
-    \n       }\r\
-    \n\r\
-    \n        #special ftp upload for git purposes\r\
-    \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\
-    \n            :do {\r\
-    \n            :set state \"Uploading \$buFile to FTP (RAW, \$FTPRawGitName)\"\r\
-    \n            \$globalNoteMe value=\$state\r\
-    \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\
-    \n            \$globalNoteMe value=\"Done\"\r\
-    \n            } on-error={ \r\
-    \n              :set state \"Error When \$state\"\r\
-    \n              \$globalNoteMe value=\$state;\r\
-    \n              :set itsOk false;\r\
-    \n           }\r\
-    \n        }\r\
-    \n\r\
-    \n    }\r\
-    \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\
-    \n        :do {\r\
-    \n        :set state \"Uploading \$buFile to SMTP\"\r\
-    \n        \$globalNoteMe value=\$state\r\
-    \n\r\
-    \n        #email works in background, delay needed\r\
-    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile\r\
-    \n\r\
-    \n        #waiting for email to be delivered\r\
-    \n        :delay 15s;\r\
-    \n\r\
-    \n        :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\r\
-    \n\r\
-    \n        if (!\$emlResult) do={\r\
-    \n\r\
-    \n          :set state \"Error When \$state\"\r\
-    \n          \$globalNoteMe value=\$state;\r\
-    \n          :set itsOk false;\r\
-    \n\r\
-    \n        } else={\r\
-    \n\r\
-    \n          \$globalNoteMe value=\"Done\"\r\
-    \n       \r\
-    \n        }\r\
-    \n\r\
-    \n        } on-error={ \r\
-    \n          :set state \"Error When \$state\"\r\
-    \n          \$globalNoteMe value=\$state;\r\
-    \n          :set itsOk false;\r\
-    \n       }\r\
-    \n    }\r\
-    \n\r\
-    \n    :delay 2s;\r\
-    \n    /file remove \$backupFile;\r\
-    \n\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: Automatic Backup Completed Successfully\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n  \r\
-    \n}\r\
     \n"
 /system script add dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -650,7 +690,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -839,7 +879,7 @@
     \n    :local mainDHCP \"main-dhcp-server\";\r\
     \n\r\
     \n    #when DHCP not using (add arp for leases)\r\
-    \n    :local arpInterface \"main-infrastructure\";\r\
+    \n    :local arpInterface \"main-infrastructure-br\";\r\
     \n    :local state (\"Adding new network member... \");\r\
     \n\r\
     \n    \$globalNoteMe value=\$state;\r\
@@ -869,12 +909,21 @@
     \n    :do {\r\
     \n\r\
     \n        :local state (\"Removing existing DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
-    \n        \$globalNoteMe value=\$state;       /ip dhcp-server lease remove [find address=\$newIp];\r\
+    \n        \$globalNoteMe value=\$state;       \r\
+    \n        /ip dhcp-server lease remove [find address=\$newIp];\r\
     \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\r\
     \n\r\
     \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
     \n        \$globalNoteMe value=\$state;\r\
-    \n        /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\r\
+    \n        \r\
+    \n       :if ([ :len [ /ip dhcp-server find where name=\"\$mainDHCP\" ] ] > 0) do={\r\
+    \n            /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\r\
+    \n            :local state (\"Done.\");\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n       } else={\r\
+    \n        :local state (\"Cant find DHCP server \$mainDHCP. SKIPPED.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n       }\r\
     \n\r\
     \n    } on-error={\r\
     \n\r\
@@ -889,7 +938,15 @@
     \n        /ip dhcp-server lease remove [find address=\$newBlockedIp];\r\
     \n        :local state (\"Adding DHCP configuration for (\$newBlockedIp/\$newMac) on \$guestDHCP (preventing connections to guest network)\");\r\
     \n        \$globalNoteMe value=\$state;\r\
-    \n        /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\r\
+    \n\r\
+    \n       :if ([ :len [ /ip dhcp-server find where name=\"\$guestDHCP\" ] ] > 0) do={\r\
+    \n          /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\r\
+    \n          :local state (\"Done.\");\r\
+    \n          \$globalNoteMe value=\$state;\r\
+    \n       } else={\r\
+    \n        :local state (\"Cant find DHCP server \$guestDHCP. SKIPPED.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n       }\r\
     \n\r\
     \n    } on-error={\r\
     \n\r\
@@ -906,7 +963,15 @@
     \n        /ip arp remove [find address=\$newIp];\r\
     \n        /ip arp remove [find address=\$newBlockedIp];\r\
     \n        /ip arp remove [find mac-address=\$newMac];\r\
+    \n\r\
+    \n     :if ([ :len [ /interface find where name=\"\$arpInterface\" ] ] > 0) do={\r\
     \n        /ip arp add address=\$newIp interface=\$arpInterface mac-address=\$newMac comment=\$comment\r\
+    \n        :local state (\"Done.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n       } else={\r\
+    \n        :local state (\"Cant find interface \$arpInterface. SKIPPED.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n       }\r\
     \n\r\
     \n    } on-error={\r\
     \n\r\
@@ -1214,8 +1279,6 @@
     \n/system script run doEnvironmentClearance;\r\
     \n\r\
     \n/system script run doEnvironmentSetup;\r\
-    \n\r\
-    \n/system script run doCoolConcole;\r\
     \n\r\
     \n/system script run doImperialMarch;\r\
     \n\r\
@@ -1622,10 +1685,11 @@
     \n:set logcontenttemp \"Public IP:  \$[/ip cloud get public-address]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
     \n\r\
-    \n/system note set note=\"\$logcontent\"  "
+    \n/system note set note=\"\$logcontent\"  \r\
+    \n"
 /tool bandwidth-server set authenticate=no
-/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 start-tls=yes user=defm.kopcap@gmail.com
-/tool netwatch add down-script=":global NetwatchHostName \"mikrouter.home\";\r\
-    \n/system script run doNetwatchHost;" host=192.168.99.1 up-script=":global NetwatchHostName \"mikrouter.home\";\r\
+/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 tls=starttls user=defm.kopcap@gmail.com
+/tool netwatch add disabled=no down-script=":global NetwatchHostName \"mikrouter.home\";\r\
+    \n/system script run doNetwatchHost;" host=192.168.99.1 interval=1m timeout=1s type=simple up-script=":global NetwatchHostName \"mikrouter.home\";\r\
     \n/system script run doNetwatchHost;"
 /tool sniffer set filter-port=https streaming-server=192.168.99.170

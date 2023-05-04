@@ -1,0 +1,8 @@
+# Name: TLGRMcall
+# Description: Start script TLGRM, w/WatchDog
+
+local jobScript "TLGRM"
+if ([len [system script job find script=$"jobScript"]] !=0) do={
+} else={
+system script run $jobScript
+}

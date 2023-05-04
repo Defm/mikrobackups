@@ -5,11 +5,11 @@ $globalScriptBeforeRun "doBackup";
 :local rosVer [:tonum [:pick [/system resource get version] 0 1]]
 
 :local sysver "NA"
-:if ( [ :len [ /system package find where name="system" and disabled=no ] ] = 0 and $rosVer = 6 ) do={
-  :local sysver [/system package get system version]
+:if ( [ :len [ /system package find where name="system" and disabled=no ] ] > 0 and $rosVer = 6 ) do={
+  :set sysver [/system package get system version]
 }
-:if ( [ :len [ /system package find where name="routeros" and disabled=no ] ] = 0 and $rosVer = 7 ) do={
-  :local sysver [/system package get routeros version]
+:if ( [ :len [ /system package find where name="routeros" and disabled=no ] ] > 0 and $rosVer = 7 ) do={
+  :set sysver [/system package get routeros version]
 }
 
 :local scriptname "doBackup"
