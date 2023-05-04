@@ -348,10 +348,10 @@
             :local state "Got it at last. Exporting to file";
             $globalNoteMe value=$state;
 
-            /certificate set trusted=yes "$tname"
+            /certificate set trusted=yes [find where name="$tname" and status="idle"]
 
             ## export the CA, client certificate, and private key
-            /certificate export-certificate "$tname" export-passphrase="1234567890" type=pkcs12
+            /certificate export-certificate [find where name="$tname" and status="idle"] export-passphrase="1234567890" type=pkcs12
 
             :return true;
 
