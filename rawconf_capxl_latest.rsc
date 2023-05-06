@@ -1,4 +1,4 @@
-# may/01/2023 21:00:02 by RouterOS 7.7
+# may/06/2023 21:00:02 by RouterOS 7.7
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -19,22 +19,23 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /ip dhcp-client option add code=60 name=classid value="'mikrotik-cap'"
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
-/system logging action add name=IpsecOnScreenLog target=memory
+/system logging action set 0 memory-lines=300
+/system logging action add memory-lines=300 name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=flash/ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=flash/ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
-/system logging action add memory-lines=500 name=OnScreenLog target=memory
-/system logging action add name=DHCPOnScreenLog target=memory
-/system logging action add name=DNSOnScreenLog target=memory
-/system logging action add name=RouterControlLog target=memory
-/system logging action add name=OSPFOnscreenLog target=memory
-/system logging action add name=L2TPOnScreenLog target=memory
+/system logging action add memory-lines=300 name=OnScreenLog target=memory
+/system logging action add memory-lines=300 name=DHCPOnScreenLog target=memory
+/system logging action add memory-lines=300 name=DNSOnScreenLog target=memory
+/system logging action add memory-lines=300 name=RouterControlLog target=memory
+/system logging action add memory-lines=300 name=OSPFOnscreenLog target=memory
+/system logging action add memory-lines=300 name=L2TPOnScreenLog target=memory
 /system logging action add disk-file-name=flash/AuthDiskLog name=AuthDiskLog target=disk
-/system logging action add name=CertificatesOnScreenLog target=memory
-/system logging action add memory-lines=1 name=ParseMemoryLog target=memory
-/system logging action add name=CAPSOnScreenLog target=memory
-/system logging action add name=FirewallOnScreenLog target=memory
-/system logging action add name=FTPMemoryLog target=memory
+/system logging action add memory-lines=300 name=CertificatesOnScreenLog target=memory
+/system logging action add memory-lines=300 name=ParseMemoryLog target=memory
+/system logging action add memory-lines=300 name=CAPSOnScreenLog target=memory
+/system logging action add memory-lines=300 name=FirewallOnScreenLog target=memory
+/system logging action add memory-lines=300 name=FTPMemoryLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
 /interface bridge port add bridge="main infrastructure" ingress-filtering=no interface="lan A" trusted=yes
@@ -48,7 +49,8 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /interface ovpn-server server set auth=sha1,md5
 /interface wireless cap
 # 
-set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsman@CHR certificate=C.capxl.capsman@CHR discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
+set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
+/ip cloud set update-time=no
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
 /ip dns static add address=46.39.51.172 name=ftpserver.org
@@ -71,7 +73,7 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
 /ip upnp set enabled=yes
 /ip upnp interfaces add interface="main infrastructure" type=internal
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
-/system clock set time-zone-name=Europe/Moscow
+/system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=capxl
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
@@ -99,7 +101,15 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
 /system logging add action=CAPSOnScreenLog topics=wireless
 /system logging add action=ParseMemoryLog topics=info,system,!script
 /system logging add action=FTPMemoryLog topics=tftp
-/system note set note="Idenity: capxl | Uptime:  1w1d05:41:17 | Public IP:  46.39.51.172 | "
+/system note set note="capxl: \t\t7.7 \
+    \nUptime:\t\t1w6d05:41:18  \
+    \nTime:\t\tmay/06/2023 20:53:05  \
+    \nya.ru latency:\t8 ms  \
+    \nCHR:\t\t185.13.148.14  \
+    \nMIK:\t\t85.174.193.108  \
+    \nANNA:\t\t46.39.51.172  \
+    \nClock:\t\tsynchronized  \
+    \n"
 /system ntp client set enabled=yes
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=mar/01/2018 start-time=15:55:00
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
@@ -112,6 +122,7 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
 /system scheduler add interval=1h name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=read,write,policy,password start-date=jan/30/2017 start-time=18:57:09
 /system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=apr/15/2023 start-time=17:52:52
+/system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/02/2023 start-time=22:00:00
 /system script add comment="StarWars march to  alarm on startup" dont-require-permissions=yes name=doImperialMarch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doImperialMarch\";\r\
@@ -253,13 +264,57 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n:local content \"\"\r\
     \n:local logcontenttemp \"\"\r\
     \n:local logcontent \"\"\r\
+    \n\r\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\
+    \n\r\
+    \n:local sysver \"NA\"\r\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\
+    \n  :set sysver [/system package get system version]\r\
+    \n}\r\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\
+    \n  :set sysver [/system package get routeros version]\r\
+    \n}\r\
     \n \r\
-    \n:set logcontenttemp \"Idenity: \$[/system identity get name]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"Uptime:  \$[/system resource get uptime]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
-    \n:set logcontenttemp \"Public IP:  \$[/ip cloud get public-address]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" | \")\r\
+    \n:set logcontenttemp \"\$[/system identity get name]: \t\t\$sysver\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\")\r\
+    \n:set logcontenttemp \"Uptime:\t\t\$[/system resource get uptime]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
+    \n\r\
+    \n\r\
+    \n:local hostname \"ya.ru\";\r\
+    \n:local host  [:resolve \$hostname ];\r\
+    \n:local ms 20;\r\
+    \n\r\
+    \n:local avgRttA value=0;\r\
+    \n:local numPing value=6;\r\
+    \n:local toPingIP value=\$host;\r\
+    \n\r\
+    \n:for tmpA from=1 to=\$numPing step=1 do={\r\
+    \n\r\
+    \n /tool flood-ping count=1 size=38 address=\$toPingIP do={\r\
+    \n  :set avgRttA (\$\"avg-rtt\" + \$avgRttA);\r\
+    \n }\r\
+    \n\r\
+    \n /delay delay-time=1;\r\
+    \n\r\
+    \n}\r\
+    \n\r\
+    \n \r\
+    \n:set logcontenttemp \"Time:\t\t\$[/system clock get date] \$[/system clock get time]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
+    \n:set logcontenttemp \"\$hostname latency:\t\$[:tostr (\$avgRttA / \$numPing )] ms\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
+    \n\r\
+    \n:set logcontenttemp \"CHR:\t\t\$[:resolve accb195e0dffc6bb.sn.mynetname.net]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
+    \n:set logcontenttemp \"MIK:\t\t\$[:resolve 673706ed7949.sn.mynetname.net]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
+    \n:set logcontenttemp \"ANNA:\t\t\$[:resolve hcy086pz6xz.sn.mynetname.net]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
+    \n\r\
+    \n:set logcontenttemp \"Clock:\t\t\$[/system ntp client get status]\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
+    \n\r\
     \n\r\
     \n/system note set note=\"\$logcontent\"  \r\
     \n"
@@ -339,25 +394,63 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n#clear all global variables\r\
     \n/system script environment remove [find];\r\
     \n"
-/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time\r\
-    \n/ip cloud force-update;\r\
+/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time (awoid CHR initial clock bug)\r\
     \n\r\
-    \n:log warning \"Starting script: doStartupScript\";\r\
-    \n:put \"Starting script: doStartupScript\"\r\
+    \n:if ([/system resource get board-name]!=\"CHR\") do={\r\
+    \n    /ip cloud force-update;\r\
+    \n\r\
+    \n} else={\r\
+    \n    /system clock set date=JAN/01/2019\r\
+    \n    /system clock set time=14:30:00\r\
+    \n    /system clock set time-zone-autodetect=no\r\
+    \n    /system clock set time-zone-name=Europe/Moscow\r\
+    \n\r\
+    \n};\r\
     \n\r\
     \n:delay 3s;\r\
     \n\r\
-    \n/system script run doEnvironmentClearance;\r\
+    \n:do {\r\
+    \n    :log warning \"Starting script: doStartupScript\";\r\
+    \n    :put \"Starting script: doStartupScript\"\r\
+    \n    /system script run doEnvironmentClearance;\r\
+    \n} on-error= {\r\
+    \n    :log error \"FAIL Starting script: doStartupScript\";\r\
+    \n    :put \"FAIL Starting script: doStartupScript\"\r\
+    \n};\r\
     \n\r\
-    \n/system script run doEnvironmentSetup;\r\
+    \n:do {\r\
+    \n    :log warning \"Starting script: doEnvironmentSetup\";\r\
+    \n    :put \"Starting script: doEnvironmentSetup\"\r\
+    \n    /system script run doEnvironmentSetup;\r\
+    \n} on-error= {\r\
+    \n    :log error \"FAIL Starting script: doEnvironmentSetup\";\r\
+    \n    :put \"FAIL Starting script: doEnvironmentSetup\"\r\
+    \n};\r\
     \n\r\
-    \n/system script run doImperialMarch;\r\
+    \n:do {\r\
+    \n    :log warning \"Starting script: doImperialMarch\";\r\
+    \n    :put \"Starting script: doImperialMarch\"\r\
+    \n    /system script run doImperialMarch;\r\
+    \n} on-error= {\r\
+    \n    :log error \"FAIL Starting script: doImperialMarch\";\r\
+    \n    :put \"FAIL Starting script: doImperialMarch\"\r\
+    \n};\r\
+    \n\r\
+    \n:do {\r\
+    \n    :log warning \"Starting script: doCoolConsole\";\r\
+    \n    :put \"Starting script: doCoolConsole\"\r\
+    \n    /system script run doEnvironmentSetup;\r\
+    \n} on-error= {\r\
+    \n    :log error \"FAIL Starting script: doCoolConsole\";\r\
+    \n    :put \"FAIL Starting script: doCoolConsole\"\r\
+    \n};\r\
+    \n\r\
     \n\r\
     \n#wait some for all tunnels to come up after reboot and VPN to work\r\
     \n\r\
     \n:local inf \"Wait some for all tunnels to come up after reboot and VPN to work..\" ;\r\
     \n:global globalNoteMe;\r\
-    \n\$globalNoteMe value=\$inf;\r\
+    \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\r\
     \n\r\
     \n:delay 25s;\r\
     \n\r\
@@ -365,13 +458,11 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n:local scriptname \"doStartupScript\";\r\
     \n\r\
     \n:local inf \"\$scriptname on \$sysname: system restart detected\" ;\r\
-    \n\$globalNoteMe value=\$inf;\r\
+    \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\r\
     \n\r\
     \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
+    \n:if (any \$globalTgMessage ) do={ \$globalTgMessage value=\$inf; }\r\
     \n      \r\
-    \n\r\
-    \n\r\
     \n"
 /system script add comment="Mikrotik system log dump, collects new entries once per minute. You should have 'ParseMemoryLog' buffer at your 'system-logging'. Calls 'doPeriodicLogParse' when new logs available" dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -829,8 +920,9 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n\r\
     \n\r\
     \n#Example call\r\
-    \n#\$globalNewClientCert argClients=\"alx.iphone.rw.2021, alx.mini.rw.2021\" argUsage=\"tls-client,digital-signature,key-encipherment\"\r\
-    \n#\$globalNewClientCert argClients=\"182.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\"\r\
+    \n#\$globalNewClientCert argClients=\"anna.ipsec, mikrouter.ipsec\" argUsage=\"tls-client,digital-signature,key-encipherment\"\r\
+    \n#\$globalNewClientCert argClients=\"anna.capsman, mikrouter.capsman\" argUsage=\"digital-signature,key-encipherment\"\r\
+    \n#\$globalNewClientCert argClients=\"185.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\"\r\
     \n:if (!any \$globalNewClientCert) do={\r\
     \n  :global globalNewClientCert do={\r\
     \n\r\
@@ -869,7 +961,6 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n      :local IDs [:toarray \"\$clients\"];\r\
     \n      :local fakeDomain \"myvpn.fake.org\"\r\
     \n      :local scepAlias \"CHR\"\r\
-    \n      :local sysver [/system package get system version]\r\
     \n      :local state (\"Started requests generation\");\r\
     \n\r\
     \n      \$globalNoteMe value=\$state;\r\
@@ -902,7 +993,7 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n                :local state \"CLIENT TEMPLATE certificates generation as IP...  \$USERNAME\";\r\
     \n                \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n                :set tname \"\$USERNAME@\$scepAlias\";\r\
+    \n                :set tname \"S.\$USERNAME@\$scepAlias\";\r\
     \n\r\
     \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\r\
     \n\r\
@@ -911,7 +1002,7 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n                :local state \"CLIENT TEMPLATE certificates generation as EMAIL...  \$USERNAME\";\r\
     \n                \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n                :set tname \"\$USERNAME@\$scepAlias\";\r\
+    \n                :set tname \"C.\$USERNAME@\$scepAlias\";\r\
     \n\r\
     \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\r\
     \n\r\
@@ -939,10 +1030,10 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n            :local state \"Got it at last. Exporting to file\";\r\
     \n            \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n            /certificate set trusted=yes \"\$tname\"\r\
+    \n            /certificate set trusted=yes [find where name=\"\$tname\" and status=\"idle\"]\r\
     \n\r\
     \n            ## export the CA, client certificate, and private key\r\
-    \n            /certificate export-certificate \"\$tname\" export-passphrase=\"1234567890\" type=pkcs12\r\
+    \n            /certificate export-certificate [find where name=\"\$tname\" and status=\"idle\"] export-passphrase=\"1234567890\" type=pkcs12\r\
     \n\r\
     \n            :return true;\r\
     \n\r\
@@ -1023,11 +1114,11 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
     \n\r\r\
     \n:local sysver \"NA\"\r\r\
-    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
-    \n  :local sysver [/system package get system version]\r\r\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\r\
+    \n  :set sysver [/system package get system version]\r\r\
     \n}\r\r\
-    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] = 0 and \$rosVer = 7 ) do={\r\r\
-    \n  :local sysver [/system package get routeros version]\r\r\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\r\
+    \n  :set sysver [/system package get routeros version]\r\r\
     \n}\r\r\
     \n\r\r\
     \n:local scriptname \"doBackup\"\r\r\
@@ -1276,7 +1367,7 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
     \n\r\
     \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole\"];\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
@@ -1523,6 +1614,19 @@ set caps-man-addresses=192.168.90.1 caps-man-certificate-common-names=anna.capsm
     \n/system reboot\r\
     \n\r\
     \n}\r\
+    \n"
+/system script add comment="periodically Wipes memory-configered logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \"doFlushLogs\";\r\
+    \n\r\
+    \n:local state \"\"\r\
+    \n\r\
+    \n:set state \"FLUSHING logs..\"\r\
+    \n\$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n/system/logging/action/set memory-lines=1 [find target=memory]\r\
+    \n/system/logging/action/set memory-lines=300 [find target=memory]\r\
+    \n\r\
     \n"
 /tool bandwidth-server set authenticate=no
 /tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 tls=yes user=defm.kopcap@gmail.com
