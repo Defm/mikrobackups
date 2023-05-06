@@ -1,4 +1,4 @@
-# may/04/2023 12:52:02 by RouterOS 7.8
+# may/06/2023 21:00:02 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -88,7 +88,7 @@
     \n:set GleaseActIP \$leaseActIP;\r\
     \n\r\
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
-/ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
+/ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels name=l2tp-no-encrypt-site2site only-one=no
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1360 max-mtu=1360 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
 /queue simple add comment=dtq,54:2B:8D:77:38:A0, name="iPhoneAlxr(blocked)@guest-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhone name="iPhoneAlxr@main-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.90.150/32 total-queue=default
@@ -120,6 +120,7 @@
 /queue simple add comment=dtq,90:DD:5D:CA:8F:B0, name="AlxATV(wire)(blocked)@guest-dhcp-server (90:DD:5D:CA:8F:B0)" queue=default/default target=192.168.98.201/32 total-queue=default
 /queue simple add comment=dtq,04:F1:69:8E:12:B6,HONOR_9X-e57500d48bf17173 name="Hare's Honor9x(wireless)@main-dhcp-server (04:F1:69:8E:12:B6)" queue=default/default target=192.168.90.140/32 total-queue=default
 /queue simple add comment=dtq,04:F1:69:8E:12:B6, name="Hare's Honor9x(wireless)(blocked)@guest-dhcp-server (04:F1:69:8E:12:B6)" queue=default/default target=192.168.98.140/32 total-queue=default
+/queue simple add comment=dtq,B8:94:E7:61:3F:08,M2101K7BNY name="M2101K7BNY@guest-dhcp-server (B8:94:E7:61:3F:08)" queue=default/default target=192.168.98.221/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -168,7 +169,7 @@
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless)" disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set certificate=anna.capsman@CHR enabled=yes require-peer-certificate=yes
+/caps-man manager set enabled=yes
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
 /caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface="wan A"
 /caps-man manager interface add comment="Do CapsMan on private" disabled=no interface=main-infrastructure-br
@@ -664,11 +665,11 @@
 /ip firewall service-port set sip disabled=yes
 /ip firewall service-port set pptp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
-/ip ipsec identity add auth-method=digital-signature certificate=anna.ipsec@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
+/ip ipsec identity add auth-method=digital-signature certificate=*8 comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore
 /ip ipsec policy set 0 disabled=yes proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
-/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
+/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" disabled=yes dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
 /ip proxy access add action=redirect action-data=influxdb:8000 dst-host=influxdb
@@ -728,9 +729,9 @@
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=critical
 /system note set note="anna: \t\t7.8 \
-    \nUptime:\t\t12:47:39  \
-    \nTime:\t\tmay/04/2023 12:50:12  \
-    \nya.ru latency:\t4 ms  \
+    \nUptime:\t\t2d20:47:39  \
+    \nTime:\t\tmay/06/2023 20:50:12  \
+    \nya.ru latency:\t12 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
     \nANNA:\t\t46.39.51.172  \
@@ -758,7 +759,7 @@
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=06:05:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=07:00:00
-/system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/02/2023 start-time=22:36:20
+/system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/02/2023 start-time=22:00:00
 /system scheduler add comment="added by function FuncSchedScriptAdd" interval=10s name="Run script TLGRMcall-may/04/2023-00:02:19" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -1574,25 +1575,63 @@
 /system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n#clear all global variables\r\
     \n/system script environment remove [find];"
-/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time\r\
-    \n/ip cloud force-update;\r\
+/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time (awoid CHR initial clock bug)\r\
     \n\r\
-    \n:log warning \"Starting script: doStartupScript\";\r\
-    \n:put \"Starting script: doStartupScript\"\r\
+    \n:if ([/system resource get board-name]!=\"CHR\") do={\r\
+    \n    /ip cloud force-update;\r\
+    \n\r\
+    \n} else={\r\
+    \n    /system clock set date=JAN/01/2019\r\
+    \n    /system clock set time=14:30:00\r\
+    \n    /system clock set time-zone-autodetect=no\r\
+    \n    /system clock set time-zone-name=Europe/Moscow\r\
+    \n\r\
+    \n};\r\
     \n\r\
     \n:delay 3s;\r\
     \n\r\
-    \n/system script run doEnvironmentClearance;\r\
+    \n:do {\r\
+    \n    :log warning \"Starting script: doStartupScript\";\r\
+    \n    :put \"Starting script: doStartupScript\"\r\
+    \n    /system script run doEnvironmentClearance;\r\
+    \n} on-error= {\r\
+    \n    :log error \"FAIL Starting script: doStartupScript\";\r\
+    \n    :put \"FAIL Starting script: doStartupScript\"\r\
+    \n};\r\
     \n\r\
-    \n/system script run doEnvironmentSetup;\r\
+    \n:do {\r\
+    \n    :log warning \"Starting script: doEnvironmentSetup\";\r\
+    \n    :put \"Starting script: doEnvironmentSetup\"\r\
+    \n    /system script run doEnvironmentSetup;\r\
+    \n} on-error= {\r\
+    \n    :log error \"FAIL Starting script: doEnvironmentSetup\";\r\
+    \n    :put \"FAIL Starting script: doEnvironmentSetup\"\r\
+    \n};\r\
     \n\r\
-    \n/system script run doImperialMarch;\r\
+    \n:do {\r\
+    \n    :log warning \"Starting script: doImperialMarch\";\r\
+    \n    :put \"Starting script: doImperialMarch\"\r\
+    \n    /system script run doImperialMarch;\r\
+    \n} on-error= {\r\
+    \n    :log error \"FAIL Starting script: doImperialMarch\";\r\
+    \n    :put \"FAIL Starting script: doImperialMarch\"\r\
+    \n};\r\
+    \n\r\
+    \n:do {\r\
+    \n    :log warning \"Starting script: doCoolConsole\";\r\
+    \n    :put \"Starting script: doCoolConsole\"\r\
+    \n    /system script run doEnvironmentSetup;\r\
+    \n} on-error= {\r\
+    \n    :log error \"FAIL Starting script: doCoolConsole\";\r\
+    \n    :put \"FAIL Starting script: doCoolConsole\"\r\
+    \n};\r\
+    \n\r\
     \n\r\
     \n#wait some for all tunnels to come up after reboot and VPN to work\r\
     \n\r\
     \n:local inf \"Wait some for all tunnels to come up after reboot and VPN to work..\" ;\r\
     \n:global globalNoteMe;\r\
-    \n\$globalNoteMe value=\$inf;\r\
+    \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\r\
     \n\r\
     \n:delay 25s;\r\
     \n\r\
@@ -1600,13 +1639,11 @@
     \n:local scriptname \"doStartupScript\";\r\
     \n\r\
     \n:local inf \"\$scriptname on \$sysname: system restart detected\" ;\r\
-    \n\$globalNoteMe value=\$inf;\r\
+    \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\r\
     \n\r\
     \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
-    \n      \r\
-    \n\r\
-    \n"
+    \n:if (any \$globalTgMessage ) do={ \$globalTgMessage value=\$inf; }\r\
+    \n      "
 /system script add comment="Updates remote VPN server (CHR) IPSEC policies for this mikrotik client via SSH when external IP changed" dont-require-permissions=yes name=doSuperviseCHRviaSSH owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doSuperviseCHRviaSSH\";\r\
@@ -2438,8 +2475,9 @@
     \n\r\
     \n\r\
     \n#Example call\r\
-    \n#\$globalNewClientCert argClients=\"alx.iphone.rw.2021, alx.mini.rw.2021\" argUsage=\"tls-client,digital-signature,key-encipherment\"\r\
-    \n#\$globalNewClientCert argClients=\"182.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\"\r\
+    \n#\$globalNewClientCert argClients=\"anna.ipsec, mikrouter.ipsec\" argUsage=\"tls-client,digital-signature,key-encipherment\"\r\
+    \n#\$globalNewClientCert argClients=\"anna.capsman, mikrouter.capsman\" argUsage=\"digital-signature,key-encipherment\"\r\
+    \n#\$globalNewClientCert argClients=\"185.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\"\r\
     \n:if (!any \$globalNewClientCert) do={\r\
     \n  :global globalNewClientCert do={\r\
     \n\r\
@@ -2478,7 +2516,6 @@
     \n      :local IDs [:toarray \"\$clients\"];\r\
     \n      :local fakeDomain \"myvpn.fake.org\"\r\
     \n      :local scepAlias \"CHR\"\r\
-    \n      :local sysver [/system package get system version]\r\
     \n      :local state (\"Started requests generation\");\r\
     \n\r\
     \n      \$globalNoteMe value=\$state;\r\
@@ -2548,10 +2585,10 @@
     \n            :local state \"Got it at last. Exporting to file\";\r\
     \n            \$globalNoteMe value=\$state;\r\
     \n\r\
-    \n            /certificate set trusted=yes \"\$tname\"\r\
+    \n            /certificate set trusted=yes [find where name=\"\$tname\" and status=\"idle\"]\r\
     \n\r\
     \n            ## export the CA, client certificate, and private key\r\
-    \n            /certificate export-certificate \"\$tname\" export-passphrase=\"1234567890\" type=pkcs12\r\
+    \n            /certificate export-certificate [find where name=\"\$tname\" and status=\"idle\"] export-passphrase=\"1234567890\" type=pkcs12\r\
     \n\r\
     \n            :return true;\r\
     \n\r\
@@ -3989,7 +4026,7 @@
     \n    :set state \"Changing scripts and schedules ownage - ERROR\";\r\
     \n    \$globalNoteMe value=\$state;\r\
     \n}"
-/system script add dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="periodically Wipes memory-configered logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doFlushLogs\";\r\
     \n\r\
