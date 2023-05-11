@@ -1,4 +1,4 @@
-# may/11/2023 22:11:01 by RouterOS 7.8
+# may/11/2023 23:16:48 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -88,7 +88,7 @@
     \n:set GleaseActIP \$leaseActIP;\r\
     \n\r\
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
-/ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels name=l2tp-no-encrypt-site2site only-one=no
+/ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1360 max-mtu=1360 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
 /queue simple add comment=dtq,54:2B:8D:77:38:A0, name="iPhoneAlxr(blocked)@guest-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
 /queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhone name="iPhoneAlxr@main-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.90.150/32 total-queue=default
@@ -728,8 +728,8 @@
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=critical
 /system note set note="anna: \t\t7.8 \
-    \nUptime:\t\t1w22:07:38  \
-    \nTime:\t\tmay/11/2023 22:10:12  \
+    \nUptime:\t\t1w23:07:38  \
+    \nTime:\t\tmay/11/2023 23:10:12  \
     \nya.ru latency:\t8 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
@@ -759,7 +759,7 @@
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=07:00:00
 /system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/02/2023 start-time=22:00:00
-/system scheduler add comment="added by function FuncSchedScriptAdd" interval=10s name="Run script TLGRMcall-may/04/2023-00:02:19" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add comment="added by function FuncSchedScriptAdd" interval=10s name="Run script TLGRMcall-may/11/2023-23:06:18" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -858,9 +858,6 @@
     \n  }\r\
     \n}"
 /system script add comment="StarWars march to  alarm on startup" dont-require-permissions=yes name=doImperialMarch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doImperialMarch\";\r\
-    \n\r\
     \n:delay 6\r\
     \n\r\
     \n:beep frequency=500 length=500ms;\r\
@@ -989,6 +986,7 @@
     \n  \r\
     \n}\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -1000,6 +998,9 @@
     \n\r\
     \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\
     \n\r\
+    \n# reset current\r\
+    \n/system note set note=\"\" \r\
+    \n\r\
     \n:local sysver \"NA\"\r\
     \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\
     \n  :set sysver [/system package get system version]\r\
@@ -1007,10 +1008,6 @@
     \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\
     \n  :set sysver [/system package get routeros version]\r\
     \n}\r\
-    \n\r\
-    \n\r\
-    \n# clear first\r\
-    \n/system note set note=\"\";\r\
     \n \r\
     \n:set logcontenttemp \"\$[/system identity get name]: \t\t\$sysver\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\")\r\
@@ -1053,7 +1050,8 @@
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
     \n\r\
-    \n/system note set note=\"\$logcontent\"  "
+    \n/system note set note=\"\$logcontent\"  \r\
+    \n"
 /system script add dont-require-permissions=yes name=doIpsecPolicyUpd owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local PolicyComment \"UBUNTU VPN traffic\"\r\
     \n:local WANip [/ip address get [find interface=\"wan A\"] address] \r\
     \n:local shortWANip ( [:pick \"\$WANip\" 0 [:find \"\$WANip\" \"/\" -1]] ) \r\
@@ -1241,6 +1239,7 @@
     \n\r\
     \n};\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Checks device temperature and warns on overheat" dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
@@ -1277,7 +1276,8 @@
     \n :delay 800ms\r\
     \n\r\
     \n\r\
-    \n};"
+    \n};\r\
+    \n"
 /system script add comment="Collects bandwidth speeds using Mikrotik proprietary protocol, so you need mikrotik devices on both sides (i'm using CHR)" dont-require-permissions=yes name=doCollectSpeedStats owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doCollectSpeedStats\";\r\
@@ -1376,12 +1376,14 @@
     \n\r\
     \n/system leds settings set all-leds-off=immediate\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Runs at morning to get flashes back (swith on all LEDs)" dont-require-permissions=yes name=doLEDon owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doLEDon\";\r\
     \n\r\
     \n/system leds settings set all-leds-off=never;\r\
+    \n\r\
     \n"
 /system script add comment="Just some sound" dont-require-permissions=yes name=doBumerSound owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doBumerSound\";\r\
@@ -1460,7 +1462,8 @@
     \n} on-error= {\r\
     \n:log error (\"Telegram notify error\");\r\
     \n:put \"Telegram notify error\";\r\
-    \n};"
+    \n};\r\
+    \n"
 /system script add comment="Netwatch handler both when OnUp and OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
     \n:local sysname [/system identity get name];\r\
@@ -1536,6 +1539,7 @@
     \n}\r\
     \n\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="DHCP service OnLease handler, should be called from DHCP server script page (see mikrotik manual available variables \$leaseBound, \$leaseServerName etc..)" dont-require-permissions=yes name=doDHCPLeaseTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -1577,7 +1581,8 @@
     \n}"
 /system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n#clear all global variables\r\
-    \n/system script environment remove [find];"
+    \n/system script environment remove [find];\r\
+    \n"
 /system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time (awoid CHR initial clock bug)\r\
     \n\r\
     \n:if ([/system resource get board-name]!=\"CHR\") do={\r\
@@ -1593,56 +1598,33 @@
     \n\r\
     \n:delay 3s;\r\
     \n\r\
-    \n:do {\r\
-    \n    :log warning \"Starting script: doEnvironmentClearance\";\r\
-    \n    :put \"Starting script: doEnvironmentClearance\"\r\
-    \n    /system script run doEnvironmentClearance;\r\
-    \n} on-error= {\r\
-    \n    :log error \"FAIL Starting script: doEnvironmentClearance\";\r\
-    \n    :put \"FAIL Starting script: doEnvironmentClearance\"\r\
-    \n};\r\
     \n\r\
-    \n:do {\r\
-    \n    :log warning \"Starting script: doEnvironmentSetup\";\r\
-    \n    :put \"Starting script: doEnvironmentSetup\"\r\
-    \n    /system script run doEnvironmentSetup;\r\
-    \n} on-error= {\r\
-    \n    :log error \"FAIL Starting script: doEnvironmentSetup\";\r\
-    \n    :put \"FAIL Starting script: doEnvironmentSetup\"\r\
-    \n};\r\
+    \n:local SafeScriptCall do={\r\
     \n\r\
-    \n:do {\r\
-    \n    :log warning \"Starting script: doImperialMarch\";\r\
-    \n    :put \"Starting script: doImperialMarch\"\r\
-    \n    /system script run doImperialMarch;\r\
-    \n} on-error= {\r\
-    \n    :log error \"FAIL Starting script: doImperialMarch\";\r\
-    \n    :put \"FAIL Starting script: doImperialMarch\"\r\
-    \n};\r\
+    \n    :if ([:len \$0]!=0) do={\r\
+    \n        :if ([:len \$1]!=0) do={\r\
+    \n            :if ([:len [/system script find name=\$1]]!=0) do={\r\
     \n\r\
-    \n:do {\r\
-    \n    :log warning \"Starting script: doCoolConsole\";\r\
-    \n    :put \"Starting script: doCoolConsole\"\r\
-    \n    /system script run doCoolConsole;\r\
-    \n} on-error= {\r\
-    \n    :log error \"FAIL Starting script: doCoolConsole\";\r\
-    \n    :put \"FAIL Starting script: doCoolConsole\"\r\
-    \n};\r\
+    \n                :do {\r\
+    \n                    :log warning \"Starting script: \$1\";\r\
+    \n                    :put \"Starting script: \$1\"\r\
+    \n                    /system script run \$1;\r\
+    \n                } on-error= {\r\
+    \n                    :log error \"FAIL Starting script: \$1\";\r\
+    \n                    :put \"FAIL Starting script: \$1\"\r\
+    \n                };\r\
     \n\r\
-    \n:if ([:len [/system script find name=\"SAT!start\"]] != 0) do={\r\
+    \n            }\r\
+    \n        }\r\
+    \n    } \r\
     \n\r\
+    \n}\r\
     \n\r\
-    \n:do {\r\
-    \n    :log warning \"Starting script: SAT!start\";\r\
-    \n    :put \"Starting script: SAT!start\"\r\
-    \n    /system script run SAT!start;\r\
-    \n} on-error= {\r\
-    \n    :log error \"FAIL Starting script: SAT!start\";\r\
-    \n    :put \"FAIL Starting script: SAT!start\"\r\
-    \n};\r\
-    \n\r\
-    \n\r\
-    \n};\r\
+    \n\$SafeScriptCall \"doEnvironmentClearance\";\r\
+    \n\$SafeScriptCall \"doEnvironmentSetup\";\r\
+    \n\$SafeScriptCall \"doImperialMarch\";\r\
+    \n\$SafeScriptCall \"doCoolConsole\";\r\
+    \n\$SafeScriptCall \"SAT!start\";\r\
     \n\r\
     \n#wait some for all tunnels to come up after reboot and VPN to work\r\
     \n\r\
@@ -1660,7 +1642,8 @@
     \n\r\
     \n:global globalTgMessage;\r\
     \n:if (any \$globalTgMessage ) do={ \$globalTgMessage value=\$inf; }\r\
-    \n      "
+    \n      \r\
+    \n"
 /system script add comment="Updates remote VPN server (CHR) IPSEC policies for this mikrotik client via SSH when external IP changed" dont-require-permissions=yes name=doSuperviseCHRviaSSH owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doSuperviseCHRviaSSH\";\r\
@@ -1808,6 +1791,7 @@
     \n  \$globalTgMessage value=\$inf;\r\
     \n  \r\
     \n}\r\
+    \n\r\
     \n\r\
     \n"
 /system script add comment="Tracks and notifies about firmware releases" dont-require-permissions=yes name=doTrackFirmwareUpdates owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
@@ -1984,6 +1968,7 @@
     \n\r\
     \n# end foreach rule\r\
     \n}\r\
+    \n\r\
     \n"
 /system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2073,7 +2058,8 @@
     \n\r\
     \n# End check for configuration changes\r\
     \n\r\
-    \n}"
+    \n}\r\
+    \n"
 /system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doIPSECPunch\";\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2214,6 +2200,7 @@
     \n  \$globalTgMessage value=\$inf;\r\
     \n\r\
     \n}\r\
+    \n\r\
     \n"
 /system script add comment="A template to track hotspot users" dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2677,6 +2664,7 @@
     \n  }\r\
     \n}\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
@@ -2886,8 +2874,8 @@
     \n:if (\$saveRawExport and \$itsOk) do={\r\r\
     \n  :if (\$FTPGitEnable ) do={\r\r\
     \n     #do not apply hide-sensitive flag\r\r\
-    \n     :if (\$verboseRawExport = true) do={ /export terse show-sensitive verbose file=(\$fname.\".safe.rsc\") }\r\r\
-    \n     :if (\$verboseRawExport = false) do={ /export terse show-sensitive file=(\$fname.\".safe.rsc\") }\r\r\
+    \n     :if (\$verboseRawExport = true) do={ /export show-sensitive terse verbose file=(\$fname.\".safe.rsc\") }\r\r\
+    \n     :if (\$verboseRawExport = false) do={ /export show-sensitive terse file=(\$fname.\".safe.rsc\") }\r\r\
     \n     :delay 2s;\r\r\
     \n  }\r\r\
     \n  \$globalNoteMe value=\"Raw configuration script export Finished\"\r\r\
@@ -2983,6 +2971,7 @@
     \n  \$globalTgMessage value=\$inf;\r\r\
     \n  \r\r\
     \n}\r\r\
+    \n\r\
     \n"
 /system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -3063,7 +3052,8 @@
     \n:delay 500ms;\r\
     \n:beep frequency=644 length=1000ms;\r\
     \n\r\
-    \n}"
+    \n}\r\
+    \n"
 /system script add comment="Dumps all the scripts from you device to *.rsc.txt files, loads to FTP (all scripts in this Repo made with it)" dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doDumpTheScripts\";\r\
@@ -3286,7 +3276,8 @@
     \n  :global globalTgMessage;\r\
     \n  \$globalTgMessage value=\$inf;\r\
     \n  \r\
-    \n}"
+    \n}\r\
+    \n"
 /system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doPushStatsToInfluxDB\";\r\
@@ -3552,6 +3543,7 @@
     \n  /system reboot\r\
     \n  \r\
     \n}\r\
+    \n\r\
     \n\r\
     \n"
 /system script add comment="A very special script for CFG restore from *.rsc files (not from backup). This one should be placed at flash/perfectrestore.rsc, your config should be at flash/backup.rsc. Run 'Reset confuguration' with 'no default config', choose 'flash/perfectrestore.rsc' as 'run after reset. Pretty logs will be at flash/import.log and flash/perfectrestore.log" dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="{\r\r\
@@ -3860,6 +3852,7 @@
     \n  \$globalTgMessage value=\$inf;\r\
     \n  \r\
     \n}\r\
+    \n\r\
     \n"
 /system script add comment="This script is a SCEP-client, it request the server to ptovide a new certificate" dont-require-permissions=yes name=doSCEPClientCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n# generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\r\
@@ -4054,6 +4047,7 @@
     \n\r\
     \n/system/logging/action/set memory-lines=1 [find target=memory]\r\
     \n/system/logging/action/set memory-lines=300 [find target=memory]\r\
+    \n\r\
     \n"
 /system script add dont-require-permissions=no name=TLGRMcall owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# Name: TLGRMcall\r\
     \n# Description: Start script TLGRM, w/WatchDog\r\
