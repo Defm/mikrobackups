@@ -8,6 +8,9 @@ $globalScriptBeforeRun "doCoolConsole";
 
 :local rosVer [:tonum [:pick [/system resource get version] 0 1]]
 
+# reset current
+/system note set note="" 
+
 :local sysver "NA"
 :if ( [ :len [ /system package find where name="system" and disabled=no ] ] > 0 and $rosVer = 6 ) do={
   :set sysver [/system package get system version]
@@ -58,3 +61,4 @@ $globalScriptBeforeRun "doCoolConsole";
 
 
 /system note set note="$logcontent"  
+

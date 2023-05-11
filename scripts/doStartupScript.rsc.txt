@@ -13,42 +13,33 @@
 
 :delay 3s;
 
-:do {
-    :log warning "Starting script: doStartupScript";
-    :put "Starting script: doStartupScript"
-    /system script run doEnvironmentClearance;
-} on-error= {
-    :log error "FAIL Starting script: doStartupScript";
-    :put "FAIL Starting script: doStartupScript"
-};
 
-:do {
-    :log warning "Starting script: doEnvironmentSetup";
-    :put "Starting script: doEnvironmentSetup"
-    /system script run doEnvironmentSetup;
-} on-error= {
-    :log error "FAIL Starting script: doEnvironmentSetup";
-    :put "FAIL Starting script: doEnvironmentSetup"
-};
+:local SafeScriptCall do={
 
-:do {
-    :log warning "Starting script: doImperialMarch";
-    :put "Starting script: doImperialMarch"
-    /system script run doImperialMarch;
-} on-error= {
-    :log error "FAIL Starting script: doImperialMarch";
-    :put "FAIL Starting script: doImperialMarch"
-};
+    :if ([:len $0]!=0) do={
+        :if ([:len $1]!=0) do={
+            :if ([:len [/system script find name=$1]]!=0) do={
 
-:do {
-    :log warning "Starting script: doCoolConsole";
-    :put "Starting script: doCoolConsole"
-    /system script run doEnvironmentSetup;
-} on-error= {
-    :log error "FAIL Starting script: doCoolConsole";
-    :put "FAIL Starting script: doCoolConsole"
-};
+                :do {
+                    :log warning "Starting script: $1";
+                    :put "Starting script: $1"
+                    /system script run $1;
+                } on-error= {
+                    :log error "FAIL Starting script: $1";
+                    :put "FAIL Starting script: $1"
+                };
 
+            }
+        }
+    } 
+
+}
+
+$SafeScriptCall "doEnvironmentClearance";
+$SafeScriptCall "doEnvironmentSetup";
+$SafeScriptCall "doImperialMarch";
+$SafeScriptCall "doCoolConsole";
+$SafeScriptCall "SAT!start";
 
 #wait some for all tunnels to come up after reboot and VPN to work
 
@@ -67,3 +58,4 @@
 :global globalTgMessage;
 :if (any $globalTgMessage ) do={ $globalTgMessage value=$inf; }
       
+

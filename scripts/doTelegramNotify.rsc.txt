@@ -17,3 +17,4 @@ $globalScriptBeforeRun "doTelegramNotify";
 :log error ("Telegram notify error");
 :put "Telegram notify error";
 };
+
