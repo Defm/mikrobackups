@@ -67,3 +67,4 @@
 :global globalTgMessage;
 :if (any $globalTgMessage ) do={ $globalTgMessage value=$inf; }
       
+
