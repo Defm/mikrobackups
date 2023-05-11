@@ -63,8 +63,8 @@ $globalScriptBeforeRun "doBackup";
 :if ($saveRawExport and $itsOk) do={
   :if ($FTPGitEnable ) do={
      #do not apply hide-sensitive flag
-     :if ($verboseRawExport = true) do={ /export terse verbose file=($fname.".safe.rsc") }
-     :if ($verboseRawExport = false) do={ /export terse file=($fname.".safe.rsc") }
+     :if ($verboseRawExport = true) do={ /export show-sensitive terse verbose file=($fname.".safe.rsc") }
+     :if ($verboseRawExport = false) do={ /export show-sensitive terse file=($fname.".safe.rsc") }
      :delay 2s;
   }
   $globalNoteMe value="Raw configuration script export Finished"
