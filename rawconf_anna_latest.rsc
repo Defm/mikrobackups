@@ -1,4 +1,4 @@
-# may/11/2023 22:09:34 by RouterOS 7.8
+# may/11/2023 22:11:01 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -728,8 +728,8 @@
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=critical
 /system note set note="anna: \t\t7.8 \
-    \nUptime:\t\t1w21:57:38  \
-    \nTime:\t\tmay/11/2023 22:00:12  \
+    \nUptime:\t\t1w22:07:38  \
+    \nTime:\t\tmay/11/2023 22:10:12  \
     \nya.ru latency:\t8 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
