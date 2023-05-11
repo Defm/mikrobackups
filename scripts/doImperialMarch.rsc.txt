@@ -1,7 +1,4 @@
 
-:global globalScriptBeforeRun;
-$globalScriptBeforeRun "doImperialMarch";
-
 :delay 6
 
 :beep frequency=500 length=500ms;
