@@ -58,3 +58,4 @@ $globalScriptBeforeRun "doCoolConsole";
 
 
 /system note set note="$logcontent"  
+
