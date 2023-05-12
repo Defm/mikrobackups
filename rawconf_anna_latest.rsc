@@ -1,4 +1,4 @@
-# may/11/2023 23:16:48 by RouterOS 7.8
+# may/12/2023 18:53:57 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -727,10 +727,12 @@
 /system logging add action=ParseMemoryLog topics=error
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=critical
-/system note set note="anna: \t\t7.8 \
-    \nUptime:\t\t1w23:07:38  \
-    \nTime:\t\tmay/11/2023 23:10:12  \
-    \nya.ru latency:\t8 ms  \
+/system note set note="IPSEC: \t\tokay \
+    \nDefault route: \t10.20.225.1 \
+    \nanna: \t\t7.8 \
+    \nUptime:\t\t1w1d18:47:39  \
+    \nTime:\t\tmay/12/2023 18:50:14  \
+    \nya.ru latency:\t4 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
     \nANNA:\t\t46.39.51.172  \
@@ -988,67 +990,132 @@
     \n\r\
     \n\r\
     \n"
-/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
+/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doCoolConsole\";\r\
     \n\r\
-    \n:local content \"\"\r\
-    \n:local logcontenttemp \"\"\r\
-    \n:local logcontent \"\"\r\
+    \n:global globalNoteMe;\r\
     \n\r\
-    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\
+    \n:local logcontenttemp \"\";\r\
+    \n:local logcontent \"\";\r\
+    \n\r\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]];\r\
     \n\r\
     \n# reset current\r\
-    \n/system note set note=\"\" \r\
+    \n/system note set note=\"Pending\";\r\
     \n\r\
-    \n:local sysver \"NA\"\r\
+    \n:local sysver \"NA\";\r\
     \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\
-    \n  :set sysver [/system package get system version]\r\
+    \n  :set sysver [/system package get system version];\r\
     \n}\r\
     \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\
-    \n  :set sysver [/system package get routeros version]\r\
+    \n  :set sysver [/system package get routeros version];\r\
     \n}\r\
-    \n \r\
+    \n\r\
+    \n:log info \"Picking default route\";\r\
+    \n:local defaultRoute \"unreachable\";\r\
+    \n/ip route {\r\
+    \n    :foreach i in=[find where dst-address=\"0.0.0.0/0\" and active and routing-table=main] do={\r\
+    \n        :set defaultRoute [:tostr [/ip route get \$i gateway] ];\r\
+    \n    }\r\
+    \n}\r\
+    \n\r\
+    \n:log info \"Picking ipsec\";\r\
+    \n:local ipsecState \"okay\";\r\
+    \n/ip ipsec policy {\r\
+    \n  :foreach vpnEndpoint in=[find (!disabled and !template)] do={\r\
+    \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\r\
+    \n\r\
+    \n    :if (\$ph2state != \"established\") do={\r\
+    \n        :local ipsecState \"issues found\";\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:set logcontenttemp \"IPSEC: \t\t\$ipsecState\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\") \r\
+    \n:set logcontenttemp \"Default route: \t\$defaultRoute\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\") \r\
     \n:set logcontenttemp \"\$[/system identity get name]: \t\t\$sysver\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\")\r\
     \n:set logcontenttemp \"Uptime:\t\t\$[/system resource get uptime]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
+    \n:local SafeResolve do={\r\
     \n\r\
-    \n:local hostname \"ya.ru\";\r\
-    \n:local host  [:resolve \$hostname ];\r\
-    \n:local ms 20;\r\
-    \n\r\
-    \n:local avgRttA value=0;\r\
-    \n:local numPing value=6;\r\
-    \n:local toPingIP value=\$host;\r\
-    \n\r\
-    \n:for tmpA from=1 to=\$numPing step=1 do={\r\
-    \n\r\
-    \n /tool flood-ping count=1 size=38 address=\$toPingIP do={\r\
-    \n  :set avgRttA (\$\"avg-rtt\" + \$avgRttA);\r\
-    \n }\r\
-    \n\r\
-    \n /delay delay-time=1;\r\
-    \n\r\
+    \n    :if ([:len \$0]!=0) do={\r\
+    \n        :if ([:len \$1]!=0) do={\r\
+    \n            :do {\r\
+    \n                :local host [:resolve \"\$1\"];\r\
+    \n                :log warning \"Resolving: \$1\";\r\
+    \n                :put \"Resolving: \$1 - Ok\"\r\
+    \n                :return \$host;\r\
+    \n            } on-error= {\r\
+    \n                :log error \"FAIL resolving: \$1\";\r\
+    \n                :put \"FAIL resolving: \$1\";\r\
+    \n                :return \"ERROR\";\r\
+    \n            };\r\
+    \n        }\r\
+    \n    } \r\
+    \n    :log error \"FAIL resolving: \$1\";\r\
+    \n    :put \"FAIL resolving: \$1\";\r\
+    \n    :return \"ERROR\";\r\
     \n}\r\
     \n\r\
-    \n \r\
+    \n:local avgRttA 0;\r\
+    \n:local numPing 6;\r\
+    \n:local latency \"NA\";\r\
+    \n\r\
+    \n:local latencySite \"ya.ru\";\r\
+    \n:local yaResolve [\$SafeResolve \$latencySite];\r\
+    \n\r\
+    \n:log info \"Picking latency\";\r\
+    \n:if (\$yaResolve != \"ERROR\" ) do {\r\
+    \n    \r\
+    \n    :for tmpA from=1 to=\$numPing step=1 do={\r\
+    \n        /tool flood-ping count=1 size=38 address=\$yaResolve do={ :set avgRttA (\$\"avg-rtt\" + \$avgRttA); }\r\
+    \n        :delay 1s;\r\
+    \n    }\r\
+    \n    :set latency [:tostr (\$avgRttA / \$numPing )];\r\
+    \n\r\
+    \n} else={\r\
+    \n    :set latency \"unreachable\";\r\
+    \n}\r\
+    \n\r\
+    \n:log info \"Resolving chr\";\r\
+    \n:local hostname \"accb195e0dffc6bb.sn.mynetname.net\";\r\
+    \n:local chrResolve [\$SafeResolve \$hostname];\r\
+    \n:if (\$chrResolve = \"ERROR\" ) do {    \r\
+    \n    :set chrResolve \"unreachable\";\r\
+    \n}\r\
+    \n\r\
+    \n:log info \"Resolving mik\";\r\
+    \n:local hostname \"673706ed7949.sn.mynetname.net\";\r\
+    \n:local mikResolve [\$SafeResolve \$hostname];\r\
+    \n:if (\$mikResolve = \"ERROR\" ) do {    \r\
+    \n    :set mikResolve \"unreachable\";\r\
+    \n}\r\
+    \n\r\
+    \n:log info \"Resolving anna\";\r\
+    \n:local hostname \"hcy086pz6xz.sn.mynetname.net\";\r\
+    \n:local annaResolve [\$SafeResolve \$hostname];\r\
+    \n:if (\$annaResolve = \"ERROR\" ) do {    \r\
+    \n    :set annaResolve \"unreachable\";\r\
+    \n}\r\
+    \n\r\
     \n:set logcontenttemp \"Time:\t\t\$[/system clock get date] \$[/system clock get time]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n:set logcontenttemp \"\$hostname latency:\t\$[:tostr (\$avgRttA / \$numPing )] ms\"\r\
+    \n:set logcontenttemp \"\$latencySite latency:\t\$latency ms\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
-    \n:set logcontenttemp \"CHR:\t\t\$[:resolve accb195e0dffc6bb.sn.mynetname.net]\"\r\
+    \n:set logcontenttemp \"CHR:\t\t\$chrResolve\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n:set logcontenttemp \"MIK:\t\t\$[:resolve 673706ed7949.sn.mynetname.net]\"\r\
+    \n:set logcontenttemp \"MIK:\t\t\$mikResolve\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n:set logcontenttemp \"ANNA:\t\t\$[:resolve hcy086pz6xz.sn.mynetname.net]\"\r\
+    \n:set logcontenttemp \"ANNA:\t\t\$annaResolve\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
     \n:set logcontenttemp \"Clock:\t\t\$[/system ntp client get status]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n\r\
     \n\r\
     \n/system note set note=\"\$logcontent\"  \r\
     \n"
@@ -1583,21 +1650,57 @@
     \n#clear all global variables\r\
     \n/system script environment remove [find];\r\
     \n"
-/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time (awoid CHR initial clock bug)\r\
+/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# reset current\r\
+    \n/system note set note=\"Pending\";\r\
     \n\r\
-    \n:if ([/system resource get board-name]!=\"CHR\") do={\r\
-    \n    /ip cloud force-update;\r\
+    \n:do {\r\
     \n\r\
-    \n} else={\r\
-    \n    /system clock set date=JAN/01/2019\r\
-    \n    /system clock set time=14:30:00\r\
-    \n    /system clock set time-zone-autodetect=no\r\
-    \n    /system clock set time-zone-name=Europe/Moscow\r\
+    \n    # Track sync time (avoid CHR initial clock bug), with this we are also checking if internet comes up\r\
+    \n\r\
+    \n    :local successSyncState \"synchronized\";\r\
+    \n    :local syncOk false;\r\
+    \n    :local syncState \"\";\r\
+    \n    :local timeSpent 0;\r\
+    \n    :local ticks 0;\r\
+    \n    :local maxTicks 40;\r\
+    \n    :local break false;\r\
+    \n    :do {\r\
+    \n        :set syncState [/system ntp client get status];\r\
+    \n        :set syncOk (\$syncState = \$successSyncState);\r\
+    \n\r\
+    \n        :log info \"Waiting 15s for clock sync using NTP.. (\$ticks/\$maxTicks, \$syncState)\";\r\
+    \n        :put \"Waiting 15s for clock sync using NTP.. (\$ticks/\$maxTicks, \$syncState)\";\r\
+    \n        \r\
+    \n        :if (!\$syncOk) do={\r\
+    \n\r\
+    \n            :delay 15s;        \r\
+    \n            :set timeSpent (\$timeSpent + 15);\r\
+    \n            :set break (\$ticks >= \$maxTicks);\r\
+    \n\r\
+    \n        } else={\r\
+    \n            :set break true;\r\
+    \n        };\r\
+    \n\r\
+    \n        :set ticks (\$ticks + 1);\r\
+    \n\r\
+    \n    } while=(! \$break )\r\
+    \n\r\
+    \n    :if (\$syncOk) do={\r\
+    \n        :log warning \"Successful clock sync using NTP in \$timeSpent seconds\";\r\
+    \n        :put \"Successful clock sync using NTP in \$timeSpent seconds\";\r\
+    \n        \r\
+    \n    } else={\r\
+    \n        :log error \"Error when clock sync using NTP in \$timeSpent seconds\";\r\
+    \n        :put \"Error when clock sync using NTP in \$timeSpent seconds\";\r\
+    \n\r\
+    \n    };\r\
+    \n    \r\
+    \n} on-error={\r\
+    \n\r\
+    \n    :log error \"Error when tracking clock sync using NTP\";\r\
+    \n    :put \"Error when tracking clock sync using NTP\";\r\
     \n\r\
     \n};\r\
-    \n\r\
-    \n:delay 3s;\r\
-    \n\r\
     \n\r\
     \n:local SafeScriptCall do={\r\
     \n\r\
@@ -1626,23 +1729,23 @@
     \n\$SafeScriptCall \"doCoolConsole\";\r\
     \n\$SafeScriptCall \"SAT!start\";\r\
     \n\r\
-    \n#wait some for all tunnels to come up after reboot and VPN to work\r\
+    \n# wait some for all tunnels to come up after reboot and VPN to work\r\
     \n\r\
     \n:local inf \"Wait some for all tunnels to come up after reboot and VPN to work..\" ;\r\
     \n:global globalNoteMe;\r\
+    \n:global globalTgMessage;\r\
     \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\r\
     \n\r\
-    \n:delay 25s;\r\
+    \n:delay 15s;\r\
     \n\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doStartupScript\";\r\
     \n\r\
     \n:local inf \"\$scriptname on \$sysname: system restart detected\" ;\r\
     \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\r\
-    \n\r\
-    \n:global globalTgMessage;\r\
     \n:if (any \$globalTgMessage ) do={ \$globalTgMessage value=\$inf; }\r\
     \n      \r\
+    \n\r\
     \n"
 /system script add comment="Updates remote VPN server (CHR) IPSEC policies for this mikrotik client via SSH when external IP changed" dont-require-permissions=yes name=doSuperviseCHRviaSSH owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
