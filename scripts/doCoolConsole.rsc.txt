@@ -1,64 +1,129 @@
-
 :global globalScriptBeforeRun;
 $globalScriptBeforeRun "doCoolConsole";
 
-:local content ""
-:local logcontenttemp ""
-:local logcontent ""
+:global globalNoteMe;
 
-:local rosVer [:tonum [:pick [/system resource get version] 0 1]]
+:local logcontenttemp "";
+:local logcontent "";
+
+:local rosVer [:tonum [:pick [/system resource get version] 0 1]];
 
 # reset current
-/system note set note="" 
+/system note set note="Pending";
 
-:local sysver "NA"
+:local sysver "NA";
 :if ( [ :len [ /system package find where name="system" and disabled=no ] ] > 0 and $rosVer = 6 ) do={
-  :set sysver [/system package get system version]
+  :set sysver [/system package get system version];
 }
 :if ( [ :len [ /system package find where name="routeros" and disabled=no ] ] > 0 and $rosVer = 7 ) do={
-  :set sysver [/system package get routeros version]
+  :set sysver [/system package get routeros version];
 }
- 
+
+:log info "Picking default route";
+:local defaultRoute "unreachable";
+/ip route {
+    :foreach i in=[find where dst-address="0.0.0.0/0" and active and routing-table=main] do={
+        :set defaultRoute [:tostr [/ip route get $i gateway] ];
+    }
+}
+
+:log info "Picking ipsec";
+:local ipsecState "okay";
+/ip ipsec policy {
+  :foreach vpnEndpoint in=[find (!disabled and !template)] do={
+    :local ph2state [get value-name=ph2-state $vpnEndpoint]
+
+    :if ($ph2state != "established") do={
+        :local ipsecState "issues found";
+    }
+  }
+}
+
+:set logcontenttemp "IPSEC: 		$ipsecState"
+:set logcontent ("$logcontent" ."$logcontenttemp" ." \n") 
+:set logcontenttemp "Default route: 	$defaultRoute"
+:set logcontent ("$logcontent" ."$logcontenttemp" ." \n") 
 :set logcontenttemp "$[/system identity get name]: 		$sysver"
 :set logcontent ("$logcontent" ."$logcontenttemp" ." \n")
 :set logcontenttemp "Uptime:		$[/system resource get uptime]"
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
 
+:local SafeResolve do={
 
-:local hostname "ya.ru";
-:local host  [:resolve $hostname ];
-:local ms 20;
-
-:local avgRttA value=0;
-:local numPing value=6;
-:local toPingIP value=$host;
-
-:for tmpA from=1 to=$numPing step=1 do={
-
- /tool flood-ping count=1 size=38 address=$toPingIP do={
-  :set avgRttA ($"avg-rtt" + $avgRttA);
- }
-
- /delay delay-time=1;
-
+    :if ([:len $0]!=0) do={
+        :if ([:len $1]!=0) do={
+            :do {
+                :local host [:resolve "$1"];
+                :log warning "Resolving: $1";
+                :put "Resolving: $1 - Ok"
+                :return $host;
+            } on-error= {
+                :log error "FAIL resolving: $1";
+                :put "FAIL resolving: $1";
+                :return "ERROR";
+            };
+        }
+    } 
+    :log error "FAIL resolving: $1";
+    :put "FAIL resolving: $1";
+    :return "ERROR";
 }
 
- 
+:local avgRttA 0;
+:local numPing 6;
+:local latency "NA";
+
+:local latencySite "ya.ru";
+:local yaResolve [$SafeResolve $latencySite];
+
+:log info "Picking latency";
+:if ($yaResolve != "ERROR" ) do {
+    
+    :for tmpA from=1 to=$numPing step=1 do={
+        /tool flood-ping count=1 size=38 address=$yaResolve do={ :set avgRttA ($"avg-rtt" + $avgRttA); }
+        :delay 1s;
+    }
+    :set latency [:tostr ($avgRttA / $numPing )];
+
+} else={
+    :set latency "unreachable";
+}
+
+:log info "Resolving chr";
+:local hostname "accb195e0dffc6bb.sn.mynetname.net";
+:local chrResolve [$SafeResolve $hostname];
+:if ($chrResolve = "ERROR" ) do {    
+    :set chrResolve "unreachable";
+}
+
+:log info "Resolving mik";
+:local hostname "673706ed7949.sn.mynetname.net";
+:local mikResolve [$SafeResolve $hostname];
+:if ($mikResolve = "ERROR" ) do {    
+    :set mikResolve "unreachable";
+}
+
+:log info "Resolving anna";
+:local hostname "hcy086pz6xz.sn.mynetname.net";
+:local annaResolve [$SafeResolve $hostname];
+:if ($annaResolve = "ERROR" ) do {    
+    :set annaResolve "unreachable";
+}
+
 :set logcontenttemp "Time:		$[/system clock get date] $[/system clock get time]"
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
-:set logcontenttemp "$hostname latency:	$[:tostr ($avgRttA / $numPing )] ms"
+:set logcontenttemp "$latencySite latency:	$latency ms"
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
 
-:set logcontenttemp "CHR:		$[:resolve accb195e0dffc6bb.sn.mynetname.net]"
+:set logcontenttemp "CHR:		$chrResolve"
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
-:set logcontenttemp "MIK:		$[:resolve 673706ed7949.sn.mynetname.net]"
+:set logcontenttemp "MIK:		$mikResolve"
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
-:set logcontenttemp "ANNA:		$[:resolve hcy086pz6xz.sn.mynetname.net]"
+:set logcontenttemp "ANNA:		$annaResolve"
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
 
 :set logcontenttemp "Clock:		$[/system ntp client get status]"
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
-
 
 /system note set note="$logcontent"  
 

@@ -1,18 +1,54 @@
-#Force sync time (awoid CHR initial clock bug)
+# reset current
+/system note set note="Pending";
 
-:if ([/system resource get board-name]!="CHR") do={
-    /ip cloud force-update;
+:do {
 
-} else={
-    /system clock set date=JAN/01/2019
-    /system clock set time=14:30:00
-    /system clock set time-zone-autodetect=no
-    /system clock set time-zone-name=Europe/Moscow
+    # Track sync time (avoid CHR initial clock bug), with this we are also checking if internet comes up
+
+    :local successSyncState "synchronized";
+    :local syncOk false;
+    :local syncState "";
+    :local timeSpent 0;
+    :local ticks 0;
+    :local maxTicks 40;
+    :local break false;
+    :do {
+        :set syncState [/system ntp client get status];
+        :set syncOk ($syncState = $successSyncState);
+
+        :log info "Waiting 15s for clock sync using NTP.. ($ticks/$maxTicks, $syncState)";
+        :put "Waiting 15s for clock sync using NTP.. ($ticks/$maxTicks, $syncState)";
+        
+        :if (!$syncOk) do={
+
+            :delay 15s;        
+            :set timeSpent ($timeSpent + 15);
+            :set break ($ticks >= $maxTicks);
+
+        } else={
+            :set break true;
+        };
+
+        :set ticks ($ticks + 1);
+
+    } while=(! $break )
+
+    :if ($syncOk) do={
+        :log warning "Successful clock sync using NTP in $timeSpent seconds";
+        :put "Successful clock sync using NTP in $timeSpent seconds";
+        
+    } else={
+        :log error "Error when clock sync using NTP in $timeSpent seconds";
+        :put "Error when clock sync using NTP in $timeSpent seconds";
+
+    };
+    
+} on-error={
+
+    :log error "Error when tracking clock sync using NTP";
+    :put "Error when tracking clock sync using NTP";
 
 };
-
-:delay 3s;
-
 
 :local SafeScriptCall do={
 
@@ -41,21 +77,21 @@ $SafeScriptCall "doImperialMarch";
 $SafeScriptCall "doCoolConsole";
 $SafeScriptCall "SAT!start";
 
-#wait some for all tunnels to come up after reboot and VPN to work
+# wait some for all tunnels to come up after reboot and VPN to work
 
 :local inf "Wait some for all tunnels to come up after reboot and VPN to work.." ;
 :global globalNoteMe;
+:global globalTgMessage;
 :if (any $globalNoteMe ) do={ $globalNoteMe value=$inf; }
 
-:delay 25s;
+:delay 15s;
 
 :local sysname [/system identity get name];
 :local scriptname "doStartupScript";
 
 :local inf "$scriptname on $sysname: system restart detected" ;
 :if (any $globalNoteMe ) do={ $globalNoteMe value=$inf; }
-
-:global globalTgMessage;
 :if (any $globalTgMessage ) do={ $globalTgMessage value=$inf; }
       
+
 
