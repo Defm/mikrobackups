@@ -1,4 +1,4 @@
-# may/06/2023 21:00:02 by RouterOS 7.7
+# may/16/2023 21:00:02 by RouterOS 7.7
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -101,9 +101,11 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
 /system logging add action=CAPSOnScreenLog topics=wireless
 /system logging add action=ParseMemoryLog topics=info,system,!script
 /system logging add action=FTPMemoryLog topics=tftp
-/system note set note="capxl: \t\t7.7 \
-    \nUptime:\t\t1w6d05:41:18  \
-    \nTime:\t\tmay/06/2023 20:53:05  \
+/system note set note="IPSEC: \t\tokay \
+    \nDefault route: \t192.168.90.1 \
+    \ncapxl: \t\t7.7 \
+    \nUptime:\t\t3w2d05:41:17  \
+    \nTime:\t\tmay/16/2023 20:53:04  \
     \nya.ru latency:\t8 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
@@ -256,67 +258,137 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n}\r\
     \n\r\
     \n\r\
+    \n\r\
     \n"
-/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
+/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doCoolConsole\";\r\
     \n\r\
-    \n:local content \"\"\r\
-    \n:local logcontenttemp \"\"\r\
-    \n:local logcontent \"\"\r\
+    \n:global globalNoteMe;\r\
     \n\r\
-    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\
+    \n:local logcontenttemp \"\";\r\
+    \n:local logcontent \"\";\r\
     \n\r\
-    \n:local sysver \"NA\"\r\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]];\r\
+    \n\r\
+    \n# reset current\r\
+    \n/system note set note=\"Pending\";\r\
+    \n\r\
+    \n:local sysver \"NA\";\r\
     \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\
-    \n  :set sysver [/system package get system version]\r\
+    \n  :set sysver [/system package get system version];\r\
     \n}\r\
     \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\
-    \n  :set sysver [/system package get routeros version]\r\
+    \n  :set sysver [/system package get routeros version];\r\
     \n}\r\
-    \n \r\
+    \n\r\
+    \n:log info \"Picking default route\";\r\
+    \n:local defaultRoute \"unreachable\";\r\
+    \n/ip route {\r\
+    \n    :foreach i in=[find where dst-address=\"0.0.0.0/0\" and active and routing-table=main] do={\r\
+    \n        :set defaultRoute [:tostr [/ip route get \$i gateway] ];\r\
+    \n    }\r\
+    \n}\r\
+    \n\r\
+    \n:log info \"Picking ipsec\";\r\
+    \n:local ipsecState \"okay\";\r\
+    \n/ip ipsec policy {\r\
+    \n  :foreach vpnEndpoint in=[find (!disabled and !template)] do={\r\
+    \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\r\
+    \n\r\
+    \n    :if (\$ph2state != \"established\") do={\r\
+    \n        :local ipsecState \"issues found\";\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:set logcontenttemp \"IPSEC: \t\t\$ipsecState\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\") \r\
+    \n:set logcontenttemp \"Default route: \t\$defaultRoute\"\r\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\") \r\
     \n:set logcontenttemp \"\$[/system identity get name]: \t\t\$sysver\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\")\r\
     \n:set logcontenttemp \"Uptime:\t\t\$[/system resource get uptime]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
+    \n:local SafeResolve do={\r\
     \n\r\
-    \n:local hostname \"ya.ru\";\r\
-    \n:local host  [:resolve \$hostname ];\r\
-    \n:local ms 20;\r\
-    \n\r\
-    \n:local avgRttA value=0;\r\
-    \n:local numPing value=6;\r\
-    \n:local toPingIP value=\$host;\r\
-    \n\r\
-    \n:for tmpA from=1 to=\$numPing step=1 do={\r\
-    \n\r\
-    \n /tool flood-ping count=1 size=38 address=\$toPingIP do={\r\
-    \n  :set avgRttA (\$\"avg-rtt\" + \$avgRttA);\r\
-    \n }\r\
-    \n\r\
-    \n /delay delay-time=1;\r\
-    \n\r\
+    \n    :if ([:len \$0]!=0) do={\r\
+    \n        :if ([:len \$1]!=0) do={\r\
+    \n            :do {\r\
+    \n                :local host [:resolve \"\$1\"];\r\
+    \n                :log warning \"Resolving: \$1\";\r\
+    \n                :put \"Resolving: \$1 - Ok\"\r\
+    \n                :return \$host;\r\
+    \n            } on-error= {\r\
+    \n                :log error \"FAIL resolving: \$1\";\r\
+    \n                :put \"FAIL resolving: \$1\";\r\
+    \n                :return \"ERROR\";\r\
+    \n            };\r\
+    \n        }\r\
+    \n    } \r\
+    \n    :log error \"FAIL resolving: \$1\";\r\
+    \n    :put \"FAIL resolving: \$1\";\r\
+    \n    :return \"ERROR\";\r\
     \n}\r\
     \n\r\
-    \n \r\
+    \n:local avgRttA 0;\r\
+    \n:local numPing 6;\r\
+    \n:local latency \"NA\";\r\
+    \n\r\
+    \n:local latencySite \"ya.ru\";\r\
+    \n:local yaResolve [\$SafeResolve \$latencySite];\r\
+    \n\r\
+    \n:log info \"Picking latency\";\r\
+    \n:if (\$yaResolve != \"ERROR\" ) do {\r\
+    \n    \r\
+    \n    :for tmpA from=1 to=\$numPing step=1 do={\r\
+    \n        /tool flood-ping count=1 size=38 address=\$yaResolve do={ :set avgRttA (\$\"avg-rtt\" + \$avgRttA); }\r\
+    \n        :delay 1s;\r\
+    \n    }\r\
+    \n    :set latency [:tostr (\$avgRttA / \$numPing )];\r\
+    \n\r\
+    \n} else={\r\
+    \n    :set latency \"unreachable\";\r\
+    \n}\r\
+    \n\r\
+    \n:log info \"Resolving chr\";\r\
+    \n:local hostname \"accb195e0dffc6bb.sn.mynetname.net\";\r\
+    \n:local chrResolve [\$SafeResolve \$hostname];\r\
+    \n:if (\$chrResolve = \"ERROR\" ) do {    \r\
+    \n    :set chrResolve \"unreachable\";\r\
+    \n}\r\
+    \n\r\
+    \n:log info \"Resolving mik\";\r\
+    \n:local hostname \"673706ed7949.sn.mynetname.net\";\r\
+    \n:local mikResolve [\$SafeResolve \$hostname];\r\
+    \n:if (\$mikResolve = \"ERROR\" ) do {    \r\
+    \n    :set mikResolve \"unreachable\";\r\
+    \n}\r\
+    \n\r\
+    \n:log info \"Resolving anna\";\r\
+    \n:local hostname \"hcy086pz6xz.sn.mynetname.net\";\r\
+    \n:local annaResolve [\$SafeResolve \$hostname];\r\
+    \n:if (\$annaResolve = \"ERROR\" ) do {    \r\
+    \n    :set annaResolve \"unreachable\";\r\
+    \n}\r\
+    \n\r\
     \n:set logcontenttemp \"Time:\t\t\$[/system clock get date] \$[/system clock get time]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n:set logcontenttemp \"\$hostname latency:\t\$[:tostr (\$avgRttA / \$numPing )] ms\"\r\
+    \n:set logcontenttemp \"\$latencySite latency:\t\$latency ms\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
-    \n:set logcontenttemp \"CHR:\t\t\$[:resolve accb195e0dffc6bb.sn.mynetname.net]\"\r\
+    \n:set logcontenttemp \"CHR:\t\t\$chrResolve\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n:set logcontenttemp \"MIK:\t\t\$[:resolve 673706ed7949.sn.mynetname.net]\"\r\
+    \n:set logcontenttemp \"MIK:\t\t\$mikResolve\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n:set logcontenttemp \"ANNA:\t\t\$[:resolve hcy086pz6xz.sn.mynetname.net]\"\r\
+    \n:set logcontenttemp \"ANNA:\t\t\$annaResolve\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
     \n:set logcontenttemp \"Clock:\t\t\$[/system ntp client get status]\"\r\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
-    \n\r\
     \n/system note set note=\"\$logcontent\"  \r\
+    \n\r\
     \n"
 /system script add comment="Checks device temperature and warns on overheat" dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
@@ -354,6 +426,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n\r\
     \n\r\
     \n};\r\
+    \n\r\
     \n"
 /system script add comment="Runs at midnight to have less flashes at living room (swith off all LEDs)" dont-require-permissions=yes name=doLEDoff owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -362,12 +435,14 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n/system leds settings set all-leds-off=immediate\r\
     \n\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Runs at morning to get flashes back (swith on all LEDs)" dont-require-permissions=yes name=doLEDon owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doLEDon\";\r\
     \n\r\
     \n/system leds settings set all-leds-off=never;\r\
+    \n\r\
     \n\r\
     \n"
 /system script add comment="Simple telegram notify script" dont-require-permissions=yes name=doTelegramNotify owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
@@ -389,80 +464,110 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n:log error (\"Telegram notify error\");\r\
     \n:put \"Telegram notify error\";\r\
     \n};\r\
+    \n\r\
     \n"
 /system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n#clear all global variables\r\
     \n/system script environment remove [find];\r\
+    \n\r\
     \n"
-/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#Force sync time (awoid CHR initial clock bug)\r\
-    \n\r\
-    \n:if ([/system resource get board-name]!=\"CHR\") do={\r\
-    \n    /ip cloud force-update;\r\
-    \n\r\
-    \n} else={\r\
-    \n    /system clock set date=JAN/01/2019\r\
-    \n    /system clock set time=14:30:00\r\
-    \n    /system clock set time-zone-autodetect=no\r\
-    \n    /system clock set time-zone-name=Europe/Moscow\r\
-    \n\r\
-    \n};\r\
-    \n\r\
-    \n:delay 3s;\r\
+/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# reset current\r\
+    \n/system note set note=\"Pending\";\r\
     \n\r\
     \n:do {\r\
-    \n    :log warning \"Starting script: doStartupScript\";\r\
-    \n    :put \"Starting script: doStartupScript\"\r\
-    \n    /system script run doEnvironmentClearance;\r\
-    \n} on-error= {\r\
-    \n    :log error \"FAIL Starting script: doStartupScript\";\r\
-    \n    :put \"FAIL Starting script: doStartupScript\"\r\
+    \n\r\
+    \n    # Track sync time (avoid CHR initial clock bug), with this we are also checking if internet comes up\r\
+    \n\r\
+    \n    :local successSyncState \"synchronized\";\r\
+    \n    :local syncOk false;\r\
+    \n    :local syncState \"\";\r\
+    \n    :local timeSpent 0;\r\
+    \n    :local ticks 0;\r\
+    \n    :local maxTicks 40;\r\
+    \n    :local break false;\r\
+    \n    :do {\r\
+    \n        :set syncState [/system ntp client get status];\r\
+    \n        :set syncOk (\$syncState = \$successSyncState);\r\
+    \n\r\
+    \n        :log info \"Waiting 15s for clock sync using NTP.. (\$ticks/\$maxTicks, \$syncState)\";\r\
+    \n        :put \"Waiting 15s for clock sync using NTP.. (\$ticks/\$maxTicks, \$syncState)\";\r\
+    \n        \r\
+    \n        :if (!\$syncOk) do={\r\
+    \n\r\
+    \n            :delay 15s;        \r\
+    \n            :set timeSpent (\$timeSpent + 15);\r\
+    \n            :set break (\$ticks >= \$maxTicks);\r\
+    \n\r\
+    \n        } else={\r\
+    \n            :set break true;\r\
+    \n        };\r\
+    \n\r\
+    \n        :set ticks (\$ticks + 1);\r\
+    \n\r\
+    \n    } while=(! \$break )\r\
+    \n\r\
+    \n    :if (\$syncOk) do={\r\
+    \n        :log warning \"Successful clock sync using NTP in \$timeSpent seconds\";\r\
+    \n        :put \"Successful clock sync using NTP in \$timeSpent seconds\";\r\
+    \n        \r\
+    \n    } else={\r\
+    \n        :log error \"Error when clock sync using NTP in \$timeSpent seconds\";\r\
+    \n        :put \"Error when clock sync using NTP in \$timeSpent seconds\";\r\
+    \n\r\
+    \n    };\r\
+    \n    \r\
+    \n} on-error={\r\
+    \n\r\
+    \n    :log error \"Error when tracking clock sync using NTP\";\r\
+    \n    :put \"Error when tracking clock sync using NTP\";\r\
+    \n\r\
     \n};\r\
     \n\r\
-    \n:do {\r\
-    \n    :log warning \"Starting script: doEnvironmentSetup\";\r\
-    \n    :put \"Starting script: doEnvironmentSetup\"\r\
-    \n    /system script run doEnvironmentSetup;\r\
-    \n} on-error= {\r\
-    \n    :log error \"FAIL Starting script: doEnvironmentSetup\";\r\
-    \n    :put \"FAIL Starting script: doEnvironmentSetup\"\r\
-    \n};\r\
+    \n:local SafeScriptCall do={\r\
     \n\r\
-    \n:do {\r\
-    \n    :log warning \"Starting script: doImperialMarch\";\r\
-    \n    :put \"Starting script: doImperialMarch\"\r\
-    \n    /system script run doImperialMarch;\r\
-    \n} on-error= {\r\
-    \n    :log error \"FAIL Starting script: doImperialMarch\";\r\
-    \n    :put \"FAIL Starting script: doImperialMarch\"\r\
-    \n};\r\
+    \n    :if ([:len \$0]!=0) do={\r\
+    \n        :if ([:len \$1]!=0) do={\r\
+    \n            :if ([:len [/system script find name=\$1]]!=0) do={\r\
     \n\r\
-    \n:do {\r\
-    \n    :log warning \"Starting script: doCoolConsole\";\r\
-    \n    :put \"Starting script: doCoolConsole\"\r\
-    \n    /system script run doEnvironmentSetup;\r\
-    \n} on-error= {\r\
-    \n    :log error \"FAIL Starting script: doCoolConsole\";\r\
-    \n    :put \"FAIL Starting script: doCoolConsole\"\r\
-    \n};\r\
+    \n                :do {\r\
+    \n                    :log warning \"Starting script: \$1\";\r\
+    \n                    :put \"Starting script: \$1\"\r\
+    \n                    /system script run \$1;\r\
+    \n                } on-error= {\r\
+    \n                    :log error \"FAIL Starting script: \$1\";\r\
+    \n                    :put \"FAIL Starting script: \$1\"\r\
+    \n                };\r\
     \n\r\
+    \n            }\r\
+    \n        }\r\
+    \n    } \r\
     \n\r\
-    \n#wait some for all tunnels to come up after reboot and VPN to work\r\
+    \n}\r\
+    \n\r\
+    \n\$SafeScriptCall \"doEnvironmentClearance\";\r\
+    \n\$SafeScriptCall \"doEnvironmentSetup\";\r\
+    \n\$SafeScriptCall \"doImperialMarch\";\r\
+    \n\$SafeScriptCall \"doCoolConsole\";\r\
+    \n\$SafeScriptCall \"SAT!start\";\r\
+    \n\r\
+    \n# wait some for all tunnels to come up after reboot and VPN to work\r\
     \n\r\
     \n:local inf \"Wait some for all tunnels to come up after reboot and VPN to work..\" ;\r\
     \n:global globalNoteMe;\r\
+    \n:global globalTgMessage;\r\
     \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\r\
     \n\r\
-    \n:delay 25s;\r\
+    \n:delay 15s;\r\
     \n\r\
     \n:local sysname [/system identity get name];\r\
     \n:local scriptname \"doStartupScript\";\r\
     \n\r\
     \n:local inf \"\$scriptname on \$sysname: system restart detected\" ;\r\
     \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\r\
-    \n\r\
-    \n:global globalTgMessage;\r\
     \n:if (any \$globalTgMessage ) do={ \$globalTgMessage value=\$inf; }\r\
     \n      \r\
+    \n\r\
+    \n\r\
     \n"
 /system script add comment="Mikrotik system log dump, collects new entries once per minute. You should have 'ParseMemoryLog' buffer at your 'system-logging'. Calls 'doPeriodicLogParse' when new logs available" dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -589,6 +694,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n# end foreach rule\r\
     \n}\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -679,6 +785,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n# End check for configuration changes\r\
     \n\r\
     \n}\r\
+    \n\r\
     \n"
 /system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
@@ -1106,6 +1213,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n}\r\
     \n\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\r\
@@ -1172,8 +1280,8 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n:if (\$saveRawExport and \$itsOk) do={\r\r\
     \n  :if (\$FTPGitEnable ) do={\r\r\
     \n     #do not apply hide-sensitive flag\r\r\
-    \n     :if (\$verboseRawExport = true) do={ /export terse verbose file=(\$fname.\".safe.rsc\") }\r\r\
-    \n     :if (\$verboseRawExport = false) do={ /export terse file=(\$fname.\".safe.rsc\") }\r\r\
+    \n     :if (\$verboseRawExport = true) do={ /export show-sensitive terse verbose file=(\$fname.\".safe.rsc\") }\r\r\
+    \n     :if (\$verboseRawExport = false) do={ /export show-sensitive terse file=(\$fname.\".safe.rsc\") }\r\r\
     \n     :delay 2s;\r\r\
     \n  }\r\r\
     \n  \$globalNoteMe value=\"Raw configuration script export Finished\"\r\r\
@@ -1270,6 +1378,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n  \r\r\
     \n}\r\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -1351,6 +1460,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n:beep frequency=644 length=1000ms;\r\
     \n\r\
     \n}\r\
+    \n\r\
     \n"
 /system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
@@ -1440,6 +1550,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n  \$globalTgMessage value=\$inf;\r\
     \n  \r\
     \n}\r\
+    \n\r\
     \n"
 /system script add comment="This will check for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time. Will reboot the router when overload" dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
@@ -1539,6 +1650,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n}\r\
     \n\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="A very special script for CFG restore from *.rsc files (not from backup). This one should be placed at flash/perfectrestore.rsc, your config should be at flash/backup.rsc. Run 'Reset confuguration' with 'no default config', choose 'flash/perfectrestore.rsc' as 'run after reset. Pretty logs will be at flash/import.log and flash/perfectrestore.log" dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
@@ -1627,6 +1739,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n/system/logging/action/set memory-lines=1 [find target=memory]\r\
     \n/system/logging/action/set memory-lines=300 [find target=memory]\r\
     \n\r\
+    \n\r\
     \n"
 /tool bandwidth-server set authenticate=no
-/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com port=587 tls=yes user=defm.kopcap@gmail.com
+/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 tls=yes user=defm.kopcap@gmail.com

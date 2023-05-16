@@ -1,4 +1,4 @@
-# may/12/2023 18:53:57 by RouterOS 7.8
+# may/16/2023 21:00:02 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -668,7 +668,7 @@
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 disabled=yes proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
-/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
+/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" disabled=yes dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
 /ip proxy access add action=redirect action-data=influxdb:8000 dst-host=influxdb
@@ -727,17 +727,7 @@
 /system logging add action=ParseMemoryLog topics=error
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=critical
-/system note set note="IPSEC: \t\tokay \
-    \nDefault route: \t10.20.225.1 \
-    \nanna: \t\t7.8 \
-    \nUptime:\t\t1w1d18:47:39  \
-    \nTime:\t\tmay/12/2023 18:50:14  \
-    \nya.ru latency:\t4 ms  \
-    \nCHR:\t\t185.13.148.14  \
-    \nMIK:\t\t85.174.193.108  \
-    \nANNA:\t\t46.39.51.172  \
-    \nClock:\t\tsynchronized  \
-    \n"
+/system note set note=Pending
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
