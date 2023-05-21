@@ -1,4 +1,4 @@
-# may/16/2023 21:00:02 by RouterOS 7.7
+# may/21/2023 21:00:02 by RouterOS 7.7
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -104,12 +104,12 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t192.168.90.1 \
     \ncapxl: \t\t7.7 \
-    \nUptime:\t\t3w2d05:41:17  \
-    \nTime:\t\tmay/16/2023 20:53:04  \
-    \nya.ru latency:\t8 ms  \
+    \nUptime:\t\t4w05:41:18  \
+    \nTime:\t\tmay/21/2023 20:53:05  \
+    \nya.ru latency:\t9 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
-    \nANNA:\t\t46.39.51.172  \
+    \nANNA:\t\t46.39.51.146  \
     \nClock:\t\tsynchronized  \
     \n"
 /system ntp client set enabled=yes

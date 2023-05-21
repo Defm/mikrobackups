@@ -1,4 +1,4 @@
-# may/16/2023 21:00:02 by RouterOS 7.8
+# may/21/2023 21:00:02 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -307,7 +307,7 @@
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bazar|\\.coin|\\.emc|\\.lib|\\.fur1|\\.bit|\\.ku|\\.te|\\.ti|\\.uu)\$" type=FWD
 /ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=HONOR9X-e57500d48bf17173.home ttl=5m
 /ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
-/ip dns static add address=46.39.51.172 name=ftpserver.org
+/ip dns static add address=46.39.51.146 name=ftpserver.org
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -384,7 +384,7 @@
 /ip firewall address-list add address=www.canva.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.99.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-vpn-subnets
-/ip firewall address-list add address=46.39.51.172 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.146 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
