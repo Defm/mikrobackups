@@ -1,4 +1,4 @@
-# jun/22/2023 23:20:53 by RouterOS 7.7
+# jun/23/2023 00:19:55 by RouterOS 7.7
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -12,7 +12,7 @@
 set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5180/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /interface lte apn set [ find default=yes ] ip-type=ipv4 use-network-apn=no
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
@@ -49,7 +49,7 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /interface ovpn-server server set auth=sha1,md5
 /interface wireless cap
 # 
-set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
+set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
 /ip cloud set update-time=no
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
@@ -74,6 +74,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=capxl
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -103,9 +104,9 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t192.168.90.1 \
     \ncapxl: \t\t7.7 \
-    \nUptime:\t\t1w6d10:30:57  \
-    \nTime:\t\tjun/22/2023 23:13:06  \
-    \nya.ru latency:\t4 ms  \
+    \nUptime:\t\t1w6d11:30:57  \
+    \nTime:\t\tjun/23/2023 00:13:04  \
+    \nya.ru latency:\t7 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
     \nANNA:\t\t46.39.51.161  \

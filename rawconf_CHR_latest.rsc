@@ -1,4 +1,4 @@
-# 2023-06-22 23:21:09 by RouterOS 7.10
+# 2023-06-23 00:20:01 by RouterOS 7.10
 # software id = 
 #
 /interface bridge add arp=proxy-arp fast-forward=no name=main-infrastructure-br
@@ -509,17 +509,7 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
 /system logging add action=NTPOnscreenLog topics=ntp
-/system note set note="IPSEC: \t\tokay \
-    \nDefault route: \t185.13.148.1 \
-    \nCHR: \t\t7.10 \
-    \nUptime:\t\t2d01:06:31  \
-    \nTime:\t\t2023-06-22 23:20:12  \
-    \nya.ru latency:\t50 ms  \
-    \nCHR:\t\t185.13.148.14  \
-    \nMIK:\t\t85.174.193.108  \
-    \nANNA:\t\t46.39.51.161  \
-    \nClock:\t\tsynchronized  \
-    \n"
+/system note set note=Pending
 /system ntp client set enabled=yes
 /system ntp client servers add address=0.de.pool.ntp.org
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=2020-08-04 start-time=21:00:00
