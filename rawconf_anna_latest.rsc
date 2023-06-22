@@ -1,4 +1,4 @@
-# jun/22/2023 21:33:21 by RouterOS 7.8
+# jun/22/2023 23:05:53 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -730,9 +730,9 @@
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t10.20.225.1 \
     \nanna: \t\t7.8 \
-    \nUptime:\t\t1w6d08:48:09  \
-    \nTime:\t\tjun/22/2023 21:30:14  \
-    \nya.ru latency:\t7 ms  \
+    \nUptime:\t\t1w6d10:18:09  \
+    \nTime:\t\tjun/22/2023 23:00:13  \
+    \nya.ru latency:\t4 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
     \nANNA:\t\t46.39.51.161  \
@@ -2915,7 +2915,7 @@
 /system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\r\
     \n\r\r\
-    \n:local sysname [/system identity get name]\r\r\
+    \n:local sysname [/system identity get name];\r\r\
     \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
     \n\r\r\
     \n:local sysver \"NA\"\r\r\
@@ -2939,21 +2939,24 @@
     \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\r\
     \n\r\r\
     \n#directories have to exist!\r\r\
-    \n:local FTPEnable true\r\r\
-    \n:local FTPServer \"nas.home\"\r\r\
-    \n:local FTPPort 21\r\r\
-    \n:local FTPUser \"git\"\r\r\
-    \n:local FTPPass \"git\"\r\r\
-    \n:local FTPRoot \"/REPO/backups/\"\r\r\
-    \n:local FTPGitEnable true\r\r\
-    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_latest.rsc\"\r\r\
+    \n:local FTPEnable true;\r\r\
+    \n:local FTPServer \"nas.home\";\r\r\
+    \n:local FTPPort 21;\r\r\
+    \n:local FTPUser \"git\";\r\r\
+    \n:local FTPPass \"git\";\r\r\
+    \n:local FTPRoot \"/REPO/backups/\";\r\r\
+    \n:local FTPGitEnable true;\r\r\
+    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_latest.rsc\";\r\r\
     \n\r\r\
-    \n:local SMTPEnable true\r\r\
-    \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\r\
-    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\r\
-    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\r\
+    \n:local sysnote [/system note get note];\r\
     \n\r\r\
-    \n:global globalNoteMe;\r\r\
+    \n:local SMTPEnable true;\r\r\
+    \n:local SMTPAddress \"defm.kopcap@gmail.com\";\r\r\
+    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\");\r\r\
+    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\n \$sysnote\");\r\r\
+    \n\r\r\
+    \n:global globalNoteMe;\r\
+    \n:global globalCallFetch;\r\
     \n\r\r\
     \n:local itsOk true;\r\r\
     \n\r\r\
@@ -2976,7 +2979,7 @@
     \n\r\r\
     \n:if (\$saveRawExport and \$itsOk) do={\r\r\
     \n  :if (\$FTPGitEnable ) do={\r\r\
-    \n     #do not apply hide-sensitive flag\r\r\
+    \n     # show sensitive data\r\r\
     \n     :if (\$verboseRawExport = true) do={ /export show-sensitive terse verbose file=(\$fname.\".safe.rsc\") }\r\r\
     \n     :if (\$verboseRawExport = false) do={ /export show-sensitive terse file=(\$fname.\".safe.rsc\") }\r\r\
     \n     :delay 2s;\r\r\
@@ -2989,15 +2992,24 @@
     \n:local buFile \"\"\r\r\
     \n\r\r\
     \n:foreach backupFile in=[/file find] do={\r\r\
+    \n  \r\
     \n  :set buFile ([/file get \$backupFile name])\r\r\
-    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\" and \$itsOk) do={\r\r\
+    \n  \r\
+    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\") do={\r\r\
+    \n    \r\
     \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\r\
-    \n    if (\$FTPEnable and \$itsOk) do={\r\r\
+    \n    \r\
+    \n     if (\$FTPEnable) do={\r\r\
     \n        :do {\r\r\
     \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\r\
     \n        \$globalNoteMe value=\$state\r\r\
-    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\r\
+    \n \r\
+    \n        :local dst \"\$FTPRoot\$buFile\";\r\
+    \n        :local fetchCmd \"/tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes\";\r\
+    \n        \$globalCallFetch \$fetchCmd;\r\
+    \n\r\
     \n        \$globalNoteMe value=\"Done\"\r\r\
+    \n\r\
     \n        } on-error={ \r\r\
     \n          :set state \"Error When \$state\"\r\r\
     \n          \$globalNoteMe value=\$state;\r\r\
@@ -3005,11 +3017,15 @@
     \n       }\r\r\
     \n\r\r\
     \n        #special ftp upload for git purposes\r\r\
-    \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\r\
+    \n        if (\$itsSRC and \$FTPGitEnable) do={\r\r\
     \n            :do {\r\r\
     \n            :set state \"Uploading \$buFile to GIT-FTP (RAW, \$FTPRawGitName)\"\r\r\
     \n            \$globalNoteMe value=\$state\r\r\
-    \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\r\
+    \n\r\
+    \n            :local dst \"\$FTPRawGitName\";\r\
+    \n            :local fetchCmd \"/tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes\";\r\
+    \n            \$globalCallFetch \$fetchCmd;\r\
+    \n\r\
     \n            \$globalNoteMe value=\"Done\"\r\r\
     \n            } on-error={ \r\r\
     \n              :set state \"Error When \$state\"\r\r\
@@ -3019,7 +3035,7 @@
     \n        }\r\r\
     \n\r\r\
     \n    }\r\r\
-    \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\r\
+    \n    if (\$SMTPEnable and !\$itsSRC) do={\r\r\
     \n        :do {\r\r\
     \n        :set state \"Uploading \$buFile to SMTP\"\r\r\
     \n        \$globalNoteMe value=\$state\r\r\
