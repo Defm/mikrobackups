@@ -2,8 +2,8 @@
 :global globalScriptBeforeRun;
 #$globalScriptBeforeRun "doPeriodicLogParse";
 
-:local sysname [/system identity get name]
-:local scriptname "doPeriodicLogParse"
+:local sysname ("%C2%A9%EF%B8%8F #" . [/system identity get name]);
+:local scriptname "doPeriodicLogParse";
 
 # Script Name: Log-Parser-Script
 #
