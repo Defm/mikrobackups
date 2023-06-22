@@ -1,4 +1,4 @@
-# may/12/2023 18:53:57 by RouterOS 7.8
+# jun/22/2023 23:05:53 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -65,7 +65,7 @@
 /ip ipsec policy group add name=outside-ipsec-encryption
 /ip ipsec profile set [ find default=yes ] dh-group=modp1024
 /ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
-/ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" disabled=yes exchange-mode=ike2 local-address=10.20.225.166 name=CHR-external profile=ROUTEROS
+/ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" exchange-mode=ike2 local-address=10.20.225.166 name=CHR-external profile=ROUTEROS
 /ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" local-address=10.0.0.3 name=CHR-internal profile=ROUTEROS
 /ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
 /ip ipsec proposal add auth-algorithms=sha256 enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
@@ -307,7 +307,7 @@
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bazar|\\.coin|\\.emc|\\.lib|\\.fur1|\\.bit|\\.ku|\\.te|\\.ti|\\.uu)\$" type=FWD
 /ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=HONOR9X-e57500d48bf17173.home ttl=5m
 /ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
-/ip dns static add address=46.39.51.172 name=ftpserver.org
+/ip dns static add address=46.39.51.161 name=ftpserver.org
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -380,11 +380,11 @@
 /ip firewall address-list add address=192.168.100.7 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=217.10.36.5 comment="AKADO official DNS server" list=alist-fw-dns-allow
 /ip firewall address-list add address=217.10.34.2 comment="AKADO official DNS server" list=alist-fw-dns-allow
-/ip firewall address-list add address=2ip.ru list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=2ip.ru disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=www.canva.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.99.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-vpn-subnets
-/ip firewall address-list add address=46.39.51.172 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.161 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -664,10 +664,10 @@
 /ip firewall service-port set sip disabled=yes
 /ip firewall service-port set pptp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
-/ip ipsec identity add auth-method=digital-signature certificate=*8 comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
+/ip ipsec identity add auth-method=digital-signature certificate=C.anna.ipsec@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 disabled=yes proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
 /ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
@@ -730,12 +730,12 @@
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t10.20.225.1 \
     \nanna: \t\t7.8 \
-    \nUptime:\t\t1w1d18:47:39  \
-    \nTime:\t\tmay/12/2023 18:50:14  \
+    \nUptime:\t\t1w6d10:18:09  \
+    \nTime:\t\tjun/22/2023 23:00:13  \
     \nya.ru latency:\t4 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
-    \nANNA:\t\t46.39.51.172  \
+    \nANNA:\t\t46.39.51.161  \
     \nClock:\t\tsynchronized  \
     \n"
 /system ntp client set enabled=yes
@@ -761,7 +761,7 @@
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=07:00:00
 /system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/02/2023 start-time=22:00:00
-/system scheduler add comment="added by function FuncSchedScriptAdd" interval=10s name="Run script TLGRMcall-may/11/2023-23:06:18" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add comment="added by function FuncSchedScriptAdd" interval=10s name="Run script TLGRMcall-jun/09/2023-12:43:42" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -2915,7 +2915,7 @@
 /system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\r\
     \n\r\r\
-    \n:local sysname [/system identity get name]\r\r\
+    \n:local sysname [/system identity get name];\r\r\
     \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
     \n\r\r\
     \n:local sysver \"NA\"\r\r\
@@ -2939,21 +2939,24 @@
     \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\r\
     \n\r\r\
     \n#directories have to exist!\r\r\
-    \n:local FTPEnable true\r\r\
-    \n:local FTPServer \"nas.home\"\r\r\
-    \n:local FTPPort 21\r\r\
-    \n:local FTPUser \"git\"\r\r\
-    \n:local FTPPass \"git\"\r\r\
-    \n:local FTPRoot \"/REPO/backups/\"\r\r\
-    \n:local FTPGitEnable true\r\r\
-    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_latest.rsc\"\r\r\
+    \n:local FTPEnable true;\r\r\
+    \n:local FTPServer \"nas.home\";\r\r\
+    \n:local FTPPort 21;\r\r\
+    \n:local FTPUser \"git\";\r\r\
+    \n:local FTPPass \"git\";\r\r\
+    \n:local FTPRoot \"/REPO/backups/\";\r\r\
+    \n:local FTPGitEnable true;\r\r\
+    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_latest.rsc\";\r\r\
     \n\r\r\
-    \n:local SMTPEnable true\r\r\
-    \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\r\
-    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\r\
-    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\r\
+    \n:local sysnote [/system note get note];\r\
     \n\r\r\
-    \n:global globalNoteMe;\r\r\
+    \n:local SMTPEnable true;\r\r\
+    \n:local SMTPAddress \"defm.kopcap@gmail.com\";\r\r\
+    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\");\r\r\
+    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\n \$sysnote\");\r\r\
+    \n\r\r\
+    \n:global globalNoteMe;\r\
+    \n:global globalCallFetch;\r\
     \n\r\r\
     \n:local itsOk true;\r\r\
     \n\r\r\
@@ -2976,7 +2979,7 @@
     \n\r\r\
     \n:if (\$saveRawExport and \$itsOk) do={\r\r\
     \n  :if (\$FTPGitEnable ) do={\r\r\
-    \n     #do not apply hide-sensitive flag\r\r\
+    \n     # show sensitive data\r\r\
     \n     :if (\$verboseRawExport = true) do={ /export show-sensitive terse verbose file=(\$fname.\".safe.rsc\") }\r\r\
     \n     :if (\$verboseRawExport = false) do={ /export show-sensitive terse file=(\$fname.\".safe.rsc\") }\r\r\
     \n     :delay 2s;\r\r\
@@ -2989,15 +2992,24 @@
     \n:local buFile \"\"\r\r\
     \n\r\r\
     \n:foreach backupFile in=[/file find] do={\r\r\
+    \n  \r\
     \n  :set buFile ([/file get \$backupFile name])\r\r\
-    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\" and \$itsOk) do={\r\r\
+    \n  \r\
+    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\") do={\r\r\
+    \n    \r\
     \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\r\
-    \n    if (\$FTPEnable and \$itsOk) do={\r\r\
+    \n    \r\
+    \n     if (\$FTPEnable) do={\r\r\
     \n        :do {\r\r\
     \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\r\
     \n        \$globalNoteMe value=\$state\r\r\
-    \n        /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRoot\$buFile\" mode=ftp upload=yes\r\r\
+    \n \r\
+    \n        :local dst \"\$FTPRoot\$buFile\";\r\
+    \n        :local fetchCmd \"/tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes\";\r\
+    \n        \$globalCallFetch \$fetchCmd;\r\
+    \n\r\
     \n        \$globalNoteMe value=\"Done\"\r\r\
+    \n\r\
     \n        } on-error={ \r\r\
     \n          :set state \"Error When \$state\"\r\r\
     \n          \$globalNoteMe value=\$state;\r\r\
@@ -3005,11 +3017,15 @@
     \n       }\r\r\
     \n\r\r\
     \n        #special ftp upload for git purposes\r\r\
-    \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\r\
+    \n        if (\$itsSRC and \$FTPGitEnable) do={\r\r\
     \n            :do {\r\r\
     \n            :set state \"Uploading \$buFile to GIT-FTP (RAW, \$FTPRawGitName)\"\r\r\
     \n            \$globalNoteMe value=\$state\r\r\
-    \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\r\
+    \n\r\
+    \n            :local dst \"\$FTPRawGitName\";\r\
+    \n            :local fetchCmd \"/tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes\";\r\
+    \n            \$globalCallFetch \$fetchCmd;\r\
+    \n\r\
     \n            \$globalNoteMe value=\"Done\"\r\r\
     \n            } on-error={ \r\r\
     \n              :set state \"Error When \$state\"\r\r\
@@ -3019,7 +3035,7 @@
     \n        }\r\r\
     \n\r\r\
     \n    }\r\r\
-    \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\r\
+    \n    if (\$SMTPEnable and !\$itsSRC) do={\r\r\
     \n        :do {\r\r\
     \n        :set state \"Uploading \$buFile to SMTP\"\r\r\
     \n        \$globalNoteMe value=\$state\r\r\

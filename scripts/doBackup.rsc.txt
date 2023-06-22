@@ -1,7 +1,7 @@
 :global globalScriptBeforeRun;
 $globalScriptBeforeRun "doBackup";
 
-:local sysname [/system identity get name]
+:local sysname [/system identity get name];
 :local rosVer [:tonum [:pick [/system resource get version] 0 1]]
 
 :local sysver "NA"
@@ -25,21 +25,24 @@ $globalScriptBeforeRun "doBackup";
 :set ds ([:pick $ds 7 11].[:pick $ds 0 3].[:pick $ds 4 6])
 
 #directories have to exist!
-:local FTPEnable true
-:local FTPServer "nas.home"
-:local FTPPort 21
-:local FTPUser "git"
-:local FTPPass "git"
-:local FTPRoot "/REPO/backups/"
-:local FTPGitEnable true
-:local FTPRawGitName "/REPO/mikrobackups/rawconf_$sysname_latest.rsc"
+:local FTPEnable true;
+:local FTPServer "nas.home";
+:local FTPPort 21;
+:local FTPUser "git";
+:local FTPPass "git";
+:local FTPRoot "/REPO/backups/";
+:local FTPGitEnable true;
+:local FTPRawGitName "/REPO/mikrobackups/rawconf_$sysname_latest.rsc";
 
-:local SMTPEnable true
-:local SMTPAddress "defm.kopcap@gmail.com"
-:local SMTPSubject ("$sysname Full Backup ($ds-$ts)")
-:local SMTPBody ("$sysname full Backup file see in attachment.\nRouterOS version: $sysver\nTime and Date stamp: ($ds-$ts) ")
+:local sysnote [/system note get note];
 
-:global globalNoteMe;
+:local SMTPEnable true;
+:local SMTPAddress "defm.kopcap@gmail.com";
+:local SMTPSubject ("$sysname Full Backup ($ds-$ts)");
+:local SMTPBody ("$sysname full Backup file see in attachment.\n $sysnote");
+
+:global globalNoteMe;
+:global globalCallFetch;
 
 :local itsOk true;
 
@@ -62,7 +65,7 @@ $globalScriptBeforeRun "doBackup";
 
 :if ($saveRawExport and $itsOk) do={
   :if ($FTPGitEnable ) do={
-     #do not apply hide-sensitive flag
+     # show sensitive data
      :if ($verboseRawExport = true) do={ /export show-sensitive terse verbose file=($fname.".safe.rsc") }
      :if ($verboseRawExport = false) do={ /export show-sensitive terse file=($fname.".safe.rsc") }
      :delay 2s;
@@ -75,15 +78,24 @@ $globalScriptBeforeRun "doBackup";
 :local buFile ""
 
 :foreach backupFile in=[/file find] do={
+  
   :set buFile ([/file get $backupFile name])
-  :if ([:typeof [:find $buFile $fname]] != "nil" and $itsOk) do={
+  
+  :if ([:typeof [:find $buFile $fname]] != "nil") do={
+    
     :local itsSRC ( $buFile ~".safe.rsc")
-    if ($FTPEnable and $itsOk) do={
+    
+     if ($FTPEnable) do={
         :do {
         :set state "Uploading $buFile to FTP ($FTPRoot$buFile)"
         $globalNoteMe value=$state
-        /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRoot$buFile" mode=ftp upload=yes
+ 
+        :local dst "$FTPRoot$buFile";
+        :local fetchCmd "/tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path=$dst mode=ftp upload=yes";
+        $globalCallFetch $fetchCmd;
+
         $globalNoteMe value="Done"
+
         } on-error={ 
           :set state "Error When $state"
           $globalNoteMe value=$state;
@@ -91,11 +103,15 @@ $globalScriptBeforeRun "doBackup";
        }
 
         #special ftp upload for git purposes
-        if ($itsSRC and $FTPGitEnable and $itsOk) do={
+        if ($itsSRC and $FTPGitEnable) do={
             :do {
             :set state "Uploading $buFile to GIT-FTP (RAW, $FTPRawGitName)"
             $globalNoteMe value=$state
-            /tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path="$FTPRawGitName" mode=ftp upload=yes
+
+            :local dst "$FTPRawGitName";
+            :local fetchCmd "/tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path=$dst mode=ftp upload=yes";
+            $globalCallFetch $fetchCmd;
+
             $globalNoteMe value="Done"
             } on-error={ 
               :set state "Error When $state"
@@ -105,7 +121,7 @@ $globalScriptBeforeRun "doBackup";
         }
 
     }
-    if ($SMTPEnable and !$itsSRC and $itsOk) do={
+    if ($SMTPEnable and !$itsSRC) do={
         :do {
         :set state "Uploading $buFile to SMTP"
         $globalNoteMe value=$state
