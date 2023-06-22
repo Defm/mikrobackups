@@ -1,4 +1,4 @@
-# jun/23/2023 00:10:10 by RouterOS 7.8
+# jun/23/2023 00:28:22 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -731,9 +731,9 @@
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t10.20.225.1 \
     \nanna: \t\t7.8 \
-    \nUptime:\t\t1w6d11:28:09  \
-    \nTime:\t\tjun/23/2023 00:10:14  \
-    \nya.ru latency:\t7 ms  \
+    \nUptime:\t\t1w6d11:38:09  \
+    \nTime:\t\tjun/23/2023 00:20:14  \
+    \nya.ru latency:\t4 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
     \nANNA:\t\t46.39.51.161  \
