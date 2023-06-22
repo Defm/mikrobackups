@@ -1,4 +1,4 @@
-# jun/22/2023 23:05:53 by RouterOS 7.8
+# jun/23/2023 00:10:10 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -168,7 +168,7 @@
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless)" disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager set enabled=yes
+/caps-man manager set certificate=C.anna.capsman@CHR enabled=yes require-peer-certificate=yes
 /caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
 /caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface="wan A"
 /caps-man manager interface add comment="Do CapsMan on private" disabled=no interface=main-infrastructure-br
@@ -697,6 +697,7 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
 /system clock set time-zone-name=Europe/Moscow
 /system identity set name=anna
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -730,9 +731,9 @@
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t10.20.225.1 \
     \nanna: \t\t7.8 \
-    \nUptime:\t\t1w6d10:18:09  \
-    \nTime:\t\tjun/22/2023 23:00:13  \
-    \nya.ru latency:\t4 ms  \
+    \nUptime:\t\t1w6d11:28:09  \
+    \nTime:\t\tjun/23/2023 00:10:14  \
+    \nya.ru latency:\t7 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
     \nANNA:\t\t46.39.51.161  \
@@ -1963,7 +1964,7 @@
     \n# Set to name of parser script to run against each log entry in buffer\r\
     \n:local logParserScript \"doPeriodicLogParse\"\r\
     \n# This changes are almost made by the other scripts, so skip them to avoid spam\r\
-    \n:local excludedMsgs [:toarray \"static dns entry, simple queue, script settings, led settings\"];\r\
+    \n:local excludedMsgs [:toarray \"static dns entry, simple queue, script settings, led settings, note settings\"];\r\
     \n\r\
     \n# Internal processing below....\r\
     \n# -----------------------------------\r\
@@ -2073,95 +2074,95 @@
     \n}\r\
     \n\r\
     \n"
-/system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n#\$globalScriptBeforeRun \"doPeriodicLogParse\";\r\
-    \n\r\
-    \n:local sysname [/system identity get name]\r\
-    \n:local scriptname \"doPeriodicLogParse\"\r\
-    \n\r\
-    \n# Script Name: Log-Parser-Script\r\
-    \n#\r\
-    \n# This is an EXAMPLE script.  Modify it to your requirements.\r\
-    \n#\r\
-    \n# This script will work with all v3.x and v4.x\r\
-    \n# If your version >= v3.23, you can use the ~ operator to match against\r\
-    \n# regular expressions.\r\
-    \n\r\
-    \n# Get log entry data from global variable and store it locally\r\
-    \n:global globalParseVar;\r\
-    \n\r\
-    \n:global globalTgMessage;\r\
-    \n:global globalNoteMe;\r\
-    \n\r\
-    \n:local logTime (\$globalParseVar->0)\r\
-    \n:local logTopics [:tostr (\$globalParseVar->1)]\r\
-    \n:local logMessage [:tostr (\$globalParseVar->2)]\r\
-    \n\r\
-    \n:set \$globalParseVar \"\"\r\
-    \n\r\
-    \n:local ruleop\r\
-    \n:local loguser\r\
-    \n:local logsettings\r\
-    \n:local findindex\r\
-    \n:local tmpstring\r\
-    \n\r\
-    \n# Uncomment to view the log entry's details\r\
-    \n:put (\"Log Time: \" . \$logTime)\r\
-    \n:put (\"Log Topics: \" . \$logTopics)\r\
-    \n:put (\"Log Message: \" . \$logMessage)\r\
-    \n\r\
-    \n# Check for login failure\r\
-    \n:if (\$logMessage~\"login failure\") do={\r\
-    \n\r\
-    \n   :local inf \"\$scriptname on \$sysname: A login failure has occured: \$logMessage. Take some action\";\r\
-    \n\r\
-    \n   \$globalNoteMe value=\$inf;\r\
-    \n   \$globalTgMessage value=\$inf;\r\
-    \n\r\
-    \n}\r\
-    \n# End check for login failure\r\
-    \n\r\
-    \n# Check for logged in users\r\
-    \n:if (\$logMessage~\"logged in\") do={\r\
-    \n   \r\
-    \n   :local inf \"\$scriptname on \$sysname: A user has logged in: \$logMessage\";\r\
-    \n\r\
-    \n   \$globalNoteMe value=\$inf;\r\
-    \n   \$globalTgMessage value=\$inf;\r\
-    \n\r\
-    \n}\r\
-    \n# End check for logged in users\r\
-    \n\r\
-    \n# Check for configuration changes: added, changed, or removed\r\
-    \n:if ([:tostr \$logTopics] = \"system;info\") do={\r\
-    \n   :set ruleop \"\"\r\
-    \n   :if ([:len [:find [:tostr \$logMessage] \"changed \"]] > 0) do={ :set ruleop \"changed\" }\r\
-    \n   :if ([:len [:find [:tostr \$logMessage] \"added \"]] > 0) do={ :set ruleop \"added\" }\r\
-    \n   :if ([:len [:find [:tostr \$logMessage] \"removed \"]] > 0) do={ :set ruleop \"removed\" }\r\
-    \n\r\
-    \n   :if ([:len \$ruleop] > 0) do={\r\
-    \n      :set tmpstring \$logMessage\r\
-    \n      :set findindex [:find [:tostr \$tmpstring] [:tostr \$ruleop]]\r\
-    \n      :set tmpstring ([:pick [:tostr \$tmpstring] 0 \$findindex] . \\\r\
-    \n                               [:pick [:tostr \$tmpstring] (\$findindex + [:len [:tostr \$ruleop]]) [:len [:tostr \$tmpstring]]])\r\
-    \n      :set findindex [:find [:tostr \$tmpstring] \" by \"]\r\
-    \n      :set loguser ([:pick [:tostr \$tmpstring] (\$findindex + 4) [:len [:tostr \$tmpstring]]])\r\
-    \n      :set logsettings [:pick [:tostr \$tmpstring] 0 \$findindex]\r\
-    \n\r\
-    \n      :put (\$loguser . \" \" . \$ruleop . \" \" . \$logsettings . \" configuration.  We should take a backup now.\")\r\
-    \n\r\
-    \n      :local inf \"\$scriptname on \$sysname: \$loguser \$ruleop \$logsettings configuration.  We should take a backup now.\";\r\
-    \n\r\
-    \n      \$globalNoteMe value=\$inf;\r\
-    \n      \$globalTgMessage value=\$inf;\r\
-    \n\r\
-    \n   }\r\
-    \n}\r\
-    \n\r\
-    \n# End check for configuration changes\r\
-    \n\r\
-    \n}\r\
+/system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:global globalScriptBeforeRun;\
+    \n#\$globalScriptBeforeRun \"doPeriodicLogParse\";\
+    \n\
+    \n:local sysname (\"%C2%A9%EF%B8%8F #\" . [/system identity get name]);\
+    \n:local scriptname \"doPeriodicLogParse\";\
+    \n\
+    \n# Script Name: Log-Parser-Script\
+    \n#\
+    \n# This is an EXAMPLE script.  Modify it to your requirements.\
+    \n#\
+    \n# This script will work with all v3.x and v4.x\
+    \n# If your version >= v3.23, you can use the ~ operator to match against\
+    \n# regular expressions.\
+    \n\
+    \n# Get log entry data from global variable and store it locally\
+    \n:global globalParseVar;\
+    \n\
+    \n:global globalTgMessage;\
+    \n:global globalNoteMe;\
+    \n\
+    \n:local logTime (\$globalParseVar->0)\
+    \n:local logTopics [:tostr (\$globalParseVar->1)]\
+    \n:local logMessage [:tostr (\$globalParseVar->2)]\
+    \n\
+    \n:set \$globalParseVar \"\"\
+    \n\
+    \n:local ruleop\
+    \n:local loguser\
+    \n:local logsettings\
+    \n:local findindex\
+    \n:local tmpstring\
+    \n\
+    \n# Uncomment to view the log entry's details\
+    \n:put (\"Log Time: \" . \$logTime)\
+    \n:put (\"Log Topics: \" . \$logTopics)\
+    \n:put (\"Log Message: \" . \$logMessage)\
+    \n\
+    \n# Check for login failure\
+    \n:if (\$logMessage~\"login failure\") do={\
+    \n\
+    \n   :local inf \"\$scriptname on \$sysname: A login failure has occured: \$logMessage. Take some action\";\
+    \n\
+    \n   \$globalNoteMe value=\$inf;\
+    \n   \$globalTgMessage value=\$inf;\
+    \n\
+    \n}\
+    \n# End check for login failure\
+    \n\
+    \n# Check for logged in users\
+    \n:if (\$logMessage~\"logged in\") do={\
+    \n   \
+    \n   :local inf \"\$scriptname on \$sysname: A user has logged in: \$logMessage\";\
+    \n\
+    \n   \$globalNoteMe value=\$inf;\
+    \n   \$globalTgMessage value=\$inf;\
+    \n\
+    \n}\
+    \n# End check for logged in users\
+    \n\
+    \n# Check for configuration changes: added, changed, or removed\
+    \n:if ([:tostr \$logTopics] = \"system;info\") do={\
+    \n   :set ruleop \"\"\
+    \n   :if ([:len [:find [:tostr \$logMessage] \"changed \"]] > 0) do={ :set ruleop \"changed\" }\
+    \n   :if ([:len [:find [:tostr \$logMessage] \"added \"]] > 0) do={ :set ruleop \"added\" }\
+    \n   :if ([:len [:find [:tostr \$logMessage] \"removed \"]] > 0) do={ :set ruleop \"removed\" }\
+    \n\
+    \n   :if ([:len \$ruleop] > 0) do={\
+    \n      :set tmpstring \$logMessage\
+    \n      :set findindex [:find [:tostr \$tmpstring] [:tostr \$ruleop]]\
+    \n      :set tmpstring ([:pick [:tostr \$tmpstring] 0 \$findindex] . \\\
+    \n                               [:pick [:tostr \$tmpstring] (\$findindex + [:len [:tostr \$ruleop]]) [:len [:tostr \$tmpstring]]])\
+    \n      :set findindex [:find [:tostr \$tmpstring] \" by \"]\
+    \n      :set loguser ([:pick [:tostr \$tmpstring] (\$findindex + 4) [:len [:tostr \$tmpstring]]])\
+    \n      :set logsettings [:pick [:tostr \$tmpstring] 0 \$findindex]\
+    \n\
+    \n      :put (\$loguser . \" \" . \$ruleop . \" \" . \$logsettings . \" configuration.  We should take a backup now.\")\
+    \n\
+    \n      :local inf \"\$scriptname on \$sysname: \$loguser \$ruleop \$logsettings configuration.  We should take a backup now.\";\
+    \n\
+    \n      \$globalNoteMe value=\$inf;\
+    \n      \$globalTgMessage value=\$inf;\
+    \n\
+    \n   }\
+    \n}\
+    \n\
+    \n# End check for configuration changes\
+    \n\
+    \n}\
     \n"
 /system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doIPSECPunch\";\r\

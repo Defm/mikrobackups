@@ -1,4 +1,4 @@
-# 2023-06-22 22:23:32 by RouterOS 7.10
+# 2023-06-22 23:21:09 by RouterOS 7.10
 # software id = 
 #
 /interface bridge add arp=proxy-arp fast-forward=no name=main-infrastructure-br
@@ -445,9 +445,9 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
 /ip firewall service-port set pptp disabled=yes
 /ip ipsec identity add comment=to-ANNA-traffic-only-encryption-PSK generate-policy=port-strict mode-config=common-setup peer=ANNA-INNER policy-template-group=roaming-s secret=123
 /ip ipsec identity add comment=to-MIKROTIK-traffic-only-encryption-PSK generate-policy=port-override mode-config=common-setup peer=ANY-INNER policy-template-group=roaming-s secret=123
-/ip ipsec identity add auth-method=digital-signature certificate=*1 disabled=yes generate-policy=port-override mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-s
+/ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR disabled=yes generate-policy=port-override mode-config=roadwarrior-setup peer=RW policy-template-group=roadwarrior-s
 /ip ipsec identity add auth-method=digital-signature certificate=ca@CHR comment=to-ANNA-outer-tunnel-encryption-RSA generate-policy=port-override match-by=certificate mode-config=common-setup peer=ANY-OUTER-IP-REMOTE-CONTROLLABLE policy-template-group=moscow-s remote-certificate=anna.ipsec@CHR
-/ip ipsec identity add auth-method=digital-signature certificate=*1 comment=to-MIKROTIK-outer-tunnel-encryption-RSA generate-policy=port-override mode-config=common-setup peer=ANY-OUTER-IP-REMOTE-CONTROLLABLE policy-template-group=spring-s
+/ip ipsec identity add auth-method=digital-signature certificate=S.185.13.148.14@CHR comment=to-MIKROTIK-outer-tunnel-encryption-RSA generate-policy=port-override mode-config=common-setup peer=ANY-OUTER-IP-REMOTE-CONTROLLABLE policy-template-group=spring-s
 /ip ipsec identity add disabled=yes generate-policy=port-strict mode-config=common-setup peer=WIN policy-template-group=roadwarrior-s secret=123
 /ip ipsec policy set 0 disabled=yes
 /ip ipsec policy add comment="Roadwarrior IPSEC TRANSPORT TEMPLATE (outer-tunnel encryption)" disabled=yes dst-address=10.10.10.8/29 group=roadwarrior-s proposal="IPSEC IKEv2 VPN PHASE2 IOS/OSX" src-address=0.0.0.0/0 template=yes
@@ -512,9 +512,9 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t185.13.148.1 \
     \nCHR: \t\t7.10 \
-    \nUptime:\t\t2d00:06:31  \
-    \nTime:\t\t2023-06-22 22:20:12  \
-    \nya.ru latency:\t52 ms  \
+    \nUptime:\t\t2d01:06:31  \
+    \nTime:\t\t2023-06-22 23:20:12  \
+    \nya.ru latency:\t50 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
     \nANNA:\t\t46.39.51.161  \
@@ -533,7 +533,7 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
 /system script add dont-require-permissions=yes name=doBackup owner=owner policy=ftp,read,write,policy,test,password,sensitive source=":global globalScriptBeforeRun;\r\r\
     \n\$globalScriptBeforeRun \"doBackup\";\r\r\
     \n\r\r\
-    \n:local sysname [/system identity get name]\r\r\
+    \n:local sysname [/system identity get name];\r\r\
     \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
     \n\r\r\
     \n:local sysver \"NA\"\r\r\
@@ -557,22 +557,24 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
     \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\r\
     \n\r\r\
     \n#directories have to exist!\r\r\
-    \n:local FTPEnable true\r\r\
-    \n:local FTPServer \"nas.home\"\r\r\
-    \n:local FTPPort 21\r\r\
-    \n:local FTPUser \"git\"\r\r\
-    \n:local FTPPass \"git\"\r\r\
-    \n:local FTPRoot \"/REPO/backups/\"\r\r\
-    \n:local FTPGitEnable true\r\r\
-    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_latest.rsc\"\r\r\
+    \n:local FTPEnable true;\r\r\
+    \n:local FTPServer \"nas.home\";\r\r\
+    \n:local FTPPort 21;\r\r\
+    \n:local FTPUser \"git\";\r\r\
+    \n:local FTPPass \"git\";\r\r\
+    \n:local FTPRoot \"/REPO/backups/\";\r\r\
+    \n:local FTPGitEnable true;\r\r\
+    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_latest.rsc\";\r\r\
     \n\r\r\
-    \n:local SMTPEnable true\r\r\
-    \n:local SMTPAddress \"defm.kopcap@gmail.com\"\r\r\
-    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\")\r\r\
-    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\nRouterOS version: \$sysver\\nTime and Date stamp: (\$ds-\$ts) \")\r\r\
+    \n:local sysnote [/system note get note];\r\
+    \n\r\r\
+    \n:local SMTPEnable true;\r\r\
+    \n:local SMTPAddress \"defm.kopcap@gmail.com\";\r\r\
+    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\");\r\r\
+    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\n \$sysnote\");\r\r\
     \n\r\r\
     \n:global globalNoteMe;\r\
-    \n:global globalCallFetch;\r\r\
+    \n:global globalCallFetch;\r\
     \n\r\r\
     \n:local itsOk true;\r\r\
     \n\r\r\
@@ -595,7 +597,7 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
     \n\r\r\
     \n:if (\$saveRawExport and \$itsOk) do={\r\r\
     \n  :if (\$FTPGitEnable ) do={\r\r\
-    \n     #do not apply hide-sensitive flag\r\r\
+    \n     # show sensitive data\r\r\
     \n     :if (\$verboseRawExport = true) do={ /export show-sensitive terse verbose file=(\$fname.\".safe.rsc\") }\r\r\
     \n     :if (\$verboseRawExport = false) do={ /export show-sensitive terse file=(\$fname.\".safe.rsc\") }\r\r\
     \n     :delay 2s;\r\r\
@@ -608,20 +610,24 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
     \n:local buFile \"\"\r\r\
     \n\r\r\
     \n:foreach backupFile in=[/file find] do={\r\r\
+    \n  \r\
     \n  :set buFile ([/file get \$backupFile name])\r\r\
-    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\" and \$itsOk) do={\r\r\
+    \n  \r\
+    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\") do={\r\r\
+    \n    \r\
     \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\r\
-    \n    if (\$FTPEnable and \$itsOk) do={\r\r\
+    \n    \r\
+    \n     if (\$FTPEnable) do={\r\r\
     \n        :do {\r\r\
     \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\r\
-    \n        \$globalNoteMe value=\$state;\r\r\
-    \n        \r\
+    \n        \$globalNoteMe value=\$state\r\r\
+    \n \r\
     \n        :local dst \"\$FTPRoot\$buFile\";\r\
     \n        :local fetchCmd \"/tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes\";\r\
-    \n\r\
     \n        \$globalCallFetch \$fetchCmd;\r\
-    \n\r\r\
+    \n\r\
     \n        \$globalNoteMe value=\"Done\"\r\r\
+    \n\r\
     \n        } on-error={ \r\r\
     \n          :set state \"Error When \$state\"\r\r\
     \n          \$globalNoteMe value=\$state;\r\r\
@@ -629,11 +635,15 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
     \n       }\r\r\
     \n\r\r\
     \n        #special ftp upload for git purposes\r\r\
-    \n        if (\$itsSRC and \$FTPGitEnable and \$itsOk) do={\r\r\
+    \n        if (\$itsSRC and \$FTPGitEnable) do={\r\r\
     \n            :do {\r\r\
     \n            :set state \"Uploading \$buFile to GIT-FTP (RAW, \$FTPRawGitName)\"\r\r\
     \n            \$globalNoteMe value=\$state\r\r\
-    \n            /tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\"\$FTPRawGitName\" mode=ftp upload=yes\r\r\
+    \n\r\
+    \n            :local dst \"\$FTPRawGitName\";\r\
+    \n            :local fetchCmd \"/tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes\";\r\
+    \n            \$globalCallFetch \$fetchCmd;\r\
+    \n\r\
     \n            \$globalNoteMe value=\"Done\"\r\r\
     \n            } on-error={ \r\r\
     \n              :set state \"Error When \$state\"\r\r\
@@ -643,7 +653,7 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
     \n        }\r\r\
     \n\r\r\
     \n    }\r\r\
-    \n    if (\$SMTPEnable and !\$itsSRC and \$itsOk) do={\r\r\
+    \n    if (\$SMTPEnable and !\$itsSRC) do={\r\r\
     \n        :do {\r\r\
     \n        :set state \"Uploading \$buFile to SMTP\"\r\r\
     \n        \$globalNoteMe value=\$state\r\r\
