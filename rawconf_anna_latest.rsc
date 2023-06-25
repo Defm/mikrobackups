@@ -1,4 +1,4 @@
-# jun/23/2023 00:28:22 by RouterOS 7.8
+# jun/25/2023 21:00:02 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -126,7 +126,7 @@
 /queue tree add name=7Z packet-mark=7z-mark parent="Total Bandwidth" queue=default
 /queue tree add name=ZIP packet-mark=zip-mark parent="Total Bandwidth" queue=default
 /routing id add comment="OSPF Common" id=10.255.255.3 name=anna-10.255.255.3
-/routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-main originate-default=never redistribute="" router-id=anna-10.255.255.3
+/routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-main originate-default=always redistribute="" router-id=anna-10.255.255.3 routing-table=rmark-vpn-redirect
 /routing ospf area add disabled=no instance=routes-inject-into-main name=backbone
 /routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-main name=anna-space-main no-summaries type=stub
 /routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
@@ -297,7 +297,6 @@
 /ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=95.213.159.180 name=atv.package2.qello.com
-/ip dns static add address=192.168.90.1 name=time.windows.com
 /ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
 /ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhone.home ttl=5m
@@ -697,7 +696,6 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
 /system clock set time-zone-name=Europe/Moscow
 /system identity set name=anna
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -728,17 +726,7 @@
 /system logging add action=ParseMemoryLog topics=error
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=critical
-/system note set note="IPSEC: \t\tokay \
-    \nDefault route: \t10.20.225.1 \
-    \nanna: \t\t7.8 \
-    \nUptime:\t\t1w6d11:38:09  \
-    \nTime:\t\tjun/23/2023 00:20:14  \
-    \nya.ru latency:\t4 ms  \
-    \nCHR:\t\t185.13.148.14  \
-    \nMIK:\t\t85.174.193.108  \
-    \nANNA:\t\t46.39.51.161  \
-    \nClock:\t\tsynchronized  \
-    \n"
+/system note set note=Pending
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
