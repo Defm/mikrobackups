@@ -1,4 +1,4 @@
-# jul/10/2023 21:00:02 by RouterOS 7.8
+# jul/15/2023 21:00:02 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -124,6 +124,8 @@
 /queue simple add comment=dtq,B8:87:6E:19:90:33, name="Alice(wireless)(blocked)@guest-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.98.220/32 total-queue=default
 /queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)@main-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.90.180/32 total-queue=default
 /queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)(blocked)@guest-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.98.180/32 total-queue=default
+/queue simple add comment=dtq,D8:CE:3A:E8:B0:6F, name="@guest-dhcp-server (D8:CE:3A:E8:B0:6F)" queue=default/default target=192.168.98.227/32 total-queue=default
+/queue simple add comment=dtq,62:EE:49:72:55:BB,Redmi-Note-10-Pro name="Redmi-Note-10-Pro@guest-dhcp-server (62:EE:49:72:55:BB)" queue=default/default target=192.168.98.225/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -322,15 +324,14 @@
 /ip dns static add address=46.39.51.189 name=ftpserver.org
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
-/ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
-/ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=alist-fw-rfc-special
+/ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" list=alist-fw-rfc-special
+/ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" list=alist-fw-rfc-special
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
-/ip firewall address-list add address=127.0.0.0/8 comment="RFC 1122 (Loopback)" disabled=yes list=alist-fw-rfc-special
+/ip firewall address-list add address=127.0.0.0/8 comment="RFC 1122 (Loopback)" list=alist-fw-rfc-special
 /ip firewall address-list add address=169.254.0.0/16 comment="RFC 3927 (Dynamic Configuration of IPv4 Link-Local Addresses)" list=alist-fw-rfc-special
 /ip firewall address-list add address=172.16.0.0/12 comment="RFC 1918 (Private Use IP Space)" list=alist-fw-rfc-special
 /ip firewall address-list add address=192.0.0.0/24 comment="RFC 6890 (IETF Protocol Assingments)" list=alist-fw-rfc-special
 /ip firewall address-list add address=192.0.2.0/24 comment="RFC 5737 (Test-Net-1)" list=alist-fw-rfc-special
-/ip firewall address-list add address=192.168.0.0/16 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=alist-fw-rfc-special
 /ip firewall address-list add address=198.18.0.0/15 comment="RFC 2544 (Benchmarking)" list=alist-fw-rfc-special
 /ip firewall address-list add address=198.51.100.0/24 comment="RFC 5737 (Test-Net-2)" list=alist-fw-rfc-special
 /ip firewall address-list add address=203.0.113.0/24 comment="RFC 5737 (Test-Net-3)" list=alist-fw-rfc-special
@@ -358,27 +359,20 @@
 /ip firewall address-list add address=10.0.0.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=10.0.0.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=myexternalip.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=serverfault.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=172.16.0.16/30 list=alist-fw-local-subnets
 /ip firewall address-list add address=172.16.0.16/30 list=alist-nat-local-subnets
 /ip firewall address-list add address=192.168.98.0/24 comment="Add DNS Server to this List" list=alist-fw-dns-allow
-/ip firewall address-list add address=xhamster.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=ru.xhamster.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=telegram.org list=alist-fw-telegram-servers
 /ip firewall address-list add address=grafana.home list=alist-nat-grafana-server
 /ip firewall address-list add address=grafanasvc.home list=alist-nat-grafana-service
 /ip firewall address-list add address=influxdb.home list=alist-nat-influxdb-server
 /ip firewall address-list add address=influxdbsvc.home list=alist-nat-influxdb-service
-/ip firewall address-list add address=auntmia.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=clubseventeen.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=speedtest.tele2.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.90.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=lostfilm.tv list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=pornhub.com disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=nnmclub.to list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=rutor.org list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=rutor.info list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=hdreactor.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=10.0.0.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=185.13.148.14 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=minialx.home list=alist-fw-port-scanner-allow
@@ -387,7 +381,6 @@
 /ip firewall address-list add address=hare.home comment=asus.home list=alist-fw-port-scanner-allow
 /ip firewall address-list add address=www.parallels.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=instagram.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=facebook.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=l.instagram.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.100.7 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=217.10.36.5 comment="AKADO official DNS server" list=alist-fw-dns-allow
