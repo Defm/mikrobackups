@@ -1,4 +1,4 @@
-# jul/15/2023 21:00:02 by RouterOS 7.8
+# jul/20/2023 21:00:02 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -324,10 +324,7 @@
 /ip dns static add address=46.39.51.189 name=ftpserver.org
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
-/ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" list=alist-fw-rfc-special
-/ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" list=alist-fw-rfc-special
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
-/ip firewall address-list add address=127.0.0.0/8 comment="RFC 1122 (Loopback)" list=alist-fw-rfc-special
 /ip firewall address-list add address=169.254.0.0/16 comment="RFC 3927 (Dynamic Configuration of IPv4 Link-Local Addresses)" list=alist-fw-rfc-special
 /ip firewall address-list add address=172.16.0.0/12 comment="RFC 1918 (Private Use IP Space)" list=alist-fw-rfc-special
 /ip firewall address-list add address=192.0.0.0/24 comment="RFC 6890 (IETF Protocol Assingments)" list=alist-fw-rfc-special
