@@ -1,4 +1,4 @@
-# jul/25/2023 21:00:02 by RouterOS 7.8
+# jul/30/2023 21:00:02 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -375,7 +375,7 @@
 /ip firewall address-list add address=minialx.home list=alist-fw-port-scanner-allow
 /ip firewall address-list add address=mbpalx.home list=alist-fw-port-scanner-allow
 /ip firewall address-list add address=nas.home list=alist-fw-port-scanner-allow
-/ip firewall address-list add address=hare.home comment=asus.home list=alist-fw-port-scanner-allow
+/ip firewall address-list add address=hare.home comment=hare.home list=alist-fw-port-scanner-allow
 /ip firewall address-list add address=www.parallels.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=instagram.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=l.instagram.com list=alist-mangle-vpn-tunneled-sites
