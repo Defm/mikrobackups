@@ -1,4 +1,4 @@
-# jul/30/2023 21:00:02 by RouterOS 7.8
+# aug/04/2023 21:00:02 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -125,7 +125,6 @@
 /queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)@main-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.90.180/32 total-queue=default
 /queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)(blocked)@guest-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.98.180/32 total-queue=default
 /queue simple add comment=dtq,D8:CE:3A:E8:B0:6F, name="@guest-dhcp-server (D8:CE:3A:E8:B0:6F)" queue=default/default target=192.168.98.224/32 total-queue=default
-/queue simple add comment=dtq,62:EE:49:72:55:BB,Redmi-Note-10-Pro name="Redmi-Note-10-Pro@guest-dhcp-server (62:EE:49:72:55:BB)" queue=default/default target=192.168.98.225/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
