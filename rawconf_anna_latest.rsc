@@ -1,4 +1,4 @@
-# aug/09/2023 21:00:02 by RouterOS 7.8
+# aug/14/2023 21:00:02 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -124,8 +124,6 @@
 /queue simple add comment=dtq,B8:87:6E:19:90:33, name="Alice(wireless)(blocked)@guest-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.98.220/32 total-queue=default
 /queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)@main-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.90.180/32 total-queue=default
 /queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)(blocked)@guest-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.98.180/32 total-queue=default
-/queue simple add comment=dtq,D8:CE:3A:E8:B0:6F, name="@guest-dhcp-server (D8:CE:3A:E8:B0:6F)" queue=default/default target=192.168.98.224/32 total-queue=default
-/queue simple add comment=dtq,62:EE:49:72:55:BB,Redmi-Note-10-Pro name="Redmi-Note-10-Pro@guest-dhcp-server (62:EE:49:72:55:BB)" queue=default/default target=192.168.98.225/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -321,7 +319,7 @@
 /ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=HONOR9X-e57500d48bf17173.home ttl=5m
 /ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
 /ip dns static add address=192.168.90.220 comment=<AUTO:DHCP:main-dhcp-server> name=yandex-mini2.home ttl=5m
-/ip dns static add address=46.39.51.189 name=ftpserver.org
+/ip dns static add address=46.39.51.178 name=ftpserver.org
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
@@ -386,7 +384,7 @@
 /ip firewall address-list add address=www.canva.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.99.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-vpn-subnets
-/ip firewall address-list add address=46.39.51.189 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.178 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
