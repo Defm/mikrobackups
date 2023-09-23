@@ -1,4 +1,4 @@
-# sep/18/2023 21:00:03 by RouterOS 7.7
+# sep/23/2023 21:00:02 by RouterOS 7.7
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -12,7 +12,7 @@
 set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5180/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /interface lte apn set [ find default=yes ] ip-type=ipv4 use-network-apn=no
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
@@ -103,12 +103,12 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t192.168.90.1 \
     \ncapxl: \t\t7.7 \
-    \nUptime:\t\t3w1d22:23:25  \
-    \nTime:\t\tsep/18/2023 20:53:05  \
-    \nya.ru latency:\t5 ms  \
+    \nUptime:\t\t4d02:20:15  \
+    \nTime:\t\tsep/23/2023 20:53:04  \
+    \nya.ru latency:\t8 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t85.174.193.108  \
-    \nANNA:\t\t46.39.51.183  \
+    \nANNA:\t\t46.39.51.181  \
     \nClock:\t\tsynchronized  \
     \n"
 /system ntp client set enabled=yes
