@@ -1,4 +1,4 @@
-# nov/17/2023 21:00:02 by RouterOS 7.8
+# nov/22/2023 21:00:02 by RouterOS 7.8
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -104,7 +104,7 @@
 /queue simple add comment=dtq,54:35:30:05:9B:BD, name="ASUS(wireless)(blocked)@guest-dhcp-server (54:35:30:05:9B:BD)" queue=default/default target=192.168.98.88/32 total-queue=default
 /queue simple add comment=dtq,BC:D0:74:0A:B2:6A,MbpAlxm name="MbpAlxm (wireless)@main-dhcp-server (BC:D0:74:0A:B2:6A)" queue=default/default target=192.168.90.75/32 total-queue=default
 /queue simple add comment=dtq,BC:D0:74:0A:B2:6A, name="MbpAlxm(blocked)@guest-dhcp-server (BC:D0:74:0A:B2:6A)" queue=default/default target=192.168.98.75/32 total-queue=default
-/queue simple add comment=dtq,48:65:EE:19:3C:0D,HONOR_9X-e57500d48bf17173 name="MbpAlxm (wire)@main-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.90.85/32 total-queue=default
+/queue simple add comment=dtq,48:65:EE:19:3C:0D,MbpAlxm name="MbpAlxm (wire)@main-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.90.85/32 total-queue=default
 /queue simple add comment=dtq,48:65:EE:19:3C:0D, name="MbpAlxm(blocked)@guest-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.98.85/32 total-queue=default
 /queue simple add comment=dtq,80:34:28:11:EE:7E,wb name="WB (wire)@main-dhcp-server (80:34:28:11:EE:7E)" queue=default/default target=192.168.90.2/32 total-queue=default
 /queue simple add comment=dtq,80:34:28:11:EE:7E, name="WB (wire)(blocked)@guest-dhcp-server (80:34:28:11:EE:7E)" queue=default/default target=192.168.98.2/32 total-queue=default
@@ -309,7 +309,7 @@
 /ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=95.213.159.180 name=atv.package2.qello.com
-/ip dns static add address=192.168.90.75 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
+/ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
 /ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhone.home ttl=5m
 /ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m
