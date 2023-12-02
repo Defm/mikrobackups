@@ -1,4 +1,4 @@
-# 2023-06-23 00:20:01 by RouterOS 7.10
+# 2023-12-02 21:00:03 by RouterOS 7.10
 # software id = 
 #
 /interface bridge add arp=proxy-arp fast-forward=no name=main-infrastructure-br
@@ -9,6 +9,7 @@
 /interface l2tp-server add disabled=yes name=tunnel-mikrotik user=vpn-remote-mic
 /disk set slot1 type=hardware
 /disk set slot2 slot=slot2 type=hardware
+/disk set slot3 slot=slot3 type=hardware
 /interface list add comment="trusted interfaces" name=list-trusted
 /interface list add comment="Semi-Trusted networks" name=list-semi-trusted
 /interface list add comment="Untrusted networks" name=list-untrusted
@@ -55,12 +56,10 @@
 /ppp profile add address-list=l2tp-active-clients dns-server=8.8.8.8,8.8.4.4 interface-list=list-l2tp-tunnels local-address=10.0.0.1 name=l2tp-no-encrypt-ios-rw only-one=no remote-address=pool-rw
 /routing bgp template set default disabled=no output.network=bgp-networks
 /routing id add comment="OSPF Common" id=10.255.255.1 name=chr-10.255.255.1
-/routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-main originate-default=never redistribute="" router-id=chr-10.255.255.1
+/routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-main originate-default=always redistribute="" router-id=chr-10.255.255.1 routing-table=main
 /routing ospf area add disabled=no instance=routes-inject-into-main name=backbone
 /routing ospf area add area-id=0.0.0.1 default-cost=10 disabled=no instance=routes-inject-into-main name=chr-space-main no-summaries type=stub
-/routing table add fib name=mark-site-over-vpn
 /routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
-/routing table add comment="tunnel swing" fib name=rmark-telegram-redirect
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
 /system logging action set 0 memory-lines=300
@@ -132,6 +131,8 @@
 /ip dns static add address=192.168.90.10 name=capxl.home
 /ip dns static add cname=capxl.home name=capxl type=CNAME
 /ip dns static add address=185.13.148.14 name=ftpserver.org
+/ip dns static add address=192.168.90.85 name=MbpAlxm.home
+/ip dns static add cname=MbpAlxm.home name=MbpAlxm type=CNAME
 /ip firewall address-list add address=192.168.97.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.97.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
@@ -183,8 +184,8 @@
 /ip firewall filter add action=log chain=input protocol=ipsec-ah
 /ip firewall filter add action=accept chain=input comment="Allow NTP server" connection-state="" log=yes log-prefix=~~NTP port=123 protocol=udp
 /ip firewall filter add action=accept chain=output comment="Allow NTP server" connection-state="" log=yes log-prefix=~~NTP port=123 protocol=udp
-/ip firewall filter add action=accept chain=input port=8291 protocol=tcp
-/ip firewall filter add action=accept chain=input port=2223 protocol=tcp
+/ip firewall filter add action=accept chain=input comment=WINBOX port=8291 protocol=tcp
+/ip firewall filter add action=accept chain=input comment=SSH port=2223 protocol=tcp
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -240,7 +241,7 @@
 /ip firewall filter add action=accept chain=chain-detect-ping-flood comment="11:0 and limit for 5 pac/s Allow Traceroute" icmp-options=11:0-255 limit=5,5:packet protocol=icmp
 /ip firewall filter add action=accept chain=chain-detect-ping-flood comment="0:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=0:0-255 limit=50,5:packet protocol=icmp
 /ip firewall filter add action=accept chain=chain-detect-ping-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=8:0-255 limit=50,5:packet protocol=icmp
-/ip firewall filter add action=drop chain=chain-detect-ping-flood comment="drop everything else" log-prefix="#ICMP DROP" protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="drop everything else" log-prefix="#ICMP DROP" protocol=icmp
 /ip firewall filter add action=return chain=chain-detect-ping-flood comment="Return from chain-detect-ping-flood Chain"
 /ip firewall filter add action=passthrough chain=forward comment=DUMMY1 log-prefix=~~~DUMMY1 src-address-list=alist-fw-empty-dummy
 /ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Manually Added)" src-address-list=alist-fw-manual-block
@@ -418,11 +419,11 @@
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1390 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1391-65535
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1390 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1391-65535
 /ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1390 passthrough=yes protocol=tcp src-address-list=alist-fw-vpn-subnets tcp-flags=syn tcp-mss=1391-65535
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=mark-site-over-vpn passthrough=no
-/ip firewall mangle add action=mark-packet chain=input comment="VPN Traffic" log-prefix="#VPN PCKT MARK" new-packet-mark="IPSEC PCKT" passthrough=yes protocol=ipsec-esp
-/ip firewall mangle add action=mark-connection chain=output comment="Mark IPsec" ipsec-policy=out,ipsec new-connection-mark=ipsec passthrough=yes
 /ip firewall mangle add action=mark-connection chain=input comment="Mark IPsec" ipsec-policy=in,ipsec new-connection-mark=ipsec passthrough=yes
+/ip firewall mangle add action=mark-connection chain=output comment="Mark IPsec" ipsec-policy=out,ipsec new-connection-mark=ipsec passthrough=yes
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-packet chain=input comment="VPN Traffic" log-prefix="#VPN PCKT MARK" new-packet-mark="IPSEC PCKT" passthrough=yes protocol=ipsec-esp
 /ip firewall mangle add action=mark-connection chain=forward comment="Mark IPsec" ipsec-policy=out,ipsec new-connection-mark=ipsec passthrough=yes
 /ip firewall mangle add action=mark-connection chain=forward comment="Mark IPsec" ipsec-policy=in,ipsec new-connection-mark=ipsec passthrough=yes
 /ip firewall nat add action=masquerade chain=srcnat comment="fix the ntp client by changing its source port 123 with something higher (mikrotik forum 794718)" protocol=udp src-port=123 to-ports=12400-12440
@@ -431,14 +432,13 @@
 /ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX ANNA pass through" dst-port=9999 protocol=tcp to-addresses=192.168.90.1 to-ports=8291
 /ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX CAPXL pass through" dst-port=9998 protocol=tcp to-addresses=192.168.90.10 to-ports=8291
 /ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX MIKROUTER pass through" dst-port=9997 log=yes log-prefix=~~WINB-MIK protocol=tcp to-addresses=192.168.99.1 to-ports=8291
-/ip firewall nat add action=dst-nat chain=dstnat comment="ICMP MIKROUTER pass through" log=yes log-prefix=~~ICMP-MIK protocol=icmp to-addresses=192.168.99.1
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=alist-fw-vpn-subnets log-prefix=#VPN src-address-list=alist-nat-local-subnets
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=alist-nat-local-subnets log-prefix=#VPN src-address-list=alist-fw-vpn-subnets
-/ip firewall nat add action=masquerade chain=srcnat comment="all cable allowed"
 /ip firewall nat add action=masquerade chain=srcnat comment="ANNA - VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel-anna
 /ip firewall nat
 # tunnel-mikrotik not ready
 add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel-mikrotik
+/ip firewall nat add action=masquerade chain=srcnat comment="all WAN allowed"
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
 /ip firewall service-port set sip disabled=yes
