@@ -1,4 +1,4 @@
-# 2023-12-02 21:00:03 by RouterOS 7.10
+# 2023-12-03 20:27:23 by RouterOS 7.10
 # software id = 
 #
 /interface bridge add arp=proxy-arp fast-forward=no name=main-infrastructure-br
@@ -180,6 +180,8 @@
 /ip firewall address-list add address=10.0.0.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=185.13.148.14 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=185.13.148.14 list=alist-nat-external-ip
+/ip firewall address-list add address=lostfilm.tv list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=nnmclub.to list=alist-mangle-vpn-tunneled-sites
 #error exporting /ip/firewall/calea
 /ip firewall filter add action=log chain=input protocol=ipsec-ah
 /ip firewall filter add action=accept chain=input comment="Allow NTP server" connection-state="" log=yes log-prefix=~~NTP port=123 protocol=udp
@@ -509,7 +511,17 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
 /system logging add action=NTPOnscreenLog topics=ntp
-/system note set note=Pending
+/system note set note="IPSEC: \t\tokay \
+    \nDefault route: \t185.13.148.1 \
+    \nCHR: \t\t7.10 \
+    \nUptime:\t\t5w5d13:03:06  \
+    \nTime:\t\t2023-12-03 20:20:13  \
+    \nya.ru latency:\t50 ms  \
+    \nCHR:\t\t185.13.148.14  \
+    \nMIK:\t\t85.174.193.108  \
+    \nANNA:\t\t46.39.51.143  \
+    \nClock:\t\tsynchronized  \
+    \n"
 /system ntp client set enabled=yes
 /system ntp client servers add address=0.de.pool.ntp.org
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=2020-08-04 start-time=21:00:00
