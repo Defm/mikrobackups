@@ -99,7 +99,7 @@
 }
 
 #Example call
-#$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid="WiFi 5"
+#$globalNewNetworkMember ip=192.168.90.130 mac=50:DE:06:25:C2:FC gip=192.168.98.130 comm=iPadAlxPro ssid="WiFi 5"
 :global globalNewNetworkMember;
 :if (!any $globalNewNetworkMember) do={
   :global globalNewNetworkMember do={
