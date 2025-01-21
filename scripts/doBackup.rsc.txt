@@ -16,7 +16,6 @@ $globalScriptBeforeRun "doBackup";
 :global globalCallFetch;
 :global simplercurrdatetimestr;
 
-
 :local scriptname "doBackup"
 :local saveSysBackup true
 :local encryptSysBackup false
@@ -51,7 +50,6 @@ $globalScriptBeforeRun "doBackup";
   $globalNoteMe value=$state;
   :set itsOk false;
 }
-
 
 :local fname ("BACKUP-$sysname-$stamp")
 
