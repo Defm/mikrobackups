@@ -34,7 +34,7 @@ $globalScriptBeforeRun $scriptname;
   :set itsOk false;    
 }
 
-
+# Just to sure (or create) if $SubDir exist
 /file/add name="$SubDir/foo.txt" contents="Feel free to remove this";
 
 :foreach scriptId in [/system script find] do={
