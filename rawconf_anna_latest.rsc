@@ -1,4 +1,4 @@
-# 2025-01-17 21:13:43 by RouterOS 7.15.3
+# 2025-01-20 21:00:03 by RouterOS 7.15.3
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -778,17 +778,7 @@
 /system logging add action=ParseMemoryLog topics=critical
 /system logging add action=macos prefix=RLOG topics=!debug
 /system logging add action=TransfersOnscreenLog topics=fetch
-/system note set note="IPSEC: \t\tokay \
-    \nDefault route: \t10.20.225.1 \
-    \nanna: \t\t7.15.3 \
-    \nUptime:\t\t20w2d05:55:28  \
-    \nTime:\t\t2025-01-17 21:10:13  \
-    \nya.ru latency:\t4 ms  \
-    \nCHR:\t\t185.13.148.14  \
-    \nMIK:\t\t95.52.161.15  \
-    \nANNA:\t\t46.39.51.86  \
-    \nClock:\t\tsynchronized  \
-    \n"
+/system note set note=Pending
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
@@ -3234,7 +3224,7 @@
     \n:global globalCallFetch;\
     \n\
     \n#directories have to exist!\
-    \n:local FTPRoot \"REPO/backups/\"\
+    \n:local FTPRoot \"REPO/raw/\"\
     \n\
     \n#This subdir will be created locally to put exported scripts in\
     \n#and it must exist under \$FTPRoot to upload scripts to\
@@ -3246,6 +3236,7 @@
     \n:local FTPUser \"git\"\
     \n:local FTPPass \"git\"\
     \n\
+    \n:global globalCallFetch;\
     \n:global globalNoteMe;\
     \n:local itsOk true;\
     \n:local state \"\";\
@@ -3261,8 +3252,13 @@
     \n\
     \n:if (\$itsOk) do={\
     \n  :do {\
-    \n    [/tool fetch dst-path=\"\$SubDir.FooFile\" url=\"http://127.0.0.1:80/mikrotik_logo.png\" keep-result=yes];\
-    \n  } on-error={ \
+    \n    ##[/tool fetch dst-path=\"\$SubDir.FooFile\" url=\"http://127.0.0.1:80/mikrotik_logo.png\" keep-result=yes];\
+    \n       \
+    \n      :local fetchCmd \"/tool fetch url=http://anna.home:80/mikrotik_logo.png dst-path=\$SubDirFooFile keep-result=yes\";\
+    \n      \$globalCallFetch \$fetchCmd;\
+    \n  \
+    \n\
+    \n} on-error={ \
     \n    :set state \"Error When Creating Local Scripts Directory\";\
     \n    \$globalNoteMe value=\$state;\
     \n    :set itsOk false;\
