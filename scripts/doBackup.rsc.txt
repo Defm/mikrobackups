@@ -12,17 +12,17 @@ $globalScriptBeforeRun "doBackup";
   :set sysver [/system package get routeros version]
 }
 
+:global globalNoteMe;
+:global globalCallFetch;
+:global simplercurrdatetimestr;
+
+
 :local scriptname "doBackup"
 :local saveSysBackup true
 :local encryptSysBackup false
 :local saveRawExport true
 :local verboseRawExport false
 :local state ""
-
-:local ts [/system clock get time]
-:set ts ([:pick $ts 0 2].[:pick $ts 3 5].[:pick $ts 6 8])
-:local ds [/system clock get date]
-:set ds ([:pick $ds 7 11].[:pick $ds 0 3].[:pick $ds 4 6])
 
 #directories have to exist!
 :local FTPEnable true;
@@ -36,14 +36,12 @@ $globalScriptBeforeRun "doBackup";
 
 :local sysnote [/system note get note];
 
+:local stamp [$simplercurrdatetimestr];
+
 :local SMTPEnable true;
 :local SMTPAddress "defm.kopcap@gmail.com";
-:local SMTPSubject ("$sysname Full Backup ($ds-$ts)");
+:local SMTPSubject ("$sysname Full Backup ($stamp)");
 :local SMTPBody ("$sysname full Backup file see in attachment.\n $sysnote");
-
-:global globalNoteMe;
-:global globalCallFetch;
-
 :local itsOk true;
 
 :do {
@@ -54,7 +52,8 @@ $globalScriptBeforeRun "doBackup";
   :set itsOk false;
 }
 
-:local fname ("BACKUP-$sysname-$ds-$ts")
+
+:local fname ("BACKUP-$sysname-$stamp")
 
 :if ($saveSysBackup and $itsOk) do={
   :if ($encryptSysBackup = true) do={ /system backup save name=($fname.".backup") }
