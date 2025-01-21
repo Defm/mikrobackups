@@ -24,6 +24,7 @@ $globalScriptBeforeRun $scriptname;
 :local itsOk true;
 :local state "";
 :global globalScriptId;
+:global createPath;
 
 :do {
   :local smtpserv [:resolve "$FTPServer"];
@@ -33,20 +34,8 @@ $globalScriptBeforeRun $scriptname;
   :set itsOk false;    
 }
 
-:if ($itsOk) do={
-  :do {
-    ##[/tool fetch dst-path="$SubDir.FooFile" url="http://127.0.0.1:80/mikrotik_logo.png" keep-result=yes];
-       
-      :local fetchCmd "/tool fetch url=http://anna.home:80/mikrotik_logo.png dst-path=$SubDirFooFile keep-result=yes";
-      $globalCallFetch $fetchCmd;
-  
 
-} on-error={ 
-    :set state "Error When Creating Local Scripts Directory";
-    $globalNoteMe value=$state;
-    :set itsOk false;
-  }
-}
+/file/add name="$SubDir/foo.txt" contents="Feel free to remove this";
 
 :foreach scriptId in [/system script find] do={
   :if ($itsOk) do={
