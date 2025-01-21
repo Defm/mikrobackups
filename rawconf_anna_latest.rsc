@@ -1,4 +1,4 @@
-# 2025-01-21 16:10:48 by RouterOS 7.15.3
+# 2025-01-21 16:21:50 by RouterOS 7.15.3
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -782,8 +782,8 @@
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t10.20.225.1 \
     \nanna: \t\t7.15.3 \
-    \nUptime:\t\t20w6d00:55:28  \
-    \nTime:\t\t2025-01-21 16:10:12  \
+    \nUptime:\t\t20w6d01:05:27  \
+    \nTime:\t\t2025-01-21 16:20:12  \
     \nya.ru latency:\t4 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t95.52.161.15  \
@@ -3001,6 +3001,11 @@
     \n  :set sysver [/system package get routeros version]\
     \n}\
     \n\
+    \n:global globalNoteMe;\
+    \n:global globalCallFetch;\
+    \n:global simplercurrdatetimestr;\
+    \n\
+    \n\
     \n:local scriptname \"doBackup\"\
     \n:local saveSysBackup true\
     \n:local encryptSysBackup false\
@@ -3020,15 +3025,12 @@
     \n\
     \n:local sysnote [/system note get note];\
     \n\
+    \n:local stamp [\$simplercurrdatetimestr];\
+    \n\
     \n:local SMTPEnable true;\
     \n:local SMTPAddress \"defm.kopcap@gmail.com\";\
-    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\");\
+    \n:local SMTPSubject (\"\$sysname Full Backup (\$stamp)\");\
     \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\n \$sysnote\");\
-    \n\
-    \n:global globalNoteMe;\
-    \n:global globalCallFetch;\
-    \n:global simplercurrdatetimestr;\
-    \n\
     \n:local itsOk true;\
     \n\
     \n:do {\
@@ -3039,7 +3041,7 @@
     \n  :set itsOk false;\
     \n}\
     \n\
-    \n:local stamp [\$simplercurrdatetimestr];\
+    \n\
     \n:local fname (\"BACKUP-\$sysname-\$stamp\")\
     \n\
     \n:if (\$saveSysBackup and \$itsOk) do={\
