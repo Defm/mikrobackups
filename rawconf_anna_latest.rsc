@@ -1,4 +1,4 @@
-# jun/23/2023 00:10:10 by RouterOS 7.8
+# 2025-01-21 16:21:50 by RouterOS 7.15.3
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -6,20 +6,19 @@
 /caps-man channel add band=2ghz-b/g/n comment=CH1 control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
 /caps-man channel add band=5ghz-a/n/ac comment="20Mhz + Ce = 40Mhz, reselect interval from 5180, 5220, 5745, 5785 once per 10h" control-channel-width=20mhz extension-channel=Ce frequency=5180,5220,5745,5785 name=common-chnls-5Ghz reselect-interval=10h tx-power=15
 /caps-man configuration add mode=ap name=empty
-/interface bridge add dhcp-snooping=yes igmp-snooping=yes name=guest-infrastructure-br
-/interface bridge add arp=proxy-arp fast-forward=no name=ip-mapping-br
-/interface bridge add admin-mac=48:8F:5A:D4:5F:69 arp=reply-only auto-mac=no dhcp-snooping=yes igmp-snooping=yes name=main-infrastructure-br
-/interface bridge add arp=proxy-arp fast-forward=no name=ospf-loopback-br
+/interface bridge add dhcp-snooping=yes igmp-snooping=yes name=guest-infrastructure-br port-cost-mode=short
+/interface bridge add arp=proxy-arp fast-forward=no name=ip-mapping-br port-cost-mode=short
+/interface bridge add admin-mac=48:8F:5A:D4:5F:69 arp=reply-only auto-mac=no dhcp-snooping=yes igmp-snooping=yes name=main-infrastructure-br port-cost-mode=short
 /interface ethernet set [ find default-name=ether2 ] arp=disabled comment="to WB (wire)" loop-protect=on name="lan A" poe-out=forced-on
 /interface ethernet set [ find default-name=ether3 ] arp=disabled comment="to miniAlx (wire)" loop-protect=on name="lan B"
 /interface ethernet set [ find default-name=ether4 ] arp=disabled comment="to MbpAlxm (wire)" loop-protect=on name="lan C"
 /interface ethernet set [ find default-name=ether5 ] arp=disabled name="lan D"
 /interface ethernet set [ find default-name=ether6 ] arp=disabled comment="to capxl(wire)" loop-protect=on name="lan E"
 /interface ethernet set [ find default-name=ether7 ] arp=disabled comment="to PC(wire)" loop-protect=on name="lan F"
-/interface ethernet set [ find default-name=ether8 ] comment="to GUEST" loop-protect=on name="lan G"
+/interface ethernet set [ find default-name=ether8 ] comment="to ATV(wire)" loop-protect=on name="lan G"
 /interface ethernet set [ find default-name=sfp-sfpplus1 ] disabled=yes name=optic
 /interface ethernet set [ find default-name=ether1 ] arp=proxy-arp mac-address=20:CF:30:DE:7B:2A name="wan A" poe-out=off
-/caps-man datapath add arp=proxy-arp bridge=guest-infrastructure-br name=2CapsMan-guest
+/caps-man datapath add arp=proxy-arp bridge=guest-infrastructure-br client-to-client-forwarding=no name=2CapsMan-guest
 /caps-man datapath add arp=reply-only bridge=main-infrastructure-br client-to-client-forwarding=yes name=2CapsMan-private
 /caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps name="5GHz Rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps vht-basic-mcs=mcs0-9 vht-supported-mcs=mcs0-9
 /caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps ht-basic-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 ht-supported-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 name="2GHz rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps
@@ -69,7 +68,6 @@
 /ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" local-address=10.0.0.3 name=CHR-internal profile=ROUTEROS
 /ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
 /ip ipsec proposal add auth-algorithms=sha256 enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip kid-control add fri=0s-1d mon=0s-1d name=totals sat=0s-1d sun=0s-1d thu=0s-1d tue=0s-1d wed=0s-1d
 /ip pool add name=pool-main ranges=192.168.90.100-192.168.90.200
 /ip pool add name=pool-guest ranges=192.168.98.200-192.168.98.230
 /ip pool add name=pool-virtual-machines ranges=192.168.90.0/26
@@ -88,12 +86,10 @@
     \n:set GleaseActIP \$leaseActIP;\r\
     \n\r\
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
+/ip smb users set [ find default=yes ] disabled=yes
 /ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1360 max-mtu=1360 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
-/queue simple add comment=dtq,54:2B:8D:77:38:A0, name="iPhoneAlxr(blocked)@guest-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.98.223/32 total-queue=default
-/queue simple add comment=dtq,54:2B:8D:77:38:A0,iPhone name="iPhoneAlxr@main-dhcp-server (54:2B:8D:77:38:A0)" queue=default/default target=192.168.90.150/32 total-queue=default
-/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
-/queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro(blocked)@guest-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.229/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro(wireless)@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
@@ -107,11 +103,6 @@
 /queue simple add comment=dtq,BC:D0:74:0A:B2:6A, name="MbpAlxm(blocked)@guest-dhcp-server (BC:D0:74:0A:B2:6A)" queue=default/default target=192.168.98.75/32 total-queue=default
 /queue simple add comment=dtq,48:65:EE:19:3C:0D,MbpAlxm name="MbpAlxm (wire)@main-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.90.85/32 total-queue=default
 /queue simple add comment=dtq,48:65:EE:19:3C:0D, name="MbpAlxm(blocked)@guest-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.98.85/32 total-queue=default
-/queue simple add comment=dtq,80:34:28:11:EE:7E,wb name="WB (wire)@main-dhcp-server (80:34:28:11:EE:7E)" queue=default/default target=192.168.90.2/32 total-queue=default
-/queue simple add comment=dtq,80:34:28:11:EE:7E, name="WB (wire)(blocked)@guest-dhcp-server (80:34:28:11:EE:7E)" queue=default/default target=192.168.98.2/32 total-queue=default
-/queue simple add comment=dtq,F0:C8:14:48:5B:9A, name="WB (wireless)@main-dhcp-server (F0:C8:14:48:5B:9A)" queue=default/default target=192.168.90.3/32 total-queue=default
-/queue simple add comment=dtq,F0:C8:14:48:5B:9A, name="WB (wireless)(blocked)@guest-dhcp-server (F0:C8:14:48:5B:9A)" queue=default/default target=192.168.98.3/32 total-queue=default
-/queue simple add comment=dtq,18:FD:74:13:6E:33,capxl name="capxl(wire)@main-dhcp-server (18:FD:74:13:6E:33)" queue=default/default target=192.168.90.10/32 total-queue=default
 /queue simple add comment=dtq,F8:3F:51:0D:88:0B,localhost name="SamsungTV(wire)@main-dhcp-server (F8:3F:51:0D:88:0B)" queue=default/default target=192.168.90.205/32 total-queue=default
 /queue simple add comment=dtq,F8:3F:51:0D:88:0B, name="SamsungTV(wire)(blocked)@guest-dhcp-server (F8:3F:51:0D:88:0B)" queue=default/default target=192.168.98.205/32 total-queue=default
 /queue simple add comment=dtq,88:88:88:88:87:88,DESKTOP-QMUE5PH name="Hare's AsusPC(wire)@main-dhcp-server (88:88:88:88:87:88)" queue=default/default target=192.168.90.100/32 total-queue=default
@@ -120,17 +111,37 @@
 /queue simple add comment=dtq,90:DD:5D:CA:8F:B0, name="AlxATV(wire)(blocked)@guest-dhcp-server (90:DD:5D:CA:8F:B0)" queue=default/default target=192.168.98.201/32 total-queue=default
 /queue simple add comment=dtq,04:F1:69:8E:12:B6,HONOR_9X-e57500d48bf17173 name="Hare's Honor9x(wireless)@main-dhcp-server (04:F1:69:8E:12:B6)" queue=default/default target=192.168.90.140/32 total-queue=default
 /queue simple add comment=dtq,04:F1:69:8E:12:B6, name="Hare's Honor9x(wireless)(blocked)@guest-dhcp-server (04:F1:69:8E:12:B6)" queue=default/default target=192.168.98.140/32 total-queue=default
+/queue simple add comment=dtq,B8:87:6E:19:90:33,yandex-mini2-ZGNK name="Alice(wireless)@main-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.90.220/32 total-queue=default
+/queue simple add comment=dtq,B8:87:6E:19:90:33, name="Alice(wireless)(blocked)@guest-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.98.220/32 total-queue=default
+/queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)@main-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.90.180/32 total-queue=default
+/queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)(blocked)@guest-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.98.180/32 total-queue=default
+/queue simple add comment=dtq,D4:3B:04:87:C7:47,DESKTOP-G3RE47G name="HareDell@main-dhcp-server (D4:3B:04:87:C7:47)" queue=default/default target=192.168.90.77/32 total-queue=default
+/queue simple add comment=dtq,D4:3B:04:87:C7:47, name="HareDell(blocked)@guest-dhcp-server (D4:3B:04:87:C7:47)" queue=default/default target=192.168.98.77/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro(wireless)(blocked)@guest-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.130/32 total-queue=default
+/queue simple add comment=dtq,40:80:E1:5B:41:B8,nspanel name="NSPanel(wireless)@main-dhcp-server (40:80:E1:5B:41:B8)" queue=default/default target=192.168.90.165/32 total-queue=default
+/queue simple add comment=dtq,40:80:E1:5B:41:B8, name="NSPanel(wireless)(blocked)@guest-dhcp-server (40:80:E1:5B:41:B8)" queue=default/default target=192.168.98.165/32 total-queue=default
+/queue simple add comment=dtq,DC:10:57:2D:39:7B,iPhoneAlxr name="iPhoneAlxr(wireless)@main-dhcp-server (DC:10:57:2D:39:7B)" queue=default/default target=192.168.90.150/32 total-queue=default
+/queue simple add comment=dtq,DC:10:57:2D:39:7B, name="iPhoneAlxr(wireless)(blocked)@guest-dhcp-server (DC:10:57:2D:39:7B)" queue=default/default target=192.168.98.150/32 total-queue=default
+/queue simple add comment=dtq,00:1C:42:FE:E3:AB,W11 name="W11Parallels@main-dhcp-server (00:1C:42:FE:E3:AB)" queue=default/default target=192.168.90.35/32 total-queue=default
+/queue simple add comment=dtq,00:1C:42:FE:E3:AB, name="W11Parallels(blocked)@guest-dhcp-server (00:1C:42:FE:E3:AB)" queue=default/default target=192.168.98.35/32 total-queue=default
+/queue simple add comment=dtq,00:85:01:01:50:0E,wb name="WB (wire)@main-dhcp-server (00:85:01:01:50:0E)" queue=default/default target=192.168.90.2/32 total-queue=default
+/queue simple add comment=dtq,00:85:01:01:50:0E, name="WB (wire)(blocked)@guest-dhcp-server (00:85:01:01:50:0E)" queue=default/default target=192.168.98.2/32 total-queue=default
+/queue simple add comment=dtq,CA:FE:0F:0B:19:3A,wirenboard-AAXMPGOK name="WB (wireless)@main-dhcp-server (CA:FE:0F:0B:19:3A)" queue=default/default target=192.168.90.3/32 total-queue=default
+/queue simple add comment=dtq,CA:FE:0F:0B:19:3A, name="WB (wireless)(blocked)@guest-dhcp-server (CA:FE:0F:0B:19:3A)" queue=default/default target=192.168.98.3/32 total-queue=default
+/queue simple add comment=dtq,18:FD:74:94:FD:70,capxl name="capxl(wire)@main-dhcp-server (18:FD:74:94:FD:70)" queue=default/default target=192.168.90.10/32 total-queue=default
+/queue simple add comment=dtq,88:53:95:30:68:9F,miniAlx name="miniAlx(wireless)@main-dhcp-server (88:53:95:30:68:9F)" queue=default/default target=192.168.90.80/32 total-queue=default
+/queue simple add comment=dtq,88:53:95:30:68:9F, name="miniAlx(wireless)(blocked)@guest-dhcp-server (88:53:95:30:68:9F)" queue=default/default target=192.168.98.80/32 total-queue=default
+/queue simple add comment=dtq,B0:34:95:28:F5:15,iPadKids name="iPadKids@guest-dhcp-server (B0:34:95:28:F5:15)" queue=default/default target=192.168.98.227/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
 /queue tree add name=7Z packet-mark=7z-mark parent="Total Bandwidth" queue=default
 /queue tree add name=ZIP packet-mark=zip-mark parent="Total Bandwidth" queue=default
-/routing id add comment="OSPF Common" id=10.255.255.3 name=anna-10.255.255.3
-/routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-main originate-default=never redistribute="" router-id=anna-10.255.255.3
+/routing id add comment="OSPF Common" disabled=no id=10.255.255.3 name=anna-10.255.255.3 select-dynamic-id=only-loopback
+/routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-main originate-default=always redistribute="" router-id=anna-10.255.255.3 routing-table=rmark-vpn-redirect
 /routing ospf area add disabled=no instance=routes-inject-into-main name=backbone
 /routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-main name=anna-space-main no-summaries type=stub
 /routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
-/routing table add comment="tunnel swing" fib name=rmark-telegram-redirect
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
 /system logging action set 0 memory-lines=300
@@ -153,19 +164,26 @@
 /system logging action add memory-lines=300 name=SSHOnScreenLog target=memory
 /system logging action add memory-lines=300 name=PoEOnscreenLog target=memory
 /system logging action add memory-lines=300 name=EmailOnScreenLog target=memory
-/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
-/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
+/system logging action add bsd-syslog=yes name=macos remote=192.168.90.70 remote-port=1514 syslog-facility=syslog target=remote
+/system logging action add memory-lines=300 name=TransfersOnscreenLog target=memory
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="miniAlx(wireless)" disabled=no mac-address=88:53:95:30:68:9F ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=W11Parallels disabled=yes mac-address=00:1C:42:FE:E3:AB ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless)" disabled=no mac-address=DC:10:57:2D:39:7B ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="NSPanel(wireless)" disabled=no mac-address=40:80:E1:5B:41:B8 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPadAlxPro(wireless)" disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=HareDell disabled=no mac-address=D4:3B:04:87:C7:47 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Tuya(wireless)" disabled=no mac-address=D4:A6:51:C9:54:A7 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Alice(wireless)" disabled=no mac-address=B8:87:6E:19:90:33 ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Hare's Honor9x(wireless)" disabled=no mac-address=04:F1:69:8E:12:B6 ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="WB (wireless)" disabled=no mac-address=F0:C8:14:48:5B:9A ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="WB (wireless)" disabled=no mac-address=CA:FE:0F:0B:19:3A ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="MbpAlxm(wireless)" disabled=no mac-address=BC:D0:74:0A:B2:6A ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="android(wireless)" disabled=no mac-address=00:27:15:CE:B8:DD ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="ASUS(wireless)" disabled=no mac-address=54:35:30:05:9B:BD ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Twinkle(wireless)" disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AudioATV(wireless)" disabled=no mac-address=B0:34:95:50:A1:6A ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPadAlxPro(wireless)" disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AlxATV(wireless)" disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless)" disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless)" disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
 /caps-man manager set certificate=C.anna.capsman@CHR enabled=yes require-peer-certificate=yes
@@ -178,15 +196,16 @@
 /caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn identity-regexp=anna master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
 /caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac identity-regexp=anna master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
-/interface bridge port add bridge=main-infrastructure-br interface="lan D" trusted=yes
-/interface bridge port add bridge=main-infrastructure-br interface="lan A" trusted=yes
-/interface bridge port add bridge=main-infrastructure-br interface="lan B" trusted=yes
-/interface bridge port add bridge=main-infrastructure-br interface="lan C" trusted=yes
-/interface bridge port add bridge=main-infrastructure-br interface="lan E" trusted=yes
-/interface bridge port add bridge=main-infrastructure-br interface="lan F" trusted=yes
-/interface bridge port add bridge=guest-infrastructure-br interface="lan G" trusted=yes
+/ip smb set domain=HNW interfaces=main-infrastructure-br
+/interface bridge port add bridge=main-infrastructure-br interface="lan D" internal-path-cost=10 path-cost=10 trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface="lan A" internal-path-cost=10 path-cost=10 trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface="lan B" internal-path-cost=10 path-cost=10 trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface="lan C" internal-path-cost=10 path-cost=10 trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface="lan E" internal-path-cost=10 path-cost=10 trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface="lan F" internal-path-cost=10 path-cost=10 trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface="lan G" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge settings set use-ip-firewall=yes
-/ip firewall connection tracking set enabled=yes
+/ip firewall connection tracking set enabled=yes udp-timeout=10s
 /ip neighbor discovery-settings set discover-interface-list=list-neighbors-lookup
 /ip settings set accept-source-route=yes rp-filter=loose tcp-syncookies=yes
 /ipv6 settings set disable-ipv6=yes
@@ -200,59 +219,60 @@
 /interface list member add comment="neighbors lookup" interface=tunnel list=list-neighbors-lookup
 /interface list member add comment="FW: drop invalid" interface="wan A" list=list-drop-invalid-connections
 /interface list member add comment=OSPF interface=tunnel list=list-ospf-bearing
-/interface list member add comment=OSPF interface=ospf-loopback-br list=list-ospf-bearing
 /interface list member add interface=main-infrastructure-br list=list-ospf-master
+/interface list member add comment=OSPF interface=ospf-lo list=list-ospf-bearing
 /interface wireless snooper set receive-errors=yes
 /ip address add address=192.168.90.1/24 comment="local ip" interface=main-infrastructure-br network=192.168.90.0
 /ip address add address=192.168.98.1/24 comment="local guest wifi" interface=guest-infrastructure-br network=192.168.98.0
-/ip address add address=10.255.255.3 comment="ospf router-id binding" interface=ospf-loopback-br network=10.255.255.3
+/ip address add address=10.255.255.3 comment="ospf router-id binding" interface=ospf-lo network=10.255.255.3
 /ip address add address=172.16.0.16/30 comment="GRAFANA IP redirect" interface=ip-mapping-br network=172.16.0.16
 /ip address add address=172.16.0.17/30 comment="INFLUXDB IP redirect" interface=ip-mapping-br network=172.16.0.16
 /ip address add address=10.20.225.166/24 comment="wan via ACADO edge router" interface="wan A" network=10.20.225.0
-/ip arp add address=192.168.90.80 comment="MbpAlx (wireless)" interface=main-infrastructure-br mac-address=78:31:C1:CF:9E:70
 /ip arp add address=192.168.90.200 comment="AlxATV (wireless)" interface=main-infrastructure-br mac-address=90:DD:5D:C8:46:AB
 /ip arp add address=192.168.90.90 comment="MbpAlx (wire)" interface=main-infrastructure-br mac-address=38:C9:86:51:D2:B3
 /ip arp add address=192.168.90.40 comment=NAS interface=main-infrastructure-br mac-address=00:11:32:2C:A7:85
-/ip arp add address=192.168.90.150 comment=iPhoneAlxr interface=main-infrastructure-br mac-address=54:2B:8D:77:38:A0
-/ip arp add address=192.168.90.130 comment=iPadAlxPro interface=main-infrastructure-br mac-address=50:DE:06:25:C2:FC
-/ip arp add address=192.168.90.10 comment="capxl(wire)" interface=main-infrastructure-br mac-address=18:FD:74:13:6E:33
+/ip arp add address=192.168.90.10 comment="capxl(wire)" interface=main-infrastructure-br mac-address=18:FD:74:94:FD:70
 /ip arp add address=192.168.90.70 comment="miniAlx (wire)" interface=main-infrastructure-br mac-address=10:DD:B1:9E:19:5E
 /ip arp add address=192.168.90.210 comment=AudioATV interface=main-infrastructure-br mac-address=B0:34:95:50:A1:6A
 /ip arp add address=192.168.90.170 comment=Twinkle interface=main-infrastructure-br mac-address=FC:F5:C4:79:ED:D8
 /ip arp add address=192.168.90.88 comment="ASUS(wireless)" interface=main-infrastructure-br mac-address=54:35:30:05:9B:BD
 /ip arp add address=192.168.90.75 comment="MbpAlxm (wireless)" interface=main-infrastructure-br mac-address=BC:D0:74:0A:B2:6A
 /ip arp add address=192.168.90.85 comment="MbpAlxm (wire)" interface=main-infrastructure-br mac-address=48:65:EE:19:3C:0D
-/ip arp add address=192.168.90.2 comment="WB (wire)" interface=main-infrastructure-br mac-address=80:34:28:11:EE:7E
-/ip arp add address=192.168.90.3 comment="WB (wireless)" interface=main-infrastructure-br mac-address=F0:C8:14:48:5B:9A
+/ip arp add address=192.168.90.2 comment="WB (wire)" interface=main-infrastructure-br mac-address=00:85:01:01:50:0E
+/ip arp add address=192.168.90.3 comment="WB (wireless)" interface=main-infrastructure-br mac-address=CA:FE:0F:0B:19:3A
 /ip arp add address=10.20.225.166 comment="wan via ACADO edge router" interface="wan A" mac-address=20:CF:30:DE:7B:2A
 /ip arp add address=192.168.90.205 comment="SamsungTV(wire)" interface=main-infrastructure-br mac-address=F8:3F:51:0D:88:0B
 /ip arp add address=192.168.90.100 comment="AsusPC(wire)" interface=main-infrastructure-br mac-address=88:88:88:88:87:88
 /ip arp add address=192.168.90.201 comment="AlxATV(wire)" interface=main-infrastructure-br mac-address=90:DD:5D:CA:8F:B0
 /ip arp add address=192.168.90.140 comment="Hare's Honor9x(wireless)" interface=main-infrastructure-br mac-address=04:F1:69:8E:12:B6
+/ip arp add address=192.168.90.220 comment="Alice(wireless)" interface=main-infrastructure-br mac-address=B8:87:6E:19:90:33
+/ip arp add address=192.168.90.180 comment="Tuya(wireless)" interface=main-infrastructure-br mac-address=D4:A6:51:C9:54:A7
+/ip arp add address=192.168.90.77 comment=HareDell interface=main-infrastructure-br mac-address=D4:3B:04:87:C7:47
+/ip arp add address=192.168.90.130 comment="iPadAlxPro(wireless)" interface=main-infrastructure-br mac-address=50:DE:06:25:C2:FC
+/ip arp add address=192.168.90.165 comment="NSPanel(wireless)" interface=main-infrastructure-br mac-address=40:80:E1:5B:41:B8
+/ip arp add address=192.168.90.150 comment="iPhoneAlxr(wireless)" interface=main-infrastructure-br mac-address=DC:10:57:2D:39:7B
+/ip arp add address=192.168.90.35 comment=W11Parallels interface=main-infrastructure-br mac-address=00:1C:42:FE:E3:AB
+/ip arp add address=192.168.90.80 comment="miniAlx(wireless)" interface=main-infrastructure-br mac-address=88:53:95:30:68:9F
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=yes interface="wan A" use-peer-dns=no use-peer-ntp=no
 /ip dhcp-server lease add address=192.168.90.200 comment="AlxATV (wireless)" mac-address=90:DD:5D:C8:46:AB server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.223 block-access=yes client-id=1:54:2b:8d:77:38:a0 comment="iPhoneAlxr(blocked)" mac-address=54:2B:8D:77:38:A0 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.40 comment=NAS mac-address=00:11:32:2C:A7:85 server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.90.150 client-id=1:54:2b:8d:77:38:a0 comment=iPhoneAlxr mac-address=54:2B:8D:77:38:A0 server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.90.130 comment=iPadAlxPro mac-address=50:DE:06:25:C2:FC server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.229 block-access=yes comment="iPadAlxPro(blocked)" mac-address=50:DE:06:25:C2:FC server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.210 comment="AudioATV (wireless)" mac-address=B0:34:95:50:A1:6A server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.231 block-access=yes comment="AudioATV(blocked)" mac-address=B0:34:95:50:A1:6A server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.10 comment="capxl(wire)" mac-address=18:FD:74:13:6E:33 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.90.10 comment="capxl(wire)" mac-address=18:FD:74:94:FD:70 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.70 address-lists=alist-osx-hosts client-id=1:10:dd:b1:9e:19:5e comment="miniAlx (wire)" mac-address=10:DD:B1:9E:19:5E server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.170 comment=Twinkle mac-address=FC:F5:C4:79:ED:D8 server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.170 block-access=yes comment="Twinkle(blocked)" mac-address=FC:F5:C4:79:ED:D8 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.98.170 block-access=yes comment="Twinkle(blocked)" disabled=yes mac-address=FC:F5:C4:79:ED:D8 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.88 comment="ASUS(wireless)" mac-address=54:35:30:05:9B:BD server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.88 block-access=yes comment="ASUS(wireless)(blocked)" mac-address=54:35:30:05:9B:BD server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.75 comment="MbpAlxm (wireless)" mac-address=BC:D0:74:0A:B2:6A server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.75 block-access=yes comment="MbpAlxm(blocked)" mac-address=BC:D0:74:0A:B2:6A server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.85 comment="MbpAlxm (wire)" mac-address=48:65:EE:19:3C:0D server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.85 block-access=yes comment="MbpAlxm(blocked)" mac-address=48:65:EE:19:3C:0D server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.2 comment="WB (wire)" mac-address=80:34:28:11:EE:7E server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.2 block-access=yes comment="WB (wire)(blocked)" mac-address=80:34:28:11:EE:7E server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.3 comment="WB (wireless)" mac-address=F0:C8:14:48:5B:9A server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.3 block-access=yes comment="WB (wireless)(blocked)" mac-address=F0:C8:14:48:5B:9A server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.2 comment="WB (wire)" mac-address=00:85:01:01:50:0E server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.2 block-access=yes comment="WB (wire)(blocked)" mac-address=00:85:01:01:50:0E server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.3 comment="WB (wireless)" mac-address=CA:FE:0F:0B:19:3A server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.3 block-access=yes comment="WB (wireless)(blocked)" mac-address=CA:FE:0F:0B:19:3A server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.205 comment="SamsungTV(wire)" mac-address=F8:3F:51:0D:88:0B server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.205 block-access=yes comment="SamsungTV(wire)(blocked)" mac-address=F8:3F:51:0D:88:0B server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.100 comment="Hare's AsusPC(wire)" mac-address=88:88:88:88:87:88 server=main-dhcp-server
@@ -261,16 +281,32 @@
 /ip dhcp-server lease add address=192.168.98.201 block-access=yes comment="AlxATV(wire)(blocked)" mac-address=90:DD:5D:CA:8F:B0 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.140 comment="Hare's Honor9x(wireless)" mac-address=04:F1:69:8E:12:B6 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.140 block-access=yes comment="Hare's Honor9x(wireless)(blocked)" mac-address=04:F1:69:8E:12:B6 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.220 comment="Alice(wireless)" mac-address=B8:87:6E:19:90:33 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.220 block-access=yes comment="Alice(wireless)(blocked)" mac-address=B8:87:6E:19:90:33 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.180 comment="Tuya(wireless)" mac-address=D4:A6:51:C9:54:A7 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.180 block-access=yes comment="Tuya(wireless)(blocked)" mac-address=D4:A6:51:C9:54:A7 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.77 comment=HareDell mac-address=D4:3B:04:87:C7:47 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.77 block-access=yes comment="HareDell(blocked)" mac-address=D4:3B:04:87:C7:47 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.130 comment="iPadAlxPro(wireless)" mac-address=50:DE:06:25:C2:FC server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.130 block-access=yes comment="iPadAlxPro(wireless)(blocked)" mac-address=50:DE:06:25:C2:FC server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.165 comment="NSPanel(wireless)" mac-address=40:80:E1:5B:41:B8 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.165 block-access=yes comment="NSPanel(wireless)(blocked)" mac-address=40:80:E1:5B:41:B8 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.150 comment="iPhoneAlxr(wireless)" mac-address=DC:10:57:2D:39:7B server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.150 block-access=yes comment="iPhoneAlxr(wireless)(blocked)" mac-address=DC:10:57:2D:39:7B server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.35 comment=W11Parallels mac-address=00:1C:42:FE:E3:AB server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.35 block-access=yes comment="W11Parallels(blocked)" mac-address=00:1C:42:FE:E3:AB server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.80 comment="miniAlx(wireless)" mac-address=88:53:95:30:68:9F server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.80 block-access=yes comment="miniAlx(wireless)(blocked)" mac-address=88:53:95:30:68:9F server=guest-dhcp-server
 /ip dhcp-server matcher add address-pool=pool-vendor code=60 name=vendor-mikrotik-caps server=main-dhcp-server value=mikrotik-cap
 /ip dhcp-server network add address=192.168.90.0/27 caps-manager=192.168.90.1 comment="Network devices, CCTV" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.32/27 caps-manager=192.168.90.1 comment="Virtual machines" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.64/26 caps-manager=192.168.90.1 comment="Mac, Pc" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.128/27 caps-manager=192.168.90.1 comment="Phones, tablets" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.160/27 caps-manager=192.168.90.1 comment="IoT, intercom" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
-/ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=8.8.8.8 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
+/ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
-/ip dns set allow-remote-requests=yes cache-max-ttl=1d max-concurrent-queries=200 max-concurrent-tcp-sessions=30 query-server-timeout=3s servers=217.10.36.5,217.10.34.2 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
+/ip dns set allow-remote-requests=yes cache-max-ttl=1d max-concurrent-queries=200 max-concurrent-tcp-sessions=30 query-server-timeout=3s servers=217.10.36.5,217.10.32.4 use-doh-server=https://dns.google/dns-query
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 name=anna.home
@@ -286,39 +322,47 @@
 /ip dns static add address=192.168.97.1 name=chr.home
 /ip dns static add cname=mikrouter.home name=mikrouter type=CNAME
 /ip dns static add address=192.168.99.1 name=mikrouter.home
+/ip dns static add cname=minialx.home name=nas.home type=CNAME
 /ip dns static add cname=nas.home name=nas type=CNAME
-/ip dns static add address=192.168.90.40 name=nas.home
 /ip dns static add address=192.168.100.1 name=gateway.home
-/ip dns static add cname=capxl.home name=capxl type=CNAME
 /ip dns static add address=192.168.90.10 name=capxl.home
+/ip dns static add cname=capxl.home name=capxl type=CNAME
 /ip dns static add address=192.168.90.100 name=hare.home ttl=5m
 /ip dns static add cname=hare.home name=hare ttl=5m type=CNAME
-/ip dns static add address=192.168.90.70 comment=<AUTO:DHCP:main-dhcp-server> name=miniAlx.home
-/ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
+/ip dns static add address=192.168.90.165 name=nspanel.home
+/ip dns static add cname=nspanel.home name=nspanel type=CNAME
+/ip dns static add address=192.168.90.70 name=miniAlx.home
 /ip dns static add address=95.213.159.180 name=atv.qello.com
 /ip dns static add address=95.213.159.180 name=atv.package2.qello.com
-/ip dns static add address=192.168.90.1 name=time.windows.com
 /ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
 /ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
-/ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhone.home ttl=5m
 /ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bbs|\\.chan|\\.cyb|\\.dyn|\\.geek|\\.gopher|\\.indy|\\.libre|\\.neo|\\.null|\\.o)\$" type=FWD
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.oss|\\.oz|\\.parody|\\.pirate|\\.opennic.glue|\\.dns\\.opennic\\.glue)\$" type=FWD
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bazar|\\.coin|\\.emc|\\.lib|\\.fur1|\\.bit|\\.ku|\\.te|\\.ti|\\.uu)\$" type=FWD
 /ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=HONOR9X-e57500d48bf17173.home ttl=5m
 /ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
-/ip dns static add address=46.39.51.161 name=ftpserver.org
+/ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m
+/ip dns static add address=192.168.90.77 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-G3RE47G.home ttl=5m
+/ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
+/ip dns static add address=1.1.1.1 name=cloudflare-dns.com
+/ip dns static add address=192.168.90.35 comment=<AUTO:DHCP:main-dhcp-server> name=W11.home ttl=5m
+/ip dns static add address-list=alist-mangle-YouTube match-subdomain=yes name=googlevideo.com type=FWD
+/ip dns static add address-list=alist-mangle-YouTube match-subdomain=yes name=youtube.com type=FWD
+/ip dns static add address-list=alist-mangle-YouTube match-subdomain=yes name=ytimg.com type=FWD
+/ip dns static add address=8.8.8.8 name=dns.google
+/ip dns static add address=8.8.4.4 name=dns.google
+/ip dns static add address=192.168.90.3 comment=<AUTO:DHCP:main-dhcp-server> name=wirenboard-AAXMPGOK.home ttl=5m
+/ip dns static add cname=miniAlx.home name=miniAlx type=CNAME
+/ip dns static add address=192.168.90.220 comment=<AUTO:DHCP:main-dhcp-server> name=yandex-mini2-ZGNK.home ttl=5m
+/ip dns static add address=46.39.51.86 name=ftpserver.org
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
-/ip firewall address-list add address=0.0.0.0/8 comment="RFC 1122 \"This host on this network\"" disabled=yes list=alist-fw-rfc-special
-/ip firewall address-list add address=10.0.0.0/8 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=alist-fw-rfc-special
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
-/ip firewall address-list add address=127.0.0.0/8 comment="RFC 1122 (Loopback)" disabled=yes list=alist-fw-rfc-special
 /ip firewall address-list add address=169.254.0.0/16 comment="RFC 3927 (Dynamic Configuration of IPv4 Link-Local Addresses)" list=alist-fw-rfc-special
 /ip firewall address-list add address=172.16.0.0/12 comment="RFC 1918 (Private Use IP Space)" list=alist-fw-rfc-special
 /ip firewall address-list add address=192.0.0.0/24 comment="RFC 6890 (IETF Protocol Assingments)" list=alist-fw-rfc-special
 /ip firewall address-list add address=192.0.2.0/24 comment="RFC 5737 (Test-Net-1)" list=alist-fw-rfc-special
-/ip firewall address-list add address=192.168.0.0/16 comment="RFC 1918 (Private Use IP Space)" disabled=yes list=alist-fw-rfc-special
 /ip firewall address-list add address=198.18.0.0/15 comment="RFC 2544 (Benchmarking)" list=alist-fw-rfc-special
 /ip firewall address-list add address=198.51.100.0/24 comment="RFC 5737 (Test-Net-2)" list=alist-fw-rfc-special
 /ip firewall address-list add address=203.0.113.0/24 comment="RFC 5737 (Test-Net-3)" list=alist-fw-rfc-special
@@ -346,45 +390,48 @@
 /ip firewall address-list add address=10.0.0.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=10.0.0.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=myexternalip.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=serverfault.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=172.16.0.16/30 list=alist-fw-local-subnets
 /ip firewall address-list add address=172.16.0.16/30 list=alist-nat-local-subnets
 /ip firewall address-list add address=192.168.98.0/24 comment="Add DNS Server to this List" list=alist-fw-dns-allow
-/ip firewall address-list add address=xhamster.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=ru.xhamster.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=telegram.org list=alist-fw-telegram-servers
 /ip firewall address-list add address=grafana.home list=alist-nat-grafana-server
 /ip firewall address-list add address=grafanasvc.home list=alist-nat-grafana-service
 /ip firewall address-list add address=influxdb.home list=alist-nat-influxdb-server
 /ip firewall address-list add address=influxdbsvc.home list=alist-nat-influxdb-service
-/ip firewall address-list add address=auntmia.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=clubseventeen.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=speedtest.tele2.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.90.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=lostfilm.tv list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=pornhub.com disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=nnmclub.to list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=rutor.org list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=rutor.info list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=hdreactor.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=10.0.0.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=185.13.148.14 comment="Add DNS Server to this List" list=alist-fw-dns-allow
-/ip firewall address-list add address=minialx.home list=alist-fw-port-scanner-allow
-/ip firewall address-list add address=mbpalx.home list=alist-fw-port-scanner-allow
-/ip firewall address-list add address=nas.home list=alist-fw-port-scanner-allow
-/ip firewall address-list add address=hare.home comment=asus.home list=alist-fw-port-scanner-allow
+/ip firewall address-list add address=192.168.90.0/24 comment="Port scan entire LAN allow" list=alist-fw-port-scanner-allow
 /ip firewall address-list add address=www.parallels.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=instagram.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=facebook.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=l.instagram.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.100.7 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=217.10.36.5 comment="AKADO official DNS server" list=alist-fw-dns-allow
 /ip firewall address-list add address=217.10.34.2 comment="AKADO official DNS server" list=alist-fw-dns-allow
-/ip firewall address-list add address=2ip.ru disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=2ip.ru list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=www.canva.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.99.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-vpn-subnets
-/ip firewall address-list add address=46.39.51.161 list=alist-nat-external-ip
+/ip firewall address-list add address=radarr.video list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=tmdb.org list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=themoviedb.org list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=image.tmdb.org list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=radarr.servarr.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=swagger.io list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=gog.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=www.tinkercad.com comment=www.tinkercad.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=autodesk.com comment=autodesk.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=accounts.autodesk.com comment=accounts.autodesk.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=ntc.party list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=binaryronin.io list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=nmac.to list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=46.39.51.86 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -625,9 +672,12 @@
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=alist-mangle-vpn-tunneled-sites new-connection-mark=cmark-tunnel-connection passthrough=yes
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new dst-address-list=alist-fw-telegram-servers new-connection-mark=cmark-tunnel-connection passthrough=yes
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-telegram-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-telegram-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-vpn-tunneled-sites log=yes log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark dst-port=500,4500 new-connection-mark=cmark-ipsec passthrough=yes protocol=udp
+/ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark new-connection-mark=cmark-ipsec passthrough=yes protocol=ipsec-esp
+/ip firewall mangle add action=mark-routing chain=output comment="VPN (pure IPSEC)" connection-mark=cmark-ipsec dst-address-list=alist-mangle-vpn-tunneled-sites new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY
 /ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark layer7-protocol=7Z new-connection-mark=conn-7z-download passthrough=yes
 /ip firewall mangle add action=mark-packet chain=prerouting comment=7z connection-mark=conn-7z-download layer7-protocol=7Z log-prefix=~~~DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
@@ -653,8 +703,8 @@
 /ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=8291 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.1 to-ports=8291
 /ip firewall nat add action=netmap chain=dstnat comment="WEB pass through" dst-port=8888 in-interface="wan A" log-prefix="#WEB EXT CTRL" protocol=tcp to-addresses=192.168.90.1 to-ports=80
 /ip firewall nat add action=dst-nat chain=dstnat comment="WEB NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=80 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.1 to-ports=80
-/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through" dst-port=1111 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.80 to-ports=21
-/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through PASV" dst-port=65000-65050 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.80 to-ports=65000-65050
+/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through" dst-port=1111 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.40 to-ports=21
+/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through PASV" dst-port=65000-65050 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.40 to-ports=65000-65050
 /ip firewall nat add action=dst-nat chain=dstnat comment="FTP NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=21 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.80 to-ports=21
 /ip firewall nat add action=netmap chain=dstnat comment="RDP pass through" dst-address-type=local dst-port=3333 in-interface="wan A" log-prefix=~~~RDP protocol=tcp to-addresses=192.168.90.80 to-ports=3389
 /ip firewall nat add action=dst-nat chain=dstnat comment="RDP NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=3389 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.80 to-ports=3389
@@ -669,6 +719,7 @@
 /ip ipsec policy set 0 disabled=yes proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
 /ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
+/ip kid-control add fri=0s-1d mon=0s-1d name=totals sat=0s-1d sun=0s-1d thu=0s-1d tue=0s-1d wed=0s-1d
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
 /ip proxy access add action=redirect action-data=influxdb:8000 dst-host=influxdb
@@ -676,8 +727,7 @@
 /ip service set telnet disabled=yes
 /ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
-/ip smb set allow-guests=no domain=HNW interfaces=main-infrastructure-br
-/ip smb shares set [ find default=yes ] disabled=yes
+/ip smb shares set [ find default=yes ] directory=/pub
 /ip ssh set allow-none-crypto=yes forwarding-enabled=remote
 /ip tftp add real-filename=NAS/ req-filename=.*
 /ip traffic-flow set cache-entries=64k enabled=yes interfaces="wan A"
@@ -686,18 +736,17 @@
 /ip upnp interfaces add interface=main-infrastructure-br type=internal
 /ip upnp interfaces add interface=guest-infrastructure-br type=internal
 /routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf && ospf-type intra) { set comment DISCARDED-INTRA-AREA ; reject; }"
-/routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0) { set pref-src 10.0.0.3 ; set comment GLOBAL-VPN ; accept; }"
+/routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0) { set comment GLOBAL-VPN ; set pref-src 10.0.0.3 ; accept; }"
 /routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter) { set comment LOCAL-AREA ; set pref-src 10.0.0.3 ; accept; }"
 /routing filter rule add chain=ospf-in comment="DROP OTHERS" disabled=no rule="reject;"
-/routing ospf interface-template add area=backbone disabled=no interfaces=tunnel networks=10.0.0.0/29 type=ptp
+/routing ospf interface-template add area=backbone disabled=no interfaces=tunnel type=ptp
 /routing ospf interface-template add area=anna-space-main disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.98.0/24 src-address=192.168.90.0/24
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.90.0/24 src-address=192.168.98.0/24
-/routing rule add action=lookup-only-in-table comment=API.TELEGRAM.ORG disabled=yes dst-address=149.154.167.0/24 table=rmark-vpn-redirect
+/routing rule add action=lookup-only-in-table comment=API.TELEGRAM.ORG disabled=yes dst-address=185.85.121.15/24 table=rmark-vpn-redirect
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
 /system clock set time-zone-name=Europe/Moscow
 /system identity set name=anna
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -728,41 +777,42 @@
 /system logging add action=ParseMemoryLog topics=error
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=critical
+/system logging add action=macos prefix=RLOG topics=!debug
+/system logging add action=TransfersOnscreenLog topics=fetch
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t10.20.225.1 \
-    \nanna: \t\t7.8 \
-    \nUptime:\t\t1w6d11:28:09  \
-    \nTime:\t\tjun/23/2023 00:10:14  \
-    \nya.ru latency:\t7 ms  \
+    \nanna: \t\t7.15.3 \
+    \nUptime:\t\t20w6d01:05:27  \
+    \nTime:\t\t2025-01-21 16:20:12  \
+    \nya.ru latency:\t4 ms  \
     \nCHR:\t\t185.13.148.14  \
-    \nMIK:\t\t85.174.193.108  \
-    \nANNA:\t\t46.39.51.161  \
+    \nMIK:\t\t95.52.161.15  \
+    \nANNA:\t\t46.39.51.86  \
     \nClock:\t\tsynchronized  \
     \n"
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
 /system ntp client servers add address=ru.pool.ntp.org
-/system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jan/30/2017 start-time=18:57:09
-/system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/21/2017 start-time=15:31:13
-/system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/21/2017 start-time=19:19:59
-/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=mar/01/2018 start-time=15:55:00
-/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jun/26/2018 start-time=21:00:00
-/system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/10/2018 start-time=15:10:00
-/system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=03:25:00
-/system scheduler add interval=1h name=doCheckPingRate on-event="/system script run doCheckPingRate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=jul/13/2018 start-time=02:40:00
-/system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=23:30:00
-/system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=07:00:00
-/system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=11:31:24
+/system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-01-30 start-time=18:57:09
+/system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-02-21 start-time=15:31:13
+/system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-03-21 start-time=19:19:59
+/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=15:55:00
+/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:00:00
+/system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-07-10 start-time=15:10:00
+/system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-07-13 start-time=03:25:00
+/system scheduler add interval=1h name=doCheckPingRate on-event="/system script run doCheckPingRate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-07-13 start-time=02:40:00
+/system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=23:30:00
+/system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
+/system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=11:31:24
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript;" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
-/system scheduler add interval=1w name=doTrackFirmwareUpdates on-event="/system script run doTrackFirmwareUpdates" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=11:30:00
-/system scheduler add interval=1d name=doCreateTrafficAccountingQueues on-event="/system script run doCreateTrafficAccountingQueues" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
-/system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
-/system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=feb/07/2019 start-time=06:05:00
-/system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=08:00:00
-/system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=sep/09/2018 start-time=07:00:00
-/system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=may/02/2023 start-time=22:00:00
-/system scheduler add comment="added by function FuncSchedScriptAdd" interval=10s name="Run script TLGRMcall-jun/09/2023-12:43:42" on-event=":do {/system script run TLGRMcall;} on-error={:log info \"\"; :log error \"ERROR when executing a scheduled run script TLGRMcall\"; :log info \"\" }" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add interval=1w name=doTrackFirmwareUpdates on-event="/system script run doTrackFirmwareUpdates" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=11:30:00
+/system scheduler add interval=1d name=doCreateTrafficAccountingQueues on-event="/system script run doCreateTrafficAccountingQueues" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
+/system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=06:05:00
+/system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
+/system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
+/system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=22:00:00
+/system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -1647,9 +1697,9 @@
     \n\t\t}\r\
     \n\t}\r\
     \n}"
-/system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n#clear all global variables\r\
-    \n/system script environment remove [find];\r\
+/system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n#clear all global variables\
+    \n/system script environment remove [find];\
     \n"
 /system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# reset current\r\
     \n/system note set note=\"Pending\";\r\
@@ -2343,432 +2393,456 @@
     \n\r\
     \n/ip firewall address-list add list=\$today address=\"log-in.\$time1.\$user.\$usermac.\$ipuser\"\r\
     \n"
-/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n:if (!any \$globalNoteMe) do={\r\
-    \n\r\
-    \n  :global globalNoteMe do={\r\
-    \n\r\
-    \n  ## outputs \$value using both :put and :log info\r\
-    \n  ## example \$outputInfo value=\"12345\"\r\
-    \n\r\
-    \n  :put \"info: \$value\"\r\
-    \n  :log info \"\$value\"\r\
-    \n\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n:if (!any \$globalScriptBeforeRun) do={\r\
-    \n  :global globalScriptBeforeRun do={\r\
-    \n\r\
-    \n    :global globalNoteMe;\r\
-    \n    :if ([:len \$1] > 0) do={\r\
-    \n\r\
-    \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\r\
-    \n      :local scriptname \"\$1\";\r\
-    \n      :local count [:len [/system script job find script=\$scriptname]];\r\
-    \n\r\
-    \n      :if (\$count > 0) do={\r\
-    \n\r\
-    \n        :foreach counter in=[/system script job find script=\$scriptname] do={\r\
-    \n         #But ignoring scripts started right NOW\r\
-    \n\r\
-    \n         :local thisScriptCallTime  [/system script job get \$counter started];\r\
-    \n         :if (\$currentTime != \$thisScriptCallTime) do={\r\
-    \n\r\
-    \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\r\
-    \n             :log error \$state\r\
-    \n             \$globalNoteMe value=\$state;\r\
-    \n            /system script job remove \$counter;\r\
-    \n\r\
-    \n          }\r\
-    \n        }\r\
-    \n      }\r\
-    \n\r\
-    \n      :local state \"Starting script: \$scriptname\";\r\
-    \n      :put \"info: \$state\"\r\
-    \n      :log info \"\$state\"\r\
-    \n    }\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n:global globalTgMessage;\r\
-    \n:if (!any \$globalTgMessage) do={\r\
-    \n  :global globalTgMessage do={\r\
-    \n\r\
-    \n    :global globalNoteMe;\r\
-    \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\r\
-    \n    :local tGroupID \"-1001798127067\";\r\
-    \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\r\
-    \n\r\
-    \n    :local state (\"Sending telegram message... \$value\");\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n    :do {\r\
-    \n      /tool fetch http-method=post mode=https url=\"\$tURL\" http-data=\"text=\$value\" keep-result=no;\r\
-    \n    } on-error= {\r\
-    \n      :local state (\"Telegram notify error\");\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n    };\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n:global globalIPSECPolicyUpdateViaSSH;\r\
-    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={\r\
-    \n  :global globalIPSECPolicyUpdateViaSSH do={\r\
-    \n\r\
-    \n    :global globalRemoteIp;\r\
-    \n    :global globalNoteMe;\r\
-    \n\r\
-    \n    :if ([:len \$1] > 0) do={\r\
-    \n      :global globalRemoteIp (\"\$1\" . \"/32\");\r\
-    \n    }\r\
-    \n\r\
-    \n    :if (!any \$globalRemoteIp) do={\r\
-    \n      :global globalRemoteIp \"0.0.0.0/32\"\r\
-    \n    } else={\r\
-    \n    }\r\
-    \n\r\
-    \n    :local state (\"RPC... \$value\");\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\r\
-    \n    :if (\$count > 0) do={\r\
-    \n       :local state (\"Starting policies process... \$globalRemoteIp \");\r\
-    \n       \$globalNoteMe value=\$state;\r\
-    \n       /system script run doUpdatePoliciesRemotely;\r\
-    \n     }\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n#Example call\r\
-    \n#\$globalNewNetworkMember ip=192.168.99.130 mac=50:DE:06:25:C2:FC gip=192.168.98.229 comm=iPadAlxPro ssid=\"WiFi 5\"\r\
-    \n:global globalNewNetworkMember;\r\
-    \n:if (!any \$globalNewNetworkMember) do={\r\
-    \n  :global globalNewNetworkMember do={\r\
-    \n\r\
-    \n    :global globalNoteMe;\r\
-    \n\r\
-    \n    #to prevent connection\r\
-    \n    :local guestDHCP \"guest-dhcp-server\";\r\
-    \n\r\
-    \n    #to allow connection\r\
-    \n    :local mainDHCP \"main-dhcp-server\";\r\
-    \n\r\
-    \n    #when DHCP not using (add arp for leases)\r\
-    \n    :local arpInterface \"main-infrastructure-br\";\r\
-    \n    :local state (\"Adding new network member... \");\r\
-    \n\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n    # incoming named params\r\
-    \n    :local newIp [ :tostr \$ip ];\r\
-    \n    :local newBlockedIp [ :tostr \$gip ];\r\
-    \n    :local newMac [ :tostr \$mac ];\r\
-    \n    :local comment [ :tostr \$comm ];\r\
-    \n    :local newSsid [ :tostr \$ssid ];\r\
-    \n    :if ([:len \$newIp] > 0) do={\r\
-    \n        :if ([ :typeof [ :toip \$newIp ] ] != \"ip\" ) do={\r\
-    \n\r\
-    \n            :local state (\"Error: bad IP parameter passed - (\$newIp)\");\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n            :return false;\r\
-    \n\r\
-    \n        }\r\
-    \n    } else={\r\
-    \n\r\
-    \n        :local state (\"Error: bad IP parameter passed - (\$newIp)\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :return false;\r\
-    \n\r\
-    \n    }\r\
-    \n\r\
-    \n    :do {\r\
-    \n\r\
-    \n        :local state (\"Removing existing DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
-    \n        \$globalNoteMe value=\$state;       \r\
-    \n        /ip dhcp-server lease remove [find address=\$newIp];\r\
-    \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\r\
-    \n\r\
-    \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        \r\
-    \n       :if ([ :len [ /ip dhcp-server find where name=\"\$mainDHCP\" ] ] > 0) do={\r\
-    \n            /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\r\
-    \n            :local state (\"Done.\");\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n       } else={\r\
-    \n        :local state (\"Cant find DHCP server \$mainDHCP. SKIPPED.\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n       }\r\
-    \n\r\
-    \n    } on-error={\r\
-    \n\r\
-    \n        :local state (\"Error: something fail on DHCP configuration 'allow' step for (\$newIp/\$newMac) on \$mainDHCP\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :return false;\r\
-    \n\r\
-    \n    }\r\
-    \n\r\
-    \n    :do {\r\
-    \n\r\
-    \n        /ip dhcp-server lease remove [find address=\$newBlockedIp];\r\
-    \n        :local state (\"Adding DHCP configuration for (\$newBlockedIp/\$newMac) on \$guestDHCP (preventing connections to guest network)\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n       :if ([ :len [ /ip dhcp-server find where name=\"\$guestDHCP\" ] ] > 0) do={\r\
-    \n          /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\r\
-    \n          :local state (\"Done.\");\r\
-    \n          \$globalNoteMe value=\$state;\r\
-    \n       } else={\r\
-    \n        :local state (\"Cant find DHCP server \$guestDHCP. SKIPPED.\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n       }\r\
-    \n\r\
-    \n    } on-error={\r\
-    \n\r\
-    \n        :local state (\"Error: something fail on DHCP configuration 'block' step for (\$newBlockedIp/\$newMac) on \$guestDHCP\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :return false;\r\
-    \n\r\
-    \n    }\r\
-    \n\r\
-    \n    :do {\r\
-    \n\r\
-    \n        :local state (\"Adding ARP static entries for (\$newBlockedIp/\$newMac) on \$mainDHCP\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        /ip arp remove [find address=\$newIp];\r\
-    \n        /ip arp remove [find address=\$newBlockedIp];\r\
-    \n        /ip arp remove [find mac-address=\$newMac];\r\
-    \n\r\
-    \n     :if ([ :len [ /interface find where name=\"\$arpInterface\" ] ] > 0) do={\r\
-    \n        /ip arp add address=\$newIp interface=\$arpInterface mac-address=\$newMac comment=\$comment\r\
-    \n        :local state (\"Done.\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n       } else={\r\
-    \n        :local state (\"Cant find interface \$arpInterface. SKIPPED.\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n       }\r\
-    \n\r\
-    \n    } on-error={\r\
-    \n\r\
-    \n        :local state (\"Error: something fail on ARP configuration step\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :return false;\r\
-    \n\r\
-    \n    }\r\
-    \n\r\
-    \n    :do {\r\
-    \n\r\
-    \n        :local state (\"Adding CAPs ACL static entries for (\$newBlockedIp/\$newMac) on \$newSsid\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        /caps-man access-list remove [find mac-address=\$newMac];\r\
-    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\"\$newSsid\" place-before=1\r\
-    \n\r\
-    \n    } on-error={\r\
-    \n\r\
-    \n        :local state (\"Error: something fail on CAPS configuration step\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :return false;\r\
-    \n\r\
-    \n    }\r\
-    \n\r\
-    \n    :return true;\r\
-    \n\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n\r\
-    \n#Example call\r\
-    \n#\$globalNewClientCert argClients=\"anna.ipsec, mikrouter.ipsec\" argUsage=\"tls-client,digital-signature,key-encipherment\"\r\
-    \n#\$globalNewClientCert argClients=\"anna.capsman, mikrouter.capsman\" argUsage=\"digital-signature,key-encipherment\"\r\
-    \n#\$globalNewClientCert argClients=\"185.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\"\r\
-    \n:if (!any \$globalNewClientCert) do={\r\
-    \n  :global globalNewClientCert do={\r\
-    \n\r\
-    \n    # generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\r\
-    \n    # This script is a SCEP-client, it request the server to provide a new certificate\r\
-    \n    # it ONLY form the request via API to remote SCEP server\r\
-    \n\r\
-    \n    # incoming named params\r\
-    \n    :local clients [ :tostr \$argClients ];\r\
-    \n    :local prefs  [ :tostr \$argUsage ];\r\
-    \n    :local asIp  \$argBindAsIP ;\r\
-    \n\r\
-    \n    # scope global functions\r\
-    \n    :global globalNoteMe;\r\
-    \n    :global globalScriptBeforeRun;\r\
-    \n\r\
-    \n    :if ([:len \$clients] > 0) do={\r\
-    \n      :if ([ :typeof [ :tostr \$clients ] ] != \"str\" ) do={\r\
-    \n\r\
-    \n          :local state (\"Error: bad 'cients' parameter passed - (\$clients)\");\r\
-    \n          \$globalNoteMe value=\$state;\r\
-    \n          :return false;\r\
-    \n\r\
-    \n      }\r\
-    \n    } else={\r\
-    \n\r\
-    \n        :local state (\"Error: bad 'cients' parameter passed - (\$clients\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :return false;\r\
-    \n\r\
-    \n    }\r\
-    \n\r\
-    \n    :do {\r\
-    \n\r\
-    \n      #clients\r\
-    \n      :local IDs [:toarray \"\$clients\"];\r\
-    \n      :local fakeDomain \"myvpn.fake.org\"\r\
-    \n      :local scepAlias \"CHR\"\r\
-    \n      :local state (\"Started requests generation\");\r\
-    \n\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n      ## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
-    \n      :local COUNTRY \"RU\"\r\
-    \n      :local STATE \"MSC\"\r\
-    \n      :local LOC \"Moscow\"\r\
-    \n      :local ORG \"IKEv2 Home\"\r\
-    \n      :local OU \"IKEv2 Mikrotik\"\r\
-    \n\r\
-    \n      # :local COUNTRY \"\"\r\
-    \n      # :local STATE \"\"\r\
-    \n      # :local LOC \"\"\r\
-    \n      # :local ORG \"\"\r\
-    \n      # :local OU \"\"\r\
-    \n\r\
-    \n\r\
-    \n      :local KEYSIZE \"2048\"\r\
-    \n\r\
-    \n      :local scepUrl \"http://185.13.148.14/scep/grant\";\r\
-    \n      :local itsOk true;\r\
-    \n\r\
-    \n      :local tname \"\";\r\
-    \n      :foreach USERNAME in=\$IDs do={\r\
-    \n\r\
-    \n        ## create a client certificate (that will be just a template while not signed)\r\
-    \n        :if (  [:len \$asIp ] > 0 ) do={\r\
-    \n\r\
-    \n                :local state \"CLIENT TEMPLATE certificates generation as IP...  \$USERNAME\";\r\
-    \n                \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n                :set tname \"S.\$USERNAME@\$scepAlias\";\r\
-    \n\r\
-    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\r\
-    \n\r\
-    \n            } else={\r\
-    \n\r\
-    \n                :local state \"CLIENT TEMPLATE certificates generation as EMAIL...  \$USERNAME\";\r\
-    \n                \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n                :set tname \"C.\$USERNAME@\$scepAlias\";\r\
-    \n\r\
-    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\r\
-    \n\r\
-    \n            }\r\
-    \n\r\
-    \n        :local state \"Pushing sign request...\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        /certificate add-scep template=\"\$tname\" scep-url=\"\$scepUrl\";\r\
-    \n\r\
-    \n        :delay 6s\r\
-    \n\r\
-    \n        ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate\r\
-    \n        :local state \"We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... \";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n        :local state \"Proceed to remote SCEP please, find this request and appove it. I'll wait 30 seconds\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n        :delay 30s\r\
-    \n\r\
-    \n        :local baseLength 5;\r\
-    \n        :for j from=1 to=\$baseLength do={\r\
-    \n          :if ([ :len [ /certificate find where status=\"idle\" name=\"\$tname\" ] ] > 0) do={\r\
-    \n\r\
-    \n            :local state \"Got it at last. Exporting to file\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n            /certificate set trusted=yes [find where name=\"\$tname\" and status=\"idle\"]\r\
-    \n\r\
-    \n            ## export the CA, client certificate, and private key\r\
-    \n            /certificate export-certificate [find where name=\"\$tname\" and status=\"idle\"] export-passphrase=\"1234567890\" type=pkcs12\r\
-    \n\r\
-    \n            :return true;\r\
-    \n\r\
-    \n          } else={\r\
-    \n\r\
-    \n            :local state \"Waiting for mikrotik to download the certificate...\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n            :delay 8s\r\
-    \n\r\
-    \n          };\r\
-    \n        }\r\
-    \n      };\r\
-    \n\r\
-    \n      :return false;\r\
-    \n\r\
-    \n    } on-error={\r\
-    \n\r\
-    \n        :local state (\"Error: something fail on SCEP certifcates issuing step\");\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :return false;\r\
-    \n\r\
-    \n    }\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n\r\
-    \n:if (!any \$globalCallFetch) do={\r\
-    \n  :global globalCallFetch do={\r\
-    \n\r\
-    \n    # this one calls Fetch and catches its errors\r\
-    \n    :global globalNoteMe;\r\
-    \n    :if ([:len \$1] > 0) do={\r\
-    \n\r\
-    \n        # something like \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\r\
-    \n        :local fetchCmd \"\$1\";\r\
-    \n\r\
-    \n        :local state \"I'm now putting: \$fetchCmd\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n        /file remove [find where name=\"fetch.log.txt\"]\r\
-    \n        {\r\
-    \n            :local jobid [:execute file=fetch.log.txt script=\$fetchCmd]\r\
-    \n\r\
-    \n            :local state \"Waiting the end of process for file fetch.log to be ready, max 20 seconds...\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n            :global Gltesec 0\r\
-    \n            :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 20)) do={\r\
-    \n                :set Gltesec (\$Gltesec + 1)\r\
-    \n                :delay 1s\r\
-    \n\r\
-    \n                :local state \"waiting... \$Gltesec\";\r\
-    \n                \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n            }\r\
-    \n\r\
-    \n            :local state \"Done. Elapsed Seconds: \$Gltesec\\r\\n\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n            :if ([:len [/file find where name=\"fetch.log.txt\"]] = 1) do={\r\
-    \n                :local filecontent [/file get [/file find where name=\"fetch.log.txt\"] contents]\r\
-    \n                :put \"Result of Fetch:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\"\r\
-    \n            } else={\r\
-    \n                :put \"File not created.\"\r\
-    \n            }\r\
-    \n        }\r\
-    \n    }\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
+/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n\
+    \n:global globalNoteMe;\
+    \n:if (!any \$globalNoteMe) do={\
+    \n\
+    \n  :global globalNoteMe do={\
+    \n\
+    \n  ## outputs \$value using both :put and :log info\
+    \n  ## example \$outputInfo value=\"12345\"\
+    \n\
+    \n  :put \"info: \$value\"\
+    \n  :log info \"\$value\"\
+    \n\
+    \n  }\
+    \n}\
+    \n\
+    \n\
+    \n:global globalScriptBeforeRun;\
+    \n:if (!any \$globalScriptBeforeRun) do={\
+    \n  :global globalScriptBeforeRun do={\
+    \n\
+    \n    :global globalNoteMe;\
+    \n    :if ([:len \$1] > 0) do={\
+    \n\
+    \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\
+    \n      :local scriptname \"\$1\";\
+    \n      :local count [:len [/system script job find script=\$scriptname]];\
+    \n\
+    \n      :if (\$count > 0) do={\
+    \n\
+    \n        :foreach counter in=[/system script job find script=\$scriptname] do={\
+    \n         #But ignoring scripts started right NOW\
+    \n\
+    \n         :local thisScriptCallTime  [/system script job get \$counter started];\
+    \n         :if (\$currentTime != \$thisScriptCallTime) do={\
+    \n\
+    \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\
+    \n             :log error \$state\
+    \n             \$globalNoteMe value=\$state;\
+    \n            /system script job remove \$counter;\
+    \n\
+    \n          }\
+    \n        }\
+    \n      }\
+    \n\
+    \n      :local state \"Starting script: \$scriptname\";\
+    \n      :put \"info: \$state\"\
+    \n      :log info \"\$state\"\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n:global globalTgMessage;\
+    \n:if (!any \$globalTgMessage) do={\
+    \n  :global globalTgMessage do={\
+    \n\
+    \n    :global globalNoteMe;\
+    \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
+    \n    :local tGroupID \"-1001798127067\";\
+    \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
+    \n\
+    \n    :local state (\"Sending telegram message... \$value\");\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n    :do {\
+    \n      /tool fetch http-method=post mode=https url=\"\$tURL\" http-data=\"text=\$value\" keep-result=no;\
+    \n    } on-error= {\
+    \n      :local state (\"Telegram notify error\");\
+    \n      \$globalNoteMe value=\$state;\
+    \n    };\
+    \n  }\
+    \n}\
+    \n\
+    \n:global globalIPSECPolicyUpdateViaSSH;\
+    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={\
+    \n  :global globalIPSECPolicyUpdateViaSSH do={\
+    \n\
+    \n    :global globalRemoteIp;\
+    \n    :global globalNoteMe;\
+    \n\
+    \n    :if ([:len \$1] > 0) do={\
+    \n      :global globalRemoteIp (\"\$1\" . \"/32\");\
+    \n    }\
+    \n\
+    \n    :if (!any \$globalRemoteIp) do={\
+    \n      :global globalRemoteIp \"0.0.0.0/32\"\
+    \n    } else={\
+    \n    }\
+    \n\
+    \n    :local state (\"RPC... \$value\");\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\
+    \n    :if (\$count > 0) do={\
+    \n       :local state (\"Starting policies process... \$globalRemoteIp \");\
+    \n       \$globalNoteMe value=\$state;\
+    \n       /system script run doUpdatePoliciesRemotely;\
+    \n     }\
+    \n  }\
+    \n}\
+    \n\
+    \n#Example call\
+    \n#\$globalNewNetworkMember ip=192.168.90.130 mac=50:DE:06:25:C2:FC gip=192.168.98.130 comm=iPadAlxPro ssid=\"WiFi 5\"\
+    \n:global globalNewNetworkMember;\
+    \n:if (!any \$globalNewNetworkMember) do={\
+    \n  :global globalNewNetworkMember do={\
+    \n\
+    \n    :global globalNoteMe;\
+    \n\
+    \n    #to prevent connection\
+    \n    :local guestDHCP \"guest-dhcp-server\";\
+    \n\
+    \n    #to allow connection\
+    \n    :local mainDHCP \"main-dhcp-server\";\
+    \n\
+    \n    #when DHCP not using (add arp for leases)\
+    \n    :local arpInterface \"main-infrastructure-br\";\
+    \n    :local state (\"Adding new network member... \");\
+    \n\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n    # incoming named params\
+    \n    :local newIp [ :tostr \$ip ];\
+    \n    :local newBlockedIp [ :tostr \$gip ];\
+    \n    :local newMac [ :tostr \$mac ];\
+    \n    :local comment [ :tostr \$comm ];\
+    \n    :local newSsid [ :tostr \$ssid ];\
+    \n    :if ([:len \$newIp] > 0) do={\
+    \n        :if ([ :typeof [ :toip \$newIp ] ] != \"ip\" ) do={\
+    \n\
+    \n            :local state (\"Error: bad IP parameter passed - (\$newIp)\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :return false;\
+    \n\
+    \n        }\
+    \n    } else={\
+    \n\
+    \n        :local state (\"Error: bad IP parameter passed - (\$newIp)\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n\
+    \n        :local state (\"Removing existing DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\
+    \n        \$globalNoteMe value=\$state;       \
+    \n        /ip dhcp-server lease remove [find address=\$newIp];\
+    \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\
+    \n\
+    \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        \
+    \n       :if ([ :len [ /ip dhcp-server find where name=\"\$mainDHCP\" ] ] > 0) do={\
+    \n            /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\
+    \n            :local state (\"Done.\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n       } else={\
+    \n        :local state (\"Cant find DHCP server \$mainDHCP. SKIPPED.\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n       }\
+    \n\
+    \n    } on-error={\
+    \n\
+    \n        :local state (\"Error: something fail on DHCP configuration 'allow' step for (\$newIp/\$newMac) on \$mainDHCP\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n\
+    \n        /ip dhcp-server lease remove [find address=\$newBlockedIp];\
+    \n        :local state (\"Adding DHCP configuration for (\$newBlockedIp/\$newMac) on \$guestDHCP (preventing connections to guest network)\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n       :if ([ :len [ /ip dhcp-server find where name=\"\$guestDHCP\" ] ] > 0) do={\
+    \n          /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\
+    \n          :local state (\"Done.\");\
+    \n          \$globalNoteMe value=\$state;\
+    \n       } else={\
+    \n        :local state (\"Cant find DHCP server \$guestDHCP. SKIPPED.\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n       }\
+    \n\
+    \n    } on-error={\
+    \n\
+    \n        :local state (\"Error: something fail on DHCP configuration 'block' step for (\$newBlockedIp/\$newMac) on \$guestDHCP\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n\
+    \n        :local state (\"Adding ARP static entries for (\$newBlockedIp/\$newMac) on \$mainDHCP\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        /ip arp remove [find address=\$newIp];\
+    \n        /ip arp remove [find address=\$newBlockedIp];\
+    \n        /ip arp remove [find mac-address=\$newMac];\
+    \n\
+    \n     :if ([ :len [ /interface find where name=\"\$arpInterface\" ] ] > 0) do={\
+    \n        /ip arp add address=\$newIp interface=\$arpInterface mac-address=\$newMac comment=\$comment\
+    \n        :local state (\"Done.\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n       } else={\
+    \n        :local state (\"Cant find interface \$arpInterface. SKIPPED.\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n       }\
+    \n\
+    \n    } on-error={\
+    \n\
+    \n        :local state (\"Error: something fail on ARP configuration step\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n\
+    \n        :local state (\"Adding CAPs ACL static entries for (\$newBlockedIp/\$newMac) on \$newSsid\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        /caps-man access-list remove [find mac-address=\$newMac];\
+    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\"\$newSsid\" place-before=1\
+    \n\
+    \n    } on-error={\
+    \n\
+    \n        :local state (\"Error: something fail on CAPS configuration step\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :return true;\
+    \n\
+    \n  }\
+    \n}\
+    \n\
+    \n\
+    \n\
+    \n#Example call\
+    \n#\$globalNewClientCert argClients=\"anna.ipsec, mikrouter.ipsec\" argUsage=\"tls-client,digital-signature,key-encipherment\"\
+    \n#\$globalNewClientCert argClients=\"anna.capsman, mikrouter.capsman\" argUsage=\"digital-signature,key-encipherment\"\
+    \n#\$globalNewClientCert argClients=\"185.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\"\
+    \n:if (!any \$globalNewClientCert) do={\
+    \n  :global globalNewClientCert do={\
+    \n\
+    \n    # generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\
+    \n    # This script is a SCEP-client, it request the server to provide a new certificate\
+    \n    # it ONLY form the request via API to remote SCEP server\
+    \n\
+    \n    # incoming named params\
+    \n    :local clients [ :tostr \$argClients ];\
+    \n    :local prefs  [ :tostr \$argUsage ];\
+    \n    :local asIp  \$argBindAsIP ;\
+    \n\
+    \n    # scope global functions\
+    \n    :global globalNoteMe;\
+    \n    :global globalScriptBeforeRun;\
+    \n\
+    \n    :if ([:len \$clients] > 0) do={\
+    \n      :if ([ :typeof [ :tostr \$clients ] ] != \"str\" ) do={\
+    \n\
+    \n          :local state (\"Error: bad 'cients' parameter passed - (\$clients)\");\
+    \n          \$globalNoteMe value=\$state;\
+    \n          :return false;\
+    \n\
+    \n      }\
+    \n    } else={\
+    \n\
+    \n        :local state (\"Error: bad 'cients' parameter passed - (\$clients\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n\
+    \n      #clients\
+    \n      :local IDs [:toarray \"\$clients\"];\
+    \n      :local fakeDomain \"myvpn.fake.org\"\
+    \n      :local scepAlias \"CHR\"\
+    \n      :local state (\"Started requests generation\");\
+    \n\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n      ## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\
+    \n      :local COUNTRY \"RU\"\
+    \n      :local STATE \"MSC\"\
+    \n      :local LOC \"Moscow\"\
+    \n      :local ORG \"IKEv2 Home\"\
+    \n      :local OU \"IKEv2 Mikrotik\"\
+    \n\
+    \n      # :local COUNTRY \"\"\
+    \n      # :local STATE \"\"\
+    \n      # :local LOC \"\"\
+    \n      # :local ORG \"\"\
+    \n      # :local OU \"\"\
+    \n\
+    \n\
+    \n      :local KEYSIZE \"2048\"\
+    \n\
+    \n      :local scepUrl \"http://185.13.148.14/scep/grant\";\
+    \n      :local itsOk true;\
+    \n\
+    \n      :local tname \"\";\
+    \n      :foreach USERNAME in=\$IDs do={\
+    \n\
+    \n        ## create a client certificate (that will be just a template while not signed)\
+    \n        :if (  [:len \$asIp ] > 0 ) do={\
+    \n\
+    \n                :local state \"CLIENT TEMPLATE certificates generation as IP...  \$USERNAME\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n                :set tname \"S.\$USERNAME@\$scepAlias\";\
+    \n\
+    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\
+    \n\
+    \n            } else={\
+    \n\
+    \n                :local state \"CLIENT TEMPLATE certificates generation as EMAIL...  \$USERNAME\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n                :set tname \"C.\$USERNAME@\$scepAlias\";\
+    \n\
+    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\
+    \n\
+    \n            }\
+    \n\
+    \n        :local state \"Pushing sign request...\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n        /certificate add-scep template=\"\$tname\" scep-url=\"\$scepUrl\";\
+    \n\
+    \n        :delay 6s\
+    \n\
+    \n        ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate\
+    \n        :local state \"We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... \";\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n        :local state \"Proceed to remote SCEP please, find this request and appove it. I'll wait 30 seconds\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n        :delay 30s\
+    \n\
+    \n        :local baseLength 5;\
+    \n        :for j from=1 to=\$baseLength do={\
+    \n          :if ([ :len [ /certificate find where status=\"idle\" name=\"\$tname\" ] ] > 0) do={\
+    \n\
+    \n            :local state \"Got it at last. Exporting to file\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            /certificate set trusted=yes [find where name=\"\$tname\" and status=\"idle\"]\
+    \n\
+    \n            ## export the CA, client certificate, and private key\
+    \n            /certificate export-certificate [find where name=\"\$tname\" and status=\"idle\"] export-passphrase=\"1234567890\" type=pkcs12\
+    \n\
+    \n            :return true;\
+    \n\
+    \n          } else={\
+    \n\
+    \n            :local state \"Waiting for mikrotik to download the certificate...\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :delay 8s\
+    \n\
+    \n          };\
+    \n        }\
+    \n      };\
+    \n\
+    \n      :return false;\
+    \n\
+    \n    } on-error={\
+    \n\
+    \n        :local state (\"Error: something fail on SCEP certifcates issuing step\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n\
+    \n\
+    \n:if (!any \$globalCallFetch) do={\
+    \n  :global globalCallFetch do={\
+    \n\
+    \n    # this one calls Fetch and catches its errors\
+    \n    :global globalNoteMe;\
+    \n    :if ([:len \$1] > 0) do={\
+    \n\
+    \n        # something like \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\
+    \n        :local fetchCmd \"\$1\";\
+    \n\
+    \n        :local state \"I'm now putting: \$fetchCmd\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n        /file remove [find where name=\"fetch.log.txt\"]\
+    \n        {\
+    \n            :local jobid [:execute file=fetch.log.txt script=\$fetchCmd]\
+    \n\
+    \n            :local state \"Waiting the end of process for file fetch.log to be ready, max 20 seconds...\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :global Gltesec 0\
+    \n            :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 20)) do={\
+    \n                :set Gltesec (\$Gltesec + 1)\
+    \n                :delay 1s\
+    \n\
+    \n                :local state \"waiting... \$Gltesec\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n            }\
+    \n\
+    \n            :local state \"Done. Elapsed Seconds: \$Gltesec\\r\\n\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :if ([:len [/file find where name=\"fetch.log.txt\"]] = 1) do={\
+    \n                :local filecontent [/file get [/file find where name=\"fetch.log.txt\"] contents]\
+    \n                :put \"Result of Fetch:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\"\
+    \n            } else={\
+    \n                :put \"File not created.\"\
+    \n            }\
+    \n        }\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n#:put [\$simplercurrdatetimestr]\
+    \n:if (!any \$simplercurrdatetimestr) do={\
+    \n:global simplercurrdatetimestr do={\
+    \n    /system clock\
+    \n    :local vdate [get date]\
+    \n    :local vtime [get time]\
+    \n    :local vdoff [:toarray \"0,4,5,7,8,10\"]\
+    \n    :local MM    [:pick \$vdate (\$vdoff->2) (\$vdoff->3)]\
+    \n    :local M     [:tonum \$MM]\
+    \n    :if (\$vdate ~ \".../../....\") do={\
+    \n        :set vdoff [:toarray \"7,11,1,3,4,6\"]\
+    \n        :set M     ([:find \"xxanebarprayunulugepctovecANEBARPRAYUNULUGEPCTOVEC\" [:pick \$vdate (\$vdoff->2) (\$vdoff->3)] -1] / 2)\
+    \n        :if (\$M>12) do={:set M (\$M - 12)}\
+    \n        :set MM    [:pick (100 + \$M) 1 3]\
+    \n    }\
+    \n    :local yyyy [:pick \$vdate (\$vdoff->0) (\$vdoff->1)]\
+    \n    :local dd   [:pick \$vdate (\$vdoff->4) (\$vdoff->5)]\
+    \n    :local HH   [:pick \$vtime 0  2]\
+    \n    :local mm   [:pick \$vtime 3  5]\
+    \n    :local ss   [:pick \$vtime 6  8]\
+    \n\
+    \n    :return \"\$yyyy\$MM\$dd-\$HH\$mm\$ss\"\
+    \n}\
+    \n\
+    \n}\
     \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
@@ -2913,185 +2987,186 @@
     \n  \r\
     \n}\r\
     \n"
-/system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\r\
-    \n\$globalScriptBeforeRun \"doBackup\";\r\r\
-    \n\r\r\
-    \n:local sysname [/system identity get name];\r\r\
-    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
-    \n\r\r\
-    \n:local sysver \"NA\"\r\r\
-    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\r\
-    \n  :set sysver [/system package get system version]\r\r\
-    \n}\r\r\
-    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\r\
-    \n  :set sysver [/system package get routeros version]\r\r\
-    \n}\r\r\
-    \n\r\r\
-    \n:local scriptname \"doBackup\"\r\r\
-    \n:local saveSysBackup true\r\r\
-    \n:local encryptSysBackup false\r\r\
-    \n:local saveRawExport true\r\r\
-    \n:local verboseRawExport false\r\r\
-    \n:local state \"\"\r\r\
-    \n\r\r\
-    \n:local ts [/system clock get time]\r\r\
-    \n:set ts ([:pick \$ts 0 2].[:pick \$ts 3 5].[:pick \$ts 6 8])\r\r\
-    \n:local ds [/system clock get date]\r\r\
-    \n:set ds ([:pick \$ds 7 11].[:pick \$ds 0 3].[:pick \$ds 4 6])\r\r\
-    \n\r\r\
-    \n#directories have to exist!\r\r\
-    \n:local FTPEnable true;\r\r\
-    \n:local FTPServer \"nas.home\";\r\r\
-    \n:local FTPPort 21;\r\r\
-    \n:local FTPUser \"git\";\r\r\
-    \n:local FTPPass \"git\";\r\r\
-    \n:local FTPRoot \"/REPO/backups/\";\r\r\
-    \n:local FTPGitEnable true;\r\r\
-    \n:local FTPRawGitName \"/REPO/mikrobackups/rawconf_\$sysname_latest.rsc\";\r\r\
-    \n\r\r\
-    \n:local sysnote [/system note get note];\r\
-    \n\r\r\
-    \n:local SMTPEnable true;\r\r\
-    \n:local SMTPAddress \"defm.kopcap@gmail.com\";\r\r\
-    \n:local SMTPSubject (\"\$sysname Full Backup (\$ds-\$ts)\");\r\r\
-    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\n \$sysnote\");\r\r\
-    \n\r\r\
-    \n:global globalNoteMe;\r\
-    \n:global globalCallFetch;\r\
-    \n\r\r\
-    \n:local itsOk true;\r\r\
-    \n\r\r\
-    \n:do {\r\r\
-    \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\r\
-    \n} on-error={ \r\r\
-    \n  :set state \"FTP server looks like to be unreachable\"\r\r\
-    \n  \$globalNoteMe value=\$state;\r\r\
-    \n  :set itsOk false;\r\r\
-    \n}\r\r\
-    \n\r\r\
-    \n:local fname (\"BACKUP-\$sysname-\$ds-\$ts\")\r\r\
-    \n\r\r\
-    \n:if (\$saveSysBackup and \$itsOk) do={\r\r\
-    \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\r\r\
-    \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\r\r\
-    \n  :delay 2s;\r\r\
-    \n  \$globalNoteMe value=\"System Backup Finished\"\r\r\
-    \n}\r\r\
-    \n\r\r\
-    \n:if (\$saveRawExport and \$itsOk) do={\r\r\
-    \n  :if (\$FTPGitEnable ) do={\r\r\
-    \n     # show sensitive data\r\r\
-    \n     :if (\$verboseRawExport = true) do={ /export show-sensitive terse verbose file=(\$fname.\".safe.rsc\") }\r\r\
-    \n     :if (\$verboseRawExport = false) do={ /export show-sensitive terse file=(\$fname.\".safe.rsc\") }\r\r\
-    \n     :delay 2s;\r\r\
-    \n  }\r\r\
-    \n  \$globalNoteMe value=\"Raw configuration script export Finished\"\r\r\
-    \n}\r\r\
-    \n\r\r\
-    \n:delay 5s\r\r\
-    \n\r\r\
-    \n:local buFile \"\"\r\r\
-    \n\r\r\
-    \n:foreach backupFile in=[/file find] do={\r\r\
-    \n  \r\
-    \n  :set buFile ([/file get \$backupFile name])\r\r\
-    \n  \r\
-    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\") do={\r\r\
-    \n    \r\
-    \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\r\r\
-    \n    \r\
-    \n     if (\$FTPEnable) do={\r\r\
-    \n        :do {\r\r\
-    \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\r\r\
-    \n        \$globalNoteMe value=\$state\r\r\
-    \n \r\
-    \n        :local dst \"\$FTPRoot\$buFile\";\r\
-    \n        :local fetchCmd \"/tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes\";\r\
-    \n        \$globalCallFetch \$fetchCmd;\r\
-    \n\r\
-    \n        \$globalNoteMe value=\"Done\"\r\r\
-    \n\r\
-    \n        } on-error={ \r\r\
-    \n          :set state \"Error When \$state\"\r\r\
-    \n          \$globalNoteMe value=\$state;\r\r\
-    \n          :set itsOk false;\r\r\
-    \n       }\r\r\
-    \n\r\r\
-    \n        #special ftp upload for git purposes\r\r\
-    \n        if (\$itsSRC and \$FTPGitEnable) do={\r\r\
-    \n            :do {\r\r\
-    \n            :set state \"Uploading \$buFile to GIT-FTP (RAW, \$FTPRawGitName)\"\r\r\
-    \n            \$globalNoteMe value=\$state\r\r\
-    \n\r\
-    \n            :local dst \"\$FTPRawGitName\";\r\
-    \n            :local fetchCmd \"/tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes\";\r\
-    \n            \$globalCallFetch \$fetchCmd;\r\
-    \n\r\
-    \n            \$globalNoteMe value=\"Done\"\r\r\
-    \n            } on-error={ \r\r\
-    \n              :set state \"Error When \$state\"\r\r\
-    \n              \$globalNoteMe value=\$state;\r\r\
-    \n              :set itsOk false;\r\r\
-    \n           }\r\r\
-    \n        }\r\r\
-    \n\r\r\
-    \n    }\r\r\
-    \n    if (\$SMTPEnable and !\$itsSRC) do={\r\r\
-    \n        :do {\r\r\
-    \n        :set state \"Uploading \$buFile to SMTP\"\r\r\
-    \n        \$globalNoteMe value=\$state\r\r\
-    \n\r\r\
-    \n        #email works in background, delay needed\r\r\
-    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile tls=starttls\r\r\
-    \n\r\r\
-    \n        #waiting for email to be delivered\r\r\
-    \n        :delay 15s;\r\r\
-    \n\r\r\
-    \n        :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\r\r\
-    \n\r\r\
-    \n        if (!\$emlResult) do={\r\r\
-    \n\r\r\
-    \n          :set state \"Error When \$state\"\r\r\
-    \n          \$globalNoteMe value=\$state;\r\r\
-    \n          :set itsOk false;\r\r\
-    \n\r\r\
-    \n        } else={\r\r\
-    \n\r\r\
-    \n          \$globalNoteMe value=\"Done\"\r\r\
-    \n       \r\r\
-    \n        }\r\r\
-    \n\r\r\
-    \n        } on-error={ \r\r\
-    \n          :set state \"Error When \$state\"\r\r\
-    \n          \$globalNoteMe value=\$state;\r\r\
-    \n          :set itsOk false;\r\r\
-    \n       }\r\r\
-    \n    }\r\r\
-    \n\r\r\
-    \n    :delay 2s;\r\r\
-    \n    /file remove \$backupFile;\r\r\
-    \n\r\r\
-    \n  }\r\r\
-    \n}\r\r\
-    \n\r\r\
-    \n:local inf \"\"\r\r\
-    \n:if (\$itsOk) do={\r\r\
-    \n  :set inf \"\$scriptname on \$sysname: Automatic Backup Completed Successfully\"\r\r\
-    \n}\r\r\
-    \n\r\r\
-    \n:if (!\$itsOk) do={\r\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\r\
-    \n}\r\r\
-    \n\r\r\
-    \n\$globalNoteMe value=\$inf\r\r\
-    \n\r\r\
-    \n:if (!\$itsOk) do={\r\r\
-    \n\r\r\
-    \n  :global globalTgMessage;\r\r\
-    \n  \$globalTgMessage value=\$inf;\r\r\
-    \n  \r\r\
-    \n}\r\r\
-    \n\r\
+/system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doBackup\";\
+    \n\
+    \n:local sysname [/system identity get name];\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\
+    \n\
+    \n:local sysver \"NA\"\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\
+    \n  :set sysver [/system package get system version]\
+    \n}\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\
+    \n  :set sysver [/system package get routeros version]\
+    \n}\
+    \n\
+    \n:global globalNoteMe;\
+    \n:global globalCallFetch;\
+    \n:global simplercurrdatetimestr;\
+    \n\
+    \n\
+    \n:local scriptname \"doBackup\"\
+    \n:local saveSysBackup true\
+    \n:local encryptSysBackup false\
+    \n:local saveRawExport true\
+    \n:local verboseRawExport false\
+    \n:local state \"\"\
+    \n\
+    \n#directories have to exist!\
+    \n:local FTPEnable true;\
+    \n:local FTPServer \"nas.home\";\
+    \n:local FTPPort 2022;\
+    \n:local FTPUser \"git\";\
+    \n:local FTPPass \"git\";\
+    \n:local FTPRoot \"REPO/backups/\";\
+    \n:local FTPGitEnable true;\
+    \n:local FTPRawGitName \"REPO/raw/rawconf_\$sysname_latest.rsc\";\
+    \n\
+    \n:local sysnote [/system note get note];\
+    \n\
+    \n:local stamp [\$simplercurrdatetimestr];\
+    \n\
+    \n:local SMTPEnable true;\
+    \n:local SMTPAddress \"defm.kopcap@gmail.com\";\
+    \n:local SMTPSubject (\"\$sysname Full Backup (\$stamp)\");\
+    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\n \$sysnote\");\
+    \n:local itsOk true;\
+    \n\
+    \n:do {\
+    \n  :local smtpserv [:resolve \"\$FTPServer\"];\
+    \n} on-error={ \
+    \n  :set state \"FTP server looks like to be unreachable\"\
+    \n  \$globalNoteMe value=\$state;\
+    \n  :set itsOk false;\
+    \n}\
+    \n\
+    \n\
+    \n:local fname (\"BACKUP-\$sysname-\$stamp\")\
+    \n\
+    \n:if (\$saveSysBackup and \$itsOk) do={\
+    \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\
+    \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\
+    \n  :delay 2s;\
+    \n  \$globalNoteMe value=\"System Backup Finished\"\
+    \n}\
+    \n\
+    \n:if (\$saveRawExport and \$itsOk) do={\
+    \n  :if (\$FTPGitEnable ) do={\
+    \n     # show sensitive data\
+    \n     :if (\$verboseRawExport = true) do={ /export show-sensitive terse verbose file=(\$fname.\".safe.rsc\") }\
+    \n     :if (\$verboseRawExport = false) do={ /export show-sensitive terse file=(\$fname.\".safe.rsc\") }\
+    \n     :delay 2s;\
+    \n  }\
+    \n  \$globalNoteMe value=\"Raw configuration script export Finished\"\
+    \n}\
+    \n\
+    \n:delay 5s\
+    \n\
+    \n:local buFile \"\"\
+    \n\
+    \n:foreach backupFile in=[/file find] do={\
+    \n  \
+    \n  :set buFile ([/file get \$backupFile name])\
+    \n  \
+    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\") do={\
+    \n    \
+    \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\
+    \n    \
+    \n     if (\$FTPEnable) do={\
+    \n        :do {\
+    \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\
+    \n        \$globalNoteMe value=\$state\
+    \n \
+    \n        :local dst \"\$FTPRoot\$buFile\";\
+    \n        :local fetchCmd \"/tool fetch url=sftp://\$FTPServer:\$FTPPort/\$dst src-path=\$buFile user=\$FTPUser password=\$FTPPass upload=yes\"\
+    \n\
+    \n        \$globalCallFetch \$fetchCmd;\
+    \n\
+    \n        \$globalNoteMe value=\"Done\"\
+    \n\
+    \n        } on-error={ \
+    \n          :set state \"Error When \$state\"\
+    \n          \$globalNoteMe value=\$state;\
+    \n          :set itsOk false;\
+    \n       }\
+    \n\
+    \n        #special ftp upload for git purposes\
+    \n        if (\$itsSRC and \$FTPGitEnable) do={\
+    \n            :do {\
+    \n            :set state \"Uploading \$buFile to GIT-FTP (RAW, \$FTPRawGitName)\"\
+    \n            \$globalNoteMe value=\$state\
+    \n\
+    \n            :local dst \"\$FTPRawGitName\";\
+    \n            :local fetchCmd \"/tool fetch url=sftp://\$FTPServer:\$FTPPort/\$dst src-path=\$buFile user=\$FTPUser password=\$FTPPass upload=yes\"\
+    \n \
+    \n        \$globalCallFetch \$fetchCmd;\
+    \n\
+    \n            \$globalNoteMe value=\"Done\"\
+    \n            } on-error={ \
+    \n              :set state \"Error When \$state\"\
+    \n              \$globalNoteMe value=\$state;\
+    \n              :set itsOk false;\
+    \n           }\
+    \n        }\
+    \n\
+    \n    }\
+    \n    if (\$SMTPEnable and !\$itsSRC) do={\
+    \n        :do {\
+    \n        :set state \"Uploading \$buFile to SMTP\"\
+    \n        \$globalNoteMe value=\$state\
+    \n\
+    \n        #email works in background, delay needed\
+    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile tls=starttls\
+    \n\
+    \n        #waiting for email to be delivered\
+    \n        :delay 15s;\
+    \n\
+    \n        :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\
+    \n\
+    \n        if (!\$emlResult) do={\
+    \n\
+    \n          :set state \"Error When \$state\"\
+    \n          \$globalNoteMe value=\$state;\
+    \n          :set itsOk false;\
+    \n\
+    \n        } else={\
+    \n\
+    \n          \$globalNoteMe value=\"Done\"\
+    \n       \
+    \n        }\
+    \n\
+    \n        } on-error={ \
+    \n          :set state \"Error When \$state\"\
+    \n          \$globalNoteMe value=\$state;\
+    \n          :set itsOk false;\
+    \n       }\
+    \n    }\
+    \n\
+    \n    :delay 2s;\
+    \n    #/file remove \$backupFile;\
+    \n\
+    \n  }\
+    \n}\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: Automatic Backup Completed Successfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n  \
+    \n}\
+    \n\
     \n"
 /system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -3174,140 +3249,135 @@
     \n\r\
     \n}\r\
     \n"
-/system script add comment="Dumps all the scripts from you device to *.rsc.txt files, loads to FTP (all scripts in this Repo made with it)" dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doDumpTheScripts\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n:global globalCallFetch;\r\
-    \n\r\
-    \n#directories have to exist!\r\
-    \n:local FTPRoot \"/REPO/mikrobackups/\"\r\
-    \n\r\
-    \n#This subdir will be created locally to put exported scripts in\r\
-    \n#and it must exist under \$FTPRoot to upload scripts to\r\
-    \n:local SubDir \"scripts/\"\r\
-    \n\r\
-    \n:local FTPEnable true\r\
-    \n:local FTPServer \"nas.home\"\r\
-    \n:local FTPPort 21\r\
-    \n:local FTPUser \"git\"\r\
-    \n:local FTPPass \"git\"\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n:local itsOk true;\r\
-    \n:local state \"\";\r\
-    \n:global globalScriptId;\r\
-    \n\r\
-    \n:do {\r\
-    \n  :local smtpserv [:resolve \"\$FTPServer\"];\r\
-    \n} on-error={\r\
-    \n  :set state \"FTP server looks like to be unreachable\";\r\
-    \n   \$globalNoteMe value=\$state;\r\
-    \n  :set itsOk false;    \r\
-    \n}\r\
-    \n\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :do {\r\
-    \n    [/tool fetch dst-path=\"\$SubDir.FooFile\" url=\"http://127.0.0.1:80/mikrotik_logo.png\" keep-result=yes];\r\
-    \n  } on-error={ \r\
-    \n    :set state \"Error When Creating Local Scripts Directory\";\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    :set itsOk false;\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n:foreach scriptId in [/system script find] do={\r\
-    \n  :if (\$itsOk) do={\r\
-    \n\r\
-    \n    :local scriptSource [/system script get \$scriptId source];\r\
-    \n    :local theScript [/system script get \$scriptId name];\r\
-    \n    :local scriptSourceLength [:len \$scriptSource];\r\
-    \n    :local path \"\$SubDir\$theScript.rsc.txt\";\r\
-    \n\r\
-    \n    :set \$globalScriptId \$scriptId;\r\
-    \n\r\
-    \n    :if (\$scriptSourceLength >= 4096) do={\r\
-    \n      :set state \"Please keep care about '\$theScript' consistency - its size over 4096 bytes\";\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n    }\r\
-    \n\r\
-    \n    :do {\r\
-    \n      /file print file=\$path where 1=0;\r\
-    \n      #filesystem delay\r\
-    \n      :delay 1s;\r\
-    \n      #/file set [find name=\"\$path\"] contents=\$scriptSource;\r\
-    \n      #/file set \$path contents=\$scriptSource;\r\
-    \n      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack\r\
-    \n      /execute script=\":global globalScriptId; :put [/system script get \$globalScriptId source];\" file=\$path;\r\
-    \n      :set state \"Exported '\$theScript' to '\$path'\";\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n    } on-error={ \r\
-    \n      :set state \"Error When Exporting '\$theScript' Script to '\$path'\";\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      :set itsOk false;\r\
-    \n    }\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n:delay 5s\r\
-    \n\r\
-    \n:local buFile \"\"\r\
-    \n\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\r\
-    \n    :set buFile ([/file get \$backupFile name]);\r\
-    \n    :if ([:typeof [:find \$buFile \".rsc.txt\"]] != \"nil\") do={\r\
-    \n      :local rawfile ( \$buFile ~\".rsc.txt\");\r\
-    \n      #special ftp upload for git purposes\r\
-    \n      if (\$FTPEnable) do={\r\
-    \n        :local dst \"\$FTPRoot\$buFile\";\r\
-    \n        :do {\r\
-    \n          :set state \"Uploading \$buFile' to '\$dst'\";\r\
-    \n          \$globalNoteMe value=\$state;\r\
-    \n          \r\
-    \n          :local fetchCmd \"/tool fetch address=\$FTPServer port=\$FTPPort src-path=\$buFile user=\$FTPUser password=\$FTPPass dst-path=\$dst mode=ftp upload=yes\";\r\
-    \n        \r\
-    \n          \$globalCallFetch \$fetchCmd;\r\
-    \n\r\
-    \n          \$globalNoteMe value=\"Done\";\r\
-    \n        } on-error={ \r\
-    \n          :set state \"Error When Uploading '\$buFile' to '\$dst'\";\r\
-    \n          \$globalNoteMe value=\$state;\r\
-    \n          :set itsOk false;\r\
-    \n        }\r\
-    \n      }\r\
-    \n    }\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n:delay 5s\r\
-    \n\r\
-    \n:foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\r\
-    \n  :if ([:typeof [:find \$buFile \".rsc.txt\"]] != \"nil\") do={\r\
-    \n    /file remove \$backupFile;\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: scripts dump done Successfully\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n  \r\
-    \n}\r\
+/system script add comment="Dumps all the scripts from you device to *.rsc.txt files, loads to FTP (all scripts in this Repo made with it)" dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local sysname [/system identity get name];\
+    \n:local scriptname \"doDumpTheScripts\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n:global globalCallFetch;\
+    \n\
+    \n#directories have to exist!\
+    \n:local FTPRoot \"REPO/raw/\"\
+    \n\
+    \n#This subdir will be created locally to put exported scripts in\
+    \n#and it must exist under \$FTPRoot to upload scripts to\
+    \n:local SubDir \"scripts/\"\
+    \n\
+    \n:local FTPEnable true\
+    \n:local FTPServer \"nas.home\"\
+    \n:local FTPPort 2022\
+    \n:local FTPUser \"git\"\
+    \n:local FTPPass \"git\"\
+    \n\
+    \n:global globalCallFetch;\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n:local state \"\";\
+    \n:global globalScriptId;\
+    \n:global createPath;\
+    \n\
+    \n:do {\
+    \n  :local smtpserv [:resolve \"\$FTPServer\"];\
+    \n} on-error={\
+    \n  :set state \"FTP server looks like to be unreachable\";\
+    \n   \$globalNoteMe value=\$state;\
+    \n  :set itsOk false;    \
+    \n}\
+    \n\
+    \n# Just to sure (or create) if \$SubDir exist\
+    \n/file/add name=\"\$SubDir/foo.txt\" contents=\"Feel free to remove this\";\
+    \n\
+    \n:foreach scriptId in [/system script find] do={\
+    \n  :if (\$itsOk) do={\
+    \n\
+    \n    :local scriptSource [/system script get \$scriptId source];\
+    \n    :local theScript [/system script get \$scriptId name];\
+    \n    :local scriptSourceLength [:len \$scriptSource];\
+    \n    :local path \"\$SubDir\$theScript.rsc.txt\";\
+    \n\
+    \n    :set \$globalScriptId \$scriptId;\
+    \n\
+    \n    :if (\$scriptSourceLength >= 4096) do={\
+    \n      :set state \"Please keep care about '\$theScript' consistency - its size over 4096 bytes\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n      /file print file=\$path where 1=0;\
+    \n      #filesystem delay\
+    \n      :delay 1s;\
+    \n      #/file set [find name=\"\$path\"] contents=\$scriptSource;\
+    \n      #/file set \$path contents=\$scriptSource;\
+    \n      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack\
+    \n      /execute script=\":global globalScriptId; :put [/system script get \$globalScriptId source];\" file=\$path;\
+    \n      :set state \"Exported '\$theScript' to '\$path'\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n    } on-error={ \
+    \n      :set state \"Error When Exporting '\$theScript' Script to '\$path'\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set itsOk false;\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n\
+    \n:delay 5s\
+    \n\
+    \n:local buFile \"\"\
+    \n\
+    \n:if (\$itsOk) do={\
+    \n  :foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\
+    \n    :set buFile ([/file get \$backupFile name]);\
+    \n    :if ([:typeof [:find \$buFile \".rsc.txt\"]] != \"nil\") do={\
+    \n      :local rawfile ( \$buFile ~\".rsc.txt\");\
+    \n      #special ftp upload for git purposes\
+    \n      if (\$FTPEnable) do={\
+    \n        :local dst \"\$FTPRoot\$buFile\";\
+    \n        :do {\
+    \n          :set state \"Uploading \$buFile' to '\$dst'\";\
+    \n          \$globalNoteMe value=\$state;\
+    \n          \
+    \n         :local fetchCmd \"/tool fetch url=sftp://\$FTPServer:\$FTPPort/\$dst src-path=\$buFile user=\$FTPUser password=\$FTPPass upload=yes\"\
+    \n       \
+    \n          \$globalCallFetch \$fetchCmd;\
+    \n\
+    \n          \$globalNoteMe value=\"Done\";\
+    \n        } on-error={ \
+    \n          :set state \"Error When Uploading '\$buFile' to '\$dst'\";\
+    \n          \$globalNoteMe value=\$state;\
+    \n          :set itsOk false;\
+    \n        }\
+    \n      }\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n:delay 5s\
+    \n\
+    \n:foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\
+    \n  :if ([:typeof [:find \$buFile \".rsc.txt\"]] != \"nil\") do={\
+    \n    /file remove \$backupFile;\
+    \n  }\
+    \n}\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: scripts dump done Successfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n  \
+    \n}\
     \n"
 /system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
@@ -3398,174 +3468,174 @@
     \n  \r\
     \n}\r\
     \n"
-/system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doPushStatsToInfluxDB\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n#a part of queue comment to locate queues to be processed\r\
-    \n:local queueCommentMark \"dtq\";\r\
-    \n\r\
-    \n#influxDB service URL (beware about port when /fetch)\r\
-    \n:local tURL \"http://nas.home/api/v2/write\\\?bucket=httpapi&org=home\"\r\
-    \n:local tPingURL \"http://nas.home/ping\"\r\
-    \n:global globalNoteMe;\r\
-    \n:local itsOk true;\r\
-    \n\r\
-    \n\r\
-    \n:local useBandwidthTest false;\r\
-    \n\r\
-    \n:local state \"\";\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \n  :set state (\"Checking if INFLUXDB Service online\");\r\
-    \n  \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n  :local result [/tool fetch http-method=get port=8086 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tPingURL\"  as-value output=user];\r\
-    \n \r\
-    \n} on-error={\r\
-    \n  \r\
-    \n  :set state (\"INFLUXDB: Service Failed!\");\r\
-    \n  \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n  :local inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n\r\
-    \n  :error \$inf;\r\
-    \n}\r\
-    \n\r\
-    \n:local state \"\";\r\
-    \n\r\
-    \n:local authHeader (\"Authorization: Token nh-mJylW1FCluBlUGXYZq_s5zne_QjzkHcc56y8v6AIlUOOiOm4bU2652r2Vkv3Vp6WzgQT7WPsi4yF0RvdElg==\"); \r\
-    \n\r\
-    \n\r\
-    \n:if ( \$useBandwidthTest  ) do={\r\
-    \n\r\
-    \n:local txAvg 0\r\
-    \n:local rxAvg 0\r\
-    \n\r\
-    \n:local btServer 192.168.97.1;\r\
-    \n\r\
-    \n:set state (\"Starting VPN bandwidth test\");\r\
-    \n\$globalNoteMe value=\$state;\r\
-    \n\r\
-    \ntool bandwidth-test protocol=tcp direction=transmit user=btest password=btest address=\$btServer duration=15s do={\r\
-    \n:set txAvg (\$\"tx-total-average\" / 1048576 );\r\
-    \n}\r\
-    \n\r\
-    \ntool bandwidth-test protocol=tcp direction=receive user=btest password=btest address=\$btServer duration=15s do={\r\
-    \n:set rxAvg (\$\"rx-total-average\" / 1048576 );\r\
-    \n}\r\
-    \n\r\
-    \n:global globalCallFetch;\r\
-    \n:local fetchCmd  \"/tool fetch http-method=post port=8086 mode=http url=\\\"\$tURL\\\" http-header-field=\\\"\$authHeader, content-type: text/plain\\\" http-data=\\\"bandwidth,host=\$sysname,target=CHR transmit=\$txAvg,recieve=\$rxAvg\\\" keep-result=no\";\r\
-    \n\r\
-    \n\$globalCallFetch \$fetchCmd;\r\
-    \n\r\
-    \n}\r\
-    \n \r\
-    \n/queue simple\r\
-    \n\r\
-    \n:foreach z in=[find where comment~\"\$queueCommentMark\"] do={\r\
-    \n\r\
-    \n  :local skip false;\r\
-    \n\r\
-    \n  :local queuecomment [get \$z comment]\r\
-    \n  :local ip [get \$z target]\r\
-    \n\r\
-    \n  :if ( \$itsOk ) do={\r\
-    \n\r\
-    \n    :if ( (\$ip->0) != nil ) do={\r\
-    \n      :set state (\"Locating queue target IP for queue \$queuecomment\");\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      :set ip (\$ip->0) \r\
-    \n      :set ip ( [:pick \$ip 0 [:find \$ip \"/\" -1]] ) ;\r\
-    \n      \$globalNoteMe value=\"Done\";\r\
-    \n    } else {\r\
-    \n      :set state \"Cant locate queue target IP for queue \$queuecomment. Skip it.\"\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      :set skip true;\r\
-    \n    }\r\
-    \n\r\
-    \n  }\r\
-    \n\r\
-    \n  :local hostName \"\"\r\
-    \n  :local upload 0\r\
-    \n  :local download 0\r\
-    \n\r\
-    \n  :if ( \$itsOk and !\$skip) do={\r\
-    \n    :local bytes [get \$z bytes]\r\
-    \n    :set upload (\$upload + [:pick \$bytes 0 [:find \$bytes \"/\"]])\r\
-    \n    :set download (\$download + [:pick \$bytes ([:find \$bytes \"/\"]+1) [:len \$bytes]])\r\
-    \n  }\r\
-    \n\r\
-    \n  :if ( \$itsOk and !\$skip) do={\r\
-    \n    :do {\r\
-    \n      #dhcp server for IP->name translation\r\
-    \n      :set state (\"Picking host name for \$ip via DHCP\");\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      :set hostName [/ip dhcp-server lease get [find (address=\$ip)] host-name]\r\
-    \n\r\
-    \n      :local typeOfValue [:typeof \$hostName]\r\
-    \n\r\
-    \n      :if ((\$typeOfValue = \"nothing\") or (\$typeOfValue = \"nil\")) do={\r\
-    \n        :set state \"Got empty host name. Skip it.\"\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :set skip true;\r\
-    \n      } else={\r\
-    \n        :set state \"Got it \$hostName\"\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n      }\r\
-    \n\r\
-    \n    } on-error= {\r\
-    \n      :set state \"Error When \$state\"\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      :set skip true;\r\
-    \n    }\r\
-    \n  }\r\
-    \n\r\
-    \n  :if ( \$itsOk and !\$skip) do={\r\
-    \n    :do {\r\
-    \n      :set state (\"Pushing stats to influxDB about \$hostName: UP = \$upload, DOWN=\$download\");\r\
-    \n     \$globalNoteMe value=\$state;\r\
-    \n      /tool fetch http-method=post port=8086 mode=http url=\"\$tURL\" http-header-field=\"\$authHeader, content-type: text/plain\" http-data=\"traffic,host=\$sysname,target=\$hostName upload=\$upload,download=\$download\" keep-result=no;\r\
-    \n      \$globalNoteMe value=\"Done\";\r\
-    \n    } on-error= {\r\
-    \n      :set state \"Error When \$state\"\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      :set itsOk false;\r\
-    \n    }\r\
-    \n  }\r\
-    \n  \r\
-    \n  :if (\$itsOk and !\$skip) do={\r\
-    \n    :set state \"Flushing stats..\"\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    reset-counters \$z\r\
-    \n  }  \r\
-    \n}\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: stats pushed Succesfully\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
-    \n  \r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n\r\
-    \n}\r\
+/system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local sysname [/system identity get name];\
+    \n:local scriptname \"doPushStatsToInfluxDB\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n#a part of queue comment to locate queues to be processed\
+    \n:local queueCommentMark \"dtq\";\
+    \n\
+    \n#influxDB service URL (beware about port when /fetch)\
+    \n:local tURL \"http://nas.home/api/v2/write\\\?bucket=httpapi&org=home\"\
+    \n:local tPingURL \"http://nas.home/ping\"\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n\
+    \n\
+    \n:local useBandwidthTest false;\
+    \n\
+    \n:local state \"\";\
+    \n\
+    \n:do {\
+    \n\
+    \n  :set state (\"Checking if INFLUXDB Service online\");\
+    \n  \$globalNoteMe value=\$state;\
+    \n\
+    \n  :local result [/tool fetch http-method=get port=8086 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tPingURL\"  as-value output=user];\
+    \n \
+    \n} on-error={\
+    \n  \
+    \n  :set state (\"INFLUXDB: Service Failed!\");\
+    \n  \$globalNoteMe value=\$state;\
+    \n\
+    \n  :local inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n\
+    \n  :error \$inf;\
+    \n}\
+    \n\
+    \n:local state \"\";\
+    \n\
+    \n:local authHeader (\"Authorization: Token nh-mJylW1FCluBlUGXYZq_s5zne_QjzkHcc56y8v6AIlUOOiOm4bU2652r2Vkv3Vp6WzgQT7WPsi4yF0RvdElg==\"); \
+    \n\
+    \n\
+    \n:if ( \$useBandwidthTest  ) do={\
+    \n\
+    \n:local txAvg 0\
+    \n:local rxAvg 0\
+    \n\
+    \n:local btServer 192.168.97.1;\
+    \n\
+    \n:set state (\"Starting VPN bandwidth test\");\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \ntool bandwidth-test protocol=tcp direction=transmit user=btest password=btest address=\$btServer duration=15s do={\
+    \n:set txAvg (\$\"tx-total-average\" / 1048576 );\
+    \n}\
+    \n\
+    \ntool bandwidth-test protocol=tcp direction=receive user=btest password=btest address=\$btServer duration=15s do={\
+    \n:set rxAvg (\$\"rx-total-average\" / 1048576 );\
+    \n}\
+    \n\
+    \n:global globalCallFetch;\
+    \n:local fetchCmd  \"/tool fetch http-method=post port=8086 mode=http url=\\\"\$tURL\\\" http-header-field=\\\"\$authHeader, content-type: text/plain\\\" http-data=\\\"bandwidth,host=\$sysname,target=CHR transmit=\$txAvg,recieve=\$rxAvg\\\" keep-result=no\";\
+    \n\
+    \n\$globalCallFetch \$fetchCmd;\
+    \n\
+    \n}\
+    \n \
+    \n/queue simple\
+    \n\
+    \n:foreach z in=[find where comment~\"\$queueCommentMark\"] do={\
+    \n\
+    \n  :local skip false;\
+    \n\
+    \n  :local queuecomment [get \$z comment]\
+    \n  :local ip [get \$z target]\
+    \n\
+    \n  :if ( \$itsOk ) do={\
+    \n\
+    \n    :if ( (\$ip->0) != nil ) do={\
+    \n      :set state (\"Locating queue target IP for queue \$queuecomment\");\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set ip (\$ip->0) \
+    \n      :set ip ( [:pick \$ip 0 [:find \$ip \"/\" -1]] ) ;\
+    \n      \$globalNoteMe value=\"Done\";\
+    \n    } else {\
+    \n      :set state \"Cant locate queue target IP for queue \$queuecomment. Skip it.\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set skip true;\
+    \n    }\
+    \n\
+    \n  }\
+    \n\
+    \n  :local hostName \"\"\
+    \n  :local upload 0\
+    \n  :local download 0\
+    \n\
+    \n  :if ( \$itsOk and !\$skip) do={\
+    \n    :local bytes [get \$z bytes]\
+    \n    :set upload (\$upload + [:pick \$bytes 0 [:find \$bytes \"/\"]])\
+    \n    :set download (\$download + [:pick \$bytes ([:find \$bytes \"/\"]+1) [:len \$bytes]])\
+    \n  }\
+    \n\
+    \n  :if ( \$itsOk and !\$skip) do={\
+    \n    :do {\
+    \n      #dhcp server for IP->name translation\
+    \n      :set state (\"Picking host name for \$ip via DHCP\");\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set hostName [/ip dhcp-server lease get [find (address=\$ip)] host-name]\
+    \n\
+    \n      :local typeOfValue [:typeof \$hostName]\
+    \n\
+    \n      :if ((\$typeOfValue = \"nothing\") or (\$typeOfValue = \"nil\")) do={\
+    \n        :set state \"Got empty host name. Skip it.\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :set skip true;\
+    \n      } else={\
+    \n        :set state \"Got it \$hostName\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n      }\
+    \n\
+    \n    } on-error= {\
+    \n      :set state \"Error When \$state\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set skip true;\
+    \n    }\
+    \n  }\
+    \n\
+    \n  :if ( \$itsOk and !\$skip) do={\
+    \n    :do {\
+    \n      :set state (\"Pushing stats to influxDB about \$hostName: UP = \$upload, DOWN=\$download\");\
+    \n     \$globalNoteMe value=\$state;\
+    \n      /tool fetch http-method=post port=8086 mode=http url=\"\$tURL\" http-header-field=\"\$authHeader, content-type: text/plain\" http-data=\"traffic,host=\$sysname,target=\$hostName upload=\$upload,download=\$download\" keep-result=no;\
+    \n      \$globalNoteMe value=\"Done\";\
+    \n    } on-error= {\
+    \n      :set state \"Error When \$state\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set itsOk false;\
+    \n    }\
+    \n  }\
+    \n  \
+    \n  :if (\$itsOk and !\$skip) do={\
+    \n    :set state \"Flushing stats..\"\
+    \n    \$globalNoteMe value=\$state;\
+    \n    reset-counters \$z\
+    \n  }  \
+    \n}\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: stats pushed Succesfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \
+    \n  \
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n\
+    \n}\
     \n"
 /system script add comment="This will check for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time. Will reboot the router when overload" dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
@@ -4169,2184 +4239,8 @@
     \n/system/logging/action/set memory-lines=300 [find target=memory]\r\
     \n\r\
     \n"
-/system script add dont-require-permissions=no name=TLGRMcall owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# Name: TLGRMcall\r\
-    \n# Description: Start script TLGRM, w/WatchDog\r\
-    \n\r\
-    \nlocal jobScript \"TLGRM\"\r\
-    \nif ([len [system script job find script=\$\"jobScript\"]] !=0) do={\r\
-    \n} else={\r\
-    \nsystem script run \$jobScript\r\
-    \n}"
-/system script add comment="module 2 SATELLITE for TLGRM" dont-require-permissions=no name=SAT2 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#--------------------------------------------------------------------------------------------------------------------------\r\
-    \n# SATELLITE2 module  for TLGRM version 2.2 by Sertik (Serkov S.V.) 25/10/2022\r\
-    \n#--------------------------------------------------------------------------------------------------------------------------\r\
-    \n\r\
-    \n# declare functions:\r\
-    \n\r\
-    \n:global health\r\
-    \n:global report\r\
-    \n:global lease\r\
-    \n:global dhcpclient\r\
-    \n:global wificonnect\r\
-    \n:global users\r\
-    \n:global log\r\
-    \n:global logreset\r\
-    \n:global pingpong\r\
-    \n:global FuncPing\r\
-    \n:global mailsend\r\
-    \n:global smssend\r\
-    \n:global modeminfo\r\
-    \n:global satclear\r\
-    \n\r\
-    \n\r\
-    \n:set health do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n\r\
-    \n# Script view health of device by Enternight\r\
-    \n# https://forummikrotik.ru/viewtopic.php\?t=7924\r\
-    \n# tested on ROS 6.49.5\r\
-    \n# updated 2022/04/21\r\
-    \n\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n\r\
-    \n:do {\r\
-    \n  :local hddTotal [/system resource get total-hdd-spac];\r\
-    \n  :local hddFree  [/system resource get free-hdd-space];\r\
-    \n  :local badBlock [/system resource get bad-blocks    ];\r\
-    \n  :local memTotal [/system resource get total-memory  ];\r\
-    \n  :local memFree  [/system resource get free-memory   ];\r\
-    \n  :local cpuA     [/system resource get cpu];\r\
-    \n  :local arhA      [/system resource get arch];\r\
-    \n  :local cpuZ     [/system resource get cpu-load      ];\r\
-    \n  :local currFW   [/system routerbo get upgrade-firmwa];\r\
-    \n  :local upgrFW   [/system routerbo get current-firmwa];\r\
-    \n   :if ([/system resource get board-name]!=\"CHR\") do={\r\
-    \n         :local tempC    0;\r\
-    \n         :local volt     0;\r\
-    \n          }\r\
-    \n  :local smplVolt (\$volt/10);\r\
-    \n  :local lowVolt  ((\$volt-(\$smplVolt*10))*10);\r\
-    \n  :local inVolt   (\"\$smplVolt.\$[:pick \$lowVolt 0 3]\");\r\
-    \n  :set   hddFree  (\$hddFree/(\$hddTotal/100));\r\
-    \n  :set   memFree  (\$memFree/(\$memTotal/100));\r\
-    \n  :local message  (\"\$Emoji \$[system identity get name] Health report:\");\r\
-    \n  :set   message  (\"\$message %0AModel \$[system resource get board-name]\");\r\
-    \n  :set   message  (\"\$message %0ACPU \$cpuA\");\r\
-    \n  :set   message  (\"\$message %0Aarchitecture \$arhA\");\r\
-    \n  :set   message  (\"\$message %0AROS v.\$[system resource get version]\");\r\
-    \n    :if (\$currFW != \$upgrFW) do={set message (\"\$message %0A*FW is not updated*\")}\r\
-    \n    :set   message  (\"\$message %0AUptime \$[system resource get uptime]\");\r\
-    \n    :if (\$cpuZ < 90) do={:set message (\"\$message %0ACPU load \$cpuZ%\");\r\
-    \n    } else={:set message (\"\$message %0A*Large CPU usage \$cpuZ%*\")}\r\
-    \n    :if (\$memFree > 17) do={:set message (\"\$message %0AMem free \$memFree%\");\r\
-    \n    } else={:set message (\"\$message %0A*Low free mem \$memFree%*\")}\r\
-    \n    :if (\$hddFree > 6) do={:set message (\"\$message %0AHDD free \$hddFree%\");\r\
-    \n    } else={:set message (\"\$message %0A*Low free HDD \$hddFree%*\")}\r\
-    \n    :if ([:len \$badBlock] > 0) do={\r\
-    \n        :if (\$badBlock = 0) do={:set message (\"\$message %0ABad blocks \$badBlock%\");\r\
-    \n        } else={:set message (\"\$message %0A*Present bad blocks \$badBlock%*\")} }\r\
-    \n    :if ([:len \$volt] > 0) do={\r\
-    \n        :if (\$smplVolt > 4 && \$smplVolt < 50) do={:set message (\"\$message %0AVoltage \$inVolt V\");\r\
-    \n        } else={:set message (\"\$message %0A*Bad voltage \$inVolt V*\")} }\r\
-    \n    :if ([:len \$tempC] > 0) do={\r\
-    \n        :if (\$tempC > 10 && \$tempC < 40) do={:set message (\"\$message %0ATemp \$tempC C\");\r\
-    \n        } else={:set message (\"\$message %0A*Abnorm temp \$tempC C*\")} }\r\
-    \n\r\
-    \n    :local gwList [:toarray \"\"];\r\
-    \n    :local count 0;\r\
-    \n    :local routeISP [/ip route find dst-address=0.0.0.0/0];\r\
-    \n    :if ([:len \$routeISP] > 0) do={\r\
-    \n\r\
-    \n        # Listing all gateways\r\
-    \n        :foreach inetGate in=\$routeISP do={\r\
-    \n            :local gwStatus [:tostr [/ip route get \$inetGate gateway-status]];\r\
-    \n            :if (([:len [:find \$gwStatus \"unreachable\"]]=0) && ([:len [:find \$gwStatus \"inactive\"]]=0)) do={\r\
-    \n\r\
-    \n                # Formation of interface name\r\
-    \n                :local ifaceISP \"\";\r\
-    \n                :foreach idName in=[/interface find] do={\r\
-    \n                    :local ifName [/interface get \$idName name];\r\
-    \n                    :if ([:len [find key=\$ifName in=\$gwStatus]] > 0) do={:set ifaceISP \$ifName}\r\
-    \n                }\r\
-    \n                :if ([:len \$ifaceISP] > 0) do={\r\
-    \n\r\
-    \n                    # Checking the interface for entering the Bridge\r\
-    \n                    :if ([:len [/interface bridge find name=\$ifaceISP]] > 0) do={\r\
-    \n#                        :local ipAddrGate [:pick \$gwStatus 0 ([:find \$gwStatus \"reachable\"] -1)];\r\
-    \n                        :local ipAddrGate [:tostr [/ip route get \$inetGate gateway]];\r\
-    \n                        :if ([:find \$ipAddrGate \"%\"] > 0) do={\r\
-    \n                            :set \$ipAddrGate [:pick \$ipAddrGate ([:len [:pick \$ipAddrGate 0 [:find \$ipAddrGate \"%\"]] ] +1) [:len \$ipAddrGate]];\r\
-    \n                        }\r\
-    \n                        :if (\$ipAddrGate~\"[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}\") do={\r\
-    \n                            :local mcAddrGate [/ip arp get [find address=\$ipAddrGate interface=\$ifaceISP] mac-address];\r\
-    \n                            :if (\$mcAddrGate~\"[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]\") do={\r\
-    \n                               :set ifaceISP [/interface bridge host get [find mac-address=\$mcAddrGate] interface];\r\
-    \n                           } else={:set ifaceISP \"\"}\r\
-    \n                       } else={:set ifaceISP \"\"}\r\
-    \n                    }\r\
-    \n                    :if ([:len \$ifaceISP] > 0) do={\r\
-    \n\r\
-    \n                        # Checking the repetition of interface name\r\
-    \n                        :if ([:len [find key=\$ifaceISP in=\$gwList]] = 0) do={\r\
-    \n                            :set (\$gwList->\$count) \$ifaceISP;\r\
-    \n                            :set count (\$count+1);\r\
-    \n                            :local rxByte [/interface get \$ifaceISP rx-byte];\r\
-    \n                            :local txByte [/interface get \$ifaceISP tx-byte];\r\
-    \n                            :local simpleGbRxReport (\$rxByte/1073741824);\r\
-    \n                            :local simpleGbTxReport (\$txByte/1073741824);\r\
-    \n                            :local lowGbRxReport (((\$rxByte-(\$simpleGbRxReport*1073741824))*1000000000)/1048576);\r\
-    \n                            :local lowGbTxReport (((\$txByte-(\$simpleGbTxReport*1073741824))*1000000000)/1048576);\r\
-    \n                            :local gbRxReport (\"\$simpleGbRxReport.\$[:pick \$lowGbRxReport 0 2]\");\r\
-    \n                            :local gbTxReport (\"\$simpleGbTxReport.\$[:pick \$lowGbTxReport 0 2]\");\r\
-    \n                            :set message (\"\$message %0ATraffic via '\$ifaceISP' Rx/Tx \$gbRxReport/\$gbTxReport Gb\");\r\
-    \n                        }\r\
-    \n                    }\r\
-    \n                }\r\
-    \n            }\r\
-    \n        }\r\
-    \n    } else={:set message (\"\$message %0AWAN iface not found\")}\r\
-    \n\r\
-    \n    :if ([/ppp active find]) do={\r\
-    \n   :foreach i in=[/ppp active find] do={\r\
-    \n   :set \$name [/ppp active get \$i name]; :set \$type [/ppp active get \$i service]; :set \$enc [/ppp active get \$i encoding]; :set \$addr [/ppp active get \$i address]; :set \$ltu [/ppp active get \$i uptime]\r\
-    \n   :set \$vpnuser (\"\$vpnuser\".\"\$name\".\" {\".\"\$type\".\"}\".\" \$addr\".\" uptime: \".\"\$ltu\".\"%0A\");}\r\
-    \n   :set \$message (\"\$message\".\"%0A\".\"\$vpnuser\")\r\
-    \n   } else={:set message (\"\$message %0ANo active VPN-channels\")}\r\
-    \n   [\$FuncTelegramSender \$message]\r\
-    \n   :return []\r\
-    \n} on-error={:log warning (\"Error, can't show health status\"); :return \"ERROR\"}\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# report router`s to Telegram\r\
-    \n# ---------------------\r\
-    \n:set report do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global ADMINMAIL\r\
-    \n:global mailsend\r\
-    \n:global ADMINPHONE\r\
-    \n:global smssend\r\
-    \n\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:if (([:len \$1]=0) or (\$1=\"tlgrm\")) do={\r\
-    \n:do {\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\" Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
-    \n} on-error={:return \"ERROR tlgrm send\"}\r\
-    \n:return \"tlgrm\";}\r\
-    \n:if ((\$1=\"mail\") or (\$1=\"email\")) do={\r\
-    \n:do {\r\
-    \n[\$mailsend Email=\$ADMINMAIL Mailtext=(\"Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
-    \n} on-error={:return \"ERROR email send\"}\r\
-    \n:return \$1}\r\
-    \n:if (\$1=\"sms\") do={\r\
-    \n:do {\r\
-    \n[\$smssend (\"Router \".\"\$[/system identity get name]\".\" ONLINE\") \$ADMINPHONE]\r\
-    \n# /system routerboard usb power-reset duration=2s;\r\
-    \n} on-error={:return \"ERROR sms send\"}\r\
-    \n:return \$1}\r\
-    \n:if (\$1=\"all\") do={\r\
-    \n:do {\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\" Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
-    \n[\$mailsend Email=\$ADMINMAIL Mailtext=(\"Router \".\"\$[/system identity get name]\".\" ONLINE\")]\r\
-    \n[\$smssend (\"Router \".\"\$[/system identity get name]\".\" ONLINE\") \$ADMINPHONE]\r\
-    \n} on-error={:return \"ERROR \$0 all send\"}\r\
-    \n:return \$1}\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# lease tabl - > Telegram\r\
-    \n# -----------------------------------\r\
-    \n:set lease do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:local count 0\r\
-    \n:local txt\r\
-    \n/ip dhcp-server lease\r\
-    \n:if [/ip dhcp-server lease find] do={\r\
-    \n:foreach i in=[find] do={\r\
-    \n  :set count (\$count+1)\r\
-    \n  :local add [get \$i address]\r\
-    \n  :local mac [get \$i mac-address]\r\
-    \n  :local host [get \$i host]\r\
-    \n  :local com [get \$i comment]\r\
-    \n  :local serv [get \$i server]\r\
-    \n  :local bond [get \$i status]\r\
-    \n  :local active [get \$i disabled]\r\
-    \n  :local TT; :local WS\r\
-    \n:if (\$active) do={:set WS \"enable\"; :set TT \"%F0%9F%94%B4\"} else={:set WS \"disable\"; :set TT \"%F0%9F%94%B5\"}\r\
-    \n# :log warning (\"\$count  \".\"\$host   \".\"\$serv \".\"   \$add  \".\"\$com\".\"  \$mac \".\" \$bond\")\r\
-    \n:set txt (\"\$txt\".\"\$count  \".\"\$TT \".\"\$com  \".\"\$add  \".\"  \$mac\".\"%0A%20%20%20%20\".\"host: \$host \".\" server: \$serv\".\"  status: \$bond\".\"%0A\")\r\
-    \n} \r\
-    \n} else={:set txt \"       empty\"}\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\"\$[/system identity get name]\".\" DHCP lease tabl:\".\"%0A\".\"\$txt\")]\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# DHCP-clients -> Telegram\r\
-    \n# ---------------------------------------\r\
-    \n:set dhcpclient do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:local count\r\
-    \n:local output\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n\r\
-    \n:foreach i in=[ip dhcp-client find] do={\r\
-    \n:local cuStatus [ip dhcp-client get \$i status]\r\
-    \n:local cuComment [ip dhcp-client get \$i comment]\r\
-    \n:local cuIP [ip dhcp-client get \$i address]\r\
-    \n:local cuGW [ip dhcp-client get \$i gateway]\r\
-    \n:local cuFace [ip dhcp-client get \$i interface]\r\
-    \n:local cuAddDroute [ip dhcp-client get \$i add-default-route]\r\
-    \n:local cuDistance [ip dhcp-client get \$i \"default-route-distance\"]\r\
-    \n:set count (\$count+1)\r\
-    \n\r\
-    \n:set output (\"\$output\".\"\$count \".\"\$cuComment \".\"\$cuFace \".\"IP: \".\"\$cuIP \".\"getway:\".\" \$cuGW \".\"distance\".\" \$cuDistance \".\"\$cuStatus\".\"%0A\")\r\
-    \n\r\
-    \n   }\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\"Router \".\"\$[/system identity get name] \".\"DHCP-clients table:\".\"%0A\".\"\$output\")]\r\
-    \n:return \$count\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n#  wifi connect table -> Telegram \r\
-    \n# ------------------------------------------------------------\r\
-    \n:set wificonnect do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local identity [/system identity get name]\r\
-    \n:local count\r\
-    \n:local output;\r\
-    \n:foreach activeIndex in=[/interface wireless connect find true] do={\r\
-    \n      :set count (\$count+1);\r\
-    \n              :local ConVal [/interface wireless connect get \$activeIndex]\r\
-    \n                :local iFace (\$ConVal->\"interface\")\r\
-    \n                :local MACAddr (\$ConVal->\"mac-address\")\r\
-    \n                :local comment (\$ConVal->\"comment\")\r\
-    \n                :local connect (\$ConVal->\"connect\")\r\
-    \n                :local area (\$ConVal->\"area-prefix\")\r\
-    \n                :local signal (\$ConVal->\"signal-range\")\r\
-    \n                :local SSID (\$ConVal->\"ssid\")\r\
-    \n                :local WP (\$ConVal->\"wireless-protocol\")\r\
-    \n     :if (\$ConVal->\"disabled\") do={\r\
-    \n             :set output (\"\$output\".\"\$count\".\" %F0%9F%94%B4 \".\" \$comment\".\" \$iFace\".\" \$MACAddr\".\"%0A\");\r\
-    \n} else={ :set output (\"\$output\".\"\$count\".\" %F0%9F%94%B7  \".\" \$comment\".\" \$iFace\".\" \$MACAddr\".\" \$connect\".\" \$area\".\" \$signal\".\" \$SSID\".\" \$WP\".\"%0A\");}\r\
-    \n\r\
-    \n#      :log warning (\"\$count  \".\" \$comment\".\" \$iFace\".\" \$MACAddr\".\" \$connect\".\" \$area\".\" \$signal\".\" \$SSID\".\" \$WP\".\"\\n\")\r\
-    \n          }\r\
-    \n\r\
-    \nif ([:len \$output] >0) do={[\$FuncTelegramSender (\"\$Emoji\".\" *Router\".\" \$identity\".\" wireless connect-tabl:*\".\"%0A\".\"-------------------------------------------------------------------------------------------------------------- \".\"%0A\".\"\$output\") \"markdown\"]\r\
-    \n} else={[\$FuncTelegramSender (\"\$Emoji\".\" *Router\".\" \$identity\".\" wireless connect-tabl is empty*\") \"markdown\"]}\r\
-    \n   :return \$count;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n#  Router`s user table -> Telegram \r\
-    \n# ------------------------------------------------------------\r\
-    \n:set users do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local identity [/system identity get name]\r\
-    \n:local count\r\
-    \n:local output\r\
-    \n:local output1\r\
-    \n:foreach i in=[/user find true] do={\r\
-    \n      :set count (\$count+1);\r\
-    \n                :local UserVal [/user get \$i]\r\
-    \n                :local Uname (\$UserVal->\"name\")\r\
-    \n                :local Ugroup (\$UserVal->\"group\")\r\
-    \n                :local comment (\$UserVal->\"comment\")\r\
-    \n                :local Ulogget (\$UserVal->\"last-logget-in\")\r\
-    \n\r\
-    \n     :if (\$UserVal->\"disabled\") do={\r\
-    \n             :set output (\"\$output\".\"\$count\".\" %F0%9F%94%B4 \".\"\$comment \".\"\$Uname \".\"\$Ugroup\".\" \$time\".\"%0A\");\r\
-    \n} else={ :set output (\"\$output\".\"\$count\".\" %F0%9F%94%B7  \".\"\$comment \".\"\$Uname \".\"\$Ugroup\".\" \$time\".\"%0A\");}\r\
-    \n\r\
-    \n          }\r\
-    \n\r\
-    \n:set count\r\
-    \nforeach i in [/user active find true] do={\r\
-    \n      :set count (\$count+1);\r\
-    \n              :local UserVal [/user active get \$i]\r\
-    \n                :local Uname (\$UserVal->\"name\")\r\
-    \n                :local Via (\$UserVal->\"via\")\r\
-    \n  :set output1 (\"\$output1\".\"\$count\".\" \$Uname \".\"\$Via\".\"%0A\");\r\
-    \n\r\
-    \n}\r\
-    \n\r\
-    \nif ([:len \$output] >0) do={[\$FuncTelegramSender (\"\$Emoji\".\" *Router\".\" \$identity\".\"  users:*\".\"%0A\".\"-------------------------------------------------------------------------------------------------------------- \".\"%0A\".\"\$output\") \"markdown\"]\r\
-    \n}\r\
-    \nif ([:len \$output1] >0) do={[\$FuncTelegramSender (\"\$Emoji\".\" *Router\".\" \$identity\".\" active users:*\".\"%0A\".\"-------------------------------------------------------------------------------------------------------------- \".\"%0A\".\"\$output1\") \"markdown\"]\r\
-    \n} else={[\$FuncTelegramSender (\"\$Emoji\".\" *Router\".\" \$identity\".\" no active users*\") \"markdown\"]}\r\
-    \n  :return \$count;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# Routers modem info -> Telegram\r\
-    \n\r\
-    \n:set modeminfo do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n\r\
-    \n# lte-modems\r\
-    \n:local lteinfo\r\
-    \n:local LteModem [:toarray \"\"]\r\
-    \n\r\
-    \n:local pinstatus\r\
-    \n:local registrationstatus \r\
-    \n:local functionality\r\
-    \n:local manufacturer \r\
-    \n:local model \r\
-    \n:local revision \r\
-    \n:local currentoperator \r\
-    \n:local lac \r\
-    \n:local currentcellid \r\
-    \n:local enbid \r\
-    \n:local sectorid \r\
-    \n:local phycellid\r\
-    \n:local accesstechnology\r\
-    \n:local sessionuptime\r\
-    \n:local imei \r\
-    \n:local imsi \r\
-    \n:local uicc\r\
-    \n:local earfcn\r\
-    \n:local rsrp \r\
-    \n:local rsrq\r\
-    \n:local sinr\r\
-    \n\r\
-    \n:if ([/interface lte find]) do={\r\
-    \n:foreach i in=[/interface lte find] do={\r\
-    \n:local lteiFace [/interface lte get \$i name]\r\
-    \n:local lteComment [/interface lte get \$i comment]\r\
-    \nif ([/interface lte get \$i value-name=disabled] = false) do={\r\
-    \n\r\
-    \n:set LteModem [/interface lte monitor [find name=\$lteiFace] once as-value]\r\
-    \n\r\
-    \n:set pinstatus (\$LteModem->\"pin-status\");\r\
-    \n:set registrationstatus (\$LteModem->\"registration-status\");\r\
-    \n:set functionality (\$LteModem->\"functionality\");\r\
-    \n:set manufacturer (\$LteModem->\"manufacturer\");\r\
-    \n:set model (\$LteModem->\"model\");\r\
-    \n:set revision (\$LteModem->\"revision\");\r\
-    \n:set currentoperator (\$LteModem->\"current-operator\");\r\
-    \n:set lac (\$LteModem->\"lac\");\r\
-    \n:set currentcellid (\$LteModem->\"current-cellid\");\r\
-    \n:set enbid (\$LteModem->\"enb-id\");\r\
-    \n:set sectorid (\$LteModem->\"sector-id\");\r\
-    \n:set phycellid (\$LteModem->\"phy-cellid\");\r\
-    \n:set accesstechnology (\$LteModem->\"access-technology\");\r\
-    \n:set sessionuptime (\$LteModem->\"session-uptime\");\r\
-    \n:set imei (\$LteModem->\"imei\");\r\
-    \n:set imsi (\$LteModem->\"imsi\");\r\
-    \n:set uicc (\$LteModem->\"uicc\");\r\
-    \n:set earfcn (\$LteModem->\"earfcn\");\r\
-    \n:set rsrp (\$LteModem->\"rsrp\");\r\
-    \n:set rsrq (\$LteModem->\"rsrq\");\r\
-    \n:set sinr (\$LteModem->\"sinr\");\r\
-    \n\r\
-    \n:set lteinfo (\"%E2%9C%8C\".\" LTE-modem \".\"\$lteiFace  info:\".\"%0A\".\"\$pinstatus\".\"%0A\".\"\$registrationstatus\".\"%0A\".\"\$functionality\".\"%0A\".\"\$manufacturer\".\"%0A\".\"\$model\".\"%0A\".\"\$revision\".\"%0A\".\"\$currentoperator\".\"%0A\".\"\$lac\".\"%0A\".\"\$currentcellid\".\"%0A\".\"\$enbid\".\"%0A\".\"\$sectorid\".\"%0A\".\"\$phycellid\".\"%0A\".\"\$accesstechnology\".\"%0A\".\"\$sessionuptime\".\"%0A\".\"\$imei\".\"%0A\".\"\$imsi\".\"%0A\".\"\$uicc\".\"%0A\".\"\$earfcn\".\"%0A\".\"\$rsrp\".\"%0A\".\"\$rsrq\".\"%0A\".\"\$sinr\")\r\
-    \n\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\"\$[/system identity get name]\".\" \$lteinfo\")]\r\
-    \n\r\
-    \n  } else={[\$FuncTelegramSender (\"\$Emoji \".\"\$[/system identity get name] \".\"LTE-interface \".\"\$lteiFace \".\"\$lteComment \".\"disabled\")]}\r\
-    \n }\r\
-    \n} else={[\$FuncTelegramSender (\"\$Emoji \".\"\$[/system identity get name] \".\"no found lte modem\")]}\r\
-    \n\r\
-    \n# modems ppp-client\r\
-    \n:local nameFind [:toarray \"\"]\r\
-    \n:local calc 0\r\
-    \n:foreach i in=[/interface ppp-client find] do={\r\
-    \n:set  calc (\$calc+1)\r\
-    \nif ([/interface ppp-client get \$i value-name=disabled] = false) do={\r\
-    \n:local tmp [/interface ppp-client info \$i once as-value]\r\
-    \n:set \$nameFind (\$nameFind, {{\"name\"=[/interface ppp-client get \$i value-name=name]; \"comment\"=[/interface ppp-client get \$i comment]; \"type\"=\"ppp-client\";\"manufacturer\"=(\$tmp->\"manufacturer\");\"model\"=(\$tmp->\"model\");\"revision\"=(\$tmp->\"revision\")}})\r\
-    \n  } else={[\$FuncTelegramSender (\"\$Emoji \".\"\$[/system identity get name] \".\"ppp-client modem \".\"\$[/interface ppp-client get \$i name] \".\"\$[/interface ppp-client get \$i comment] \".\"disabled\")]}\r\
-    \n}\r\
-    \n\r\
-    \n:if ([:len \$nameFind]!= 0) do={\r\
-    \n:local mName\r\
-    \n:local mType\r\
-    \n:local mComment\r\
-    \n:for i from=0 to ([:len \$nameFind]-1) do={\r\
-    \n:set mName (\$nameFind->\$i->\"name\")\r\
-    \n:set mComment (\$nameFind->\$i->\"comment\")\r\
-    \n:set mType (\$nameFind->\$i->\"type\")\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\"\$[/system identity get name] \".\"\$mComment \".\"\$mName \".\"\$mType\")]\r\
-    \n}\r\
-    \n} else={\r\
-    \n:if (\$calc=0) do={\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\"\$[/system identity get name] \".\"no found ppp-client modem\")]}}\r\
-    \n:return []\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# - Log in-> Telegram\r\
-    \n\r\
-    \n:set log do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n\r\
-    \n:global Emoji\r\
-    \n:global botID\r\
-    \n:global myChatID\r\
-    \n:global FuncTelegramSender\r\
-    \n\r\
-    \n:local name [/system identity get name]\r\
-    \n:local LogsAll [/log print count-only]\r\
-    \n:local counter 0\r\
-    \n:local log1\r\
-    \n:local otstup \$2\r\
-    \n:local logs \$1\r\
-    \n\r\
-    \n:if (\$otstup ~ \"[a-z|A-Z|_-|+/|*\?]\") do={:set otstup 0}\r\
-    \n:foreach i in=[/log find] do={\r\
-    \n  :if ((\$counter >= (\$LogsAll - \$otstup - \$logs)) and (\$counter < (\$LogsAll - \$otstup))) do={\r\
-    \n  :local Log1Time [/log get \$i time]\r\
-    \n  :local Log1Message [/log get \$i message]\r\
-    \n    :set log1 (\$log1.\"|\".\$Log1Time.\" \".\$Log1Message.\"%0A\")\r\
-    \n  }\r\
-    \n  :set counter (\$counter + 1)\r\
-    \n}\r\
-    \n:set otstup 0\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\"\$name: \".\"\$logs line logs:\".\"%0A\".\"\$log1\")]\r\
-    \n  :return \$counter\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# - Reset Logging and setup length log (\$1)\r\
-    \n:set logreset do={\r\
-    \nif ([:len \$0]!=0) do={\r\
-    \n:local LineLog \r\
-    \n:if ([:len \$1]=0) do={:set LineLog 1000} else={:set LineLog \$1}\r\
-    \n/system logging action set memory memory-lines=1;\r\
-    \n/system logging action set memory memory-lines=\$LineLog;\r\
-    \n:log warning \"Logging is reset. A log of \$LineLog entries is set\"\r\
-    \n:return \$LineLog\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# - pingpong 15/04/2022 \D4\F3\ED\EA\F6\E8\FF \EF\F0\EE\E2\E5\F0\EA\E8 \E4\EE\F1\F2\F3\EF\ED\EE\F1\F2\E8 \F3\F1\F2\F0\EE\E9\F1\F2\E2\E0 \E2 \F1\E5\F2\E8\r\
-    \n#   c \EE\EF\EE\E2\E5\F9\E5\ED\E8\E5\EC \E2 \D2\E5\EB\E5\E3\F0\E0\EC\EC. \C8\F1\EF\EE\EB\FC\E7\F3\E5\F2 FuncPing\r\
-    \n\r\
-    \n:set pingpong do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:global FuncPing\r\
-    \n:local PA; :local PC; :local PI; :local PRT; :local Hadr;\r\
-    \n:if ([:len \$1]!=0) do={:set PA \$1} else={:set PA 8.8.8.8}\r\
-    \n:if ([:len \$2]!=0) do={:set PC \$2} else={:set PC [:tonum \"3\"]}\r\
-    \n:if ([:len \$3]!=0) do={:set PI \$3} else={:set PI \"\"}\r\
-    \n:if ([:len \$4]!=0) do={:set PRT \$4} else={:set PRT \"main\"}\r\
-    \n:local PingAns [\$FuncPing PingAdr=\$1 PingCount=\$2 PingInterface=\$3 PingRoutingTabl=\$4]\r\
-    \n:if (\$PingAns=\"ERROR\") do={[\$FuncTelegramSender (\"\$Emoji \".\"Host \".\"\$PA \".\"not responded\")]; :return \"ERROR\"}\r\
-    \n:if (\$PingAns=\"OK\") do={[\$FuncTelegramSender (\"\$Emoji \".\"Host \".\"\$PA \".\"ping OK\")]; :return \"OK\"}\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n:global FuncActIface do={\r\
-    \n# Get address active gateway - in var \$activeGateway\r\
-    \n/ip route\r\
-    \n {   :local counter;\r\
-    \n     :foreach counter in=[find dst-address=0.0.0.0/0] do={         \r\
-    \n\t :if ([get \$counter active] = true) do={\r\
-    \n\t :set \$activeGateway [get \$counter gateway]; :set \$Gdistance [get \$counter distance];\r\
-    \n\t }  }}\r\
-    \n:if (\$activeGateway!=nil) do={\r\
-    \n\r\
-    \n# Get Gateway with gateway-status active\r\
-    \n:local GatewayStatus;\r\
-    \n:set \$GatewayStatus [ :tostr [ /ip route get [ find gateway=\$activeGateway dst-address=0.0.0.0/0 distance=\$Gdistance] gateway-status ]];\r\
-    \n\r\
-    \n\r\
-    \n:if ([:find \$GatewayStatus \"via\"] > 0) do={\r\
-    \n# Seek Interface name in \$GatewayStatus (after \"via\" verb)\r\
-    \n:local activeInterface;\r\
-    \n:set \$activeInterface [ :pick \$GatewayStatus ( [ :len [ :pick \$GatewayStatus 0 [ :find \$GatewayStatus \"via\" ] ] ] + 5 ) [ :len \$GatewayStatus ] ]; :return \$activeInterface\r\
-    \n} else={ \r\
-    \n:set \$activeInterface [ :pick \$GatewayStatus 0 ([:find \$GatewayStatus \"reachable\"]-1)]; :return \$activeInterface;}\r\
-    \n\r\
-    \n} else={:local activeInterface \"not found\"; :return \$activeInterface;}\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n\r\
-    \n# - FuncPing 15/03/2022 \D4\F3\ED\EA\F6\E8\FF \EF\F0\EE\E2\E5\F0\EA\E8 \E4\EE\F1\F2\F3\EF\ED\EE\F1\F2\E8 \F3\F1\F2\F0\EE\E9\F1\F2\E2\E0 \E2 \F1\E5\F2\E8\r\
-    \n#  \E2\EE\E7\EC\EE\E6\ED\FB\E5 \E8\EC\E5\ED\EE\E2\E0\ED\ED\FB\E5 \EF\E0\F0\E0\EC\E5\F2\F0\FB:\r\
-    \n# PingAdr -     \E0\E4\F0\E5\F1 \EF\E8\ED\E3\F3\E5\EC\EE\E3\EE \F5\EE\F1\F2\E0, \E5\F1\EB\E8 \ED\E5 \F3\EA\E0\E7\E0\ED \EF\E8\ED\E3\F3\E5\F2\F1\FF 8.8.8.8 (\E4\EE\F1\F2\F3\EF\ED\EE\F1\F2\FC \C8\ED\F2\E5\F0\ED\E5\F2\E0)\r\
-    \n#                    \E4\EE\EF\F3\F1\EA\E0\E5\F2\F1\FF \EF\E5\F0\E5\E4\E0\F7\E0 PingAdr \F1 \F3\EA\E0\E7\E0\ED\E8\E5\EC \EF\EE\F0\F2\E0 (\EE\F2\F1\E5\EA\E0\E5\F2\F1\FF)\r\
-    \n# PingCount - \F7\E8\F1\EB\EE \EF\E8\ED\E3\EE\E2, \E5\F1\F2\E8 \ED\E5 \F3\EA\E0\E7\E0\ED\EE, \EF\EE \F3\EC\EE\EB\F7\E0\ED\E8\FE \F3\F1\F2\E0\ED\E0\E2\EB\E8\E2\E0\E5\F2\F1\FF 3 \EF\E8\ED\E3\E0\r\
-    \n# PingIntherface - \E8\ED\F2\E5\F0\F4\E5\E9\F1 \E4\EB\FF \EF\E8\ED\E3\E0, \EC\EE\E6\E5\F2 \E1\FB\F2\FC \ED\E5 \F3\EA\E0\E7\E0\ED, \F2\EE\E3\E4\E0 \E8\F1\EF\EE\EB\FC\E7\F3\E5\F2\F1\FF default gatway\r\
-    \n# PingRoutingTabl - \F2\E0\E1\EB\E8\F6\E0 \EC\E0\F0\F8\F0\F3\F2\EE\E2 (\E5\F1\EB\E8 \ED\E5 \F3\EA\E0\E7\E0\ED\E0 \E8\F1\EF\EE\EB\FC\E7\F3\E5\F2\F1\FF \F2\E0\E1\EB\E8\F6\E0 main\r\
-    \n\r\
-    \n# \E2\F1\E5 \EF\E0\F0\E0\EC\EC\E5\F2\F0\FB \EF\E8\ED\E3\E0 \EC\EE\E3\F3\F2 \E1\FB\F2\FC \EF\E5\F0\E5\E4\E0\ED\FB \D2\CE\CB\DC\CA\CE ! \E2 \E8\EC\E5\ED\EE\E2\E0\ED\ED\FB\F5 \EF\E0\F0\E0\EC\E5\F2\F0\E0\F5\r\
-    \n# :put [\$FuncPing PingAdr=8.8.8.8 PingCount=3 PingInterface=ether1 PingRoutingTabl=main]\r\
-    \n\r\
-    \n\r\
-    \n# \EE\F2\E2\E5\F2 \F4\F3\ED\EA\F6\E8\E8 \E2\EE\E7\E2\F0\E0\F9\E0\E5\F2\F1\FF \E2 \E2\E8\E4\E5:\r\
-    \n# \"OK\" - \F3\F1\F2\F0\EE\E9\F1\F2\E2\EE \E4\EE\F1\F2\F3\EF\ED\EE \E2 \F1\E5\F2\E8\r\
-    \n# \"ERROR\" - \F3\F1\F2\F0\EE\E9\F1\F2\E2\EE \ED\E5 \EE\F2\E2\E5\F7\E0\E5\F2 \ED\E0 \EF\E8\ED\E3\r\
-    \n\r\
-    \n:set FuncPing do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local PA; :local PC; :local PI; :local PRT; :local Hadr;\r\
-    \n\r\
-    \n:if ([:len \$PingAdr]!=0) do={:set PA \$PingAdr} else={:set PA 8.8.8.8}\r\
-    \n:set Hadr \$PA\r\
-    \n:if ([:len \$PingCount]!=0) do={:set PC \$PingCount} else={:set PC [:tonum \"3\"]}\r\
-    \n:local PingCalc \$PC\r\
-    \n:if ([:len \$PingInterface]!=0) do={:set PI \$PingInterface} else={:set PI \"\"}\r\
-    \n:local PingIface\r\
-    \n:if (\$PI=\"\") do={:set PingIface \"\";} else {:set PingIface (\"interface=\".\"\$PI\")}\r\
-    \n:if ([:len \$PingRoutingTabl]!=0) do={:set PRT \$PingRoutingTabl} else={:set PRT \"main\"}\r\
-    \n:local PingRT (\"routing-table=\".\"\$PRT\")\r\
-    \n:if ([:find \$Hadr \":\"]>0) do={:set Hadr [:pick \$Hadr 0 [:find \$Hadr \":\"]];}\r\
-    \n:local Result [[:parse \"[/ping \$Hadr count=\$PingCalc \$PingIface \$PingRT]\"]]\r\
-    \n:beep frequency=300 length=494ms; :delay 70ms; :beep frequency=600 length=494ms; :delay 70ms; :beep frequency=900 length=494ms;\r\
-    \n:local PingAnswer \"\"; :local MainIfInetOk false;\r\
-    \n:set MainIfInetOk ((3*\$Result) >= (2 * \$PingCalc))\r\
-    \nif (!\$MainIfInetOk) do={:return \"ERROR\"} else={:return \"OK\"}\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# - mailsend - \F4\F3\ED\EA\F6\E8\FF \EE\F2\EF\F0\E0\E2\EA\E8 \EF\EE\F7\F2\FB \r\
-    \n#    by Sergej Serkov 25/10/2022\r\
-    \n#-------------------------------------------------------\r\
-    \n\r\
-    \n# \E4\EB\FF \EA\EE\F0\F0\E5\EA\F2\ED\EE\E9 \F0\E0\E1\EE\F2\FB \F4\F3\ED\EA\F6\E8\E8 \EF\EE\F7\F2\EE\E2\FB\E9 \F1\E5\F0\E2\E8\F1 Router OS /tool email \E4\EE\EB\E6\E5\ED \E1\FB\F2\FC \ED\E0\F1\F2\F0\EE\E5\ED \E2\E5\F0\ED\EE \EF\EE \F3\EC\EE\EB\F7\E0\ED\E8\FE\r\
-    \n# \E0\E4\F0\E5\F1 \EF\EE\EB\F3\F7\E0\F2\E5\EB\FF \E8 \F2\E5\EA\F1\F2 \EF\E8\F1\FC\EC\E0 \EC\EE\E3\F3\F2 \E1\FB\F2\FC \EF\E5\F0\E5\E4\E0\ED\FB \E2 \E8\EC\E5\ED\EE\E2\E0\ED\ED\FB\F5 \EB\E8\E1\EE \EF\EE\E7\E8\F6\E8\EE\ED\ED\FB\F5 \EF\E0\F0\E0\EC\E5\F2\F0\E0\F5 (\E8\EB\E8/\E8\EB\E8)\r\
-    \n# \E2 \F1\EB\F3\F7\E0\E5 \F1 \EF\EE\E7\E8\F6\E8\EE\ED\ED\FB\EC\E8 \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC\E8 \$1 - \E0\E4\F0\E5\F1 \EF\EE\EB\F3\F7\E0\F2\E5\EB\FF; \$2 - \F2\E5\EA\F1\F2 \F1\EE\EE\E1\F9\E5\ED\E8\FF (\EC\E5\F1\F2\E0\EC\E8 \EC\E5\ED\FF\F2\FC \ED\E5\EB\FC\E7\FF)\r\
-    \n# \EF\F0\E8 \EF\E5\F0\E5\E4\E0\F7\E5 \E0\E4\F0\E5\F1\E0 \E8 \F2\E5\EA\F1\F2\E0 \EF\E8\F1\FC\EC\E0 \E2 \E8\EC\E5\ED\EE\E2\E0\ED\ED\FB\F5 \EF\E0\F0\E0\EC\E5\F2\F0\E0\F5 (Email \E8 Mailtext) - \E8\F5 \EF\EE\F0\FF\E4\EE\EA \ED\E5 \E2\E0\E6\E5\ED\r\
-    \n\r\
-    \n# for example:\r\
-    \n# :log info [\$mailsend Email=\"user@mail.ru\" Mailtext=\"\CF\F0\E8\E2\E5\F2 !\"]; # (\F1 \E8\EC\E5\ED\EE\E2\E0\ED\ED\FB\EC\E8 \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC\E8) \r\
-    \n# :log info [\$mailsend user@mail.ru \"\CF\F0\E8\E2\E5\F2 !\"]; # (c \EF\EE\E7\E8\F6\E8\EE\ED\ED\FB\EC\E8 \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC\E8)\r\
-    \n\r\
-    \n:set mailsend do={\r\
-    \n:if ([:len \$0]!=0) do={ \r\
-    \n:local Etls \"yes\"; # \E5\F1\EB\E8 TLS \ED\E5 \E8\F1\EF\EE\EB\FC\E7\F3\E5\F2\F1\FF \F3\F1\F2\E0\ED\EE\E2\E8\F2\FC \E2 \"no\"\r\
-    \n:local smtpserv;\r\
-    \ndo {\r\
-    \n:set smtpserv [:resolve [/tool e-mail get address]];\r\
-    \n} on-error={:log error (\"Call ERROR function \$0 not resolve email smtp server\"); :return (\"ERROR: \$0 < not resolve email smtp server >\")}\r\
-    \n:local Eaccount [/tool e-mail get user];\r\
-    \n:local pass [/tool e-mail get password];\r\
-    \n:local Eport [/tool e-mail get port];\r\
-    \n:local MA; :local MT\r\
-    \n:if ([:len \$1]!=0) do={:set MA \$1} else={:set MA \$Email}\r\
-    \n:if ([:len \$2]!=0) do={:set MT \$2} else={:set MT \$Mailtext}\r\
-    \n:if ((any \$MA) and (any \$MT)) do={\r\
-    \n:log info \" \"; :log warning \"FuncMail start mail sending ... to e-mail: \$Email\";\r\
-    \ndo {[/tool e-mail send from=\"<\$Eaccount>\" to=\$MA server=\$smtpserv \\\r\
-    \n port=\$Eport user=\$Eaccount password=\$pass tls=starttls subject=(\"from \$0 Router \$[/system identity get name]\") \\\r\
-    \n body=\$MT;];\r\
-    \n              } on-error={:log info \"\"; :log error (\"Call ERROR function \$0 ERROR e-mail send\"); \r\
-    \n                                                                                      :return \"ERROR: <\$0 e-mail send>\"}\r\
-    \n:log warning \"Mail send\"; :log info \" \"; :return \"OK: <mail send>\"\r\
-    \n} else={:log error (\"Call ERROR function \$0 Email or Mailtext parametrs no defined\"); :return (\"ERROR: \$0 < necessary parameters are not set >\")}\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# smssend \r\
-    \n# --------------\r\
-    \n\r\
-    \n# [\$smssend \"Hello \CF\F0\E8\E2\E5\F2 \EC\E8\F0\" +79104797777]\r\
-    \n\r\
-    \n# local function transliteration\r\
-    \n# string for transliteration is set in the parametr name \"string\"\r\
-    \n\r\
-    \n:set smssend do={\r\
-    \n:local FuncSatTranslite do={\r\
-    \n#  table of the codes of Russian letters Translite\r\
-    \n:local rsimv [:toarray {\"\C0\"=\"A\"; \"\C1\"=\"B\"; \"\C2\"=\"V\"; \"\C3\"=\"G\"; \"\C4\"=\"D\"; \"\C5\"=\"E\"; \"\C6\"=\"ZH\"; \"\C7\"=\"Z\"; \"\C8\"=\"I\"; \"\C9\"=\"J\"; \"\CA\"=\"K\"; \"\CB\"=\"L\"; \"\CC\"=\"M\"; \"\CD\"=\"N\"; \"\CE\"=\"O\"; \"\CF\"=\"P\"; \"\D0\"=\"R\"; \"\D1\"=\"S\"; \"\D2\"=\"T\"; \"\D3\"=\"U\"; \"\D4\"=\"F\"; \"\D5\"=\"KH\"; \"\D6\"=\"C\"; \"\D7\"=\"CH\"; \"\D8\"=\"SH\"; \"\D9\"=\"SCH\"; \"\DA\"=\"``\"; \"\DB\"=\"Y`\"; \"\DC\"=\"`\"; \"\DD\"=\"E`\"; \"\DE\"=\"JU\"; \"\DF\"=\"YA\"; \"\E0\"=\"a\"; \"\E1\"=\"b\"; \"\E2\"=\"v\"; \"\E3\"=\"g\"; \"\E4\"=\"d\"; \"\E5\"=\"e\"; \"\E6\"=\"zh\"; \"\E7\"=\"z\"; \"\E8\"=\"i\"; \"\E9\"=\"j\"; \"\EA\"=\"k\"; \"\EB\"=\"l\"; \"\EC\"=\"m\"; \"\ED\"=\"n\"; \"\EE\"=\"o\"; \"\EF\"=\"p\"; \"\F0\"=\"r\"; \"\F1\"=\"s\"; \"\F2\"=\"t\"; \"\F3\"=\"u\"; \"\F4\"=\"f\"; \"\F5\"=\"kh\"; \"\F6\"=\"c\"; \"\F7\"=\"ch\"; \"\F8\"=\"sh\"; \"\F9\"=\"sch\"; \"\FA\"=\"``\"; \"\FB\"=\"y`\"; \"\FC\"=\"`\"; \"\FD\"=\"e`\"; \"\FE\"=\"ju\"; \"\FF\"=\"ya\"; \"\A8\"=\"Yo\"; \"\B8\"=\"yo\"; \"\B9\"=\"#\"}]\r\
-    \n\r\
-    \n# encoding of the symbols and \E0ssembly line\r\
-    \n:local StrTele \"\"; :local code \"\";\r\
-    \n:for i from=0 to=([:len \$string]-1) do={:local keys [:pick \$string \$i (1+\$i)];\r\
-    \n\r\
-    \n:local key (\$rsimv->\$keys); if ([:len \$key]!=0) do={:set \$code (\$rsimv->\$keys);} else={:set \$code \$keys};\r\
-    \n\r\
-    \n:if ((\$keys=\"\DC\")  and ([:pick \$string (\$i+1) (2+\$i)]=\"\C5\")) do={:set \$code \"I\"; :set \$i (\$i+1)}\r\
-    \n:if ((\$keys=\"\FC\")  and ([:pick \$string (\$i+1) (2+\$i)]=\"\E5\")) do={:set \$code \"i\"; :set \$i (\$i+1)}\r\
-    \n:if ((\$keys=\"\DC\")  and ([:pick \$string (\$i+1) (2+\$i)]=\"\E5\")) do={:set \$code \"I\"; :set \$i (\$i+1)}\r\
-    \n:if ((\$keys=\"\FC\")  and ([:pick \$string (\$i+1) (2+\$i)]=\"\C5\")) do={:set \$code \"i\"; :set \$i (\$i+1)}\r\
-    \n:if ((\$keys=\"\DB\")  and ([:pick \$string (\$i+1) (2+\$i)]=\"\C9\")) do={:set \$code \"I\"; :set \$i (\$i+1)}\r\
-    \n:if ((\$keys=\"\FB\")  and ([:pick \$string (\$i+1) (2+\$i)]=\"\E9\")) do={:set \$code \"i\"; :set \$i (\$i+1)}\r\
-    \n:if ((\$keys=\"\FB\")  and ([:pick \$string (\$i+1) (2+\$i)]=\"\C9\")) do={:set \$code \"i\"; :set \$i (\$i+1)}\r\
-    \n:if ((\$keys=\"\DB\")  and ([:pick \$string (\$i+1) (2+\$i)]=\"\E9\")) do={:set \$code \"I\"; :set \$i (\$i+1)}\r\
-    \n :set \$StrTele (\"\$StrTele\".\"\$code\")}\r\
-    \n:return \$StrTele\r\
-    \n}\r\
-    \n\r\
-    \n         :if ([:len \$0]!=0) do={\r\
-    \n         :local SMSdevice [/tool sms get port];\r\
-    \n         :local NumPhone\r\
-    \n         :global ADMINPHONE;\r\
-    \n         :if ([:len \$2]!=0) do={:set NumPhone \$2} \\\r\
-    \n              else={\r\
-    \n                     :if ([:len \$ADMINPHONE]!=0) do={:set NumPhone \$ADMINPHONE} \\\r\
-    \n                            else={\r\
-    \n                                :local NumSMS [/tool sms get allowed-number];\r\
-    \n                                     :if ([:len \$NumSMS]!=0) do={:set NumPhone (\$NumSMS->0)} \\\r\
-    \n                                             else={:log error \"ERROR \$0 sms phone number not found\"; :return \"ERROR function \$0 sms phone number\"}\r\
-    \n}}\r\
-    \n\r\
-    \n# must be performed translite\r\
-    \n:set \$1 [\$FuncSatTranslite string=\$1]\r\
-    \n\r\
-    \n         :log info \"\"; :log warning \"Function \$0 start sms sending to \$NumPhone\";\r\
-    \n             :do {\r\
-    \n                [/tool sms send  \$SMSdevice phone=\$NumPhone message=\$1];\r\
-    \n                } on-error={:log error \"ERROR \$0 sms send\"; :return \"ERROR sms\"}\r\
-    \n          :log warning \"Function \$0 sms sent via modem\"; :log info \"\";\r\
-    \n          :return \"done sms\"\r\
-    \n    } else={:log error \"ERROR \$0 sms send but no message text\"; :return \"ERROR sms\" }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# function satclear \r\
-    \n# ------------------------------------------------------------\r\
-    \n:set satclear do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n\r\
-    \n:global satlogo; :set satlogo\r\
-    \n:global satlist; :set satlist \r\
-    \n:global arp; :set arp\r\
-    \n:global address; :set address\r\
-    \n:global backup; :set backup\r\
-    \n:global lease; :set lease\r\
-    \n:global report; :set report\r\
-    \n:global status; :set status\r\
-    \n:global vpn; :set vpn\r\
-    \n:global vpnuser; :set vpnuser\r\
-    \n:global wifi; :set wifi\r\
-    \n:global wifireg; :set wifireg\r\
-    \n:global wifiaccess; :set wifiaccess\r\
-    \n:global wificonnect; :set wificonnect\r\
-    \n:global wifipass; :set wifipass\r\
-    \n:global health; :set health\r\
-    \n:global dhcpclient; :set dhcpclient\r\
-    \n:global users; :set users;\r\
-    \n:global scriptlist; :set scriptlist\r\
-    \n:global SchedList; :set SchedList\r\
-    \n:global funclist; :set funclist\r\
-    \n:global log; :set log\r\
-    \n:global logreset; :set logreset\r\
-    \n:global pingpong; :set pingpong\r\
-    \n:global mailsend; :set mailsend\r\
-    \n:global smssend; :set smssend\r\
-    \n:global modeminfo; :set modeminfo\r\
-    \n:global globalvarlist; :set globalvarlist\r\
-    \n   \r\
-    \n  :if (\$1=\"all\") do={\r\
-    \n:global satlist; :set satlist \r\
-    \n:global FuncPing; :set FuncPing; \r\
-    \n:global FuncSchedFuncAdd; :set FuncSchedFuncAdd;\r\
-    \n:global FuncSchedScriptAdd; :set FuncSchedScriptAdd;\r\
-    \n:global FuncSchedRemove; :set FuncSchedRemove;\r\
-    \n:global FuncUnixTimeToFormat; :set FuncUnixTimeToFormat;\r\
-    \n:global FuncEpochTime; :set FuncEpochTime;\r\
-    \n:global FuncTelegramSender; :set FuncTelegramSender;\r\
-    \n}\r\
-    \n:global satclear; :set satclear\r\
-    \n:global tlgrmcmd; :if (any \$tlgrmcmd) do={:local arCom [:toarray {\"satstart\"=\"\F3\F1\F2\E0\ED\EE\E2\EA\E0 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8 SATELLITE \E2 \EE\EA\F0\F3\E6\E5\ED\E8\E5\"}];\r\
-    \n:log warning (\"list of commands of the SATELLITE library in the Telegram chatbot erase is \$[\$tlgrmcmd \$arCom]\")}\r\
-    \n        :put  (\"\$[/system identity get name]\".\" \$0 unload\")\r\
-    \n        :return (\"library \$0 \".\" is unload\")\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n:log info \"  -    SATELLITE2 module is set\""
-/system script add comment="module 1 SATELLITE for TLGRM" dont-require-permissions=no name=SAT1 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#--------------------------------------------------------------------------------------------------------------------------\r\
-    \n# SATELLITE1 module  for TLGRM version 2.2 by Sertik (Serkov S.V.) 25/10/2022\r\
-    \n#--------------------------------------------------------------------------------------------------------------------------\r\
-    \n\r\
-    \n# declare functions:\r\
-    \n\r\
-    \n:global arp\r\
-    \n:global address\r\
-    \n:global backup\r\
-    \n:global status\r\
-    \n:global vpn \r\
-    \n:global vpnuser\r\
-    \n:global wifi \r\
-    \n:global wifireg \r\
-    \n:global wifiaccess\r\
-    \n:global wifipass\r\
-    \n:global scriptlist\r\
-    \n:global funclist\r\
-    \n:global schedlist\r\
-    \n:global globalvarlist\r\
-    \n\r\
-    \n\r\
-    \n#\r\
-    \n#   \CA\CE\CC\C0\CD\C4\DB \C1\C8\C1\CB\C8\CE\D2\C5\CA\C8 SATELLITE\r\
-    \n#\r\
-    \n\r\
-    \n# arp tabl - > Telegram\r\
-    \n# ---\r\
-    \n:set arp do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:local TXTarp\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local count 0\r\
-    \n:local WS\r\
-    \n:local TT\r\
-    \nforeach i in=[ /ip arp find] do={\r\
-    \n:local active [/ip arp get \$i disabled]\r\
-    \n:if (\$active) do={:set WS \"enable\"; :set TT \"%F0%9F%94%B4\"} else={:set WS \"disable\"; :set TT \"%F0%9F%94%B5\"}\r\
-    \n:local ipARPaddress [/ip arp get \$i address];\r\
-    \n:local ipARPmacaddress [/ip arp get \$i mac];\r\
-    \n:local ARPface [/ip arp get \$i interface];\r\
-    \n:local ARPcomment [/ip arp get \$i comment];\r\
-    \n:if ([:len \$ipARPmacaddress]!=0) do={:set count (\$count+1); :set \$TXTarp (\"\$TXTarp\".\"\$count \".\"\$TT \".\"\$ipARPaddress \".\" \$ipARPmacaddress \".\" \$ARPface \".\" \$ARPcomment\".\"%0A\")\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$[/system identity get name]\".\" arp tabl:\".\"%0A\".\"\$TXTarp\")]\r\
-    \n:return \$count\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# ip addresses tabl - > Telegram\r\
-    \n# ----\r\
-    \n:set address do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local system [/system identity get name]\r\
-    \n:local WS\r\
-    \n:local listAL\r\
-    \n:local TT\r\
-    \n:local count 0\r\
-    \n\r\
-    \n:foreach AddrList in=[/ip address find true] do={\r\
-    \n:local Aname [/ip address get \$AddrList]\r\
-    \n:local Aadr (\$Aname->\"address\")\r\
-    \n:local Acomment (\$Aname->\"comment\")\r\
-    \n:local Anetwork (\$Aname->\"network\")\r\
-    \n:local Aface (\$Aname->\"actual-interface\")\r\
-    \n:local WsState [/ip address get \$AddrList disabled]\r\
-    \n:if (\$WsState) do={:set WS \"enable\"; :set TT \"%F0%9F%94%B4\"} else={:set WS \"disable\"; :set TT \"%F0%9F%94%B5\"}\r\
-    \n:set count (\$count+1)\r\
-    \n:set listAL (\"\$listAL\".\"\$count\".\" \$TT\".\" \$Aadr\".\" \$Acomment\".\" \$Anetwork\".\" \$Aface\".\"%0A\")\r\
-    \n}\r\
-    \n:if ([:len \$listAL]!=0) do={\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$system\".\" /ip address :%0A\".\"\$listAL\")]\r\
-    \n   }\r\
-    \n :return \$count\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# backup  - > Telegram\r\
-    \n# ---\r\
-    \n:set backup do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n# send or no send on E-mail\r\
-    \n:local mailsend false\r\
-    \n:global ADMINMAIL;  \r\
-    \n:local mailBox \$ADMINMAIL;  \r\
-    \n\r\
-    \n:log warning \"Starting Backup Script...\";\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local sysver [/system package get system version];\r\
-    \n:log info \"Flushing DNS cache...\";\r\
-    \n/ip dns cache flush;\r\
-    \n:delay 2;\r\
-    \n:log info \"Deleting last Backups...\";\r\
-    \n:foreach i in=[/file find] do={:if (([:typeof [:find [/file get \$i name] \\\r\
-    \n\"\$sysname-backup-\"]]!=\"nil\") or ([:typeof [:find [/file get \$i name] \\\r\
-    \n\"\$sysname-script-\"]]!=\"nil\")) do={/file remove \$i}};\r\
-    \n:delay 2;\r\
-    \n:local backupfile (\"\$sysname-backup-\" . \\\r\
-    \n[:pick [/system clock get date] 7 11] . [:pick [/system \\\r\
-    \nclock get date] 0 3] . [:pick [/system clock get date] 4 6] . \".backup\");\r\
-    \n:log warning \"Creating new Full Backup file...\$backupfile\";\r\
-    \n/system backup save name=\$backupfile;\r\
-    \n:delay 5;\r\
-    \n:local exportfile (\"\$sysname-backup-\" . \\\r\
-    \n[:pick [/system clock get date] 7 11] . [:pick [/system \\\r\
-    \nclock get date] 0 3] . [:pick [/system clock get date] 4 6] . \".rsc\");\r\
-    \n:log warning \"Creating new Setup Script file...\$exportfile\";\r\
-    \n/export verbose file=\$exportfile;\r\
-    \n:delay 5;\r\
-    \n:local scriptfile (\"\$sysname-script-\" . \\\r\
-    \n[:pick [/system clock get date] 7 11] . [:pick [/system \\\r\
-    \nclock get date] 0 3] . [:pick [/system clock get date] 4 6] . \".rsc\");\r\
-    \n:log warning \"Creating new file export all scripts ...\$scriptfile\";\r\
-    \n/system script export file=\$scriptfile;\r\
-    \n:delay 2;\r\
-    \n:log warning \"All System Backups and export all Scripts created successfully.\\nBackuping completed.\";\r\
-    \n\r\
-    \nif (\$mailsend) do={\r\
-    \n:log warning \"Sending Setup Script file via E-mail...\";\r\
-    \n:local smtpserv [:resolve \"smtp.mail.ru\"];\r\
-    \n:local Eaccount [/tool e-mail get user];\r\
-    \n:local pass [/tool e-mail get password];\r\
-    \n/tool e-mail send from=\"<\$Eaccount>\" to=\$mailBox server=\$smtpserv \\\r\
-    \nport=587 user=\$Eaccount password=\$pass tls=starttls file=(\$backupfile, \$exportfile, \$scriptfile) \\\r\
-    \nsubject=(\"\$sysname Setup Script Backup (\" . [/system clock get date] . \\\r\
-    \n\")\") body=(\"\$sysname Setup Script file see in attachment.\\nRouterOS \\\r\
-    \nversion: \$sysver\\nTime and Date stamp: \" . [/system clock get time] . \" \\\r\
-    \n\" . [/system clock get date]);\r\
-    \n:log warning \"Setup Script file e-mail send\";\r\
-    \n:delay 5;\r\
-    \n  }\r\
-    \n:return \"backup is done\"\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# all resurces - > Telegram\r\
-    \n# ---\r\
-    \n:set status do={\r\
-    \n  :if ([:len \$0]!=0) do={\r\
-    \n    :global Emoji;\r\
-    \n    :global FuncTelegramSender\r\
-    \n    :local systemName       [/system identity get name];\r\
-    \n    :local uptime           [/system resource get uptime];\r\
-    \n    :local FreeMemory       [/system resource get free-memory];\r\
-    \n    :local TotalMemory      [/system resource get total-memory];\r\
-    \n    :local cpu              [/system resource get cpu];\r\
-    \n    :local cpuCount         [/system resource get cpu-count];\r\
-    \n    :local cpuFrequency     [/system resource get cpu-frequency];\r\
-    \n    :local cpuLoad          [/system resource get cpu-load];\r\
-    \n    :local freeHdd          [/system resource get free-hdd-space];\r\
-    \n    :local totalHdd         [/system resource get total-hdd-space];\r\
-    \n    :local architectureName [/system resource get arch]\r\
-    \n#  :local license          [/system license get level];\r\
-    \n    :local boardName        [/system resource get board-name];\r\
-    \n    :local version          [/system resource get version];\r\
-    \n\r\
-    \n:local TXT (\"\$Emoji \".\"\$systemName\".\" status:\".\"%0A\".\"Uptime: \".\"\$uptime\".\"%0A\".\"Free Memory: \".\"\$FreeMemory\".\" B\".\"%0A\".\"Total Memory: \".\"\$TotalMemory\".\" B\".\"%0A\".\"CPU \". \"\$cpu\".\"%0A\".\"CPU Count: \".\"\$cpuCount\".\"%0A\".\"CPU Frequency: \".\"\$cpuFrequency\".\"MHz\".\"%0A\".\"CPU Load: \".\"\$cpuLoad\".\"% \".\"%0A\".\"Free HDD Space \".\"\$freeHdd\".\" B \".\"%0A\".\"Total HDD Space: \".\"\$totalHdd\".\" B\".\"%0A\".\"Architecture: \".\"\$architectureName \".\"%0A\".\"License Level: \".\"\$license\".\"%0A\".\"Board Name:  \".\"\$boardName\".\" %0A\".\"Version: \". \"\$version\")\r\
-    \n:do {\r\
-    \n[\$FuncTelegramSender \$TXT]\r\
-    \n} on-error={}\r\
-    \n:return [];\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# function VPN-tonnel scanning & Telegram chat send\r\
-    \n\r\
-    \n:set vpn do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n# used: [\$FuncTonnel \"tonnelType\"]\r\
-    \n:local FuncTonnel do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local system [/system identity get name]\r\
-    \n:local count 0\r\
-    \n:local Cto\r\
-    \n:local listVpn\r\
-    \n:foreach Vpn in=[[:parse \"[/interface \$1 find]\"]] do={\r\
-    \n  :local TT \"%F0%9F%94%B5\"\r\
-    \n  :local nameVpn [[:parse \"[/interface \$1 get \$Vpn name]\"]]\r\
-    \n  :local commentVpn [[:parse \"[/interface \$1 get \$Vpn comment]\"]]\r\
-    \n  :local typeVpn [:pick [/interface get \$nameVpn type] ([:find [/interface get \$nameVpn type] \"-\"]+1) [:len [/interface get \$nameVpn type]]]\r\
-    \n  :if (\$typeVpn=\"out\") do={:set Cto (\"connect to \".\"\$[[:parse \"[/interface \$1 get \$nameVpn connect-to]\"]]\")} else={:set Cto \"\"}\r\
-    \n  :local VpnState [[:parse \"[/interface \$1 monitor \$Vpn once as-value]\"]]\r\
-    \n  :local cuVpnStatus (\$VpnState->\"status\")\r\
-    \n  :local ladr (\$VpnState->\"local-address\")\r\
-    \n  :local radr (\$VpnState->\"remote-address\")\r\
-    \n  :local uptime (\$VpnState->\"uptime\")\r\
-    \n\r\
-    \n    :if (\$cuVpnStatus~\"terminating\") do={\r\
-    \n    :set cuVpnStatus \"disabled\";  set TT \"\"}\r\
-    \n    :if ([:typeof \$cuVpnStatus]=\"nothing\") do={\r\
-    \n    :set cuVpnStatus \"disconnected\";  set TT \"%F0%9F%94%B4\"}\r\
-    \n    :if (\$cuVpnStatus=\"disabled\") do={ :set TT \"%F0%9F%94%B3\"}\r\
-    \n  :set count (\$count+1)\r\
-    \n :if ((\$cuVpnStatus=\"disconnected\") or (\$cuVpnStatus=\"disabled\")) do={\r\
-    \n  :set listVpn (\$listVpn.\"\".\$count. \" \".\$TT.\" \".\$nameVpn.\" \".\$commentVpn.\": \".\$cuVpnStatus.\"%0A\")\r\
-    \n} else={:set listVpn (\"\$listVpn\".\"\$count\".\" \$TT\".\" \$nameVpn\".\" \$commentVpn:\".\" \$cuVpnStatus\".\" uptime: \".\"\$uptime\".\"%0A\".\"          \$Cto\".\" local-address: \".\"\$ladr\".\" remote-address: \".\"\$radr\".\"%0A\")}\r\
-    \n}\r\
-    \n:if ([:len \$listVpn]!=0) do={:global xcount; :set xcount (\$xcount+1)\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$system\".\" \$1:%0A\".\"\$listVpn\")]\r\
-    \n }\r\
-    \n}\r\
-    \n:return \$count}\r\
-    \n\r\
-    \n\r\
-    \n# main block of the script\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n[\$FuncTelegramSender (\"<b>\".\"\$Emoji \".\" \$system\".\" --- VPN Interface Informer --- : </b> %0A %0A\") \"html\"]\r\
-    \n:log info \"\"\r\
-    \n:log warning (\"\$system\".\"VPN Interface Informer script is start up ... \")\r\
-    \n:global xcount 0\r\
-    \n[\$FuncTonnel \"l2tp-client\"]\r\
-    \n[\$FuncTonnel \"l2tp-server\"]\r\
-    \n[\$FuncTonnel \"pptp-client\"]\r\
-    \n[\$FuncTonnel \"pptp-server\"]\r\
-    \n[\$FuncTonnel \"ovpn-client\"]\r\
-    \n[\$FuncTonnel \"ovpn-server\"]\r\
-    \n[\$FuncTonnel \"sstp-client\"]\r\
-    \n[\$FuncTonnel \"sstp-server\"]\r\
-    \n:if (\$xcount=0) do={[\$FuncTelegramSender (\"<b>\".\"\$Emoji \".\" \$system\".\" --- No find PPP VPN Interface  --- : </b> %0A %0A\") \"html\"]}\r\
-    \n# [\$FuncTonnel \"ppp-client\"]\r\
-    \n# [\$FuncTonnel \"ppp-server\"]\r\
-    \n# [\$FuncTonnel \"pppoe-client\"]\r\
-    \n# [\$FuncTonnel \"pppoe-server\"]\r\
-    \n:set xcount\r\
-    \n\r\
-    \n:log warning \"VPN Interface Informer scanning is done and Telegram chat send\"\r\
-    \n:return \"done\"\r\
-    \n}}\r\
-    \n\r\
-    \n\r\
-    \n# print vpnuser seckret & active vpn user`s - > Telegram\r\
-    \n# \E2\E5\F0\F1\E8\FF 01.10.2021\r\
-    \n# ---\r\
-    \n:set vpnuser do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:local name;\r\
-    \n:local enc;\r\
-    \n:local addr;\r\
-    \n:local ltu;\r\
-    \n:local pass;\r\
-    \n:local type;\r\
-    \n:local vpnuser\r\
-    \n:local vpnuserT\r\
-    \n:local vpnuserL\r\
-    \n:local vpnuserTlg\r\
-    \n:local calc\r\
-    \n:global ADMINPHONE\r\
-    \n:global Emoji\r\
-    \n\r\
-    \n\r\
-    \n#:log warning \"\CD\E0\F1\F2\F0\EE\E5\ED\ED\FB\E5 VPN-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8:\"\r\
-    \n\r\
-    \n:foreach i in=[/ppp secret find] do={\r\
-    \n:set name [/ppp secret get \$i name]; :set pass [/ppp secret get \$name password]; set type [/ppp secret get \$i service]\r\
-    \n:set calc (\$calc+1); \r\
-    \n# :log info (\"\$calc \".\"\$name\".\" [\".\" \$type\".\"]\".\" \$pass\");\r\
-    \n:set vpnuser (\"\$vpnuser\".\"\$calc\".\"  \$name\".\"  <\".\" \$type \".\">\".\" \$pass\".\"%0A\");\r\
-    \n}\r\
-    \n\r\
-    \n# :log warning \$calc; :log info \"\";\r\
-    \n:do {\r\
-    \n:global FuncTelegramSender; [\$FuncTelegramSender (\"\$Emoji \".\"* \$[/system identity get name]*\".\" VPN-users name, type and password set:\".\"%0A------------------------------------------------------------------------------------%0A\".\"\$vpnuser\") \"markdown\"]\r\
-    \n} on-error={:log error \"Error send to Telegram message\"}\r\
-    \n\r\
-    \n:set vpnuser;\r\
-    \n:set calc\r\
-    \n\r\
-    \n#:log warning \"\CF\EE\E4\EA\EB\FE\F7\E5\ED\ED\FB\E5 VPN-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8:\"\r\
-    \n\r\
-    \n:foreach i in=[/ppp active find] do={\r\
-    \n:set \$name [/ppp active get \$i name]; :set \$type [/ppp active get \$i service]; :set \$enc [/ppp active get \$i encoding]; :set \$addr [/ppp active get \$i address]; :set \$ltu [/ppp active get \$i uptime]\r\
-    \n# :log info (\"\$name\".\" [\".\"\$type\".\"]\".\" \$enc\".\" \$addr\");\r\
-    \n:set \$vpnuser (\"\$vpnuser\".\"\$name\".\"\\n\");\r\
-    \n:set vpnuserTlg (\"\$vpnuserTlg\".\"\$name\".\"  {\".\"\$type\".\"}\".\" \$addr\". \" uptime: \$ltu\".\"%0A\");\r\
-    \n}\r\
-    \n\r\
-    \n:set calc [:len [/ppp active find]]\r\
-    \n\r\
-    \ndo {\r\
-    \n:local SMSdevice [/tool sms get port];\r\
-    \n/tool sms send \$SMSdevice  phone=\$ADMINPHONE message=(\"active VPN-users \".\"\$calc\".\":\".\"\\n\".\"\$vpnuser\");\r\
-    \n} on-error={:log error \"Error send SMS message\"}\r\
-    \n\r\
-    \ndo {\r\
-    \n:global FuncTelegramSender;\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\"* \$[/system identity get name]*\".\" VPN-active\". \" \$calc\".\" users: \".\"%0A-----------------------------------------------------------------------%0A\".\"\$vpnuserTlg\") \"markdown\"]\r\
-    \n} on-error={:log error \"Error send to Telegram message\"}\r\
-    \n  :return \$calc\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# print wifi Interfaces, SSID and Band to Telegram\r\
-    \n# \E2\E5\F0\F1\E8\FF 06.03.2022\r\
-    \n# ---\r\
-    \n:set wifi do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local system [/system identity get name]\r\
-    \n:local WS\r\
-    \n:local listWS\r\
-    \n:local logWS\r\
-    \n:local TT\r\
-    \n:local count 0\r\
-    \n\r\
-    \n:foreach wirelessClient in=[/interface wireless find true] do={\r\
-    \n:local WsName [/interface get \$wirelessClient name]\r\
-    \n:local WsComment [/interface get \$wirelessClient comment]\r\
-    \n:local WsSID [/interface wireless get \$wirelessClient ssid] \r\
-    \n:local WsBand [/interface wireless get \$wirelessClient band] \r\
-    \n:local WsMode [/interface wireless get \$wirelessClient mode] \r\
-    \n:local WsState (![/interface get \$wirelessClient disabled])\r\
-    \n:local WsProf  [/interface wireless get \$wirelessClient security-profile]\r\
-    \n:local Ws2Key [/interface wireless security-profiles get \$WsProf wpa2-pre-shared-key];\r\
-    \n:if ([:len \$WsBand]=0) do={:set WsMode \"virtual wifi\"}\r\
-    \n:if (\$WsState) do={:set WS \"enable\"; :set TT \"%F0%9F%94%B5\"} else={:set WS \"disable\"; :set TT \"%F0%9F%94%B4\"}\r\
-    \n# :local WD [/interface monitor \$wirelessClient once as-value]\r\
-    \n:set count (\$count+1)\r\
-    \n:set listWS (\"\$listWS\".\"\$count\".\" \$TT\".\" \$WsName\".\" \$WsComment\".\" [ \$WsMode ]\".\" SSID:\".\" \$WsSID\".\" \$WsBand\".\"%0A\")\r\
-    \n:set logWS (\"\$logWS\".\"\$count\".\" \$WsSID \".\"\$Ws2Key\".\"\\n\")\r\
-    \n}\r\
-    \n\r\
-    \n:if ([:len \$listWS]!=0) do={\r\
-    \n[\$FuncTelegramSender (\"\$Emoji \".\" \$system\".\" wifi interface and SSID:%0A\".\"\$listWS\")]\r\
-    \n   }\r\
-    \n :return \$logWS;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# wifiaccess tabl to Telegram\r\
-    \n# ---\r\
-    \n:set wifiaccess do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:local identity [/system identity get name]\r\
-    \n:local count\r\
-    \n:local output;\r\
-    \n:foreach activeIndex in=[/interface wireless access find true] do={\r\
-    \n      :set count (\$count+1);\r\
-    \n              :local RegVal [/interface wireless access get \$activeIndex]\r\
-    \n                :local iFace (\$RegVal->\"interface\")\r\
-    \n                :local MACAddr (\$RegVal->\"mac-address\")\r\
-    \n                :local comment (\$RegVal->\"comment\")\r\
-    \n                :local time (\$RegVal->\"time\")\r\
-    \n     :if (\$RegVal->\"disabled\") do={\r\
-    \n             :set output (\"\$output\".\"\$count\".\" %F0%9F%94%B4 \".\" \$comment\".\" \$iFace\".\" \$MACAddr\".\" \$time\".\"%0A\");\r\
-    \n} else={ :set output (\"\$output\".\"\$count\".\" %F0%9F%94%B7  \".\" \$comment\".\" \$iFace\".\" \$MACAddr\".\" \$time\".\"%0A\");}\r\
-    \n\r\
-    \n          }\r\
-    \n\r\
-    \nif ([:len \$output] >0) do={[\$FuncTelegramSender (\"\$Emoji\".\" *Router\".\" \$identity\".\" wireless access-tabl:*\".\"%0A\".\"-------------------------------------------------------------------------------------------------------------- \".\"%0A\".\"\$output\") \"markdown\"]\r\
-    \n} else={[\$FuncTelegramSender (\"\$Emoji\".\" *Router\".\" \$identity\".\" wireless access-tabl is empty*\") \"markdown\"]}\r\
-    \n  :return \$count;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# wifi users registry tabl - > Telegram\r\
-    \n# ---\r\
-    \n:set wifireg do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji;\r\
-    \n:global botID;\r\
-    \n:global myChatID;\r\
-    \n:global FuncTelegramSender\r\
-    \n:local count\r\
-    \n:local identity [/system identity get name];\r\
-    \n\r\
-    \n:local output;\r\
-    \n:foreach activeIndex in=[/interface wireless registration-table find] do={\r\
-    \n            :if ([:typeof \$activeIndex]!=\"nothing\") do={\r\
-    \n                         :local WifiFace [/interface wireless registration-table get value-name=\"interface\" \$activeIndex];\r\
-    \n                         :local WifiComment [/interface wireless registration-table get value-name=\"comment\" \$activeIndex];\r\
-    \n                         :local activeMACAddr [/interface wireless registration-table get value-name=\"mac-address\" \$activeIndex];\r\
-    \n                         :local activeIPadr [/interface wireless registration-table get value-name=\"last-ip\" \$activeIndex];\r\
-    \n                         :local WSignal [/interface wireless registration-table get value-name=\"signal-strength\" \$activeIndex];\r\
-    \n                         :set count (\$count+1)\r\
-    \n                         :set output (\"\$output\".\"\$count\".\"  \$WifiFace\".\" \$activeMACAddr \".\"\$activeIPadr\".\" \$WifiComment\".\"%0A\".\"      signal strength: \".\"\$WSignal\".\"%0A\");\r\
-    \n                  }\r\
-    \n          }\r\
-    \n\r\
-    \nif ([:len \$output] >0) do={[\$FuncTelegramSender (\"\$Emoji\".\" <b>Router  \$identity wireless registration-tabl:</b>\".\"%0A\".\" \$output1\") \"html\"]\r\
-    \n} else={[\$FuncTelegramSender (\"\$Emoji\".\" <b>Router  \$identity wireless registration-tabl: is empty</b>\") \"html\"]}\r\
-    \n:return \$count;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# wifi SSID & pass - > Telegram and SMS \$ADMINPHONE\r\
-    \n# ---\r\
-    \n:set wifipass do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global FuncTelegramSender\r\
-    \n:global ADMINPHONE\r\
-    \n:global FuncWifi\r\
-    \n:local SMSmessage [\$FuncWifi]\r\
-    \n:log warning (\"\\n\".\"Router \".\"\$[/system identity get name]\".\" wlan SSID and passwords:\".\"\\n\".\"\$SMSmessage\")\r\
-    \ndo {\r\
-    \n:local SMSdevice [/tool sms get port];\r\
-    \n /tool sms send \$SMSdevice  phone=\$ADMINPHONE message=(\"Router \".\"\$[/system identity get name]\".\" wifi:\".\"\\n\".\"\$SMSmessage\")\r\
-    \n} on-error={:log error \"Error send SMS message\"}\r\
-    \n   :return [];\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# function scriptlist ->Telegram\r\
-    \n# ---\r\
-    \n:set scriptlist do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji; :global FuncTelegramSender; :global GroupChat; :global broadCast;\r\
-    \n:local Router [/system identity get name]\r\
-    \n:local ScriptArray [:toarray \"\"]; :local CommentArray [:toarray \"\"]\r\
-    \n:local nlist 900\r\
-    \n:local name\r\
-    \n:local comment\r\
-    \n:local count 0\r\
-    \n:if (([:len \$1]>0) and (\$1!=\"fastcall\")) do={:return \"Function \$0 bad parametr \$1\"}\r\
-    \n\r\
-    \n# seek all scripts or ONLY which can be launched from the chat !\r\
-    \n:if (\$1=\"fastcall\") do={\r\
-    \n:foreach i in=[system script find] do={\r\
-    \n:if (([:len [:find [/system script get \$i name] \"_\"]]=0) && ([:len [:find [/system script get \$i name] \" \"]]=0)) do={\r\
-    \n:set \$name [/system script get \$i name]; set comment [/system script get \$i comment]\r\
-    \n:set (\$ScriptArray->\$count) \$name; :set (\$CommentArray->\$count) \$comment;:set count (\$count+1);}\r\
-    \n }\r\
-    \n} else={\r\
-    \n:foreach i in=[system script find] do={\r\
-    \n:set \$name [/system script get \$i name]; set comment [/system script get \$i comment]\r\
-    \n:set (\$ScriptArray->\$count) \$name; :set (\$CommentArray->\$count) \$comment;:set count (\$count+1);}\r\
-    \n}\r\
-    \n\r\
-    \n:local a \"\"; :local b; :local c; :local d;\r\
-    \n:local block 0\r\
-    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\"); :set \$d (\"\$CommentArray\"->\"\$i\");:set b (\$i+1)\r\
-    \n\r\
-    \n# \F3\F7\E8\F2\FB\E2\E0\F2\FC \F4\EB\E0\E3 \F0\E5\E6\E8\EC\E0 \F8\E8\F0\EE\EA\EE\E2\E5\F9\E0\F2\E5\EB\FC\ED\EE\E9 \F0\E0\F1\F1\FB\EB\EA\E8\r\
-    \n:if (!\$broadCast) do={:set a (\"\$a\".\"\$b \".\"/\".\"\$Router\".\"_\".\"\$c\$GroupChat\".\" \$d\".\"%0A\")} else={:set a (\"\$a\".\"\$b \".\"/\".\"\$c\".\" \$d\".\"%0A\")}\r\
-    \n\r\
-    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
-    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository script list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
-    \n:set a \"\";\r\
-    \n  }\r\
-    \n}\r\
-    \n:set block (\$block+1)\r\
-    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository script list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
-    \n  :return [:len \$ScriptArray]\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# function funclist ->Telegram\r\
-    \n# ---\r\
-    \n:set funclist do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji; :global FuncTelegramSender; :global broadCast; global GroupChat;\r\
-    \n:local Router [/system identity get name]\r\
-    \n:local ScriptArray [:toarray \"\"];\r\
-    \n:local ValArray [:toarray \"\"];\r\
-    \n:local nlist 900\r\
-    \n:local name\r\
-    \n:local val\r\
-    \n:local comment\r\
-    \n:local count 0\r\
-    \n\r\
-    \n# seek all global\r\
-    \n:foreach i in=[/system script environment find] do={:set \$name [/system script environment get \$i name]; \r\
-    \n:if (([/system script environment get \$i value]=\"(code\") or  ([:len [:find [/system script environment get \$i value] \"(eval\"]]>0)) do={\r\
-    \n:set (\$ScriptArray->\$count) \$name;\r\
-    \n:set count (\$count+1);\r\
-    \n}}\r\
-    \n:local a \"\"; :local b 0; :local c;\r\
-    \n:local block 0\r\
-    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\");\r\
-    \n:if ([:len \$c]!=0) do={\r\
-    \n\r\
-    \n# \F3\F7\E8\F2\FB\E2\E0\F2\FC \F4\EB\E0\E3 \F8\E8\F0\EE\EA\EE\E2\E5\F9\E0\F2\E5\EB\FC\ED\EE\E9 \F0\E0\F1\F1\FB\EB\EA\E8\r\
-    \n:if (!\$broadCast) do={:set b (\$b+1); :set a (\"\$a\".\" - \".\"\$b  \".\"/\".\"\$Router\".\"_\".\"\$c\$GroupChat\".\"%0A\")} else={:set b (\$b+1); :set a (\"\$a\".\" - \".\"\$b  \".\"/\".\"\$c \".\"%0A\")}\r\
-    \n\r\
-    \n}\r\
-    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
-    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment active Functions list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
-    \n:set a \"\";\r\
-    \n  }\r\
-    \n}\r\
-    \n:set block (\$block+1)\r\
-    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment active Functions list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
-    \n     :return \$count;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# function schedlist ->Telegram\r\
-    \n# ---\r\
-    \n:set schedlist do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji; :global FuncTelegramSender;\r\
-    \n:local ScriptArray [:toarray \"\"]; :local CommentArray [:toarray \"\"]; :local StartTimeArray [:toarray \"\"]; :local IntervalArray [:toarray \"\"]; local StatusArray [:toarray \"\"];\r\
-    \n:local nlist 900\r\
-    \n:local count 0\r\
-    \n# seek all scheduler\r\
-    \n:foreach i in=[system scheduler find] do={\r\
-    \n:set (\$StatusArray->\$count) [/system scheduler get \$i disabled]\r\
-    \n:set (\$ScriptArray->\$count) [/system scheduler get \$i name]\r\
-    \n:set (\$CommentArray->\$count) [/system scheduler get \$i comment]\r\
-    \n:set (\$StartTimeArray->\$count) [/system scheduler get \$i \"start-time\"]\r\
-    \n:set (\$IntervalArray->\$count) [/system scheduler get \$i interval]\r\
-    \n:set count (\$count+1);}\r\
-    \n\r\
-    \n:local a \"\"; :local e; :local b; :local c; :local d; :local t; local v\r\
-    \n:local block 0\r\
-    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\"); :set \$d (\"\$CommentArray\"->\"\$i\"); set \$t (\"\$StartTimeArray\"->\"\$i\"); set \$v (\"\$IntervalArray\"->\"\$i\"); \r\
-    \n:if (\$StatusArray->\"\$i\") do={:set e \"%F0%9F%94%B4\"} else={:set e \"%F0%9F%94%B7\"}\r\
-    \n:set b (\$i+1);\r\
-    \n:set a (\"\$a\".\" \$e\".\" \$b\".\" \$c\".\" \$d\".\" [ \$t ]\".\" [ \$v ]\".\"%0A\")\r\
-    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
-    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] scheduler list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
-    \n:set a \"\";\r\
-    \n  }\r\
-    \n}\r\
-    \n:set block (\$block+1)\r\
-    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] scheduler list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
-    \n  :return [:len \$ScriptArray]\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# function globalvarlist ->Telegram\r\
-    \n# ---\r\
-    \n:set globalvarlist do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji; :global FuncTelegramSender;\r\
-    \n:local ScriptArray [:toarray \"\"];\r\
-    \n:local ValArray [:toarray \"\"];\r\
-    \n:local nlist 900\r\
-    \n:local name\r\
-    \n:local val\r\
-    \n:local comment\r\
-    \n:local count 0\r\
-    \n# seek all global\r\
-    \n:foreach i in=[/system script environment find] do={:set \$name [/system script environment get \$i name]; \r\
-    \n:if (([/system script environment get \$i value]!=\"(code\") and  ([:len [:find [/system script environment get \$i value] \"(eval\"]]!=1)) do={\r\
-    \n:set \$val [/system script environment get \$i value];} else={:set val; set name}\r\
-    \n:set (\$ScriptArray->\$count) \$name; :set (\$ValArray->\$count) \$val;\r\
-    \n:set count (\$count+1);\r\
-    \n}\r\
-    \n:local a \"\"; :local b 0; :local c; :local d;\r\
-    \n:local block 0\r\
-    \n:for i from=0 to=([:len \$ScriptArray]-1) do={:set \$c (\"\$ScriptArray\"->\"\$i\"); :set \$d (\"\$ValArray\"->\"\$i\");\r\
-    \n:if ([:len \$c]!=0) do={:set b (\$b+1)\r\
-    \n:set a (\"\$a\".\" - \".\"\$b  \".\"\$c \".\"\$d\".\"%0A\")}\r\
-    \n# \EE\E4\E8\ED \E2\FB\E2\EE\E4 \EE\E3\F0\E0\ED\E8\F7\E5\ED \EA\EE\EB\E8\F7\E5\F1\F2\E2\EE\EC nlist \F1\E8\EC\E2\EE\EB\EE\E2;\r\
-    \n:if ([:len \$a]>\$nlist) do={:set block (\$block+1);\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment Global var list < \$block >:\".\"%0A%0A\".\"\$a\")]\r\
-    \n:set a \"\";\r\
-    \n  }\r\
-    \n}\r\
-    \n:set block (\$block+1)\r\
-    \n# \"\E4\EE\EF\E5\F7\E0\F2\EA\E0\" \EF\EE\F1\EB\E5\E4\ED\E5\E3\EE \E1\EB\EE\EA\E0 \E4\E0\ED\ED\FB\F5\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\"\$[/system identity get name] repository environment Global var list: < \$block >\".\"%0A%0A\".\"\$a\")]\r\
-    \n         :return \$b;\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n:log info \"  -    SATELLITE1 module is set\"\r\
-    \n\r\
-    \n"
-/system script add comment="module 0 SATELLITE for TLGRM" dont-require-permissions=no name=SAT0 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#--------------------------------------------------------------------------------------------------------------------------\r\
-    \n# SATELLITE0 module  for TLGRM version 2.2 by Sertik (Serkov S.V.) 25/10/2022\r\
-    \n#--------------------------------------------------------------------------------------------------------------------------\r\
-    \n\r\
-    \n# declare functions:\r\
-    \n\r\
-    \n:global satlogo\r\
-    \n:global satlist\r\
-    \n\r\
-    \n\r\
-    \n# \E2\FB\E4\E0\F7\E0 \EB\EE\E3\EE\F2\E8\EF\E0 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8 \E2 \EB\EE\E3\r\
-    \n#              satlogo\r\
-    \n# ---------------------------------------------------------\r\
-    \n\r\
-    \n:set satlogo do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global fSATversion\r\
-    \n:global GroupChat\r\
-    \n:log warning \"\";\r\
-    \n:log warning \"#-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-#\";\r\
-    \n:log warning \"#                 Library SATELLITE for TLGRM\" ;\r\
-    \n:log warning \"#   \C1\E8\E1\EB\E8\EE\F2\E5\EA\E0 \D1\CF\D3\D2\CD\C8\CA \E4\EB\FF \EF\E0\F0\F1\E5\F0\E0 TLGRM\";\r\
-    \n:log warning \"#       by Serkov S.V. (Sertik) update 25/10/2022\";\r\
-    \n:log warning \"#                                 version \$fSATversion\"; \r\
-    \n:log warning \"#-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-|-#\";\r\
-    \n:log error  (\"To display a list of commands, type in the your chat: \".\"/\");  \r\
-    \n:log info \"\";\r\
-    \n }\r\
-    \n:return []}\r\
-    \n\r\
-    \n\r\
-    \n# \F3\F1\F2\E0\ED\EE\E2\EA\E0 \F1\EF\E8\F1\EA\E0 \EA\EE\EC\E0\ED\E4-\F4\F3\ED\EA\F6\E8\E9 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8\r\
-    \n#                satlist \E2 \F7\E0\F2 \D2\E5\EB\E5\E3\F0\E0\EC\EC\r\
-    \n# -----------------------------------------------------------------------\r\
-    \n\r\
-    \n# update 25/10/2022 works only with function tlgrmcmd in TLGRM script\r\
-    \n\r\
-    \n# \$1 - key array list commands\r\
-    \n# \$2 - may be =\"identity\", \"forall\", []\r\
-    \n\r\
-    \n:set satlist do={\r\
-    \n# \F1\EA\F0\E8\EF\F2 \F3\F1\F2\E0\ED\EE\E2\EA\E8 \F1\EF\E8\F1\EA\E0 \EA\EE\EC\E0\ED\E4 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8 SATELLITE \E2 \F7\E0\F2\E1\EE\F2 \D2\E5\EB\E5\E3\F0\E0\EC\EC\r\
-    \n# the script for installing the list of commands of the SATELLITE library in the Telegram chatbot\r\
-    \n\r\
-    \n:global broadCast\r\
-    \n:global tlgrmcmd; :if (any \$tlgrmcmd) do={\r\
-    \n:local arrayCom [:toarray {\"arp\"=\"\F1\EF\E8\F1\EE\EA arp\";\r\
-    \n                                 \"address\"=\"\F1\EF\E8\F1\EE\EA ip addresses\";\r\
-    \n                                 \"backup\"=\"\F0\E5\E7\E5\F0\E2\ED\EE\E5 \EA\EE\EF\E8\F0\EE\E2\E0\ED\E8\E5 \EA\EE\ED\F4\E8\E3\F3\F0\E0\F6\E8\E8 \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                 \"lease\"=\"\F1\EF\E8\F1\EE\EA DHCP liase\";\r\
-    \n                                  \"report\"=\"\EE\F2\F7\E5\F2 \F1\F2\E0\F2\F3\F1\E0 \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                  \"status\"=\"\EF\E0\F0\E0\EC\E5\F2\F0\FB \F1\E8\F1\F2\E5\EC\FB\";\r\
-    \n                                  \"vpnuser\"=\"\ED\E0\F1\F2\F0\EE\E5\ED\ED\FB\E5 VPN-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8 \F1 \EF\E0\F0\EE\EB\FF\EC\E8\";\r\
-    \n                                   \"vpn\"=\"\F1\E5\F0\E2\E5\F0\FB \E8 \EA\EB\E8\E5\ED\F2\FB VPN \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                   \"wifi\"=\"wifi-\E8\ED\F2\E5\F0\F4\E5\E9\F1\FB \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                    \"wifireg\"=\"\E7\E0\F0\E5\E3\E8\F1\F2\F0\E8\F0\EE\E2\E0\ED\ED\FB\E5 \E2 \F1\E5\F2\E8 wifi-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8\";\r\
-    \n                                    \"wifiaccess\"=\"\F0\E0\E7\F0\E5\F8\E5\ED\ED\FB\E5 wifi-\EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8\";\r\
-    \n                                     \"wificonnect\"=\"wifi-\EA\EB\E8\E5\ED\F2\F1\EA\E8\E5 \F1\F2\E0\ED\F6\E8\E8\";\r\
-    \n                                     \"wifipass\"=\"\EF\E0\F0\EE\EB\E8 wifi-\F1\E5\F2\E8/\E5\E9\";\r\
-    \n                                      \"dhcpclient\"=\"\F0\EE\F3\F2\E5\F0-\EA\EB\E8\E5\ED\F2 DHCP\";\r\
-    \n                                      \"users\"=\"\ED\E0\F1\F2\F0\EE\E5\ED\ED\FB\E5 \E8 \E0\EA\F2\E8\E2\ED\FB\E5 \EF\EE\EB\FC\E7\EE\E2\E0\F2\E5\EB\E8 \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                     \"log\"=\"\E2\FB\E4\E0\F2\FC \F1\F2\F0\EE\EA\E8 \EB\EE\E3\E0 \E2 \D2\E5\EB\E5\E3\F0\E0\EC\EC\";\r\
-    \n                                     \"logreset\"=\"\EE\F7\E8\F1\F2\EA\E0 \EB\EE\E3\E0\";\r\
-    \n                                     \"pingpong\"=\"\EF\F0\EE\E2\E5\F0\EA\E0 \F5\EE\F1\F2\E0 \ED\E0 \EF\E8\ED\E3\";\r\
-    \n                                     \"mail\"=\"\F4\F3\ED\EA\F6\E8\FF \EE\F2\EF\F0\E0\E2\EA\E8 \EF\EE\F7\F2\FB\";\r\
-    \n                                      \"smssend\"=\"\EE\F2\EF\F0\E0\E2\EA\E0 SMS \F7\E5\F0\E5\E7 \EC\EE\E4\E5\EC \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                     \"modeminfo\"=\"\EF\EE\E8\F1\EA \E8 \EE\F2\F7\B8\F2 \EC\EE\E4\E5\EC\EE\E2 \F0\EE\F3\F2\E5\F0\E0\";\r\
-    \n                                      \"scriptlist\"=\"\F1\EF\E8\F1\EE\EA \F1\EA\F0\E8\EF\F2\EE\E2 \F0\EE\F3\F2\E5\F0\E0 \F1 \EA\EE\EC\EC\E5\F2\E0\F0\E8\FF\EC\E8\";\r\
-    \n                                      \"funclist\"=\"\F1\EF\E8\F1\EE\EA \E0\EA\F2\E8\E2\ED\FB\F5 \F4\F3\ED\EA\F6\E8\E9 \E2 Environment\"; \r\
-    \n                                       \"schedlist\"=\"\F1\EF\E8\F1\EE\EA \E7\E0\E4\E0\ED\E8\E9 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA\E0\"; \r\
-    \n                                       \"globalvarlist\"=\"\E3\EB\EE\E1\E0\EB\FC\ED\FB\E5 \EF\E5\F0\E5\EC\E5\ED\ED\FB\E5 \E8 \E8\F5 \E7\ED\E0\F7\E5\ED\E8\FF\"}]\r\
-    \n\r\
-    \n:if (\$broadCast) do={:log warning (\" list of commands of the SATELLITE library in the Telegram chatbot set is \".\"\$[\$tlgrmcmd \$arrayCom]\")} else={\r\
-    \n:log warning (\" list of commands of the SATELLITE library in the Telegram chatbot set is \".\"\$[\$tlgrmcmd \$arrayCom identity]\")}\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n\r\
-    \n:log info \"  -    SATELLITE0 module is set\"\r\
-    \n\r\
-    \n"
-/system script add comment="\F1\F2\E0\F0\F2\EE\E2\FB\E9 \F4\E0\E9\EB \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8 SATELLITE (\EA\EE\F0\EE\F2\EA\E8\E5 \EA\EE\EC\E0\ED\E4\FB)" dont-require-permissions=no name=SAT!start owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#--------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
-    \n# start SATELLITE Library functions for TLGRM by Serkov S.V. (Sertik) 25/10/2022 version 2.2\r\
-    \n#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
-    \n\r\
-    \n:global fSATversion \"2.2_special\"\r\
-    \n\r\
-    \n# user settings:\r\
-    \n\r\
-    \n:global Emoji \"%E2%9B%BA\";                                                                                                    # Router Emoji for Telegram;\r\
-    \n:global botID \"bot798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";          # you Telegram`s bot  ID;\r\
-    \n:global myChatID \"-1001798127067\";                                                                                              # you Telegram`s chat ID;\r\
-    \n:global ADMINPHONE;                    #:global ADMINPHONE \"+7910777777\";                                                                                    # admin phone number;\r\
-    \n:global ADMINMAIL ayugov@icloud.com;                                                                                             # admin e-mail;\r\
-    \n:global allowTlgrm true;                   # flag allow/bun run TLGRM; \r\
-    \n:local callTLGRM  00:00:10;            # circulation script TLGRM period;                                                                                                # period calling to script TLGRM;\r\
-    \n:global broadCast false;                     # \F0\E5\E6\E8\EC \E0\E4\F0\E5\F1\E0\F6\E8\E8 \EA\EE\EC\E0\ED\E4;                                                                                                      # broadCast flag;\r\
-    \n:global GroupChat;                           # \EF\EE\E4\E4\E5\F0\E6\EA\E0 \EA\EE\EC\E0\ED\E4 \E4\EB\FF \E3\F0\F3\EF\EF\EE\E2\EE\E3\EE \F7\E0\F2\E0 @;                                                                          # GroupChat Name or empty\r\
-    \n#                                                      #  \E5\F1\EB\E8 \ED\E5 \ED\F3\E6\E5\ED - \F2\E8\EF \"nil\" (\EF\F3\F1\F2), \E5\F1\EB\E8 \ED\F3\E6\E5\ED = \"@botName\";         \r\
-    \n:local SATSchedAdd true;              # \F4\EB\E0\E3 \E4\EE\E1\E0\E2\EB\E5\ED\E8\FF \E7\E0\E4\E0\ED\E8\FF \E2\FB\E7\EE\E2\E0 TLGRM \E2 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA;                                               # add to Scheduler flag;\r\
-    \n:global launchScr true;                     # Permission to execute scripts\r\
-    \n:global launchFnc true;                    # Permission to perform functions\r\
-    \n:global launchCmd true;                   # Permission to execute commands\r\
-    \n:local setSatList true;                         # \F3\F1\F2\E0\ED\E0\E2\EB\E8\E2\E0\F2\FC \E8\EB\E8 \ED\E5\F2 \F1\EF\E8\F1\EE\EA \EA\EE\EC\E0\ED\E4 \E2 \F7\E0\F2\E1\EE\F2 \EF\F0\E8 \F1\F2\E0\F0\F2\E5 \E1\E8\E1\EB\E8\EE\F2\E5\EA\E8\r\
-    \n\r\
-    \n:log info \"\"\r\
-    \n:log warning \"Running the SETUP library SATELLITE v. \$fSATversion 25-10-2022:\"\r\
-    \n:log info \"\"\r\
-    \n:local Trel do={:if ([:len \$0]!=0) do={\r\
-    \n:beep frequency=1760 length=67ms; :delay 77ms; :beep frequency=2093 length=67ms; :delay 77ms; :beep frequency=2637 length=67ms; :delay 77ms; :beep frequency=3520 length=268ms; :delay 278ms;}}\r\
-    \n\r\
-    \n/system script run SAT0; [\$Trel]\r\
-    \n/system script run SAT1; [\$Trel]\r\
-    \n/system script run SAT2; [\$Trel]\r\
-    \n/system script run SAT3; [\$Trel]\r\
-    \n\r\
-    \n:delay 1s\r\
-    \n:beep frequency=600 length=165ms; :delay 165ms; :beep frequency=700 length=275ms; :delay 275ms; :beep frequency=800 length=275ms; :delay 275ms; :beep frequency=900 length=110ms; :delay 110ms;\r\
-    \n\r\
-    \n:global FuncTelegramSender\r\
-    \n:global satlogo\r\
-    \n\r\
-    \n[\$satlogo]\r\
-    \n:delay 1s\r\
-    \n:do {\r\
-    \n[\$FuncTelegramSender (\"\$Emoji\".\" Router \".\"\$[/system identity get name]\".\" Satellite Script Library \$fSATversion is running ...\")]\r\
-    \n} on-error={}\r\
-    \n\r\
-    \n:if (\$SATSchedAdd) do={\r\
-    \n:if ([/system scheduler find name~\"Run script TLGRMcall\"]) do={/system scheduler remove [find name~\"Run script TLGRMcall\"]}\r\
-    \n:global FuncSchedScriptAdd\r\
-    \n:local Date [/system clock get date]\r\
-    \n\r\
-    \n:local ScriptAddTLGRM [\$FuncSchedScriptAdd TLGRMcall  \$Date startup \$callTLGRM];\r\
-    \n:delay 1s;\r\
-    \n:if (\$ScriptAddTLGRM=\"OK\") do={\r\
-    \n/system scheduler set [find name~\"Run script TLGRMcall\"] disabled=no;\r\
-    \n} else={:log error \$ScriptAddTLGRM}\r\
-    \n}\r\
-    \n\r\
-    \n:if (\$setSatList) do={\r\
-    \n:global satlist; [\$satlist]}\r\
-    \n#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
-    \n\r\
-    \n"
-/system script add comment="\EF\E0\F0\F1\E5\F0-\F3\E2\E5\E4\EE\EC\E8\F2\E5\EB\FC \E4\EB\FF \E1\EE\F2\EE\E2 \D2\E5\EB\E5\E3\F0\E0\EC\EC !!!" dont-require-permissions=no name=TLGRM owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# TLGRM - combined notifications script & launch of commands (scripts & functions) via Telegram\r\
-    \n# Script uses ideas by Sertik, Virtue, Pepelxl, Dimonw, -13-, Jotne, Alice Tails, Chupaka, drPioneer, Brook\r\
-    \n# https://forummikrotik.ru/viewtopic.php\?p=81945#p81945\r\
-    \n# tested on ROS 6.49.6\r\
-    \n# updated 2022/10/04 added support for function prefix Ros format: \$funcName or [\$funcName]\r\
-    \n# updated 2022/10/11 added support smile-commands\r\
-    \n# updated 2022/10/17 added ignore registre identity\r\
-    \n# updated 2022/10/25 added global functions tlgrmcmd and tlgrm for set command list in chatbot and set flags\r\
-    \n\r\
-    \n:global allowTlgrm;        # Flag allow run TLGRM (true - allow, false - ban)\r\
-    \n:global scriptTlgrm;        # Flag of the running script:   false=>in progress, true=>idle\r\
-    \n\r\
-    \n:if ([:typeof \$allowTlgrm]!=\"bool\") do={:set allowTlgrm true}\r\
-    \n:if (\$allowTlgrm) do={\r\
-    \n\r\
-    \n    :global Emoji; # router Emoji in chat\r\
-    \n    :global botID \r\
-    \n    :global myChatID\r\
-    \n    :global broadCast; # reception mode\r\
-    \n    :global launchScr;  # Permission to execute scripts\r\
-    \n    :global launchFnc;  # Permission to perform functions\r\
-    \n    :global launchCmd;  # Permission to execute commands\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \n    # Function of searching comments for MAC-address\r\
-    \n    # https://forummikrotik.ru/viewtopic.php\?p=73994#p73994\r\
-    \n    :local FindMacAddr do={\r\
-    \n        :if (\$1~\"[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]:[0-F][0-F]\") do={\r\
-    \n            :foreach idx in=[/ip dhcp-server lease find disabled=no] do={\r\
-    \n                :local mac [/ip dhcp-server lease get \$idx mac-address];\r\
-    \n                :if (\$1~\"\$mac\") do={:return (\"\$1 [\$[/ip dhcp-server lease get \$idx address]/\$[/ip dhcp-server lease get \$idx comment]].\")};\r\
-    \n            }\r\
-    \n            :foreach idx in=[/interface bridge host find] do={\r\
-    \n                :local mac [/interface bridge host get \$idx mac-address];\r\
-    \n                :if (\$1~\"\$mac\") do={:return (\"\$1 [\$[/interface bridge host get \$idx on-interface]].\")};\r\
-    \n            }\r\
-    \n        }\r\
-    \n        :return (\$1);\r\
-    \n    }\r\
-    \n\r\
-    \n    # Function of converting CP1251 to UTF8\r\
-    \n    # https://forummikrotik.ru/viewtopic.php\?p=81457#p81457\r\
-    \n    :local CP1251toUTF8 do={\r\
-    \n        :local cp1251 [:toarray {\r\
-    \n            \"\\20\";\"\\01\";\"\\02\";\"\\03\";\"\\04\";\"\\05\";\"\\06\";\"\\07\";\"\\08\";\"\\09\";\"\\0A\";\"\\0B\";\"\\0C\";\"\\0D\";\"\\0E\";\"\\0F\";\\\r\
-    \n            \"\\10\";\"\\11\";\"\\12\";\"\\13\";\"\\14\";\"\\15\";\"\\16\";\"\\17\";\"\\18\";\"\\19\";\"\\1A\";\"\\1B\";\"\\1C\";\"\\1D\";\"\\1E\";\"\\1F\";\\\r\
-    \n            \"\\21\";\"\\22\";\"\\23\";\"\\24\";\"\\25\";\"\\26\";\"\\27\";\"\\28\";\"\\29\";\"\\2A\";\"\\2B\";\"\\2C\";\"\\2D\";\"\\2E\";\"\\2F\";\"\\3A\";\\\r\
-    \n            \"\\3B\";\"\\3C\";\"\\3D\";\"\\3E\";\"\\3F\";\"\\40\";\"\\5B\";\"\\5C\";\"\\5D\";\"\\5E\";\"\\5F\";\"\\60\";\"\\7B\";\"\\7C\";\"\\7D\";\"\\7E\";\\\r\
-    \n            \"\\C0\";\"\\C1\";\"\\C2\";\"\\C3\";\"\\C4\";\"\\C5\";\"\\C6\";\"\\C7\";\"\\C8\";\"\\C9\";\"\\CA\";\"\\CB\";\"\\CC\";\"\\CD\";\"\\CE\";\"\\CF\";\\\r\
-    \n            \"\\D0\";\"\\D1\";\"\\D2\";\"\\D3\";\"\\D4\";\"\\D5\";\"\\D6\";\"\\D7\";\"\\D8\";\"\\D9\";\"\\DA\";\"\\DB\";\"\\DC\";\"\\DD\";\"\\DE\";\"\\DF\";\\\r\
-    \n            \"\\E0\";\"\\E1\";\"\\E2\";\"\\E3\";\"\\E4\";\"\\E5\";\"\\E6\";\"\\E7\";\"\\E8\";\"\\E9\";\"\\EA\";\"\\EB\";\"\\EC\";\"\\ED\";\"\\EE\";\"\\EF\";\\\r\
-    \n            \"\\F0\";\"\\F1\";\"\\F2\";\"\\F3\";\"\\F4\";\"\\F5\";\"\\F6\";\"\\F7\";\"\\F8\";\"\\F9\";\"\\FA\";\"\\FB\";\"\\FC\";\"\\FD\";\"\\FE\";\"\\FF\";\\\r\
-    \n            \"\\A8\";\"\\B8\";\"\\B9\"}];\r\
-    \n        :local utf8 [:toarray {\r\
-    \n            \"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"000A\";\"0020\";\"0020\";\"000D\";\"0020\";\"0020\";\\\r\
-    \n            \"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\\\r\
-    \n            \"0021\";\"0022\";\"0023\";\"0024\";\"0025\";\"0026\";\"0027\";\"0028\";\"0029\";\"002A\";\"002B\";\"002C\";\"002D\";\"002E\";\"002F\";\"003A\";\\\r\
-    \n            \"003B\";\"003C\";\"003D\";\"003E\";\"003F\";\"0040\";\"005B\";\"005C\";\"005D\";\"005E\";\"005F\";\"0060\";\"007B\";\"007C\";\"007D\";\"007E\";\\\r\
-    \n            \"D090\";\"D091\";\"D092\";\"D093\";\"D094\";\"D095\";\"D096\";\"D097\";\"D098\";\"D099\";\"D09A\";\"D09B\";\"D09C\";\"D09D\";\"D09E\";\"D09F\";\\\r\
-    \n            \"D0A0\";\"D0A1\";\"D0A2\";\"D0A3\";\"D0A4\";\"D0A5\";\"D0A6\";\"D0A7\";\"D0A8\";\"D0A9\";\"D0AA\";\"D0AB\";\"D0AC\";\"D0AD\";\"D0AE\";\"D0AF\";\\\r\
-    \n            \"D0B0\";\"D0B1\";\"D0B2\";\"D0B3\";\"D0B4\";\"D0B5\";\"D0B6\";\"D0B7\";\"D0B8\";\"D0B9\";\"D0BA\";\"D0BB\";\"D0BC\";\"D0BD\";\"D0BE\";\"D0BF\";\\\r\
-    \n            \"D180\";\"D181\";\"D182\";\"D183\";\"D184\";\"D185\";\"D186\";\"D187\";\"D188\";\"D189\";\"D18A\";\"D18B\";\"D18C\";\"D18D\";\"D18E\";\"D18F\";\\\r\
-    \n            \"D001\";\"D191\";\"2116\"}];\r\
-    \n        :local convStr \"\"; \r\
-    \n        :local code \"\";\r\
-    \n        :for i from=0 to=([:len \$1]-1) do={\r\
-    \n            :local symb [:pick \$1 \$i (\$i+1)]; \r\
-    \n            :local idx [:find \$cp1251 \$symb];\r\
-    \n            :local key (\$utf8->\$idx);\r\
-    \n            :if ([:len \$key]!=0) do={\r\
-    \n                :set \$code (\"%\$[:pick (\$key) 0 2]%\$[:pick (\$key) 2 4]\");\r\
-    \n                :if ([pick \$code 0 3]=\"%00\") do={:set \$code ([:pick \$code 3 6])};\r\
-    \n            } else={:set code (\$symb)}; \r\
-    \n            :set \$convStr (\$convStr.\$code);\r\
-    \n        }\r\
-    \n        :return (\$convStr);\r\
-    \n    }\r\
-    \n\r\
-    \n# convert string to lowstring\r\
-    \n:local fsLowStr do={\r\
-    \n  :local fsLowerChar do={\r\
-    \n    :local \"fs_lower\" \"0123456789abcdefghijklmnopqrstuvwxyz\";\r\
-    \n    :local \"fs_upper\" \"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\";\r\
-    \n    :local pos [:find \$\"fs_upper\" \$1]\r\
-    \n      :if (\$pos > -1) do={:return [:pick \$\"fs_lower\" \$pos];}\r\
-    \n       :return \$1}\r\
-    \n:local result \"\"; :local in \$1\r\
-    \n  :for i from=0 to=([:len \$in] - 1) do={\r\
-    \n    :set result (\$result . [\$fsLowerChar [:pick \$in \$i]])}\r\
-    \n    :return \$result;\r\
-    \n}\r\
-    \n\r\
-    \n    # Telegram messenger response parsing function\r\
-    \n    # https://habr.com/ru/post/482802/\r\
-    \n    :local MsgParser do={\r\
-    \n        :local variaMod (\"\\\"\".\$2.\"\\\"\");\r\
-    \n        :if ([:len [:find \$1 \$variaMod -1]]=0) do={:return (\"'unknown'\")};\r\
-    \n        :local startLoc ([:find \$1 \$variaMod -1]+[:len \$variaMod]+1);\r\
-    \n        :local commaLoc ([:find \$1 \",\" \$startLoc]);\r\
-    \n        :local brakeLoc ([:find \$1 \"}\" \$startLoc]);\r\
-    \n        :local endLoc \$commaLoc;\r\
-    \n        :local startSymbol [:pick \$1 \$startLoc];\r\
-    \n        :if (\$brakeLoc!=0 and (\$commaLoc=0 or \$brakeLoc<\$commaLoc)) do={:set endLoc \$brakeLoc};\r\
-    \n        :if (\$startSymbol=\"{\") do={:set endLoc (\$brakeLoc+1)};\r\
-    \n        :if (\$3=true) do={:set startLoc (\$startLoc+1); :set endLoc (\$endLoc-1)};\r\
-    \n        :if (\$endLoc<\$startLoc) do={:set endLoc (\$startLoc+1)};\r\
-    \n        :return ([:pick \$1 \$startLoc \$endLoc]);\r\
-    \n    }\r\
-    \n\r\
-    \n    # Time translation function to UNIX-time\r\
-    \n    # https://forum.mikrotik.com/viewtopic.php\?t=75555#p790745\r\
-    \n    # Usage: \$EpochTime [time input]\r\
-    \n    # Get current time: put [\$EpochTime]\r\
-    \n    # Read log time in one of three format: \"hh:mm:ss\", \"mmm/dd hh:mm:ss\" or \"mmm/dd/yyyy hh:mm:ss\"\r\
-    \n    :local EpochTime do={\r\
-    \n        :local ds [/system clock get date];\r\
-    \n        :local ts [/system clock get time];\r\
-    \n        :if ([:len \$1]>19) do={:set ds \"\$[:pick \$1 0 11]\"; :set ts [:pick \$1 12 20]};\r\
-    \n        :if ([:len \$1]>8 && [:len \$1]<20) do={:set ds \"\$[:pick \$1 0 6]/\$[:pick \$ds 7 11]\"; :set ts [:pick \$1 7 15]};\r\
-    \n        :local yesterday false;\r\
-    \n        :if ([:len \$1]=8) do={\r\
-    \n            :if ([:totime \$1]>ts) do={:set yesterday (true)};\r\
-    \n            :set ts \$1;\r\
-    \n        }\r\
-    \n        :local months;\r\
-    \n        :if ((([:pick \$ds 9 11]-1)/4)!=(([:pick \$ds 9 11])/4)) do={\r\
-    \n            :set months {\"an\"=0;\"eb\"=31;\"ar\"=60;\"pr\"=91;\"ay\"=121;\"un\"=152;\"ul\"=182;\"ug\"=213;\"ep\"=244;\"ct\"=274;\"ov\"=305;\"ec\"=335};\r\
-    \n        } else={\r\
-    \n            :set months {\"an\"=0;\"eb\"=31;\"ar\"=59;\"pr\"=90;\"ay\"=120;\"un\"=151;\"ul\"=181;\"ug\"=212;\"ep\"=243;\"ct\"=273;\"ov\"=304;\"ec\"=334};\r\
-    \n        }\r\
-    \n        :set ds (([:pick \$ds 9 11]*365)+(([:pick \$ds 9 11]-1)/4)+(\$months->[:pick \$ds 1 3])+[:pick \$ds 4 6]);\r\
-    \n        :set ts (([:pick \$ts 0 2]*3600)+([:pick \$ts 3 5]*60)+[:pick \$ts 6 8]);\r\
-    \n        :if (yesterday) do={:set ds (\$ds-1)};\r\
-    \n        :return (\$ds*86400+\$ts+946684800-[/system clock get gmt-offset]);\r\
-    \n    }\r\
-    \n\r\
-    \n    # Time conversion function from UNIX-time\r\
-    \n    # https://forummikrotik.ru/viewtopic.php\?t=11636\r\
-    \n    # usage: [\$UnixTimeToFormat \"timeStamp\" \"type\"]\r\
-    \n    # type: \"unspecified\" - month/dd/yyyy <only>    (Mikrotik sheduller format)\r\
-    \n    #                   1 - yyyy/mm/dd hh:mm:ss\r\
-    \n    #                   2 - dd:mm:yyyy hh:mm:ss\r\
-    \n    #                   3 - dd month yyy hh mm ss\r\
-    \n    #                   4 - yyyy month dd hh mm ss\r\
-    \n    #                   5 - month/dd/yyyy-hh:mm:ss  (Mikrotik sheduller format)\r\
-    \n    :local UnixTimeToFormat do={\r\
-    \n        :local decodedLine \"\";\r\
-    \n        :local timeStamp \$1;\r\
-    \n        :local timeS (\$timeStamp%86400);\r\
-    \n        :local timeH (\$timeS/3600);\r\
-    \n        :local timeM (\$timeS%3600 /60);\r\
-    \n        :set  \$timeS (\$timeS-\$timeH*3600-\$timeM*60);\r\
-    \n        :local dateD (\$timeStamp/86400);\r\
-    \n        :local dateM 2;\r\
-    \n        :local dateY 1970;\r\
-    \n        :local leap false;\r\
-    \n        :while ((\$dateD/365)>0) do={\r\
-    \n            :set \$dateD (\$dateD-365);\r\
-    \n            :set \$dateY (\$dateY+1);\r\
-    \n            :set \$dateM (\$dateM+1);\r\
-    \n            :if (\$dateM=4) do={\r\
-    \n                :set \$dateM 0;\r\
-    \n                :if ((\$dateY%400=0) or (\$dateY%100!=0)) do={:set \$leap true; :set \$dateD (\$dateD-1)};\r\
-    \n            } else={:set \$leap false};\r\
-    \n        }\r\
-    \n        :local months [:toarray (0,31,28,31,30,31,30,31,31,30,31,30,31)];\r\
-    \n        :if (leap) do={:set \$dateD (\$dateD+1); :set (\$months->2) 29};\r\
-    \n        :do {\r\
-    \n            :for i from=1 to=12 do={\r\
-    \n                :if ((\$months->\$i)>\$dateD) do={\r\
-    \n                    :set \$dateM \$i;\r\
-    \n                    :set \$dateD (\$dateD+1);\r\
-    \n                    break;\r\
-    \n                } else={:set \$dateD (\$dateD-(\$months->\$i))};\r\
-    \n            }\r\
-    \n        } on-error={};\r\
-    \n        :local tmod;\r\
-    \n        :if ([:len \$2]!=0) do={:set \$tmod \$2} else={:set \$tmod (:nothing)};\r\
-    \n        :local sl \"/\";\r\
-    \n        :local mstr {\"jan\";\"feb\";\"mar\";\"apr\";\"may\";\"jun\";\"jul\";\"aug\";\"sep\";\"oct\";\"nov\";\"dec\"};\r\
-    \n        :local strY [:tostr \$dateY];\r\
-    \n        :local strN;\r\
-    \n        :local strD;\r\
-    \n        :local strH;\r\
-    \n        :local strM;\r\
-    \n        :local strS;\r\
-    \n        :if (\$dateM>9) do={:set \$strN [:tostr \$dateM]} else={:set \$strN (\"0\".[:tostr \$dateM])};\r\
-    \n        :if (\$dateD>9) do={:set \$strD [:tostr \$dateD]} else={:set \$strD (\"0\".[:tostr \$dateD])};\r\
-    \n        :if (\$timeH>9) do={:set \$strH [:tostr \$timeH]} else={:set \$strH (\"0\".[:tostr \$timeH])};\r\
-    \n        :if (\$timeM>9) do={:set \$strM [:tostr \$timeM]} else={:set \$strM (\"0\".[:tostr \$timeM])};\r\
-    \n        :if (\$timeS>9) do={:set \$strS [:tostr \$timeS]} else={:set \$strS (\"0\".[:tostr \$timeS])};\r\
-    \n        :do {\r\
-    \n            :if ([:len \$tmod]=0) do={:local mt (\$mstr->(\$dateM-1)); :set \$decodedLine (\"\$mt/\".\"\$strD/\".\"\$strY\"); break};\r\
-    \n            :if (\$tmod=1) do={:set \$decodedLine \"\$strY\$sl\$strN\$sl\$strD \$strH:\$strM:\$strS\"; break};\r\
-    \n            :if (\$tmod=2) do={:set \$decodedLine \"\$strD\$sl\$strN\$sl\$strY \$strH:\$strM:\$strS\"; break};\r\
-    \n            :if (\$tmod=3) do={:set \$decodedLine (\"\$strD \".(\$mstr->(\$dateM-1)).\" \$strY \$strH:\$strM:\$strS\"); break};\r\
-    \n            :if (\$tmod=4) do={:set \$decodedLine (\"\$strY \".(\$mstr->(\$dateM-1)).\" \$strD \$strH:\$strM:\$strS\"); break};\r\
-    \n            :if (\$tmod=5) do={:local m (\$mstr->(\$dateM-1)); :set \$decodedLine (\"\$m/\".\"\$strD/\".\"\$strY\".\"-\$strH:\$strM:\$strS\"); break};\r\
-    \n        } on-error={};\r\
-    \n        :return (\$decodedLine);\r\
-    \n    }\r\
-    \n\r\
-    \n    # Main body of the script\r\
-    \n    :global timeAct;\r\
-    \n    :global timeLog;\r\
-    \n# updated 2022/10/17 added ignore registre identity\r\
-    \n    :local  nameID [\$fsLowStr [/system identity get name]];\r\
-    \n    :local  timeOf [/system clock get gmt-offset];\r\
-    \n    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Start of TLGRM-script on '\$nameID' router.\");\r\
-    \n    :if ([:len \$scriptTlgrm]=0) do={:set scriptTlgrm true};\r\
-    \n    :if (\$scriptTlgrm) do={\r\
-    \n        :set scriptTlgrm false;\r\
-    \n        :if ([:len \$timeAct]>0) do={:put (\"\$[\$UnixTimeToFormat (\$timeAct+\$timeOf) 1] - Time when the last command was launched.\")};\r\
-    \n        :if ([:len \$timeLog]>0) do={:put (\"\$[\$UnixTimeToFormat (\$timeLog+\$timeOf) 1] - Time when the log entries were last sent.\")};\r\
-    \n    \r\
-    \n        # Part of the script body to launch via Telegram\r\
-    \n        # https://forummikrotik.ru/viewtopic.php\?p=78085\r\
-    \n        :local timeStmp [\$EpochTime];\r\
-    \n        :local urlString \"https://api.telegram.org/\$botID/getUpdates\\\?offset=-1&limit=1&allowed_updates=message\";\r\
-    \n        :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - *** Stage of launch scripts, function & commands via Telegram:\");\r\
-    \n        :if ([:len \$timeAct]=0) do={\r\
-    \n            :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Time of the last launch of the command was not found.\");\r\
-    \n            :set timeAct \$timeStmp;\r\
-    \n        } else={\r\
-    \n            :local httpResp [/tool fetch url=\$urlString as-value output=user];\r\
-    \n            :local content (\$httpResp->\"data\");\r\
-    \n            :if ([:len \$content]>30) do={\r\
-    \n                :local msgTxt [\$MsgParser \$content \"text\" true];\r\
-    \n                :set  msgTxt ([:pick \$msgTxt ([:find \$msgTxt \"/\" -1]+1) [:len \$msgTxt]]);\r\
-    \n                :if (\$msgTxt ~\"@\") do={:set \$msgTxt [:pick \$msgTxt 0 [:find \$msgTxt \"@\"]]}\r\
-    \n                :local newStr \"\";\r\
-    \n                :local change \"\";\r\
-    \n                :for i from=0 to=([:len \$msgTxt]-1) do={\r\
-    \n                    :local symb [:pick \$msgTxt \$i (\$i+1)]; \r\
-    \n                    :if (\$symb=\"_\") do={:set change (\" \")} else={:set change (\$symb)}; \r\
-    \n                    :set \$newStr (\$newStr.\$change);\r\
-    \n                }\r\
-    \n                :set msgTxt \$newStr;\r\
-    \n                :local msgAddr \"\";\r\
-    \n                :if (\$broadCast) do={:set \$msgAddr \$nameID} else={\r\
-    \n                    :set msgAddr ([:pick \$msgTxt 0 [:find \$msgTxt \" \" -1]]);\r\
-    \n# updated 2022/10/17 added ignore registre identity\r\
-    \n                    :set msgAddr [\$fsLowStr \$msgAddr]\r\
-    \n                    :if ([:len [:find \$msgTxt \" \"]]=0) do={:set msgAddr (\"\$msgTxt \")};\r\
-    \n                    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Recipient of the Telegram message: '\$msgAddr'\");\r\
-    \n                    :set msgTxt ([:pick \$msgTxt ([:find \$msgTxt \$msgAddr -1]+[:len \$msgAddr]+1) [:len \$msgTxt]]);\r\
-    \n                }\r\
-    \n      # added 04/10/2022 skipping the function prefix \"\$\" \E8\EB\E8 [\$ .....]\r\
-    \n                :if ([:pick \$msgTxt 0 1]=\"\\\$\") do={:set \$msgTxt [:pick \$msgTxt 1 [:len \$msgTxt]]}\r\
-    \n                :if (([:pick \$msgTxt 0 2]=\"[\\\$\") and ([:pick \$msgTxt ([:len \$msgTxt]-1) [:len \$msgTxt]]=\"]\")) do={:set \$msgTxt [:pick \$msgTxt 2 ([:len \$msgTxt]-1)]}\r\
-    \n\r\
-    \n                :if (\$msgAddr=\$nameID or \$msgAddr=\"forall\") do={\r\
-    \n                    :local chatID [\$MsgParser [\$MsgParser \$content \"chat\"] \"id\"];\r\
-    \n                    :local userNm [\$MsgParser \$content \"username\"];\r\
-    \n                    :set timeStmp [\$MsgParser \$content \"date\"];\r\
-    \n                    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Sender of the Telegram message: \$userNm\");\r\
-    \n                    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Command to execute: '\$msgTxt'\");\r\
-    \n                    :local restline [];\r\
-    \n                    :if ([:len [:find \$msgTxt \" \"]]!=0) do={\r\
-    \n                        :set restline [:pick \$msgTxt ([:find \$msgTxt \" \"]+1) [:len \$msgTxt]];\r\
-    \n                        :set msgTxt [:pick \$msgTxt 0 [:find \$msgTxt \" \"]];\r\
-    \n                    }\r\
-    \n                    :if (\$chatID=\$myChatID && \$timeAct<\$timeStmp) do={\r\
-    \n                        :set timeAct \$timeStmp;\r\
-    \n                        :if ([/system script environment find name=\$msgTxt]!=\"\" && \$launchFnc=true) do={   \r\
-    \n                            :if (([/system script environment get [/system script environment find name=\$msgTxt] value]=\"(code)\") \\\r\
-    \n                                or ([:len [:find [/system script environment get [/system script environment find name=\$msgTxt] value] \"(evl\"]]>0)) do={\r\
-    \n                                :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Telegram user \$userNm launches function '\$msgTxt'.\");\r\
-    \n                                :log warning (\"Telegram user \$userNm launches function '\$msgTxt'.\");\r\
-    \n#                                [:parse \":global \$msgTxt; [\\\$\$msgTxt \$restline]\"];\r\
-    \n                        :execute script=\"[:parse [\\\$\$msgTxt \$restline]]\";\r\
-    \n                            } else={\r\
-    \n                                :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - '\$msgTxt' is a global variable and not a function - no execute.\");\r\
-    \n                                :log warning (\"'\$msgTxt' is a global variable and not a function - no execute.\");\r\
-    \n                            }\r\
-    \n                        }\r\
-    \n# added 07/10/2022 allow to perform emodji !\r\
-    \n   :if ([:pick \$msgTxt 0 1]=\"\\5C\") do={:set \$msgTxt [:pick \$msgTxt 1 [:len \$msgTxt]]\r\
-    \n   :if ([:find \$msgTxt \"\\5C\"]!=0) do={:local a [:pick \$msgTxt 0 [:find \$msgTxt \"\\5C\"]]; :local b [:pick \$msgTxt ([:find \$msgTxt \"\\5C\"]+1) [:len \$msgTxt]]; :set \$msgTxt (\$a.\$b)}}\r\
-    \n                        :if ([/system script find name=\$msgTxt]!=\"\" && \$launchScr=true) do={\r\
-    \n                            :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Telegram user \$userNm activates script '\$msgTxt'.\");\r\
-    \n                            :log warning (\"Telegram user \$userNm activates script '\$msgTxt'.\");\r\
-    \n#                            [[:parse \"[:parse [/system script get \$msgTxt source]] \$restline\"]];\r\
-    \n                         :execute script=\"[[:parse \\\"[:parse [/system script get \$msgTxt source]] \$restline\\\"]]\";\r\
-    \n                        }\r\
-    \n                        :if ([/system script find name=\$msgTxt]=\"\" && [/system script environment find name=\$msgTxt]=\"\" && \$launchCmd=true) do={\r\
-    \n                            :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Telegram user \$userNm is trying to execute command '\$msgTxt'.\");\r\
-    \n                            :log warning (\"Telegram user \$userNm is trying to execute command '\$msgTxt'.\");\r\
-    \n#                              :do {[:parse \"/\$msgTxt \$restline\"]} on-error={};\r\
-    \n                            :do {:execute script=\"[:parse \\\"/\$msgTxt \$restline\\\"]\"} on-error={};\r\
-    \n                        }\r\
-    \n                    } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Wrong time to launch.\")};\r\
-    \n                } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - No command found for this device.\")};\r\
-    \n            } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Completion of response from Telegram.\")};\r\
-    \n        }\r\
-    \n\r\
-    \n        # Part of the script body for notifications in Telegram\r\
-    \n        # https://www.reddit.com/r/mikrotik/comments/onusoj/sending_log_alerts_to_telegram/\r\
-    \n        :local outMsg \"\";\r\
-    \n        :local logGet [:toarray [/log find ((\$buffer=ParseMemoryLog) and (\$topics~\"warning\" or \$topics~\"error\" or \$topics~\"critical\" or \$topics~\"caps\" or \$topics~\"wireless\" or \$message~\"logged in\"))]];\r\
-    \n        :local logCnt [:len \$logGet];\r\
-    \n        :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - *** Stage of sending notifications to Telegram:\");\r\
-    \n        :if ([:len \$timeLog]=0) do={ \r\
-    \n            :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Time of the last log entry was not found.\");\r\
-    \n            :set outMsg (\">\$[/system clock get time] Telegram notification started.\");\r\
-    \n        }\r\
-    \n        :if (\$logCnt>0) do={\r\
-    \n            :local lastTime [\$EpochTime [/log get [:pick \$logGet (\$logCnt-1)] time]];\r\
-    \n            :local index 0;\r\
-    \n            :local tempTim \"\";\r\
-    \n            :local tempMsg \"\";\r\
-    \n            :local tempTpc \"\";\r\
-    \n            :local unixTim \"\";\r\
-    \n            :do {\r\
-    \n                :set index (\$index+1); \r\
-    \n                :set tempTim [/log get [:pick \$logGet (\$logCnt-\$index)] time];\r\
-    \n                :set tempTpc [/log get [:pick \$logGet (\$logCnt-\$index)] topics];\r\
-    \n                :set tempMsg [/log get [:pick \$logGet (\$logCnt-\$index)] message];\r\
-    \n                :set tempMsg (\">\$tempTim \$tempMsg\");\r\
-    \n                :local findMacMsg ([\$FindMacAddr \$tempMsg]);\r\
-    \n                :set unixTim [\$EpochTime \$tempTim];\r\
-    \n                :if ((\$unixTim>\$timeLog) && (!((\$tempTpc~\"caps\" or \$tempTpc~\"wireless\" or \$tempTpc~\"dhcp\") && (\$tempMsg!=\$findMacMsg)))) do={\r\
-    \n                    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Found log entry: \$findMacMsg\");\r\
-    \n                    :set outMsg (\$findMacMsg.\"\\n\".\$outMsg);\r\
-    \n                }\r\
-    \n            } while=((\$unixTim>\$timeLog) && (\$index<\$logCnt));\r\
-    \n            :if (([:len \$timeLog]<1) or (([:len \$timeLog]>0) && (\$timeLog!=\$lastTime) && ([:len \$outMsg]>8))) do={\r\
-    \n                :set timeLog \$lastTime;\r\
-    \n                :if ([:len \$outMsg]>4096) do={:set outMsg ([:pick \$outMsg 0 4096])};\r\
-    \n                :set outMsg [\$CP1251toUTF8 \$outMsg];\r\
-    \n                :set outMsg (\"\$Emoji \".\"\$[/system identity get name]\".\":\".\"%0A\".\"\$outMsg\");\r\
-    \n                :local urlString (\"https://api.telegram.org/\$botID/sendmessage\\\?chat_id=\$myChatID&text=\$outMsg\");\r\
-    \n                :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Generated string for Telegram:\\r\\n\".\$urlString);\r\
-    \n                /tool fetch url=\$urlString as-value output=user;\r\
-    \n            } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - There are no log entries to send.\")};\r\
-    \n        } else={:put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Necessary log entries were not found.\")};\r\
-    \n        :set scriptTlgrm true;\r\
-    \n    } else={:put \"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - Script already being executed...\"};\r\
-    \n    :put (\"\$[\$UnixTimeToFormat ([\$EpochTime]+\$timeOf) 1] - End of TLGRM-script on '\$nameID' router.\");\r\
-    \n} on-error={\r\
-    \n    :set scriptTlgrm true;\r\
-    \n    :put (\"Script error: something didn't work when sending a request to Telegram.\");\r\
-    \n    :put (\"*** First, check the correctness of the values of the variables botID & myChatID. ***\"); \r\
-    \n}\r\
-    \n\r\
-    \n# add 25/10/2022 \r\
-    \n# function set commands list key array in \$1 to Telegram chatbot \r\
-    \n:global tlgrmcmd; :if (!any \$tlgrmcmd) do={:global tlgrmcmd do={\r\
-    \n:if ([:typeof \$0]=\"lookup\") do={\r\
-    \n\r\
-    \n#--function teSetMyCommands by Brook 2022 --\r\
-    \n:local teSetMyCommands do={\r\
-    \n  :local TbotID \$fBotID\r\
-    \n  :local tgUrl []; :local content []\r\
-    \n  :local commandsList [:toarray \$fCommands]\r\
-    \n  :local cmdItems []\r\
-    \n  :local command []\r\
-    \n  :local end []\r\
-    \n\r\
-    \n  :foreach i in=\$commandsList do={\r\
-    \n    :local command [:pick \$i 0 [find \$i \";\"]]\r\
-    \n    :local description [:pick \$i ([find \$i \";\"] + 1) [:len \$i]]\r\
-    \n    :local startCommand \"\\7B\\22command\\22:\\22\$command\\22\"\r\
-    \n    :local commandDescription \",\\22description\\22:\\22\$description\\22\\7D,\"\r\
-    \n    :set command \"\$startCommand\$commandDescription\$endCommand\"\r\
-    \n    :set \$cmdItems (\$cmdItems . \$command)\r\
-    \n  }\r\
-    \n  :set cmdItems [:pick \$cmdItems 0 ([:len \$cmdItems] - 1)]\r\
-    \n\r\
-    \n  :local start \"\\5B\"; :local end \"\\5D\";\r\
-    \n  :set commandsList \"\$start\$cmdItems\$end\"\r\
-    \n\r\
-    \n  :set tgUrl \"https://api.telegram.org/\$TbotID/setMyCommands\\\?commands=\$commandsList\"\r\
-    \n\r\
-    \ndo {\r\
-    \n    :set content [:tool fetch ascii=yes url=\$tgUrl as-value output=user]\r\
-    \n    :if (\$content->\"status\" = \"finished\") do={ :return true }\r\
-    \n  } on-error={ :return false }\r\
-    \n }\r\
-    \n\r\
-    \n\r\
-    \n# --function convert string to lowstring by Osama, modified Sertik--\r\
-    \n:local fsLowStr do={\r\
-    \n  :local fsLowerChar do={\r\
-    \n    :local \"fs_lower\" \"0123456789abcdefghijklmnopqrstuvwxyz\";\r\
-    \n    :local \"fs_upper\" \"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\";\r\
-    \n    :local pos [:find \$\"fs_upper\" \$1]\r\
-    \n      :if (\$pos > -1) do={:return [:pick \$\"fs_lower\" \$pos];}\r\
-    \n       :return \$1}\r\
-    \n:local result \"\"; :local in \$1\r\
-    \n  :for i from=0 to=([:len \$in] - 1) do={\r\
-    \n    :set result (\$result . [\$fsLowerChar [:pick \$in \$i]])}\r\
-    \n    :return \$result;\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# -- Function of converting CP1251 to UTF8 by DrPioneer --\r\
-    \n    # https://forummikrotik.ru/viewtopic.php\?p=81457#p81457\r\
-    \n    :local CP1251toUTF8 do={\r\
-    \n        :local cp1251 [:toarray {\r\
-    \n            \"\\20\";\"\\01\";\"\\02\";\"\\03\";\"\\04\";\"\\05\";\"\\06\";\"\\07\";\"\\08\";\"\\09\";\"\\0A\";\"\\0B\";\"\\0C\";\"\\0D\";\"\\0E\";\"\\0F\";\\\r\
-    \n            \"\\10\";\"\\11\";\"\\12\";\"\\13\";\"\\14\";\"\\15\";\"\\16\";\"\\17\";\"\\18\";\"\\19\";\"\\1A\";\"\\1B\";\"\\1C\";\"\\1D\";\"\\1E\";\"\\1F\";\\\r\
-    \n            \"\\21\";\"\\22\";\"\\23\";\"\\24\";\"\\25\";\"\\26\";\"\\27\";\"\\28\";\"\\29\";\"\\2A\";\"\\2B\";\"\\2C\";\"\\2D\";\"\\2E\";\"\\2F\";\"\\3A\";\\\r\
-    \n            \"\\3B\";\"\\3C\";\"\\3D\";\"\\3E\";\"\\3F\";\"\\40\";\"\\5B\";\"\\5C\";\"\\5D\";\"\\5E\";\"\\5F\";\"\\60\";\"\\7B\";\"\\7C\";\"\\7D\";\"\\7E\";\\\r\
-    \n            \"\\C0\";\"\\C1\";\"\\C2\";\"\\C3\";\"\\C4\";\"\\C5\";\"\\C6\";\"\\C7\";\"\\C8\";\"\\C9\";\"\\CA\";\"\\CB\";\"\\CC\";\"\\CD\";\"\\CE\";\"\\CF\";\\\r\
-    \n            \"\\D0\";\"\\D1\";\"\\D2\";\"\\D3\";\"\\D4\";\"\\D5\";\"\\D6\";\"\\D7\";\"\\D8\";\"\\D9\";\"\\DA\";\"\\DB\";\"\\DC\";\"\\DD\";\"\\DE\";\"\\DF\";\\\r\
-    \n            \"\\E0\";\"\\E1\";\"\\E2\";\"\\E3\";\"\\E4\";\"\\E5\";\"\\E6\";\"\\E7\";\"\\E8\";\"\\E9\";\"\\EA\";\"\\EB\";\"\\EC\";\"\\ED\";\"\\EE\";\"\\EF\";\\\r\
-    \n            \"\\F0\";\"\\F1\";\"\\F2\";\"\\F3\";\"\\F4\";\"\\F5\";\"\\F6\";\"\\F7\";\"\\F8\";\"\\F9\";\"\\FA\";\"\\FB\";\"\\FC\";\"\\FD\";\"\\FE\";\"\\FF\";\\\r\
-    \n            \"\\A8\";\"\\B8\";\"\\B9\"}];\r\
-    \n        :local utf8 [:toarray {\r\
-    \n            \"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"000A\";\"0020\";\"0020\";\"000D\";\"0020\";\"0020\";\\\r\
-    \n            \"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\"0020\";\\\r\
-    \n            \"0021\";\"0022\";\"0023\";\"0024\";\"0025\";\"0026\";\"0027\";\"0028\";\"0029\";\"002A\";\"002B\";\"002C\";\"002D\";\"002E\";\"002F\";\"003A\";\\\r\
-    \n            \"003B\";\"003C\";\"003D\";\"003E\";\"003F\";\"0040\";\"005B\";\"005C\";\"005D\";\"005E\";\"005F\";\"0060\";\"007B\";\"007C\";\"007D\";\"007E\";\\\r\
-    \n            \"D090\";\"D091\";\"D092\";\"D093\";\"D094\";\"D095\";\"D096\";\"D097\";\"D098\";\"D099\";\"D09A\";\"D09B\";\"D09C\";\"D09D\";\"D09E\";\"D09F\";\\\r\
-    \n            \"D0A0\";\"D0A1\";\"D0A2\";\"D0A3\";\"D0A4\";\"D0A5\";\"D0A6\";\"D0A7\";\"D0A8\";\"D0A9\";\"D0AA\";\"D0AB\";\"D0AC\";\"D0AD\";\"D0AE\";\"D0AF\";\\\r\
-    \n            \"D0B0\";\"D0B1\";\"D0B2\";\"D0B3\";\"D0B4\";\"D0B5\";\"D0B6\";\"D0B7\";\"D0B8\";\"D0B9\";\"D0BA\";\"D0BB\";\"D0BC\";\"D0BD\";\"D0BE\";\"D0BF\";\\\r\
-    \n            \"D180\";\"D181\";\"D182\";\"D183\";\"D184\";\"D185\";\"D186\";\"D187\";\"D188\";\"D189\";\"D18A\";\"D18B\";\"D18C\";\"D18D\";\"D18E\";\"D18F\";\\\r\
-    \n            \"D001\";\"D191\";\"2116\"}];\r\
-    \n        :local convStr \"\"; \r\
-    \n        :local code \"\";\r\
-    \n        :for i from=0 to=([:len \$1]-1) do={\r\
-    \n            :local symb [:pick \$1 \$i (\$i+1)]; \r\
-    \n            :local idx [:find \$cp1251 \$symb];\r\
-    \n            :local key (\$utf8->\$idx);\r\
-    \n            :if ([:len \$key]!=0) do={\r\
-    \n                :set \$code (\"%\$[:pick (\$key) 0 2]%\$[:pick (\$key) 2 4]\");\r\
-    \n                :if ([pick \$code 0 3]=\"%00\") do={:set \$code ([:pick \$code 3 6])};\r\
-    \n            } else={:set code (\$symb)}; \r\
-    \n            :set \$convStr (\$convStr.\$code);\r\
-    \n        }\r\
-    \n        :return (\$convStr);\r\
-    \n    }\r\
-    \n\r\
-    \n\r\
-    \n:global botID\r\
-    \n:global GroupChat\r\
-    \n:global broadCast\r\
-    \n:local Identity \"\";\r\
-    \n\r\
-    \n:if (\$2=\"identity\") do={:set Identity [\$fsLowStr [/system identity get name]]; :set Identity (\"\$Identity\".\"_\")}\r\
-    \n:if (\$2=\"forall\") do={:set Identity (\"\$2\".\"_\")}\r\
-    \n:if ([:len \$2]=0) do={:set Identity \"\"}\r\
-    \n:local count 0\r\
-    \n:local TXTmessage \"\"\r\
-    \n:foreach k,v in=\$1 do={\r\
-    \n:set \$v [\$CP1251toUTF8 \$v]\r\
-    \n:set TXTmessage (\"\$TXTmessage\".\"\$Identity\".\"\$k;\$v\".\",\")\r\
-    \n }\r\
-    \n:set TXTmessage [:pick \$TXTmessage 0 ([:len \$TXTmessage]-1)]\r\
-    \n:if ([\$teSetMyCommands fBotID=\$botID fCommands=\$TXTmessage]) do={:return OK} else={:return ERR}\r\
-    \n  }\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n:global tlgrm; :if (!any \$tlgrm) do={:global tlgrm do={\r\
-    \n:if (any \$0) do={\r\
-    \n:if (\$1=\"help\") do={:global Emoji; :global FuncTelegramSender; [\$FuncTelegramSender (\"\$Emoji \$[/system identity get name]:%0A [/\$[:pick \$0 1 [:len \$0]]] service function tlgrm parameters:%0A \$0 allow, bun, on, off, Scr, Fnc, Cmd, GroupChat, broadCast\")]; :return []}\r\
-    \n:if ((\$1=\"allow\") && ([:len \$2]=0)) do={:global allowTlgrm; :set allowTlgrm true; :return \$1}\r\
-    \n:if ((\$1=\"bun\") && ([:len \$2]=0)) do={:global allowTlgrm; :set allowTlgrm false; :return \$1}\r\
-    \n:if ((\$1=\"on\") && ([:len \$2]=0)) do={:global tlgrm; [\$tlgrm launchScr true];  [\$tlgrm launchFnc true];  [\$tlgrm launchCmd true]; :return \$1}\r\
-    \n:if ((\$1=\"off\") && ([:len \$2]=0)) do={:global tlgrm; [\$tlgrm launchScr false];  [\$tlgrm launchFnc false];  [\$tlgrm launchCmd false]; :return \$1}\r\
-    \n:if ([:len \$1]=0) do={:global tlgrm; [\$tlgrm help]\r\
-    \n :return []}\r\
-    \n:if ((\$1=\"GroupChat\") && ([:typeof \$2]=\"str\") && ([:pick \$2 0 1]=\"@\")) do={:global GroupChat; :set GroupChat \$2; :return \$2}\r\
-    \n:if ((\$1=\"GroupChat\") && ([:len \$2]=0)) do={:global GroupChat; :set GroupChat []; :return \$2}\r\
-    \n:local fSet\r\
-    \n :if ((\$2=\"true\") or (\$2=\"false\")) do={\r\
-    \n  :if (\$2=\"true\") do={:set fSet true} else={:set fSet false}\r\
-    \n  :if (\$1=\"broadCast\") do={:global broadCast; :set broadCast \$fSet;}    \r\
-    \n    :return \$2}\r\
-    \n  :if (\$1=\"Scr\") do={:global  launchScr; :set  launchScr \$fSet; :return \$2}\r\
-    \n  :if (\$1=\"Fnc\") do={:global  launchFnc; :set  launchFnc \$fSet; :return \$2}\r\
-    \n  :if (\$1=\"Cmd\") do={:global  launchCmd; :set  launchCmd \$fSet; :return \$2}\r\
-    \n } else={:return \"ERROR function \$0 parameter \$1 \$2\"}\r\
-    \n :return \"ERROR function \$0 parameter <\$1>\"\r\
-    \n     }\r\
-    \n   }\r\
-    \n }\r\
-    \n}\r\
-    \n"
-/system script add comment="cmd satstart SATELLITE Lib" dont-require-permissions=no name=satstart owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="/system script run SAT!start"
-/system script add comment="module 3 SATELLITE for TLGRM" dont-require-permissions=no name=SAT3 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="#-------------------------------------------------------------------------------------------------------------------------\r\
-    \n# SATELLITE3 module  for TLGRM version 2.2 by Sertik (Serkov S.V.) 25/10/2022\r\
-    \n#-------------------------------------------------------------------------------------------------------------------------\r\
-    \n\r\
-    \n\r\
-    \n# declare functions:\r\
-    \n:global FuncTelegramSender\r\
-    \n:global FuncSchedFuncAdd\r\
-    \n:global FuncSchedScriptAdd\r\
-    \n\r\
-    \n# function FuncTelegramSender\r\
-    \n# ---------------------------------------------\r\
-    \n:global FuncTelegramSender\r\
-    \n:if (!any \$FuncTelegramSender) do={ :global FuncTelegramSender do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:global Emoji\r\
-    \n:global botID;\r\
-    \n:global myChatID;\r\
-    \n:local Tstyle\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:if ([:len \$2]=0) do={} else={:set \$Tstyle \$2} \r\
-    \n:if ((\$2=\"html\") or (\$2=\"markdown\") or (\$2=\"markdownV2\") or ([:len \$2]=0)) do={\r\
-    \n\r\
-    \n:local string; :set \$string \$1;\r\
-    \n\r\
-    \n#  table of the codes of Russian letters UTF8 + some characters are not supported by Telegram\r\
-    \n\r\
-    \n:local rsimv [:toarray {\"\C0\"=\"D090\"; \"\C1\"=\"D091\"; \"\C2\"=\"D092\"; \"\C3\"=\"D093\"; \"\C4\"=\"D094\"; \"\C5\"=\"D095\"; \"\C6\"=\"D096\"; \"\C7\"=\"D097\"; \"\C8\"=\"D098\"; \"\C9\"=\"D099\"; \"\CA\"=\"D09A\"; \"\CB\"=\"D09B\"; \"\CC\"=\"D09C\"; \"\CD\"=\"D09D\"; \"\CE\"=\"D09E\"; \"\CF\"=\"D09F\"; \"\D0\"=\"D0A0\"; \"\D1\"=\"D0A1\"; \"\D2\"=\"D0A2\"; \"\D3\"=\"D0A3\"; \"\D4\"=\"D0A4\"; \"\D5\"=\"D0A5\"; \"\D6\"=\"D0A6\"; \"\D7\"=\"D0A7\"; \"\D8\"=\"D0A8\"; \"\D9\"=\"D0A9\"; \"\DA\"=\"D0AA\"; \"\DB\"=\"D0AB\"; \"\DC\"=\"D0AC\"; \"\DD\"=\"D0AD\"; \"\DE\"=\"D0AE\"; \"\DF\"=\"D0AF\"; \"\E0\"=\"D0B0\"; \"\E1\"=\"D0B1\"; \"\E2\"=\"D0B2\"; \"\E3\"=\"D0B3\"; \"\E4\"=\"D0B4\"; \"\E5\"=\"D0B5\"; \"\E6\"=\"D0B6\"; \"\E7\"=\"D0B7\"; \"\E8\"=\"D0B8\"; \"\E9\"=\"D0B9\"; \"\EA\"=\"D0BA\"; \"\EB\"=\"D0BB\"; \"\EC\"=\"D0BC\"; \"\ED\"=\"D0BD\"; \"\EE\"=\"D0BE\"; \"\EF\"=\"D0BF\"; \"\F0\"=\"D180\"; \"\F1\"=\"D181\"; \"\F2\"=\"D182\"; \"\F3\"=\"D183\"; \"\F4\"=\"D184\"; \"\F5\"=\"D185\"; \"\F6\"=\"D186\"; \"\F7\"=\"D187\"; \"\F8\"=\"D188\"; \"\F9\"=\"D189\"; \"\FA\"=\"D18A\"; \"\FB\"=\"D18B\"; \"\FC\"=\"D18C\"; \"\FD\"=\"D18D\"; \"\FE\"=\"D18E\"; \"\FF\"=\"D18F\"; \"\A8\"=\"D001\"; \"\B8\"=\"D191\"; \"\B9\"=\"0023\"; \" \"=\"0020\"; \"&\"=\"0026\"; \"`\"=\"0027\"; \"+\"=\"002B\";\"[\"=\"005B\"; \"\\\\\"=\"005C\"; \"]\"=\"005D\"; \"_\"=\"005F\"; \"'\"=\"0060\"}]\r\
-    \n\r\
-    \n# encoding of the symbols and \E0ssembly line\r\
-    \n:local StrTele \"\"; :local code \"\";\r\
-    \n:for i from=0 to=([:len \$string]-1) do={:local keys [:pick \$string \$i (1+\$i)]; :local key (\$rsimv->\$keys); if ([:len \$key]!=0) do={:set \$code (\"%\".\"\$[:pick (\$rsimv->\$keys) 0 2]\".\"%\".\"\$[:pick (\$rsimv->\$keys) 2 4]\");:if ([pick \$code 0 3] =\"%00\") do={:set \$code [:pick \$code 3 6]}} else={:set \$code \$keys}; :set \$StrTele (\"\$StrTele\".\"\$code\")}\r\
-    \n\r\
-    \ndo {\r\
-    \n/tool fetch url=\"https://api.telegram.org/\$botID/sendmessage\\\?chat_id=\$myChatID&parse_mode=\$Tstyle&text=\$StrTele\" keep-result=no; :return \"Done\"\r\
-    \n} on-error={:log info; :log error \"Error function \$0 fetch\"; :log info \"\"; :return \"Error fetch\"}\r\
-    \n    } else={:log info; log error \"Parametrs function \$0 mismatch\"; :log info \"\"; :return \"Error parametrs mismatch\"}\r\
-    \n  }\r\
-    \n}}}\r\
-    \n\r\
-    \n#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
-    \n# \D4\F3\ED\EA\F6\E8\FF  FuncSchedScriptAdd \E4\EE\E1\E0\E2\EB\E5\ED\E8\FF \E7\E0\E4\E0\ED\E8\FF \ED\E0 \E2\FB\EF\EE\EB\ED\E5\ED\E8\E5 \EF\F0\EE\E8\E7\E2\EE\EB\FC\ED\EE\E3\EE \F1\EA\F0\E8\EF\F2\E0 \E2 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA\r\
-    \n#  by Sertik 26/02/2021 version 1.0\r\
-    \n#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
-    \n\r\
-    \n\r\
-    \n# usage [\$FuncSchedScriptAdd \"script name\"  \"\E4\E0\F2\E0 \E2 \F4\EE\F0\EC\E0\F2\E5 Feb/06/2021\" \"\E2\F0\E5\EC\FF (00:00:00 or startup)\" \"\E8\ED\F2\E5\F0\E2\E0\EB (00:00:00)\"]\r\
-    \n# examples:\r\
-    \n# :local ScriptFunc [\$FuncSchedScriptAdd \"script name\"  \"Feb/06/2021\" \"21:06:30\" \"00:00:00\"]\r\
-    \n# \E5\F1\EB\E8 \E2\F0\E5\EC\FF \F1\F0\E0\E1\E0\F2\FB\E2\E0\ED\E8\FF \F1\F2\EE\E8\F2 startup, \F2\EE date \F3\F1\F2\E0\ED\E0\E2\EB\E8\E2\E0\E5\F2\F1\FF \F2\E5\EA\F3\F9\E8\EC \E4\ED\B8\EC (\F2\E0\EA \F0\E0\E1\EE\F2\E0\E5\F2 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA)\r\
-    \n# [\$FuncSchedScriptAdd \"script name\"  \"Feb/06/2021\" \"startup\" \"00:01:00\"]\r\
-    \n# [\$FuncSchedScriptAdd \"script name\"]\r\
-    \n#\r\
-    \n\r\
-    \n:set FuncSchedScriptAdd do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n    :if ([:len \$1]!=0) do={\r\
-    \n         :if ([:len [/system script find name=\$1]]!=0) do={\r\
-    \n:if ([:len \$4]=0) do={:set \$4 \"00:00:00\"}\r\
-    \n:local timedelay 10\r\
-    \n:local time [/system clock get time]; :local date [/system clock get date];\r\
-    \n:global FuncEpochTime; :global FuncUnixTimeToFormat;\r\
-    \n:local tm [\$FuncUnixTimeToFormat ([\$FuncEpochTime]+\$timedelay) 5]\r\
-    \n:local sdate \"\";\r\
-    \n:if ([:len \$2]>0) do={:set sdate \$2} else={:set sdate [:pick \$tm 0 [:find \$tm \"-\"]]}\r\
-    \n:if ([:len \$3]>0) do={} else={:set \$3 [:pick \$tm ([:find \$tm \"-\"]+1) [:len \$tm]]}\r\
-    \n                   :local insertend;\r\
-    \n        :do {\r\
-    \n                        :if (\$4!=\"00:00:00\") do={:set insertend \"\";}  else={:set insertend \":global FuncSchedRemove; [\\\$FuncSchedRemove \\\"Run script \$1-\$2-\$time\\\"]\"}\r\
-    \n                   :local strscr (\":do {\".\"/system script run \".\"\$1;\".\"\$insertend\".\"} on-error={:log info \\\"\\\"; :log error \\\"ERROR when executing a scheduled run script \$1\\\"; :log info \\\"\\\" }\");\r\
-    \n                    [/system scheduler add name=(\"Run script \".\"\$1\".\"-\".\"\$2\".\"-\".\"\$time\") start-time=[:totime \$3] on-event=\$strscr interval=[:totime \$4] start-date=\$sdate comment=(\"added by function \".\"\$[:pick \$0 1 [:len \$0]]\")];\r\
-    \n        } on-error={:log error \"ERROR function \$0 Sheduller is not set\"; :return \"ERROR function \$0 Sheduller is not set\"};\r\
-    \n:log info \"\"; :put \"\";\r\
-    \n:log warning (\"Function \$0 added task run script \$1-\$2-\$time to the scheduler\")\r\
-    \n:put (\"Function \$0 added task run script \$1-\$2-\$time to the scheduler\")\r\
-    \n:log info \"\"; :put \"\";\r\
-    \n    :return \"OK\";\r\
-    \n      } else={:return \"ERROR function \$0 script \$1 not find in repository\"}\r\
-    \n   } else={:return \"ERROR parametr \$1 <ScriptName>\"}\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
-    \n# \D4\F3\ED\EA\F6\E8\FF  FuncSchedFuncAdd \E4\EE\E1\E0\E2\EB\E5\ED\E8\FF \E7\E0\E4\E0\ED\E8\FF \ED\E0 \E2\FB\EF\EE\EB\ED\E5\ED\E8\E5 \EF\F0\EE\E8\E7\E2\EE\EB\FC\ED\EE\E9 \F4\F3\ED\EA\F6\E8\E8 \F1 \EF\F0\EE\F1\F2\FB\EC\E8 \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC\E8 \E2 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA\r\
-    \n#  by Sertik 26/02/2021 version 1.0\r\
-    \n#------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\r\
-    \n\r\
-    \n#usage [\$FuncSchedFuncAdd \"\EF\EE\EB\ED\E0\FF \F1\F2\F0\EE\EA\E0 \F4\F3\ED\EA\F6\E8\E8 c \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC\E8 \E8\EB\E8 \E1\E5\E7\"  \"\E4\E0\F2\E0 \E2 \F4\EE\F0\EC\E0\F2\E5 Feb/06/2021\" \"\E2\F0\E5\EC\FF (00:00:00 or startup)\" \"\E8\ED\F2\E5\F0\E2\E0\EB (00:00:00)\"]\r\
-    \n# examples:\r\
-    \n# :local ScriptFunc [\$FuncSchedFuncAdd \"FuncName par1 par2\"  \"Feb/06/2021\" \"21:06:30\" \"00:00:00\"]\r\
-    \n# \E5\F1\EB\E8 \E2\F0\E5\EC\FF \F1\F0\E0\E1\E0\F2\FB\E2\E0\ED\E8\FF \F1\F2\EE\E8\F2 startup, \F2\EE date \F3\F1\F2\E0\ED\E0\E2\EB\E8\E2\E0\E5\F2\F1\FF \F2\E5\EA\F3\F9\E8\EC \E4\ED\B8\EC (\F2\E0\EA \F0\E0\E1\EE\F2\E0\E5\F2 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA)\r\
-    \n# [\$FuncSchedFuncAdd \"FuncName\"  \"Feb/06/2021\" \"startup\" \"00:01:00\"]\r\
-    \n# [\$FuncSchedFuncAdd \"FuncName par1 par 2 par 3\"]\r\
-    \n#\r\
-    \n\r\
-    \n:set FuncSchedFuncAdd do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:if ([:len \$1]!=0) do={\r\
-    \n:if ([:len \$4]=0) do={:set \$4 \"00:00:00\"}\r\
-    \n:local timedelay 10\r\
-    \n:local time [/system clock get time]; :local date [/system clock get date];\r\
-    \n:global FuncEpochTime; :global FuncUnixTimeToFormat;\r\
-    \n:local tm [\$FuncUnixTimeToFormat ([\$FuncEpochTime]+\$timedelay) 5]\r\
-    \n:local sdate \"\";\r\
-    \n:if ([:len \$2]>0) do={:set sdate \$2} else={:set sdate [:pick \$tm 0 [:find \$tm \"-\"]]}\r\
-    \n:if ([:len \$3]>0) do={} else={:set \$3 [:pick \$tm ([:find \$tm \"-\"]+1) [:len \$tm]]}\r\
-    \n                      :local insert;\r\
-    \n            :do {\r\
-    \n                      :local FuncName;\r\
-    \n                          :if ([:typeof [:find \$1 \" \"]]!=\"nil\") do={:set FuncName [:pick \$1 0 [:find \$1 \" \"]]} else={:set FuncName [:pick \$1 0 [:len \$1]]}\r\
-    \n                           :local strfunc (\":global \".\"\$FuncName\".\";\".\":do {[\\\$\$1];} on-error={:log info \\\"\\\"; :log error \\\"ERROR when executing a scheduled function \$FuncName task\\\"; :log info \\\"\\\" }\");\r\
-    \n                           :if (\$4!=\"00:00:00\") do={:set insert \"\"} else={:set insert \"; :global FuncSchedRemove; :do {[\\\$FuncSchedRemove \\\"Run function \$1-\$2-\$time\\\"]} on-error={}\"}\r\
-    \n                           [/system scheduler add name=(\"Run function \".\"\$1\".\"-\".\"\$2\".\"-\".\"\$time\") start-time=[:totime \$3] on-event=(\"\$strfunc\".\"\$insert\") interval=[:totime \$4] start-date=\$sdate comment=(\"added by function \".\"\$[:pick \$0 1 [:len \$0]]\")]\r\
-    \n                } on-error={:log error \"ERROR function \$0 Sheduller is not set\"; :return \"ERROR function \$0 Sheduller is not set\"}\r\
-    \n:log info \"\"; :put \"\";\r\
-    \n:log warning (\"Function \$0 added task run function \$1-\$2-\$time to the scheduler\");\r\
-    \n:put (\"Function \$0 added task run function \$1-\$2-\$time to the scheduler\");\r\
-    \n:log info \"\"; :put \"\";\r\
-    \n:return \"OK\";\r\
-    \n       } else={:return \"ERROR parametr \$1 <\$FuncName>\"}\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n# \D4\F3\ED\EA\F6\E8\FF FuncSchedRemove - \F3\E4\E0\EB\E5\ED\E8\FF \E7\E0\E4\E0\ED\E8\FF \E8\E7 \CF\EB\E0\ED\E8\F0\EE\E2\F9\E8\EA\E0\r\
-    \n# usage [\$FuncSchedRemove \"task1\"]\r\
-    \n\r\
-    \n:global FuncSchedRemove\r\
-    \nif (!any \$FuncSchedRemove) do={:global FuncSchedRemove do={\r\
-    \n:if ([:len \$0]!=0) do={\r\
-    \n:do {\r\
-    \n/system scheduler remove \"\$1\"} on-error={}\r\
-    \n }\r\
-    \n}\r\
-    \n}\r\
-    \n\r\
-    \n# \D4\F3\ED\EA\F6\E8\FF FuncEpochTime - \E2\FB\F7\E8\F1\EB\E5\ED\E8\FF \E0\E1\F1\EE\EB\FE\F2\ED\EE\E3\EE \E2\F0\E5\EC\E5\ED\E8 UNIXTIME\r\
-    \n\r\
-    \n# \EE\E3\F0\E0\ED\E8\F7\E5\ED\E0 2000-2199 \E3\EE\E4\E0\EC\E8\r\
-    \n# \E1\E5\E7 \EF\E0\F0\E0\EC\E5\F2\F0\EE\E2 - \E2\EE\E7\E2\F0\E0\F9\E0\E5\F2 timeStamp (UnixTime)\r\
-    \n# c \EF\E0\F0\E0\EC\E5\F2\F0\E0\EC\E8 \$1 - \ED\F3\E6\ED\EE \F3\F7\E8\F2\FB\E2\E0\F2\FC gmt \E8\EB\E8 \ED\E5\F2\r\
-    \n# \E2\EE\E7\E2\F0\E0\F9\E0\E5\F2 UnixTime \FD\F2\EE\E9 \E2\F0\E5\EC\E5\ED\ED\EE\E9 \F2\EE\F7\EA\E8\r\
-    \n# \E5\F1\EB\E8 \$2 \ED\E5 \E7\E0\E4\E0\ED - \E1\E5\F0\E5\F2\F1\FF \F2\E5\EA\F3\F9\E0\FF \E4\E0\F2\E0 \E8\E7 /system clock\r\
-    \n# \E5\F1\EB\E8 \$3 \ED\E5 \E7\E0\E4\E0\ED - \E1\E5\F0\E5\F2\F1\FF \F2\E5\EA\F3\F9\E5\E5 \E2\F0\E5\EC\FF \E0\ED\E0\EB\EE\E3\E8\F7\ED\EE\r\
-    \n\r\
-    \n:global FuncEpochTime\r\
-    \nif (!any \$FuncEpochTime) do={:global FuncEpochTime do={\r\
-    \n:local gmtofset 0\r\
-    \n:local ds\r\
-    \n:local ts\r\
-    \n :if ([:len \$1]=0) do={:set gmtofset [/system clock get gmt-offset]} else={:set gmtofset 0}\r\
-    \n :if (\$1=\"gmtoffset\") do={:set gmtofset [/system clock get gmt-offset]} else={:set gmtofset 0}\r\
-    \n :if (\$1=\"nogmt\") do={:set gmtofset 0}\r\
-    \n :if ([:len \$2]=0) do={:set ds [/system clock get date]} else={:set ds \$2}\r\
-    \n :if ([:len \$3]=0) do={:set ts [/system clock get time]} else={:set ts \$3}\r\
-    \n\r\
-    \n#   :local ds [/system clock get date];\r\
-    \n   :local months;\r\
-    \n   :if ((([:pick \$ds 9 11]-1)/4) != (([:pick \$ds 9 11])/4)) do={\r\
-    \n      :set months {\"an\"=0;\"eb\"=31;\"ar\"=60;\"pr\"=91;\"ay\"=121;\"un\"=152;\"ul\"=182;\"ug\"=213;\"ep\"=244;\"ct\"=274;\"ov\"=305;\"ec\"=335};\r\
-    \n   } else={\r\
-    \n      :set months {\"an\"=0;\"eb\"=31;\"ar\"=59;\"pr\"=90;\"ay\"=120;\"un\"=151;\"ul\"=181;\"ug\"=212;\"ep\"=243;\"ct\"=273;\"ov\"=304;\"ec\"=334};\r\
-    \n   }\r\
-    \n:local year [:tonum [:pick \$ds 7 9]]\r\
-    \n   :set ds (([:pick \$ds 9 11]*365)+(([:pick \$ds 9 11]-1)/4)+(\$months->[:pick \$ds 1 3])+[:pick \$ds 4 6]);\r\
-    \n#   :local ts [/system clock get time];\r\
-    \n   :set ts (([:pick \$ts 0 2]*60*60)+([:pick \$ts 3 5]*60)+[:pick \$ts 6 8]);\r\
-    \n#   :return (\$ds*24*60*60 + \$ts + 946684800 - \$gmtofset);\r\
-    \n:if (\$year=20) do={\r\
-    \n   :return (\$ds*24*60*60 + \$ts + 946684800 - \$gmtofset);}\r\
-    \n:if (\$year=21) do={\r\
-    \n   :return ((\$ds-1)*24*60*60 + \$ts + 4102444800 - \$gmtofset);\r\
-    \n} else={:return 0}\r\
-    \n }\r\
-    \n}\r\
-    \n\r\
-    \n# \D4\F3\ED\EA\F6\E8\FF FuncUnixTimeToFormat - \EA\EE\ED\E2\E5\F0\F2\E5\F0 UNIXTIME \E2 \ED\EE\F0\EC\E0\EB\FC\ED\EE\E5 \E2\F0\E5\EC\FF\r\
-    \n\r\
-    \n# \E3\EE\E4 \ED\E5 \EE\E3\F0\E0\ED\E8\F7\E5\ED \F1\F2\EE\EB\E5\F2\E8\E5\EC\r\
-    \n# usial [\$FuncUnixTimeToFormat \"timeStamp\", \"type\"]\r\
-    \n\r\
-    \n# example:\r\
-    \n#:global FuncEpochTime \r\
-    \n#:local nowtime [\$FuncEpochTime \"nogmt\" \"Oct/26/2021\"]\r\
-    \n#:log warning [\$FuncUnixTimeToFormat \$nowtime]\r\
-    \n\r\
-    \n# type:\r\
-    \n\r\
-    \n# \"unspecified\" - month/dd/yyyy <only> ((Mikrotik sheduller format)\r\
-    \n# 1 - yyyy/mm/dd hh:mm:ss\r\
-    \n# 2 - dd:mm:yyyy hh:mm:ss\r\
-    \n# 3 - dd month yyy hh mm ss\r\
-    \n# 4 - yyyy month dd hh mm ss\r\
-    \n#5 - month/dd/yyyy-hh:mm:ss (Mikrotik sheduller format)\r\
-    \n\r\
-    \n:global FuncUnixTimeToFormat;\r\
-    \nif (!any \$FuncUnixTimeToFormat ) do={:global FuncUnixTimeToFormat  do={\r\
-    \n\r\
-    \n:local decodedLine \"\"\r\
-    \n:local timeStamp \$1\r\
-    \n\r\
-    \n:local timeS (\$timeStamp % 86400)\r\
-    \n:local timeH (\$timeS / 3600)\r\
-    \n:local timeM (\$timeS % 3600 / 60)\r\
-    \n:set \$timeS (\$timeS - \$timeH * 3600 - \$timeM * 60)\r\
-    \n:local dateD (\$timeStamp / 86400)\r\
-    \n:local dateM 2\r\
-    \n:local dateY 1970\r\
-    \n:local leap false\r\
-    \n:while ((\$dateD / 365) > 0) do={\r\
-    \n:set \$dateD (\$dateD - 365)\r\
-    \n:set \$dateY (\$dateY + 1)\r\
-    \n:set \$dateM (\$dateM + 1) \r\
-    \n:if (\$dateM = 4) do={:set \$dateM 0\r\
-    \n:if ((\$dateY % 400 = 0) or (\$dateY % 100 != 0)) do={:set \$leap true\r\
-    \n:set \$dateD (\$dateD - 1)}} else={:set \$leap false}}\r\
-    \n:local months [:toarray (0,31,28,31,30,31,30,31,31,30,31,30,31)]\r\
-    \n:if (leap) do={:set \$dateD (\$dateD + 1); :set (\$months->2) 29}\r\
-    \ndo {\r\
-    \n:for i from=1 to=12 do={:if ((\$months->\$i) >= \$dateD) do={:set \$dateM \$i; :set \$dateD (\$dateD + 1); break;} else={:set \$dateD (\$dateD - (\$months->\$i))}}\r\
-    \n} on-error={}\r\
-    \n:local tmod\r\
-    \n:if ([:len \$2]!=0) do={:set \$tmod \$2} else={:set \$tmod (:nothing)}\r\
-    \n:local s \"/\"\r\
-    \n:local nf true\r\
-    \n:local mstr {\"jan\";\"feb\";\"mar\";\"apr\";\"may\";\"jun\";\"jul\";\"aug\";\"sep\";\"oct\";\"nov\";\"dec\"}\r\
-    \n:local strY [:tostr \$dateY]\r\
-    \n:local strMn\r\
-    \n:local strD\r\
-    \n:local strH\r\
-    \n:local strM\r\
-    \n:local strS\r\
-    \n:if (\$nf) do={\r\
-    \n:if (\$dateM > 9) do={:set \$strMn [:tostr \$dateM]} else={:set \$strMn (\"0\".[:tostr \$dateM])}\r\
-    \n:if (\$dateD > 9) do={:set \$strD [:tostr \$dateD]} else={:set \$strD (\"0\".[:tostr \$dateD])}\r\
-    \n:if (\$timeH > 9) do={:set \$strH [:tostr \$timeH]} else={:set \$strH (\"0\".[:tostr \$timeH])}\r\
-    \n:if (\$timeM > 9) do={:set \$strM [:tostr \$timeM]} else={:set \$strM (\"0\".[:tostr \$timeM])}\r\
-    \n:if (\$timeS > 9) do={:set \$strS [:tostr \$timeS]} else={:set \$strS (\"0\".[:tostr \$timeS])}\r\
-    \n} else={\r\
-    \n:set strMn [:tostr \$dateM]\r\
-    \n:set strD [:tostr \$dateD]\r\
-    \n:set strH [:tostr \$timeH]\r\
-    \n:set strM [:tostr \$timeM]\r\
-    \n:set strS [:tostr \$timeS]\r\
-    \n}\r\
-    \ndo {\r\
-    \n:if ([:len \$tmod]=0) do={:local mt (\$mstr->(\$dateM - 1)); :set \$decodedLine (\"\$mt/\".\"\$strD/\".\"\$strY\"); break;}\r\
-    \n:if (\$tmod = 1) do={:set \$decodedLine \"\$strY\$s\$strMn\$s\$strD \$strH:\$strM:\$strS\"; break;}\r\
-    \n:if (\$tmod = 2) do={:set \$decodedLine \"\$strD\$s\$strMn\$s\$strY \$strH:\$strM:\$strS\"; break;}\r\
-    \n:if (\$tmod = 3) do={:set \$decodedLine (\"\$strD \".(\$mstr->(\$dateM - 1)).\" \$strY \$strH:\$strM:\$strS\"); break;}\r\
-    \n:if (\$tmod = 4) do={:set \$decodedLine (\"\$strY \".(\$mstr->(\$dateM - 1)).\" \$strD \$strH:\$strM:\$strS\"); break;}\r\
-    \n:if (\$tmod = 5) do={:local m (\$mstr->(\$dateM - 1)); :set \$decodedLine (\"\$m/\".\"\$strD/\".\"\$strY\".\"-\$strH:\$strM:\$strS\"); break;}\r\
-    \n\r\
-    \n} on-error={}\r\
-    \n:return \$decodedLine;\r\
-    \n}\r\
-    \n}\r\
-    \n\r\
-    \n:log info \"  -    SATELLITE3 module is set\"\r\
-    \n"
 /tool bandwidth-server set enabled=no
-/tool e-mail set address=smtp.gmail.com from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 tls=yes user=defm.kopcap@gmail.com
+/tool e-mail set from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
 /tool graphing set page-refresh=50
 /tool graphing interface add
 /tool graphing resource add
@@ -6363,4 +4257,6 @@
     \n\r\
     \n:global NetwatchHostName \"miniAlx\";\r\
     \n/system script run doNetwatchHost;"
-/tool sniffer set filter-interface=ip-mapping-br filter-operator-between-entries=and streaming-server=192.168.90.170
+/tool sniffer set filter-ip-protocol=icmp filter-src-ip-address=185.85.121.15/32 streaming-server=192.168.90.170
+/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
+/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive

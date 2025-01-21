@@ -7,7 +7,7 @@ $globalScriptBeforeRun $scriptname;
 :global globalCallFetch;
 
 #directories have to exist!
-:local FTPRoot "/REPO/mikrobackups/"
+:local FTPRoot "REPO/raw/"
 
 #This subdir will be created locally to put exported scripts in
 #and it must exist under $FTPRoot to upload scripts to
@@ -15,14 +15,16 @@ $globalScriptBeforeRun $scriptname;
 
 :local FTPEnable true
 :local FTPServer "nas.home"
-:local FTPPort 21
+:local FTPPort 2022
 :local FTPUser "git"
 :local FTPPass "git"
 
+:global globalCallFetch;
 :global globalNoteMe;
 :local itsOk true;
 :local state "";
 :global globalScriptId;
+:global createPath;
 
 :do {
   :local smtpserv [:resolve "$FTPServer"];
@@ -32,15 +34,8 @@ $globalScriptBeforeRun $scriptname;
   :set itsOk false;    
 }
 
-:if ($itsOk) do={
-  :do {
-    [/tool fetch dst-path="$SubDir.FooFile" url="http://127.0.0.1:80/mikrotik_logo.png" keep-result=yes];
-  } on-error={ 
-    :set state "Error When Creating Local Scripts Directory";
-    $globalNoteMe value=$state;
-    :set itsOk false;
-  }
-}
+# Just to sure (or create) if $SubDir exist
+/file/add name="$SubDir/foo.txt" contents="Feel free to remove this";
 
 :foreach scriptId in [/system script find] do={
   :if ($itsOk) do={
@@ -92,8 +87,8 @@ $globalScriptBeforeRun $scriptname;
           :set state "Uploading $buFile' to '$dst'";
           $globalNoteMe value=$state;
           
-          :local fetchCmd "/tool fetch address=$FTPServer port=$FTPPort src-path=$buFile user=$FTPUser password=$FTPPass dst-path=$dst mode=ftp upload=yes";
-        
+         :local fetchCmd "/tool fetch url=sftp://$FTPServer:$FTPPort/$dst src-path=$buFile user=$FTPUser password=$FTPPass upload=yes"
+       
           $globalCallFetch $fetchCmd;
 
           $globalNoteMe value="Done";
