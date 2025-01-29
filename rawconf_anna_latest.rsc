@@ -1,4 +1,4 @@
-# 2025-01-25 21:00:03 by RouterOS 7.15.3
+# 2025-01-29 21:10:44 by RouterOS 7.15.3
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -89,7 +89,7 @@
 /ip smb users set [ find default=yes ] disabled=yes
 /ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1360 max-mtu=1360 name=tunnel profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
-/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro(wireless)@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
@@ -117,7 +117,7 @@
 /queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)(blocked)@guest-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.98.180/32 total-queue=default
 /queue simple add comment=dtq,D4:3B:04:87:C7:47,DESKTOP-G3RE47G name="HareDell@main-dhcp-server (D4:3B:04:87:C7:47)" queue=default/default target=192.168.90.77/32 total-queue=default
 /queue simple add comment=dtq,D4:3B:04:87:C7:47, name="HareDell(blocked)@guest-dhcp-server (D4:3B:04:87:C7:47)" queue=default/default target=192.168.98.77/32 total-queue=default
-/queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro(wireless)(blocked)@guest-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.130/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro(blocked)@guest-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.130/32 total-queue=default
 /queue simple add comment=dtq,40:80:E1:5B:41:B8,nspanel name="NSPanel(wireless)@main-dhcp-server (40:80:E1:5B:41:B8)" queue=default/default target=192.168.90.165/32 total-queue=default
 /queue simple add comment=dtq,40:80:E1:5B:41:B8, name="NSPanel(wireless)(blocked)@guest-dhcp-server (40:80:E1:5B:41:B8)" queue=default/default target=192.168.98.165/32 total-queue=default
 /queue simple add comment=dtq,DC:10:57:2D:39:7B,iPhoneAlxr name="iPhoneAlxr(wireless)@main-dhcp-server (DC:10:57:2D:39:7B)" queue=default/default target=192.168.90.150/32 total-queue=default
@@ -131,6 +131,8 @@
 /queue simple add comment=dtq,18:FD:74:94:FD:70,capxl name="capxl(wire)@main-dhcp-server (18:FD:74:94:FD:70)" queue=default/default target=192.168.90.10/32 total-queue=default
 /queue simple add comment=dtq,88:53:95:30:68:9F,miniAlx name="miniAlx(wireless)@main-dhcp-server (88:53:95:30:68:9F)" queue=default/default target=192.168.90.80/32 total-queue=default
 /queue simple add comment=dtq,88:53:95:30:68:9F, name="miniAlx(wireless)(blocked)@guest-dhcp-server (88:53:95:30:68:9F)" queue=default/default target=192.168.98.80/32 total-queue=default
+/queue simple add comment=dtq,BC:74:4B:E8:9B:61, name="nSwitch(wereless)@main-dhcp-server (BC:74:4B:E8:9B:61)" queue=default/default target=192.168.90.199/32 total-queue=default
+/queue simple add comment=dtq,BC:74:4B:E8:9B:61, name="nSwitch(wereless)(blocked)@guest-dhcp-server (BC:74:4B:E8:9B:61)" queue=default/default target=192.168.98.199/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -309,7 +311,7 @@
 /ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
-/ip dns set allow-remote-requests=yes cache-max-ttl=1d max-concurrent-queries=200 max-concurrent-tcp-sessions=30 query-server-timeout=3s servers=217.10.36.5,217.10.32.4 use-doh-server=https://dns.google/dns-query
+/ip dns set address-list-extra-time=1d allow-remote-requests=yes cache-max-ttl=1d cache-size=4096KiB max-concurrent-queries=200 max-concurrent-tcp-sessions=30 query-server-timeout=3s servers=217.10.36.5,217.10.32.4 use-doh-server=https://1.1.1.1/dns-query
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 name=anna.home
@@ -350,15 +352,23 @@
 /ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
 /ip dns static add address=1.1.1.1 name=cloudflare-dns.com
 /ip dns static add address=192.168.90.35 comment=<AUTO:DHCP:main-dhcp-server> name=W11.home ttl=5m
-/ip dns static add address-list=alist-mangle-YouTube match-subdomain=yes name=googlevideo.com type=FWD
-/ip dns static add address-list=alist-mangle-YouTube match-subdomain=yes name=youtube.com type=FWD
-/ip dns static add address-list=alist-mangle-YouTube match-subdomain=yes name=ytimg.com type=FWD
 /ip dns static add address=8.8.8.8 name=dns.google
 /ip dns static add address=8.8.4.4 name=dns.google
 /ip dns static add address=192.168.90.3 comment=<AUTO:DHCP:main-dhcp-server> name=wirenboard-AAXMPGOK.home ttl=5m
 /ip dns static add cname=miniAlx.home name=miniAlx type=CNAME
 /ip dns static add address=192.168.90.220 comment=<AUTO:DHCP:main-dhcp-server> name=yandex-mini2-ZGNK.home ttl=5m
 /ip dns static add address=46.39.51.86 name=ftpserver.org
+/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=googlevideo.com type=FWD
+/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=youtube.com type=FWD
+/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=ytimg.com type=FWD
+/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=youtu.be type=FWD
+/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=yt.be type=FWD
+/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=ggpht.com type=FWD
+/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=gvt1.com type=FWD
+/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=youtube-nocookie.com type=FWD
+/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=googleapis.com type=FWD
+/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=google.com type=FWD
+/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=google.ru type=FWD
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
@@ -438,6 +448,22 @@
 /ip firewall address-list add address=tkjpedia.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=twitter.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=46.39.51.86 list=alist-nat-external-ip
+/ip firewall address-list add address=youtube.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=youtu.be comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=yt.be comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=googlevideo.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=ytimg.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=ggpht.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=gvt1.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=youtube-nocookie.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=youtube-ui.l.google.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=youtubeembeddedplayer.googleapis.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=youtube.googleapis.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=youtubei.googleapis.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=yt-video-upload.l.google.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=wide-youtube.l.google.com comment="YT Hack" list=alist-mangle-YouTube
+/ip firewall address-list add address=google.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=google.ru comment="YT Hack" disabled=yes list=alist-mangle-YouTube
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -676,13 +702,17 @@
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1360 passthrough=yes protocol=tcp src-address-list=alist-fw-vpn-subnets tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=alist-mangle-vpn-tunneled-sites new-connection-mark=cmark-tunnel-connection passthrough=yes
+/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=alist-mangle-YouTube new-connection-mark=cmark-tunnel-connection passthrough=yes
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new dst-address-list=alist-fw-telegram-servers new-connection-mark=cmark-tunnel-connection passthrough=yes
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=alist-mangle-YouTube log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-vpn-tunneled-sites log=yes log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-YouTube log=yes log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark dst-port=500,4500 new-connection-mark=cmark-ipsec passthrough=yes protocol=udp
 /ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark new-connection-mark=cmark-ipsec passthrough=yes protocol=ipsec-esp
+/ip firewall mangle add action=mark-routing chain=output comment="VPN (pure IPSEC)" connection-mark=cmark-ipsec disabled=yes dst-address-list=alist-mangle-YouTube new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=output comment="VPN (pure IPSEC)" connection-mark=cmark-ipsec dst-address-list=alist-mangle-vpn-tunneled-sites new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY
 /ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark layer7-protocol=7Z new-connection-mark=conn-7z-download passthrough=yes
@@ -703,6 +733,7 @@
 /ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to INFLUXDB  (local only)" dst-address-list=alist-nat-influxdb-service log=yes log-prefix="~~~~~~~~INFLUX BACK" src-address-list=alist-nat-local-subnets
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_NAT src-address-list=alist-nat-local-subnets
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix=~~~VPN_NAT
+/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" dst-address-list=alist-mangle-YouTube log-prefix=~~~VPN_NAT
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=alist-nat-local-subnets log-prefix=~~~VPN_NAT src-address-list=alist-fw-vpn-subnets
 /ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface-list=list-l2tp-tunnels
 /ip firewall nat add action=netmap chain=dstnat comment="WINBOX pass through" dst-port=9999 in-interface="wan A" log-prefix=~~~WNBOX protocol=tcp to-addresses=192.168.90.1 to-ports=8291
@@ -785,11 +816,22 @@
 /system logging add action=ParseMemoryLog topics=critical
 /system logging add action=macos prefix=RLOG topics=!debug
 /system logging add action=TransfersOnscreenLog topics=fetch
-/system note set note=Pending
+/system note set note="IPSEC: \t\tokay \
+    \nDefault route: \t10.20.225.1 \
+    \nanna: \t\t7.15.3 \
+    \nUptime:\t\t22w05:55:28  \
+    \nTime:\t\t2025-01-29 21:10:13  \
+    \nya.ru latency:\t9 ms  \
+    \nCHR:\t\t185.13.148.14  \
+    \nMIK:\t\t95.52.161.15  \
+    \nANNA:\t\t46.39.51.86  \
+    \nClock:\t\tsynchronized  \
+    \n"
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
 /system ntp client servers add address=ru.pool.ntp.org
+/system package update set channel=testing
 /system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-01-30 start-time=18:57:09
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-02-21 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-03-21 start-time=19:19:59
