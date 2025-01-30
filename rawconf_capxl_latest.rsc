@@ -1,4 +1,4 @@
-# 2025-01-25 21:00:02 by RouterOS 7.15.3
+# 2025-01-30 21:00:02 by RouterOS 7.15.3
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -103,8 +103,8 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t192.168.90.1 \
     \ncapxl: \t\t7.15.3 \
-    \nUptime:\t\t4d02:50:45  \
-    \nTime:\t\t2025-01-25 20:53:04  \
+    \nUptime:\t\t23:32:37  \
+    \nTime:\t\t2025-01-30 20:53:05  \
     \nya.ru latency:\t4 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t95.52.161.15  \
