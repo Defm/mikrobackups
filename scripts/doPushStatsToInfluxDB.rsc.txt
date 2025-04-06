@@ -33,7 +33,7 @@ $globalScriptBeforeRun $scriptname;
   :local inf "Error When $scriptname on $sysname: $state"  
 
   :global globalTgMessage;
-  $globalTgMessage value=$inf;
+  # do not spam via Tg on this error - just log error
 
   :error $inf;
 }

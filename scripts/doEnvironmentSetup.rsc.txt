@@ -59,11 +59,14 @@
     :local tGroupID "-1001798127067";
     :local tURL "https://api.telegram.org/bot$tToken/sendMessage\?chat_id=$tGroupID";
 
-    :local state ("Sending telegram message... $value");
-    $globalNoteMe value=$state;
+    :local sysname ("%C2%A9%EF%B8%8F #" . [/system identity get name]);
+    :local tgmessage  ("$sysname: $value");  
+
+    :local state ("Sending telegram message... $tgmessage");
+    $globalNoteMe value=$tgmessage;
 
     :do {
-      /tool fetch http-method=post mode=https url="$tURL" http-data="text=$value" keep-result=no;
+      /tool fetch http-method=post mode=https url="$tURL" http-data="text=$tgmessage" keep-result=no;
     } on-error= {
       :local state ("Telegram notify error");
       $globalNoteMe value=$state;

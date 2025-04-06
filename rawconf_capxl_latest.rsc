@@ -1,4 +1,4 @@
-# 2025-01-30 21:00:02 by RouterOS 7.15.3
+# 2025-04-05 21:00:02 by RouterOS 7.18.2
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -37,6 +37,8 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /system logging action add memory-lines=300 name=CAPSOnScreenLog target=memory
 /system logging action add memory-lines=300 name=FirewallOnScreenLog target=memory
 /system logging action add memory-lines=300 name=FTPMemoryLog target=memory
+/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
+/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
 /ip smb set domain=HNW interfaces="main infrastructure"
 /interface bridge port add bridge="main infrastructure" ingress-filtering=no interface="lan A" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge port add bridge="main infrastructure" ingress-filtering=no interface="lan B" internal-path-cost=10 path-cost=10 trusted=yes
@@ -46,7 +48,7 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /ip settings set accept-source-route=yes max-neighbor-entries=8192
 /ipv6 settings set disable-ipv6=yes max-neighbor-entries=8192
 /interface detect-internet set detect-interface-list=all
-/interface ovpn-server server set auth=sha1,md5
+/interface ovpn-server server add auth=sha1,md5 mac-address=FE:AA:B6:DE:38:D8 name=ovpn-server1
 /interface wireless cap
 # 
 set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
@@ -62,11 +64,12 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /ip firewall service-port set udplite disabled=yes
 /ip firewall service-port set dccp disabled=yes
 /ip firewall service-port set sctp disabled=yes
+/ip ipsec profile set [ find default=yes ] dpd-interval=2m dpd-maximum-failures=5
 /ip service set telnet disabled=yes
 /ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
 /ip smb shares set [ find default=yes ] directory=/pub
-/ip ssh set allow-none-crypto=yes forwarding-enabled=remote
+/ip ssh set ciphers=aes-gcm,aes-ctr,aes-cbc,3des-cbc,null forwarding-enabled=remote
 /ip tftp add real-filename=NAS/ req-filename=.*
 /ip upnp set enabled=yes
 /ip upnp interfaces add interface="main infrastructure" type=internal
@@ -102,13 +105,13 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system logging add action=FTPMemoryLog topics=tftp
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t192.168.90.1 \
-    \ncapxl: \t\t7.15.3 \
-    \nUptime:\t\t23:32:37  \
-    \nTime:\t\t2025-01-30 20:53:05  \
+    \ncapxl: \t\t7.18.2 \
+    \nUptime:\t\t09:59:40  \
+    \nTime:\t\t2025-04-05 20:53:04  \
     \nya.ru latency:\t4 ms  \
     \nCHR:\t\t185.13.148.14  \
-    \nMIK:\t\t95.52.161.15  \
-    \nANNA:\t\t46.39.51.86  \
+    \nMIK:\t\t178.65.82.72  \
+    \nANNA:\t\t46.39.51.88  \
     \nClock:\t\tsynchronized  \
     \n"
 /system ntp client set enabled=yes
@@ -1783,5 +1786,3 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n"
 /tool bandwidth-server set authenticate=no
 /tool e-mail set from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
-/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
-/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive

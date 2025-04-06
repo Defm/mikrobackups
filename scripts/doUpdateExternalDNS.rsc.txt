@@ -18,6 +18,15 @@ $globalScriptBeforeRun $scriptname;
 :delay 7s;
 :set IPv4 [/ip cloud get public-address];
 
+:if ([:len $IPv4] > 0) do={
+        :if ([ :typeof [ :toip $IPv4 ] ] != "ip" ) do={
+
+        :set state "No cloud-DNS IP recieved";
+         $globalNoteMe value=$state;
+        :set itsOk false;
+   
+        }
+    }
 
 :if (($LastIPv4 != $IPv4) || ($force = true)) do={
 
@@ -31,7 +40,6 @@ $globalScriptBeforeRun $scriptname;
     /ip dns static add name=ftpserver.org address=$IPv4;
  
     :set LastIPv4 $IPv4;
-    
     :set payLoad true; 
 
     :local count [:len [/system script find name="doSuperviseCHRviaSSH"]];
@@ -42,19 +50,16 @@ $globalScriptBeforeRun $scriptname;
         /system script run doSuperviseCHRviaSSH;
     
      }
-   
-}
+   }
 
 :local inf ""
 :if ($itsOk and $payLoad ) do={
   :set inf "$scriptname on $sysname: external IP address change detected, refreshed"
 }
 
-
 :if ($itsOk and !$payLoad ) do={
   :set inf "$scriptname on $sysname: no external IP address update needed"
 }
-
 
 :if (!$itsOk) do={
   :set inf "Error When $scriptname on $sysname: $state"  
