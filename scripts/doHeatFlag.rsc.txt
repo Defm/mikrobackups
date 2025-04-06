@@ -7,7 +7,7 @@ $globalScriptBeforeRun $scriptname;
 :global globalNoteMe;
 
 :local maxTemp;
-:local currentTemp [/system health get temperature];
+:local currentTemp [/system/health get [find name=cpu-temperature] value];
 
 :set maxTemp 68;
 
