@@ -35,7 +35,16 @@ $globalScriptBeforeRun $scriptname;
 }
 
 # Just to sure (or create) if $SubDir exist
-/file/add name="$SubDir/foo.txt" contents="Feel free to remove this";
+
+:do {
+  /file/remove "$SubDir/foo.txt";
+} on-error={
+# there is no such file - its ok
+}
+
+  /file/add name="$SubDir/foo.txt" contents="Feel free to remove this";
+
+ $globalNoteMe value="Scripts source export..";
 
 :foreach scriptId in [/system script find] do={
   :if ($itsOk) do={
@@ -75,6 +84,8 @@ $globalScriptBeforeRun $scriptname;
 
 :local buFile ""
 
+ $globalNoteMe value="Scripts source pushing..";
+
 :if ($itsOk) do={
   :foreach backupFile in=[/file find where name~"^$SubDir"] do={
     :set buFile ([/file get $backupFile name]);
@@ -103,6 +114,8 @@ $globalScriptBeforeRun $scriptname;
 }
 
 :delay 5s
+
+ $globalNoteMe value="Housekeeping..";
 
 :foreach backupFile in=[/file find where name~"^$SubDir"] do={
   :if ([:typeof [:find $buFile ".rsc.txt"]] != "nil") do={
