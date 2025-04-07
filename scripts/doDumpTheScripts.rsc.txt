@@ -34,14 +34,11 @@ $globalScriptBeforeRun $scriptname;
   :set itsOk false;    
 }
 
-# Just to sure (or create) if $SubDir exist
-
-:do {
-  /file/remove "$SubDir/foo.txt";
-} on-error={
-# there is no such file - its ok
+:foreach backupFile in=[/file find where name~"^$SubDir"] do={
+    /file remove $backupFile;
 }
 
+# Just to sure (or create) if $SubDir exist
   /file/add name="$SubDir/foo.txt" contents="Feel free to remove this";
 
  $globalNoteMe value="Scripts source export..";
@@ -65,8 +62,7 @@ $globalScriptBeforeRun $scriptname;
       /file print file=$path where 1=0;
       #filesystem delay
       :delay 1s;
-      #/file set [find name="$path"] contents=$scriptSource;
-      #/file set $path contents=$scriptSource;
+
       # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack
       /execute script=":global globalScriptId; :put [/system script get $globalScriptId source];" file=$path;
       :set state "Exported '$theScript' to '$path'";
