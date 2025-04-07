@@ -18,6 +18,16 @@ $globalScriptBeforeRun $scriptname;
 :global globalNoteMe;
 :local itsOk true;
 :local state "";
+
+:foreach scriptName in=$UpdateList do={
+
+    :if ([:len [/system script find name=$scriptName]] = 0) do={
+
+      :set state "Script '$scriptName' skipped due to absence";
+      $globalNoteMe value=$state;
+
+    }
+}
   
 :foreach scriptId in [/system script find] do={
 
