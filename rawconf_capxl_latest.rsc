@@ -1,4 +1,4 @@
-# 2025-04-05 21:00:02 by RouterOS 7.18.2
+# 2025-04-10 21:00:02 by RouterOS 7.18.2
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -20,23 +20,22 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /ip smb users set [ find default=yes ] disabled=yes
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
-/system logging action set 0 memory-lines=300
-/system logging action add memory-lines=300 name=IpsecOnScreenLog target=memory
+/system logging action add name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=flash/ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=flash/ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
-/system logging action add memory-lines=300 name=OnScreenLog target=memory
-/system logging action add memory-lines=300 name=DHCPOnScreenLog target=memory
-/system logging action add memory-lines=300 name=DNSOnScreenLog target=memory
-/system logging action add memory-lines=300 name=RouterControlLog target=memory
-/system logging action add memory-lines=300 name=OSPFOnscreenLog target=memory
-/system logging action add memory-lines=300 name=L2TPOnScreenLog target=memory
+/system logging action add name=OnScreenLog target=memory
+/system logging action add name=DHCPOnScreenLog target=memory
+/system logging action add name=DNSOnScreenLog target=memory
+/system logging action add name=RouterControlLog target=memory
+/system logging action add name=OSPFOnscreenLog target=memory
+/system logging action add name=L2TPOnScreenLog target=memory
 /system logging action add disk-file-name=flash/AuthDiskLog name=AuthDiskLog target=disk
-/system logging action add memory-lines=300 name=CertificatesOnScreenLog target=memory
-/system logging action add memory-lines=300 name=ParseMemoryLog target=memory
-/system logging action add memory-lines=300 name=CAPSOnScreenLog target=memory
-/system logging action add memory-lines=300 name=FirewallOnScreenLog target=memory
-/system logging action add memory-lines=300 name=FTPMemoryLog target=memory
+/system logging action add name=CertificatesOnScreenLog target=memory
+/system logging action add name=ParseMemoryLog target=memory
+/system logging action add name=CAPSOnScreenLog target=memory
+/system logging action add name=FirewallOnScreenLog target=memory
+/system logging action add name=FTPMemoryLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
 /ip smb set domain=HNW interfaces="main infrastructure"
@@ -52,11 +51,12 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /interface wireless cap
 # 
 set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
-/ip cloud set update-time=no
+/ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
+/ip dns static add address=46.39.51.88 name=ftpserver.org type=A
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.88 list=alist-nat-external-ip
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
 /ip firewall service-port set sip disabled=yes
@@ -106,18 +106,17 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t192.168.90.1 \
     \ncapxl: \t\t7.18.2 \
-    \nUptime:\t\t09:59:40  \
-    \nTime:\t\t2025-04-05 20:53:04  \
-    \nya.ru latency:\t4 ms  \
+    \nUptime:\t\t03:19:41  \
+    \nTime:\t\t2025-04-10 20:53:05  \
+    \nya.ru latency:\t5 ms  \
     \nCHR:\t\t185.13.148.14  \
-    \nMIK:\t\t178.65.82.72  \
+    \nMIK:\t\t178.65.64.2  \
     \nANNA:\t\t46.39.51.88  \
     \nClock:\t\tsynchronized  \
     \n"
 /system ntp client set enabled=yes
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=2018-03-01 start-time=15:55:00
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:00:00
-/system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-07-10 start-time=15:10:00
 /system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=23:30:00
 /system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
 /system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=11:31:24
@@ -188,78 +187,83 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\r\
     \n:beep frequency=500 length=500ms;\r\
     \n:delay 1000ms;"
-/system script add comment="Updates address-list that contains my external IP" dont-require-permissions=yes name=doUpdateExternalDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doUpdateExternalDNS\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n:local itsOk true;\r\
-    \n:local payLoad false;\r\
-    \n:local state \"\";\r\
-    \n\r\
-    \n:local content\r\
-    \n:local IPv4\r\
-    \n:global LastIPv4\r\
-    \n\r\
-    \n# parsing the current IPv4 result\r\
-    \n/ip cloud force-update;\r\
-    \n:delay 7s;\r\
-    \n:set IPv4 [/ip cloud get public-address];\r\
-    \n\r\
-    \n\r\
-    \n:if ((\$LastIPv4 != \$IPv4) || (\$force = true)) do={\r\
-    \n\r\
-    \n    :set state \"External IP changed: current - (\$IPv4), last - (\$LastIPv4)\";\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n    /ip firewall address-list remove [find list~\"alist-nat-external-ip\"];\r\
-    \n    /ip firewall address-list add list=\"alist-nat-external-ip\" address=\$IPv4;\r\
-    \n   \r\
-    \n    /ip dns static remove [/ip dns static find name=ftpserver.org];\r\
-    \n    /ip dns static add name=ftpserver.org address=\$IPv4;\r\
-    \n \r\
-    \n    :set LastIPv4 \$IPv4;\r\
-    \n    \r\
-    \n    :set payLoad true; \r\
-    \n\r\
-    \n    :local count [:len [/system script find name=\"doSuperviseCHRviaSSH\"]];\r\
-    \n    :if (\$count > 0) do={\r\
-    \n       \r\
-    \n        :set state \"Refreshing VPN server (CHR) IPSEC policies\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        /system script run doSuperviseCHRviaSSH;\r\
-    \n    \r\
-    \n     }\r\
-    \n   \r\
-    \n}\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk and \$payLoad ) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: external IP address change detected, refreshed\"\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n:if (\$itsOk and !\$payLoad ) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: no external IP address update needed\"\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n  \r\
-    \n}\r\
-    \n\r\
-    \n\r\
+/system script add comment="Updates address-list that contains my external IP" dont-require-permissions=yes name=doUpdateExternalDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local sysname [/system identity get name];\
+    \n:local scriptname \"doUpdateExternalDNS\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n:local payLoad false;\
+    \n:local state \"\";\
+    \n\
+    \n:local content\
+    \n:local IPv4\
+    \n:global LastIPv4\
+    \n\
+    \n# parsing the current IPv4 result\
+    \n/ip cloud force-update;\
+    \n:delay 7s;\
+    \n:set IPv4 [/ip cloud get public-address];\
+    \n\
+    \n:if ([:len \$IPv4] > 0) do={\
+    \n        :if ([ :typeof [ :toip \$IPv4 ] ] != \"ip\" ) do={\
+    \n\
+    \n        :set state \"No cloud-DNS IP recieved\";\
+    \n         \$globalNoteMe value=\$state;\
+    \n        :set itsOk false;\
+    \n   \
+    \n        }\
+    \n    }\
+    \n\
+    \n:if ((\$LastIPv4 != \$IPv4) || (\$force = true)) do={\
+    \n\
+    \n    :set state \"External IP changed: current - (\$IPv4), last - (\$LastIPv4)\";\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n    /ip firewall address-list remove [find list~\"alist-nat-external-ip\"];\
+    \n    /ip firewall address-list add list=\"alist-nat-external-ip\" address=\$IPv4;\
+    \n   \
+    \n    /ip dns static remove [/ip dns static find name=ftpserver.org];\
+    \n    /ip dns static add name=ftpserver.org address=\$IPv4;\
+    \n \
+    \n    :set LastIPv4 \$IPv4;\
+    \n    :set payLoad true; \
+    \n\
+    \n    :local count [:len [/system script find name=\"doSuperviseCHRviaSSH\"]];\
+    \n    :if (\$count > 0) do={\
+    \n       \
+    \n        :set state \"Refreshing VPN server (CHR) IPSEC policies\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n        /system script run doSuperviseCHRviaSSH;\
+    \n    \
+    \n     }\
+    \n   }\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk and \$payLoad ) do={\
+    \n  :set inf \"\$scriptname on \$sysname: external IP address change detected, refreshed\"\
+    \n}\
+    \n\
+    \n:if (\$itsOk and !\$payLoad ) do={\
+    \n  :set inf \"\$scriptname on \$sysname: no external IP address update needed\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n  \
+    \n}\
+    \n\
+    \n\
     \n\r\
     \n"
 /system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
@@ -390,44 +394,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
     \n/system note set note=\"\$logcontent\"  \r\
-    \n\r\
-    \n"
-/system script add comment="Checks device temperature and warns on overheat" dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doHeatFlag\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n\r\
-    \n:local maxTemp;\r\
-    \n:local currentTemp [/system health get temperature];\r\
-    \n\r\
-    \n:set maxTemp 68;\r\
-    \n\r\
-    \n#\r\
-    \n\r\
-    \n:if (\$currentTemp > \$maxTemp) do= {\r\
-    \n\r\
-    \n:local inf \"\$scriptname on \$sysname: system overheat at \$currentTemp C\"  \r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:global globalTgMessage;\r\
-    \n\$globalTgMessage value=\$inf;\r\
-    \n\r\
-    \n\r\
-    \n/beep length=.1\r\
-    \n :delay 250ms\r\
-    \n /beep length=.1\r\
-    \n :delay 800ms\r\
-    \n /beep length=.1\r\
-    \n :delay 250ms\r\
-    \n /beep length=.1\r\
-    \n :delay 800ms\r\
-    \n\r\
-    \n\r\
-    \n};\r\
     \n\r\
     \n"
 /system script add comment="Runs at midnight to have less flashes at living room (swith off all LEDs)" dont-require-permissions=yes name=doLEDoff owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
@@ -571,222 +537,16 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\r\
     \n\r\
     \n"
-/system script add comment="Mikrotik system log dump, collects new entries once per minute. You should have 'ParseMemoryLog' buffer at your 'system-logging'. Calls 'doPeriodicLogParse' when new logs available" dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n#\$globalScriptBeforeRun \"doPeriodicLogDump\";\r\
-    \n\r\
-    \n# Script Name: Log-Parser\r\
-    \n# This script reads a specified log buffer.  At each log entry read,\r\
-    \n# the global variable 'globalParseVar' is set to \"<log entry time>,<log entry topics>,<log entry message>\"\r\
-    \n# then a parser action script is run.  The parser action script reads the global variable, and performs specified actions.\r\
-    \n# The log buffer is then cleared, so only new entries are read each time this script gets executed.\r\
-    \n\r\
-    \n# Set this to a \"memory\" action log buffer\r\
-    \n:local logBuffer \"ParseMemoryLog\"\r\
-    \n\r\
-    \n# Set to name of parser script to run against each log entry in buffer\r\
-    \n:local logParserScript \"doPeriodicLogParse\"\r\
-    \n# This changes are almost made by the other scripts, so skip them to avoid spam\r\
-    \n:local excludedMsgs [:toarray \"static dns entry, simple queue, script settings, led settings, note settings\"];\r\
-    \n\r\
-    \n# Internal processing below....\r\
-    \n# -----------------------------------\r\
-    \n:global globalParseVar \"\"\r\
-    \n:global globalLastParseTime\r\
-    \n:global globalLastParseMsg\r\
-    \n:global globalNoteMe;\r\
-    \n\r\
-    \n:local findindex\r\
-    \n:local property\r\
-    \n:local value\r\
-    \n:local logEntryTopics\r\
-    \n:local logEntryTime\r\
-    \n:local logEntryMessage\r\
-    \n:local curDate\r\
-    \n:local curMonth\r\
-    \n:local curDay\r\
-    \n:local curYear\r\
-    \n:local clearedbuf\r\
-    \n:local lines\r\
-    \n\r\
-    \n# Get current date settings\r\
-    \n:set \$curDate [/system clock get date]\r\
-    \n:set \$curMonth [:pick [:tostr \$curDate] 0 3]\r\
-    \n:set \$curDay [:pick [:tostr \$curDate] 4 6]\r\
-    \n:set \$curYear [:pick [:tostr \$curDate] 7 11]\r\
-    \n\r\
-    \n:set \$clearedbuf 0\r\
-    \n:foreach rule in=[/log print as-value where buffer=(\$logBuffer)] do={\r\
-    \n# Now all data is collected in memory..\r\
-    \n\r\
-    \n# Clear log buffer right away so new entries come in\r\
-    \n   :if (\$clearedbuf = 0) do={\r\
-    \n      /system logging action {\r\
-    \n         :set \$lines [get (\$logBuffer) memory-lines]\r\
-    \n         set (\$logBuffer) memory-lines 1\r\
-    \n         set (\$logBuffer) memory-lines \$lines\r\
-    \n      }\r\
-    \n      :set \$clearedbuf 1\r\
-    \n   }\r\
-    \n# End clear log buffer\r\
-    \n\r\
-    \n   :set \$logEntryTime \"\"\r\
-    \n   :set \$logEntryTopics \"\"\r\
-    \n   :set \$logEntryMessage \"\"\r\
-    \n\r\
-    \n# Get each log entry's properties\r\
-    \n   :local items {\$rule}\r\
-    \n   :foreach item in=[\$items] do={\r\
-    \n      :set \$logEntryTime (\$item->\"time\")\r\
-    \n      :set \$logEntryTopics (\$item->\"topics\")\r\
-    \n      :set \$logEntryMessage (\$item->\"message\")\r\
-    \n   }\r\
-    \n# end foreach item\r\
-    \n   }\r\
-    \n\r\
-    \n# Set \$logEntryTime to full time format (mmm/dd/yyyy HH:MM:SS)\r\
-    \n   :set \$findindex [:find [:tostr \$logEntryTime] \" \"]\r\
-    \n# If no spaces are found, only time is given (HH:MM:SS), insert mmm/dd/yyyy\r\
-    \n   :if ([:len \$findindex] = 0) do={\r\
-    \n      :set \$logEntryTime (\$curMonth . \"/\" . \$curDay . \"/\" . \$curYear . \" \" . \\\r\
-    \n                                    [:tostr \$logEntryTime])\r\
-    \n   }\r\
-    \n# Only (mmm/dd HH:MM:SS) is given, insert year\r\
-    \n   :if (\$findindex = 6) do={\r\
-    \n      :set \$logEntryTime ([:pick [:tostr \$logEntryTime] 0 \$findindex] . \"/\" . \$curYear . \\\r\
-    \n                                    [:pick [:tostr \$logEntryTime] \$findindex [:len [:tostr \$logEntryTime]]])\r\
-    \n   }\r\
-    \n# Only (mmm HH:MM:SS) is given, insert day and year\r\
-    \n   :if (\$findindex = 3) do={\r\
-    \n      :set \$logEntryTime ([:pick [:tostr \$logEntryTime] 0 \$findindex] . \"/\" . \$curDay . \"/\" . \$curYear . \\\r\
-    \n                                    [:pick [:tostr \$logEntryTime] \$findindex [:len [:tostr \$logEntryTime]]])\r\
-    \n   }\r\
-    \n# End set \$logEntryTime to full time format\r\
-    \n\r\
-    \n# Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry\r\
-    \n   :if (\$logEntryTime = \$globalLastParseTime && \$logEntryMessage = \$globalLastParseMsg) do={\r\
-    \n   \r\
-    \n   } else={\r\
-    \n\r\
-    \n        :local skip false;\r\
-    \n        :foreach i in=\$excludedMsgs do={\r\
-    \n            :if ( !\$skip and \$logEntryMessage~\$i ) do={\r\
-    \n                :set skip true;\r\
-    \n                :put \"log entry skipped due to setup: \$logEntryMessage\";  \r\
-    \n                }\r\
-    \n        }\r\
-    \n\r\
-    \n        # Do not track LOG config changes because we're doing it right there (in that script)\r\
-    \n        # and that will be a huge one-per-minute spam\r\
-    \n        :if ( \$skip or \$logEntryMessage~\"log action\") do={\r\
-    \n\r\
-    \n    \r\
-    \n        } else={\r\
-    \n\r\
-    \n            # Set \$globalParseVar, then run parser script\r\
-    \n            :set \$globalParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\
-    \n            /system script run (\$logParserScript)\r\
-    \n\r\
-    \n            # Update last parsed time, and last parsed message\r\
-    \n            :set \$globalLastParseTime \$logEntryTime\r\
-    \n            :set \$globalLastParseMsg \$logEntryMessage\r\
-    \n        }\r\
-    \n   }\r\
-    \n\r\
-    \n# end foreach rule\r\
-    \n}\r\
-    \n\r\
+/system script add comment="Mikrotik system log dump, collects new entries once per minute. You should have 'ParseMemoryLog' buffer at your 'system-logging'. Calls 'doPeriodicLogParse' when new logs available" dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
+    \n:local scriptname \"doPeriodicLogDump\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
     \n\r\
     \n"
-/system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n:global globalScriptBeforeRun;\
-    \n#\$globalScriptBeforeRun \"doPeriodicLogParse\";\
-    \n\
-    \n:local sysname (\"%C2%A9%EF%B8%8F #\" . [/system identity get name]);\
+/system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
     \n:local scriptname \"doPeriodicLogParse\";\
-    \n\
-    \n# Script Name: Log-Parser-Script\
-    \n#\
-    \n# This is an EXAMPLE script.  Modify it to your requirements.\
-    \n#\
-    \n# This script will work with all v3.x and v4.x\
-    \n# If your version >= v3.23, you can use the ~ operator to match against\
-    \n# regular expressions.\
-    \n\
-    \n# Get log entry data from global variable and store it locally\
-    \n:global globalParseVar;\
-    \n\
-    \n:global globalTgMessage;\
-    \n:global globalNoteMe;\
-    \n\
-    \n:local logTime (\$globalParseVar->0)\
-    \n:local logTopics [:tostr (\$globalParseVar->1)]\
-    \n:local logMessage [:tostr (\$globalParseVar->2)]\
-    \n\
-    \n:set \$globalParseVar \"\"\
-    \n\
-    \n:local ruleop\
-    \n:local loguser\
-    \n:local logsettings\
-    \n:local findindex\
-    \n:local tmpstring\
-    \n\
-    \n# Uncomment to view the log entry's details\
-    \n:put (\"Log Time: \" . \$logTime)\
-    \n:put (\"Log Topics: \" . \$logTopics)\
-    \n:put (\"Log Message: \" . \$logMessage)\
-    \n\
-    \n# Check for login failure\
-    \n:if (\$logMessage~\"login failure\") do={\
-    \n\
-    \n   :local inf \"\$scriptname on \$sysname: A login failure has occured: \$logMessage. Take some action\";\
-    \n\
-    \n   \$globalNoteMe value=\$inf;\
-    \n   \$globalTgMessage value=\$inf;\
-    \n\
-    \n}\
-    \n# End check for login failure\
-    \n\
-    \n# Check for logged in users\
-    \n:if (\$logMessage~\"logged in\") do={\
-    \n   \
-    \n   :local inf \"\$scriptname on \$sysname: A user has logged in: \$logMessage\";\
-    \n\
-    \n   \$globalNoteMe value=\$inf;\
-    \n   \$globalTgMessage value=\$inf;\
-    \n\
-    \n}\
-    \n# End check for logged in users\
-    \n\
-    \n# Check for configuration changes: added, changed, or removed\
-    \n:if ([:tostr \$logTopics] = \"system;info\") do={\
-    \n   :set ruleop \"\"\
-    \n   :if ([:len [:find [:tostr \$logMessage] \"changed \"]] > 0) do={ :set ruleop \"changed\" }\
-    \n   :if ([:len [:find [:tostr \$logMessage] \"added \"]] > 0) do={ :set ruleop \"added\" }\
-    \n   :if ([:len [:find [:tostr \$logMessage] \"removed \"]] > 0) do={ :set ruleop \"removed\" }\
-    \n\
-    \n   :if ([:len \$ruleop] > 0) do={\
-    \n      :set tmpstring \$logMessage\
-    \n      :set findindex [:find [:tostr \$tmpstring] [:tostr \$ruleop]]\
-    \n      :set tmpstring ([:pick [:tostr \$tmpstring] 0 \$findindex] . \\\
-    \n                               [:pick [:tostr \$tmpstring] (\$findindex + [:len [:tostr \$ruleop]]) [:len [:tostr \$tmpstring]]])\
-    \n      :set findindex [:find [:tostr \$tmpstring] \" by \"]\
-    \n      :set loguser ([:pick [:tostr \$tmpstring] (\$findindex + 4) [:len [:tostr \$tmpstring]]])\
-    \n      :set logsettings [:pick [:tostr \$tmpstring] 0 \$findindex]\
-    \n\
-    \n      :put (\$loguser . \" \" . \$ruleop . \" \" . \$logsettings . \" configuration.  We should take a backup now.\")\
-    \n\
-    \n      :local inf \"\$scriptname on \$sysname: \$loguser \$ruleop \$logsettings configuration.  We should take a backup now.\";\
-    \n\
-    \n      \$globalNoteMe value=\$inf;\
-    \n      \$globalTgMessage value=\$inf;\
-    \n\
-    \n   }\
-    \n}\
-    \n\
-    \n# End check for configuration changes\
-    \n\
-    \n}\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
     \n\r\
     \n"
 /system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
@@ -850,11 +610,14 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n    :local tGroupID \"-1001798127067\";\
     \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
     \n\
-    \n    :local state (\"Sending telegram message... \$value\");\
-    \n    \$globalNoteMe value=\$state;\
+    \n    :local sysname (\"%C2%A9%EF%B8%8F #\" . [/system identity get name]);\
+    \n    :local tgmessage  (\"\$sysname: \$value\");  \
+    \n\
+    \n    :local state (\"Sending telegram message... \$tgmessage\");\
+    \n    \$globalNoteMe value=\$tgmessage;\
     \n\
     \n    :do {\
-    \n      /tool fetch http-method=post mode=https url=\"\$tURL\" http-data=\"text=\$value\" keep-result=no;\
+    \n      /tool fetch http-method=post mode=https url=\"\$tURL\" http-data=\"text=\$tgmessage\" keep-result=no;\
     \n    } on-error= {\
     \n      :local state (\"Telegram notify error\");\
     \n      \$globalNoteMe value=\$state;\
@@ -1505,94 +1268,104 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n}\r\
     \n\r\
     \n"
-/system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doFreshTheScripts\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n:local GitHubUserName \"Defm\";\r\
-    \n:local GitHubRepoName \"mikrobackups\";\r\
-    \n\r\
-    \n#should be used for private repos\r\
-    \n:local GitHubAccessToken \"\";\r\
-    \n\r\
-    \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
-    \n\r\
-    \n:local UseUpdateList true;\r\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs\"];\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n:local itsOk true;\r\
-    \n:local state \"\";\r\
-    \n  \r\
-    \n:foreach scriptId in [/system script find] do={\r\
-    \n\r\
-    \n  :local code \"\";\r\
-    \n  :local theScript [/system script get \$scriptId name];\r\
-    \n  :local skip false;\r\
-    \n\r\
-    \n  :if ( \$UseUpdateList ) do={\r\
-    \n    :if ( [:len [find key=\$theScript in=\$UpdateList ]] > 0 ) do={\r\
-    \n    } else={\r\
-    \n      :set state \"Script '\$theScript' skipped due to setup\";\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      :set skip true;\r\
-    \n    }\r\
-    \n  } else={\r\
-    \n  }\r\
-    \n\r\
-    \n  :if ( \$itsOk and !\$skip) do={\r\
-    \n    :do {\r\
-    \n\r\
-    \n      :set state \"/tool fetch url=\$RequestUrl\$\$theScript.rsc.txt output=user as-value\";\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n \r\
-    \n      #Please keep care about consistency if size over 4096 bytes\r\
-    \n      :local answer ([ /tool fetch url=\"\$RequestUrl\$\$theScript.rsc.txt\" output=user as-value]);\r\
-    \n      :set code ( \$answer->\"data\" );\r\
-    \n      \$globalNoteMe value=\"Done\";\r\
-    \n\r\
-    \n    } on-error= { \r\
-    \n      :set state \"Error When Downloading Script '\$theScript' From GitHub\";\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      :set itsOk false;\r\
-    \n    }\r\
-    \n  }\r\
-    \n\r\
-    \n  :if ( \$itsOk and !\$skip) do={\r\
-    \n    :do {\r\
-    \n      :set state \"Setting Up Script source for '\$theScript'\";\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      /system script set \$theScript source=\"\$code\";\r\
-    \n      \$globalNoteMe value=\"Done\";\r\
-    \n    } on-error= { \r\
-    \n      :set state \"Error When Setting Up Script source for '\$theScript'\";\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      :set itsOk false;\r\
-    \n    }\r\
-    \n  }\r\
-    \n\r\
-    \n  :delay 1s\r\
-    \n}\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: scripts refreshed Successfully\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n  \r\
-    \n}\r\
+/system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local sysname [/system identity get name];\
+    \n:local scriptname \"doFreshTheScripts\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n:local GitHubUserName \"Defm\";\
+    \n:local GitHubRepoName \"mikrobackups\";\
+    \n\
+    \n#should be used for private repos\
+    \n:local GitHubAccessToken \"\";\
+    \n\
+    \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\
+    \n\
+    \n:local UseUpdateList true;\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs\"];\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n:local state \"\";\
+    \n\
+    \n:foreach scriptName in=\$UpdateList do={\
+    \n\
+    \n    :if ([:len [/system script find name=\$scriptName]] = 0) do={\
+    \n\
+    \n      :set state \"Script '\$scriptName' skipped due to absence\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n    }\
+    \n}\
+    \n  \
+    \n:foreach scriptId in [/system script find] do={\
+    \n\
+    \n  :local code \"\";\
+    \n  :local theScript [/system script get \$scriptId name];\
+    \n  :local skip false;\
+    \n\
+    \n  :if ( \$UseUpdateList ) do={\
+    \n    :if ( [:len [find key=\$theScript in=\$UpdateList ]] > 0 ) do={\
+    \n    } else={\
+    \n      :set state \"Script '\$theScript' skipped due to setup\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set skip true;\
+    \n    }\
+    \n  } else={\
+    \n  }\
+    \n\
+    \n  :if ( \$itsOk and !\$skip) do={\
+    \n    :do {\
+    \n\
+    \n      :set state \"/tool fetch url=\$RequestUrl\$\$theScript.rsc.txt output=user as-value\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n \
+    \n      #Please keep care about consistency if size over 4096 bytes\
+    \n      :local answer ([ /tool fetch url=\"\$RequestUrl\$\$theScript.rsc.txt\" output=user as-value]);\
+    \n      :set code ( \$answer->\"data\" );\
+    \n      \$globalNoteMe value=\"Done\";\
+    \n\
+    \n    } on-error= { \
+    \n      :set state \"Error When Downloading Script '\$theScript' From GitHub\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set itsOk false;\
+    \n    }\
+    \n  }\
+    \n\
+    \n  :if ( \$itsOk and !\$skip) do={\
+    \n    :do {\
+    \n      :set state \"Setting Up Script source for '\$theScript'\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n      /system script set \$theScript source=\"\$code\";\
+    \n      \$globalNoteMe value=\"Done\";\
+    \n    } on-error= { \
+    \n      :set state \"Error When Setting Up Script source for '\$theScript'\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set itsOk false;\
+    \n    }\
+    \n  }\
+    \n\
+    \n  :delay 1s\
+    \n}\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: scripts refreshed Successfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n  \
+    \n}\
     \n\r\
     \n"
 /system script add comment="This will check for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time. Will reboot the router when overload" dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
@@ -1770,18 +1543,18 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\r\
     \n}\r\
     \n"
-/system script add comment="periodically Wipes memory-configered logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doFlushLogs\";\r\
-    \n\r\
-    \n:local state \"\"\r\
-    \n\r\
-    \n:set state \"FLUSHING logs..\"\r\
-    \n\$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n/system/logging/action/set memory-lines=1 [find target=memory]\r\
-    \n/system/logging/action/set memory-lines=300 [find target=memory]\r\
-    \n\r\
+/system script add comment="periodically Wipes memory-configered logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doFlushLogs\";\
+    \n\
+    \n:local state \"\"\
+    \n\
+    \n:set state \"FLUSHING logs..\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n/system/logging/action/set memory-lines=1 [find target=memory]\
+    \n/system/logging/action/set memory-lines=1000 [find target=memory]\
+    \n\
     \n\r\
     \n"
 /tool bandwidth-server set authenticate=no

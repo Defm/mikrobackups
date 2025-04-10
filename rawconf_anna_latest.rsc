@@ -1,4 +1,4 @@
-# 2025-04-10 10:15:52 by RouterOS 7.18.2
+# 2025-04-10 21:00:02 by RouterOS 7.20_ab294
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -47,12 +47,6 @@
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=anna
 /interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" group-key-update=1h management-protection=allowed mode=dynamic-keys name=private supplicant-identity="" wpa-pre-shared-key=mikrotik wpa2-pre-shared-key=mikrotik
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
-/iot lora servers add address=eu1.cloud.thethings.industries name="TTS Cloud (eu1)" protocol=UDP
-/iot lora servers add address=nam1.cloud.thethings.industries name="TTS Cloud (nam1)" protocol=UDP
-/iot lora servers add address=au1.cloud.thethings.industries name="TTS Cloud (au1)" protocol=UDP
-/iot lora servers add address=eu1.cloud.thethings.network name="TTN V3 (eu1)" protocol=UDP
-/iot lora servers add address=nam1.cloud.thethings.network name="TTN V3 (nam1)" protocol=UDP
-/iot lora servers add address=au1.cloud.thethings.network name="TTN V3 (au1)" protocol=UDP
 /ip dhcp-server add authoritative=after-2sec-delay interface=main-infrastructure-br lease-time=1d name=main-dhcp-server
 /ip dhcp-server option add code=15 force=yes name=DomainName_Windows value="s'home'"
 /ip dhcp-server option add code=119 force=yes name=DomainName_LinuxMac value="s'home'"
@@ -175,8 +169,11 @@
 /system logging action add name=SSHOnScreenLog target=memory
 /system logging action add name=PoEOnscreenLog target=memory
 /system logging action add name=EmailOnScreenLog target=memory
-/system logging action add name=macos remote=192.168.90.70 remote-log-format=cef remote-port=1514 syslog-facility=local0 syslog-time-format=iso8601 target=remote
+/system logging action add cef-event-delimiter="\
+    \n" name=OSXRemoteLog remote=192.168.90.70 remote-log-format=cef remote-port=1514 syslog-facility=local0 syslog-time-format=iso8601 target=remote
 /system logging action add name=TransfersOnscreenLog target=memory
+/system logging action add disk-file-count=1 disk-file-name=PKGInstallationLog disk-lines-per-file=100 name=PKGInstallationLog target=disk
+/system logging action add disk-file-count=1 disk-file-name=REBOOTLog disk-lines-per-file=100 name=REBOOTLog target=disk
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
@@ -239,8 +236,6 @@
 /interface list member add interface=main-infrastructure-br list=list-ospf-master
 /interface list member add comment=OSPF interface=ospf-lo list=list-ospf-bearing
 /interface wireless snooper set receive-errors=yes
-/iot lora traffic options set crc-errors=no
-/iot lora traffic options set crc-errors=no
 /ip address add address=192.168.90.1/24 comment="local ip" interface=main-infrastructure-br network=192.168.90.0
 /ip address add address=192.168.98.1/24 comment="local guest wifi" interface=guest-infrastructure-br network=192.168.98.0
 /ip address add address=10.255.255.3 comment="ospf router-id binding" interface=ospf-lo network=10.255.255.3
@@ -839,19 +834,12 @@
 /system logging add action=ParseMemoryLog topics=error
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=critical
-/system logging add action=macos prefix=RLOG topics=!debug
+/system logging add action=OSXRemoteLog prefix=RLOG topics=!debug
 /system logging add action=TransfersOnscreenLog topics=fetch
-/system note set note="IPSEC: \t\tokay \
-    \nDefault route: \t10.20.225.1 \
-    \nanna: \t\t7.18.2 \
-    \nUptime:\t\t13:12:48  \
-    \nTime:\t\t2025-04-10 10:10:12  \
-    \nya.ru latency:\t4 ms  \
-    \nCHR:\t\t185.13.148.14  \
-    \nMIK:\t\t178.65.64.2  \
-    \nANNA:\t\t46.39.51.88  \
-    \nClock:\t\tsynchronized  \
-    \n"
+/system logging add action=PKGInstallationLog regex="^.*install.*\$"
+/system logging add action=REBOOTLog regex="^.*reboot.*\$"
+/system logging add action=PKGInstallationLog regex="^.*package.*\$"
+/system note set note=Pending
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
@@ -2478,9 +2466,17 @@
     \n\
     \n        :local state (\"Adding CAPs ACL static entries for (\$newBlockedIp/\$newMac) on \$newSsid\");\
     \n        \$globalNoteMe value=\$state;\
-    \n        /caps-man access-list remove [find mac-address=\$newMac];\
-    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\"\$newSsid\" place-before=1\
+    \n       \
+    \n       # avoid parce errors using Execute when no wireless package installed\
+    \n       :if ( [ :len [ /system package find where name=\"wireless\" and disabled=no ] ] > 0  ) do={\
+    \n          :local Cmd \"/caps-man access-list remove [find mac-address=\$newMac];\";\
+    \n          :local jobid [:execute script=\$Cmd];\
     \n\
+    \n          :local Cmd \"/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp='\$newSsid' place-before=1;\";\
+    \n          :local jobid [:execute script=\$Cmd];\
+    \n          \
+    \n      }\
+    \n  \
     \n    } on-error={\
     \n\
     \n        :local state (\"Error: something fail on CAPS configuration step\");\
@@ -2707,6 +2703,7 @@
     \n}\
     \n\
     \n}\
+    \n\
     \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
