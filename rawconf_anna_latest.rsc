@@ -1,4 +1,4 @@
-# 2025-04-10 21:00:02 by RouterOS 7.20_ab294
+# 2025-04-15 21:00:02 by RouterOS 7.20_ab294
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -137,7 +137,6 @@
 /queue simple add comment=dtq,F4:2B:8C:AF:34:20, name="SamsungS23(wereless)(blocked)@guest-dhcp-server (F4:2B:8C:AF:34:20)" queue=default/default target=192.168.98.135/32 total-queue=default
 /queue simple add comment=dtq,00:0E:2D:1A:73:36,ast25b name="AST(wire)@main-dhcp-server (00:0E:2D:1A:73:36)" queue=default/default target=192.168.90.203/32 total-queue=default
 /queue simple add comment=dtq,00:0E:2D:1A:73:36, name="AST(wire)(blocked)@guest-dhcp-server (00:0E:2D:1A:73:36)" queue=default/default target=192.168.98.203/32 total-queue=default
-/queue simple add comment=dtq,DE:7C:11:E8:23:B2,TECNO-CAMON-17P name="TECNO-CAMON-17P@guest-dhcp-server (DE:7C:11:E8:23:B2)" queue=default/default target=192.168.98.229/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
