@@ -1,4 +1,4 @@
-# 2025-04-15 21:00:02 by RouterOS 7.20_ab294
+# 2025-04-17 11:16:10 by RouterOS 7.18.2
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -838,7 +838,17 @@
 /system logging add action=PKGInstallationLog regex="^.*install.*\$"
 /system logging add action=REBOOTLog regex="^.*reboot.*\$"
 /system logging add action=PKGInstallationLog regex="^.*package.*\$"
-/system note set note=Pending
+/system note set note="IPSEC: \t\tokay \
+    \nDefault route: \t10.20.225.1 \
+    \nanna: \t\t7.18.2 \
+    \nUptime:\t\t00:01:09  \
+    \nTime:\t\t2025-04-17 11:14:42  \
+    \nya.ru latency:\t7 ms  \
+    \nCHR:\t\t185.13.148.14  \
+    \nMIK:\t\t178.65.80.245  \
+    \nANNA:\t\t46.39.51.88  \
+    \nClock:\t\tsynchronized  \
+    \n"
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
@@ -4125,7 +4135,9 @@
 /tool graphing resource add
 /tool mac-server set allowed-interface-list=none
 /tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
-/tool netwatch add comment="miniAlx status check" down-script="\r\
+/tool netwatch
+# Warning: probe waiting startup-delay=5m; 2m9s remaining
+add comment="miniAlx status check" down-script="\r\
     \n:put \"info: Netwatch UP\"\r\
     \n:log info \"Netwatch UP\"\r\
     \n\r\
