@@ -1,4 +1,4 @@
-# 2025-04-17 11:16:10 by RouterOS 7.18.2
+# 2025-04-20 21:00:03 by RouterOS 7.15.3
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -62,10 +62,10 @@
 /ip ipsec mode-config set [ find default=yes ] src-address-list=alist-mangle-vpn-tunneled-sites
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=outside-ipsec-encryption
-/ip ipsec profile set [ find default=yes ] dh-group=modp1024 dpd-interval=2m dpd-maximum-failures=5
-/ip ipsec profile add dh-group=modp1024 dpd-interval=2m dpd-maximum-failures=5 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
-/ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" disabled=yes exchange-mode=ike2 local-address=10.20.225.166 name=CHR-external profile=ROUTEROS
-/ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" disabled=yes local-address=10.0.0.3 name=CHR-internal profile=ROUTEROS
+/ip ipsec profile set [ find default=yes ] dh-group=modp1024
+/ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
+/ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" exchange-mode=ike2 local-address=10.20.225.166 name=CHR-external profile=ROUTEROS
+/ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" local-address=10.0.0.3 name=CHR-internal profile=ROUTEROS
 /ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
 /ip ipsec proposal add auth-algorithms=sha256 enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip pool add name=pool-main ranges=192.168.90.100-192.168.90.200
@@ -88,7 +88,7 @@
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
 /ip smb users set [ find default=yes ] disabled=yes
 /ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
-/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1360 max-mtu=1360 name=tunnel password=123 profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
+/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1360 max-mtu=1360 name=tunnel profile=l2tp-no-encrypt-site2site use-ipsec=yes user=vpn-remote-anna
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
@@ -126,17 +126,13 @@
 /queue simple add comment=dtq,00:1C:42:FE:E3:AB, name="W11Parallels(blocked)@guest-dhcp-server (00:1C:42:FE:E3:AB)" queue=default/default target=192.168.98.35/32 total-queue=default
 /queue simple add comment=dtq,00:85:01:01:50:0E,wb name="WB (wire)@main-dhcp-server (00:85:01:01:50:0E)" queue=default/default target=192.168.90.2/32 total-queue=default
 /queue simple add comment=dtq,00:85:01:01:50:0E, name="WB (wire)(blocked)@guest-dhcp-server (00:85:01:01:50:0E)" queue=default/default target=192.168.98.2/32 total-queue=default
-/queue simple add comment=dtq,CA:FE:0F:0B:19:3A,wb name="WB (wireless)@main-dhcp-server (CA:FE:0F:0B:19:3A)" queue=default/default target=192.168.90.3/32 total-queue=default
+/queue simple add comment=dtq,CA:FE:0F:0B:19:3A,wirenboard-AAXMPGOK name="WB (wireless)@main-dhcp-server (CA:FE:0F:0B:19:3A)" queue=default/default target=192.168.90.3/32 total-queue=default
 /queue simple add comment=dtq,CA:FE:0F:0B:19:3A, name="WB (wireless)(blocked)@guest-dhcp-server (CA:FE:0F:0B:19:3A)" queue=default/default target=192.168.98.3/32 total-queue=default
 /queue simple add comment=dtq,18:FD:74:94:FD:70,capxl name="capxl(wire)@main-dhcp-server (18:FD:74:94:FD:70)" queue=default/default target=192.168.90.10/32 total-queue=default
 /queue simple add comment=dtq,88:53:95:30:68:9F,miniAlx name="miniAlx(wireless)@main-dhcp-server (88:53:95:30:68:9F)" queue=default/default target=192.168.90.80/32 total-queue=default
 /queue simple add comment=dtq,88:53:95:30:68:9F, name="miniAlx(wireless)(blocked)@guest-dhcp-server (88:53:95:30:68:9F)" queue=default/default target=192.168.98.80/32 total-queue=default
 /queue simple add comment=dtq,BC:74:4B:E8:9B:61, name="nSwitch(wereless)@main-dhcp-server (BC:74:4B:E8:9B:61)" queue=default/default target=192.168.90.199/32 total-queue=default
 /queue simple add comment=dtq,BC:74:4B:E8:9B:61, name="nSwitch(wereless)(blocked)@guest-dhcp-server (BC:74:4B:E8:9B:61)" queue=default/default target=192.168.98.199/32 total-queue=default
-/queue simple add comment=dtq,F4:2B:8C:AF:34:20,nadezda-phone name="SamsungS23(wereless)@main-dhcp-server (F4:2B:8C:AF:34:20)" queue=default/default target=192.168.90.135/32 total-queue=default
-/queue simple add comment=dtq,F4:2B:8C:AF:34:20, name="SamsungS23(wereless)(blocked)@guest-dhcp-server (F4:2B:8C:AF:34:20)" queue=default/default target=192.168.98.135/32 total-queue=default
-/queue simple add comment=dtq,00:0E:2D:1A:73:36,ast25b name="AST(wire)@main-dhcp-server (00:0E:2D:1A:73:36)" queue=default/default target=192.168.90.203/32 total-queue=default
-/queue simple add comment=dtq,00:0E:2D:1A:73:36, name="AST(wire)(blocked)@guest-dhcp-server (00:0E:2D:1A:73:36)" queue=default/default target=192.168.98.203/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -149,36 +145,30 @@
 /routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
+/system logging action set 0 memory-lines=300
 /system logging action set 1 disk-file-name=journal
-/system logging action add name=IpsecOnScreenLog target=memory
+/system logging action add memory-lines=300 name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=20 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
-/system logging action add name=OnScreenLog target=memory
-/system logging action add name=DHCPOnScreenLog target=memory
-/system logging action add name=DNSOnScreenLog target=memory
-/system logging action add name=RouterControlLog target=memory
-/system logging action add name=OSPFOnscreenLog target=memory
-/system logging action add name=L2TPOnScreenLog target=memory
+/system logging action add memory-lines=300 name=OnScreenLog target=memory
+/system logging action add memory-lines=300 name=DHCPOnScreenLog target=memory
+/system logging action add memory-lines=300 name=DNSOnScreenLog target=memory
+/system logging action add memory-lines=300 name=RouterControlLog target=memory
+/system logging action add memory-lines=300 name=OSPFOnscreenLog target=memory
+/system logging action add memory-lines=300 name=L2TPOnScreenLog target=memory
 /system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
-/system logging action add name=CertificatesOnScreenLog target=memory
-/system logging action add name=ParseMemoryLog target=memory
-/system logging action add name=CAPSOnScreenLog target=memory
-/system logging action add name=FirewallOnScreenLog target=memory
-/system logging action add name=SSHOnScreenLog target=memory
-/system logging action add name=PoEOnscreenLog target=memory
-/system logging action add name=EmailOnScreenLog target=memory
-/system logging action add cef-event-delimiter="\
-    \n" name=OSXRemoteLog remote=192.168.90.70 remote-log-format=cef remote-port=1514 syslog-facility=local0 syslog-time-format=iso8601 target=remote
-/system logging action add name=TransfersOnscreenLog target=memory
-/system logging action add disk-file-count=1 disk-file-name=PKGInstallationLog disk-lines-per-file=100 name=PKGInstallationLog target=disk
-/system logging action add disk-file-count=1 disk-file-name=REBOOTLog disk-lines-per-file=100 name=REBOOTLog target=disk
-/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
-/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
+/system logging action add memory-lines=300 name=CertificatesOnScreenLog target=memory
+/system logging action add memory-lines=300 name=ParseMemoryLog target=memory
+/system logging action add memory-lines=300 name=CAPSOnScreenLog target=memory
+/system logging action add memory-lines=300 name=FirewallOnScreenLog target=memory
+/system logging action add memory-lines=300 name=SSHOnScreenLog target=memory
+/system logging action add memory-lines=300 name=PoEOnscreenLog target=memory
+/system logging action add memory-lines=300 name=EmailOnScreenLog target=memory
+/system logging action add bsd-syslog=yes name=macos remote=192.168.90.70 remote-port=1514 syslog-facility=local0 target=remote
+/system logging action add memory-lines=300 name=TransfersOnscreenLog target=memory
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="SamsungS23(wereless)" disabled=no mac-address=F6:12:A6:71:59:08 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="SamsungS23(wereless)" disabled=no mac-address=F4:2B:8C:AF:34:20 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AST(wire)" disabled=no mac-address=00:0E:2D:1A:73:36 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AST(wire)" disabled=no mac-address=00:0E:2D:1A:73:36 ssid-regexp="WiFi 2"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="nSwitch(wereless)" disabled=no mac-address=BC:74:4B:E8:9B:61 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlxPro disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="miniAlx(wireless)" disabled=no mac-address=88:53:95:30:68:9F ssid-regexp="WiFi 2Ghz PRIV"
@@ -267,7 +257,6 @@
 /ip arp add address=192.168.90.80 comment="miniAlx(wireless)" interface=main-infrastructure-br mac-address=88:53:95:30:68:9F
 /ip arp add address=192.168.90.130 comment=iPadAlxPro interface=main-infrastructure-br mac-address=50:DE:06:25:C2:FC
 /ip arp add address=192.168.90.199 comment="nSwitch(wereless)" interface=main-infrastructure-br mac-address=BC:74:4B:E8:9B:61
-/ip arp add address=192.168.90.135 comment="SamsungS23(wereless)" interface=main-infrastructure-br mac-address=F4:2B:8C:AF:34:20
 /ip arp add address=192.168.90.203 comment="AST(wire)" interface=main-infrastructure-br mac-address=00:0E:2D:1A:73:36
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=yes interface="wan A" use-peer-dns=no use-peer-ntp=no
@@ -315,11 +304,9 @@
 /ip dhcp-server lease add address=192.168.98.130 block-access=yes comment="iPadAlxPro(blocked)" mac-address=50:DE:06:25:C2:FC server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.199 comment="nSwitch(wereless)" mac-address=BC:74:4B:E8:9B:61 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.199 block-access=yes comment="nSwitch(wereless)(blocked)" mac-address=BC:74:4B:E8:9B:61 server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.135 comment="SamsungS23(wereless)" mac-address=F4:2B:8C:AF:34:20 server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.135 block-access=yes comment="SamsungS23(wereless)(blocked)" mac-address=F4:2B:8C:AF:34:20 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.203 comment="AST(wire)" mac-address=00:0E:2D:1A:73:36 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.203 block-access=yes comment="AST(wire)(blocked)" mac-address=00:0E:2D:1A:73:36 server=guest-dhcp-server
-/ip dhcp-server matcher add address-pool=pool-vendor code=60 matching-type=exact name=vendor-mikrotik-caps server=main-dhcp-server value=mikrotik-cap
+/ip dhcp-server matcher add address-pool=pool-vendor code=60 name=vendor-mikrotik-caps server=main-dhcp-server value=mikrotik-cap
 /ip dhcp-server network add address=192.168.90.0/27 caps-manager=192.168.90.1 comment="Network devices, CCTV" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.32/27 caps-manager=192.168.90.1 comment="Virtual machines" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.64/26 caps-manager=192.168.90.1 comment="Mac, Pc" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
@@ -331,47 +318,48 @@
 /ip dns set address-list-extra-time=1d allow-remote-requests=yes cache-max-ttl=1d cache-size=4096KiB max-concurrent-queries=200 max-concurrent-tcp-sessions=30 query-server-timeout=3s servers=217.10.36.5,217.10.32.4 use-doh-server=https://1.1.1.1/dns-query
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add cname=anna.home name=anna type=CNAME
-/ip dns static add address=192.168.90.1 name=anna.home type=A
+/ip dns static add address=192.168.90.1 name=anna.home
 /ip dns static add cname=wb.home name=wb type=CNAME
-/ip dns static add address=192.168.90.2 name=wb.home type=A
+/ip dns static add address=192.168.90.2 name=wb.home
 /ip dns static add cname=influxdb.home name=influxdb type=CNAME
-/ip dns static add address=172.16.0.17 name=influxdb.home type=A
+/ip dns static add address=172.16.0.17 name=influxdb.home
 /ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
 /ip dns static add cname=grafana.home name=grafana type=CNAME
-/ip dns static add address=172.16.0.16 name=grafana.home type=A
+/ip dns static add address=172.16.0.16 name=grafana.home
 /ip dns static add cname=minialx.home name=grafanasvc.home type=CNAME
 /ip dns static add cname=chr.home name=chr type=CNAME
-/ip dns static add address=192.168.97.1 name=chr.home type=A
+/ip dns static add address=192.168.97.1 name=chr.home
 /ip dns static add cname=mikrouter.home name=mikrouter type=CNAME
-/ip dns static add address=192.168.99.1 name=mikrouter.home type=A
+/ip dns static add address=192.168.99.1 name=mikrouter.home
 /ip dns static add cname=minialx.home name=nas.home type=CNAME
 /ip dns static add cname=nas.home name=nas type=CNAME
-/ip dns static add address=192.168.100.1 name=gateway.home type=A
-/ip dns static add address=192.168.90.10 name=capxl.home type=A
+/ip dns static add address=192.168.100.1 name=gateway.home
+/ip dns static add address=192.168.90.10 name=capxl.home
 /ip dns static add cname=capxl.home name=capxl type=CNAME
-/ip dns static add address=192.168.90.100 name=hare.home ttl=5m type=A
+/ip dns static add address=192.168.90.100 name=hare.home ttl=5m
 /ip dns static add cname=hare.home name=hare ttl=5m type=CNAME
-/ip dns static add address=192.168.90.165 name=nspanel.home type=A
+/ip dns static add address=192.168.90.165 name=nspanel.home
 /ip dns static add cname=nspanel.home name=nspanel type=CNAME
-/ip dns static add address=192.168.90.70 name=miniAlx.home type=A
-/ip dns static add address=95.213.159.180 name=atv.qello.com type=A
-/ip dns static add address=95.213.159.180 name=atv.package2.qello.com type=A
-/ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m type=A
-/ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m type=A
-/ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m type=A
+/ip dns static add address=192.168.90.70 name=miniAlx.home
+/ip dns static add address=95.213.159.180 name=atv.qello.com
+/ip dns static add address=95.213.159.180 name=atv.package2.qello.com
+/ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
+/ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
+/ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bbs|\\.chan|\\.cyb|\\.dyn|\\.geek|\\.gopher|\\.indy|\\.libre|\\.neo|\\.null|\\.o)\$" type=FWD
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.oss|\\.oz|\\.parody|\\.pirate|\\.opennic.glue|\\.dns\\.opennic\\.glue)\$" type=FWD
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bazar|\\.coin|\\.emc|\\.lib|\\.fur1|\\.bit|\\.ku|\\.te|\\.ti|\\.uu)\$" type=FWD
-/ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m type=A
-/ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m type=A
-/ip dns static add address=192.168.90.77 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-G3RE47G.home ttl=5m type=A
-/ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m type=A
-/ip dns static add address=1.1.1.1 name=cloudflare-dns.com type=A
-/ip dns static add address=192.168.90.35 comment=<AUTO:DHCP:main-dhcp-server> name=W11.home ttl=5m type=A
-/ip dns static add address=8.8.8.8 name=dns.google type=A
-/ip dns static add address=8.8.4.4 name=dns.google type=A
+/ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
+/ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m
+/ip dns static add address=192.168.90.77 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-G3RE47G.home ttl=5m
+/ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
+/ip dns static add address=1.1.1.1 name=cloudflare-dns.com
+/ip dns static add address=192.168.90.35 comment=<AUTO:DHCP:main-dhcp-server> name=W11.home ttl=5m
+/ip dns static add address=8.8.8.8 name=dns.google
+/ip dns static add address=8.8.4.4 name=dns.google
+/ip dns static add address=192.168.90.3 comment=<AUTO:DHCP:main-dhcp-server> name=wirenboard-AAXMPGOK.home ttl=5m
 /ip dns static add cname=miniAlx.home name=miniAlx type=CNAME
-/ip dns static add address=192.168.90.220 comment=<AUTO:DHCP:main-dhcp-server> name=yandex-mini2-ZGNK.home ttl=5m type=A
+/ip dns static add address=192.168.90.220 comment=<AUTO:DHCP:main-dhcp-server> name=yandex-mini2-ZGNK.home ttl=5m
 /ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=googlevideo.com type=FWD
 /ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=youtube.com type=FWD
 /ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=ytimg.com type=FWD
@@ -383,10 +371,9 @@
 /ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=googleapis.com type=FWD
 /ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=google.com type=FWD
 /ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes forward-to=0.0.0.0 match-subdomain=yes name=google.ru type=FWD
-/ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=HONOR9X-dbcb7b0850fde5c5.home ttl=5m type=A
-/ip dns static add address=192.168.90.203 comment=<AUTO:DHCP:main-dhcp-server> name=ast25b.home ttl=5m type=A
-/ip dns static add address=192.168.90.135 comment=<AUTO:DHCP:main-dhcp-server> name=nadezda-phone.home ttl=5m type=A
-/ip dns static add address=46.39.51.88 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.100 name=ftpserver.org
+/ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=HONOR9X-dbcb7b0850fde5c5.home ttl=5m
+/ip dns static add address=192.168.90.203 comment=<AUTO:DHCP:main-dhcp-server> name=ast25b.home ttl=5m
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
@@ -455,7 +442,7 @@
 /ip firewall address-list add address=radarr.servarr.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=swagger.io list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=gog.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=pornhub.com disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=pornhub.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=www.tinkercad.com comment=www.tinkercad.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=autodesk.com comment=autodesk.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=accounts.autodesk.com comment=accounts.autodesk.com list=alist-mangle-vpn-tunneled-sites
@@ -478,292 +465,291 @@
 /ip firewall address-list add address=youtube.googleapis.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
 /ip firewall address-list add address=youtubei.googleapis.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
 /ip firewall address-list add address=yt-video-upload.l.google.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=wide-youtube.l.google.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
+/ip firewall address-list add address=wide-youtube.l.google.com comment="YT Hack" list=alist-mangle-YouTube
 /ip firewall address-list add address=google.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
 /ip firewall address-list add address=google.ru comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=medium.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=46.39.51.88 list=alist-nat-external-ip
-/ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
-/ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
-/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
-/ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=~~~OSFP protocol=ospf
-/ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
-/ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
-/ip firewall filter add action=accept chain=output comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
-/ip firewall filter add action=accept chain=input comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
-/ip firewall filter add action=jump chain=input comment="VPN Access" jump-target=chain-vpn-rules
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="L2TP tunnel" dst-port=1701 log-prefix=~~~L2TP protocol=udp
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-ah\"" log-prefix=~~~VPN protocol=ipsec-ah src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-esp\"" log-prefix=~~~VPN_FRW protocol=ipsec-esp src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IKE\" - IPSEC connection establishing" dst-port=500 log-prefix=~~~VPN_FRW protocol=udp src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow UDP\" - IPSEC data trasfer" dst-port=4500 log-prefix=~~~VPN_FRW protocol=udp src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=return chain=chain-vpn-rules comment="VPN Access"
-/ip firewall filter add action=accept chain=forward comment=VPN dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_FRW src-address-list=alist-fw-local-subnets
-/ip firewall filter add action=accept chain=forward comment=VPN dst-address-list=alist-fw-local-subnets log-prefix=~~~VPN_FRW src-address-list=alist-fw-vpn-subnets
-/ip firewall filter add action=jump chain=forward comment="Jump to chain-rdp-staged-control" jump-target=chain-rdp-staged-control
-/ip firewall filter add action=drop chain=chain-rdp-staged-control comment="drop rdp brute forcers" dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-block
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-block address-list-timeout=10h chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage3 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage2 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage1 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=!alist-fw-rdp-allow
-/ip firewall filter add action=return chain=chain-rdp-staged-control comment="Return From chain-rdp-staged-control"
-/ip firewall filter add action=jump chain=forward comment="jump to chain-smb-staged-control" jump-target=chain-smb-staged-control src-address-list=!alist-fw-smb-allow
-/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log-prefix=~~~SMB protocol=udp
-/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log-prefix=~~~SMB protocol=tcp
-/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log-prefix=~~~SMB protocol=tcp src-address-list=alist-smb-shares-track
-/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log-prefix=~~~SMB protocol=udp src-address-list=alist-smb-shares-track
-/ip firewall filter add action=return chain=chain-smb-staged-control comment="Return from chain-smb-staged-control"
-/ip firewall filter add action=drop chain=input comment="drop ftp brute forcers" dst-port=21 protocol=tcp src-address-list=alist-fw-ftp-block
-/ip firewall filter add action=accept chain=output comment="drop ftp brute forcers" content="530 Login incorrect" dst-limit=1/1m,9,dst-address/1m protocol=tcp
-/ip firewall filter add action=add-dst-to-address-list address-list=alist-fw-ftp-block address-list-timeout=3h chain=output comment="drop ftp brute forcers" content="530 Login incorrect" protocol=tcp
-/ip firewall filter add action=jump chain=input comment="Jump to DNS Amplification" jump-target=chain-dns-amp-attack
-/ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" log-prefix=~~~DNS port=53 protocol=udp src-address-list=alist-fw-dns-allow
-/ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" dst-address-list=alist-fw-dns-allow log-prefix=~~~DNS port=53 protocol=udp
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-dns-amp-block address-list-timeout=10h chain=chain-dns-amp-attack comment="Add DNS Amplification to Blacklist" log=yes log-prefix=~~~~DNS port=53 protocol=udp src-address-list=!alist-fw-dns-allow
-/ip firewall filter add action=drop chain=chain-dns-amp-attack comment="Drop DNS Amplification" src-address-list=alist-fw-dns-amp-block
-/ip firewall filter add action=return chain=chain-dns-amp-attack comment="Return from DNS Amplification"
-/ip firewall filter add action=accept chain=input comment="Self fetch requests" log-prefix=WEB port=80 protocol=tcp
-/ip firewall filter add action=jump chain=input comment="Allow router services on the lan" in-interface=main-infrastructure-br jump-target=chain-router-services-lan
-/ip firewall filter add action=accept chain=chain-router-services-lan comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
-/ip firewall filter add action=accept chain=chain-router-services-lan comment=SNMP port=161 protocol=udp
-/ip firewall filter add action=accept chain=chain-router-services-lan comment=WEB port=80 protocol=tcp
-/ip firewall filter add action=return chain=chain-router-services-lan comment="Return from chain-router-services-lan Chain"
-/ip firewall filter add action=jump chain=input comment="Allow router services on the wan" in-interface="wan A" jump-target=chain-router-services-wan
-/ip firewall filter add action=drop chain=chain-router-services-wan comment="SSH (22/TCP)" dst-port=22 protocol=tcp
-/ip firewall filter add action=drop chain=chain-router-services-wan comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
-/ip firewall filter add action=return chain=chain-router-services-wan comment="Return from chain-router-services-wan Chain"
-/ip firewall filter add action=jump chain=input comment="Check for ping flooding" jump-target=chain-detect-ping-flood protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="0:0 and limit for 5 pac/s Allow Ping" icmp-options=0:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="3:3 and limit for 5 pac/s Allow Traceroute" icmp-options=3:3 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="3:4 and limit for 5 pac/s Allow Path MTU Discovery" icmp-options=3:4 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="8:0 and limit for 5 pac/s Allow Ping" icmp-options=8:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="11:0 and limit for 5 pac/s Allow Traceroute" icmp-options=11:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="0:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=0:0-255 limit=50,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=8:0-255 limit=50,5:packet protocol=icmp
-/ip firewall filter add action=drop chain=chain-detect-ping-flood comment="drop everything else" log-prefix="#ICMP DROP" protocol=icmp
-/ip firewall filter add action=return chain=chain-detect-ping-flood comment="Return from chain-detect-ping-flood Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY1 log-prefix=~~~DUMMY1 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Manually Added)" src-address-list=alist-fw-manual-block
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Manually Added)" src-address-list=alist-fw-manual-block
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (SSH)" src-address-list=alist-fw-ssh-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (SSH)" src-address-list=alist-fw-ssh-ban
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Telnet)" src-address-list=alist-fw-telnet-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Telnet)" src-address-list=alist-fw-telnet-ban
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Winbox)" src-address-list=alist-fw-winbox-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Winbox)" src-address-list=alist-fw-winbox-ban
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the WAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the WAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=passthrough chain=input comment="Drop anyone in the LAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=passthrough chain=forward comment="Drop anyone in the LAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=drop chain=input comment="Drop all Bogons" src-address-list=alist-fw-rfc-special
-/ip firewall filter add action=drop chain=forward comment="Drop all Bogons" src-address-list=alist-fw-rfc-special
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY2 log-prefix=~~~DUMMY2 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to RFC SSH Chain" jump-target=chain-ssh-staged-control
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-ban address-list-timeout=1w3d chain=chain-ssh-staged-control comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage3 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 3" connection-state=new dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage2 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 2" connection-state=new dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage1 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add intial attempt to SSH Stage 1 List" connection-state=new dst-port=22 protocol=tcp
-/ip firewall filter add action=return chain=chain-ssh-staged-control comment="Return From RFC SSH Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY3 log-prefix=~~~DUMMY3 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to RFC Telnet Chain" jump-target=chain-telnet-staged-control
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-ban address-list-timeout=1w3d chain=chain-telnet-staged-control comment="Transfer repeated attempts from Telnet Stage 3 to Black-List" connection-state=new dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage3 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 3" connection-state=new dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage2 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 2" connection-state=new dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage1 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add Intial attempt to Telnet Stage 1" connection-state=new dst-port=23 protocol=tcp
-/ip firewall filter add action=return chain=chain-telnet-staged-control comment="Return From RFC Telnet Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY4 log-prefix=~~~DUMMY4 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to RFC Winbox Chain" jump-target=chain-winbox-staged-control
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-ban address-list-timeout=1w3d chain=chain-winbox-staged-control comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage3 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 3" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage2 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 2" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage1 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp src-address-list=!alist-fw-vpn-subnets
-/ip firewall filter add action=return chain=chain-winbox-staged-control comment="Return From RFC Winbox Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY5 log-prefix=~~~DUMMY5 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY6 log-prefix=~~~DUMMY6 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=1h chain=input comment=alist-fw-highload connection-limit=100,32 protocol=tcp
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=10h chain=forward comment=alist-fw-highload connection-limit=100,32 protocol=tcp
-/ip firewall filter add action=jump chain=input comment="Jump to Virus Chain" jump-target=chain-worms-detector
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Conficker dst-port=593 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=1024-1030 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm requester" dst-port=1363 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm server" dst-port=1364 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="screen cast" dst-port=1368 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=hromgrafx dst-port=1373 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" dst-port=1080 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=cichlid dst-port=1377 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=1433-1434 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" dst-port=2283 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle" dst-port=2535 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.C-K" dst-port=2745 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" dst-port=3127-3128 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Backdoor OptixPro" dst-port=3410 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Sasser" dst-port=5554 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=4444 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=4444 protocol=udp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.B" dst-port=8866 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dabber.A-B" dst-port=9898 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" dst-port=10000 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom.B" dst-port=10080 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop NetBus" dst-port=12345 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Kuang2" dst-port=17300 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop SubSeven" dst-port=27374 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop PhatBot, Agobot, Gaobot" dst-port=65506 protocol=tcp
-/ip firewall filter add action=return chain=chain-worms-detector comment="Return From Virus Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY7 log-prefix=~~~DUMMY7 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to \"Manage Common Ports\" Chain" jump-target=chain-self-common-ports
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All hosts on this subnet\" Broadcast" src-address=224.0.0.1
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All routers on this subnet\" Broadcast" src-address=224.0.0.2
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="DVMRP (Distance Vector Multicast Routing Protocol)" src-address=224.0.0.4
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - All OSPF Routers Broadcast" src-address=224.0.0.5
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - OSPF DR Routers Broadcast" src-address=224.0.0.6
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="RIP Broadcast" src-address=224.0.0.9
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="EIGRP Broadcast" src-address=224.0.0.10
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="PIM Broadcast" src-address=224.0.0.13
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="VRRP Broadcast" src-address=224.0.0.18
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" src-address=224.0.0.19
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" src-address=224.0.0.20
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" src-address=224.0.0.21
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IGMP Broadcast" src-address=224.0.0.22
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="GRE Protocol (Local Management)" protocol=gre
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer" log-prefix=~~~FTP port=20 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPcontrol (command)" log-prefix=~~~FTP port=21 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer  " log-prefix=~~~FTP port=20 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)" port=22 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)   " port=22 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet port=23 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet port=23 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem." port=24 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem.  " port=24 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)" port=25 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)  " port=25 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol" port=37 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol  " port=37 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol & WINS" port=42 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol  & WINS  " port=42 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" port=43 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" port=43 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" port=53 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" port=53 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Mail Transfer Protocol(RFC 780)" port=57 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Server & (DHCP)  " port=67 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Client & (DHCP)  " port=68 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Trivial File Transfer Protocol (TFTP)  " port=69 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Gopher protocol" port=70 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Finger protocol" port=79 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Hypertext Transfer Protocol (HTTP)" port=80 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="RemoteTELNETService protocol" port=107 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv2 (POP2)" port=109 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv3 (POP3)" port=110 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IdentAuthentication Service/Identification Protocol" port=113 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Authentication Service (auth)  " port=113 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple File Transfer Protocol (SFTP)" port=115 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Network Time Protocol(NTP)" port=123 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service" port=137 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service  " port=137 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service" port=138 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service  " port=138 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service" port=139 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service  " port=139 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP)" port=143 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)" port=152 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)  " port=152 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol" port=153 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol  " port=153 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol" port=158 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol  " port=158 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management Protocol(SNMP)  " port=161 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)" port=162 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " port=162 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGP (Border Gateway Protocol)" port=179 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" port=220 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" port=220 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol" port=264 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol  " port=264 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" port=389 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" port=389 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="SSTP TCP Port 443 (Local Management) & HTTPS" port=443 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Microsoft-DSActive Directory, Windows shares" port=445 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP/ IPSEC UDP Port 500 (Local Management)" port=500 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol" port=502 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol  " port=502 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Shell (Remote Shell, rsh, remsh)" port=514 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Syslog - used for system logging  " port=514 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Routing Information Protocol (RIP)  " port=520 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="e-mail message submission (SMTP)" port=587 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" port=646 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" port=646 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" port=989 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" port=989 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" port=990 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" port=990 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" port=992 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" port=992 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol over TLS/SSL (IMAPS)" port=993 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocol3 over TLS/SSL (POP3S)" port=995 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="OVPN TCP Port 1194 (Local Management)" port=1194 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="PPTP Port 1723 (Local Management)" port=1723 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 1701 (Local Management)" port=1701 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 4500 (Local Management)" port=4500 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="WINBOX TCP Port 8291 (Local Management)" port=8291 protocol=tcp
-/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" dst-port=137-138 log-prefix=~~~SMB protocol=udp src-address-list=alist-fw-smb-allow
-/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" dst-port=137,139 log-prefix=~~~SMB protocol=tcp src-address-list=alist-fw-smb-allow
-/ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (INPUT)"
-/ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new log-prefix="#ACCEPTED UNKNOWN (FWD)"
-/ip firewall filter add action=accept chain=input comment="Allow proxy on 8888" dst-port=8888 in-interface=main-infrastructure-br protocol=tcp
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY8 log-prefix=~~~DUMMY8 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=drop chain=input comment="Open proxy block" dst-port=8888 in-interface="wan A" protocol=tcp
-/ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new in-interface="wan A" log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
-/ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log-prefix="#DROP UNKNOWN (FWD)"
-/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log-prefix="#DROP UNKNOWN (INPUT)"
-/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1360 protocol=tcp tcp-flags=syn tcp-mss=1361-65535
-/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp protocol=tcp tcp-flags=syn tcp-mss=1361-65535
-/ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1360 protocol=tcp src-address-list=alist-fw-vpn-subnets tcp-flags=syn tcp-mss=1361-65535
-/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=alist-mangle-vpn-tunneled-sites new-connection-mark=cmark-tunnel-connection
-/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=alist-mangle-YouTube new-connection-mark=cmark-tunnel-connection
-/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new dst-address-list=alist-fw-telegram-servers new-connection-mark=cmark-tunnel-connection
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=alist-mangle-YouTube log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-vpn-tunneled-sites log=yes log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-YouTube log=yes log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark dst-port=500,4500 new-connection-mark=cmark-ipsec protocol=udp
-/ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark new-connection-mark=cmark-ipsec protocol=ipsec-esp
+/ip firewall address-list add address=46.39.51.100 list=alist-nat-external-ip
+/ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid disabled=yes in-interface-list=list-drop-invalid-connections
+/ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid disabled=yes dst-address-list=!alist-fw-vpn-subnets
+/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related disabled=yes log-prefix="#ACCEPTED UNKNOWN (FWD)"
+/ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" disabled=yes log-prefix=~~~OSFP protocol=ospf
+/ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" disabled=yes dst-address-type=broadcast dst-port=5678 protocol=udp
+/ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" disabled=yes dst-address-type=broadcast dst-port=5678 protocol=udp
+/ip firewall filter add action=accept chain=output comment=CAPsMAN disabled=yes dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
+/ip firewall filter add action=accept chain=input comment=CAPsMAN disabled=yes dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
+/ip firewall filter add action=jump chain=input comment="VPN Access" disabled=yes jump-target=chain-vpn-rules
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="L2TP tunnel" disabled=yes dst-port=1701 log-prefix=~~~L2TP protocol=udp
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-ah\"" disabled=yes log-prefix=~~~VPN protocol=ipsec-ah src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-esp\"" disabled=yes log-prefix=~~~VPN_FRW protocol=ipsec-esp src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IKE\" - IPSEC connection establishing" disabled=yes dst-port=500 log-prefix=~~~VPN_FRW protocol=udp src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow UDP\" - IPSEC data trasfer" disabled=yes dst-port=4500 log-prefix=~~~VPN_FRW protocol=udp src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=return chain=chain-vpn-rules comment="VPN Access" disabled=yes
+/ip firewall filter add action=accept chain=forward comment=VPN disabled=yes dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_FRW src-address-list=alist-fw-local-subnets
+/ip firewall filter add action=accept chain=forward comment=VPN disabled=yes dst-address-list=alist-fw-local-subnets log-prefix=~~~VPN_FRW src-address-list=alist-fw-vpn-subnets
+/ip firewall filter add action=jump chain=forward comment="Jump to chain-rdp-staged-control" disabled=yes jump-target=chain-rdp-staged-control
+/ip firewall filter add action=drop chain=chain-rdp-staged-control comment="drop rdp brute forcers" disabled=yes dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-block
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-block address-list-timeout=10h chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage3 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage2 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage1 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=!alist-fw-rdp-allow
+/ip firewall filter add action=return chain=chain-rdp-staged-control comment="Return From chain-rdp-staged-control" disabled=yes
+/ip firewall filter add action=jump chain=forward comment="jump to chain-smb-staged-control" disabled=yes jump-target=chain-smb-staged-control src-address-list=!alist-fw-smb-allow
+/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 log-prefix=~~~SMB protocol=udp
+/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 log-prefix=~~~SMB protocol=tcp
+/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 log-prefix=~~~SMB protocol=tcp src-address-list=alist-smb-shares-track
+/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 log-prefix=~~~SMB protocol=udp src-address-list=alist-smb-shares-track
+/ip firewall filter add action=return chain=chain-smb-staged-control comment="Return from chain-smb-staged-control" disabled=yes
+/ip firewall filter add action=drop chain=input comment="drop ftp brute forcers" disabled=yes dst-port=21 protocol=tcp src-address-list=alist-fw-ftp-block
+/ip firewall filter add action=accept chain=output comment="drop ftp brute forcers" content="530 Login incorrect" disabled=yes dst-limit=1/1m,9,dst-address/1m protocol=tcp
+/ip firewall filter add action=add-dst-to-address-list address-list=alist-fw-ftp-block address-list-timeout=3h chain=output comment="drop ftp brute forcers" content="530 Login incorrect" disabled=yes protocol=tcp
+/ip firewall filter add action=jump chain=input comment="Jump to DNS Amplification" disabled=yes jump-target=chain-dns-amp-attack
+/ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" disabled=yes log-prefix=~~~DNS port=53 protocol=udp src-address-list=alist-fw-dns-allow
+/ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" disabled=yes dst-address-list=alist-fw-dns-allow log-prefix=~~~DNS port=53 protocol=udp
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-dns-amp-block address-list-timeout=10h chain=chain-dns-amp-attack comment="Add DNS Amplification to Blacklist" disabled=yes log=yes log-prefix=~~~~DNS port=53 protocol=udp src-address-list=!alist-fw-dns-allow
+/ip firewall filter add action=drop chain=chain-dns-amp-attack comment="Drop DNS Amplification" disabled=yes src-address-list=alist-fw-dns-amp-block
+/ip firewall filter add action=return chain=chain-dns-amp-attack comment="Return from DNS Amplification" disabled=yes
+/ip firewall filter add action=accept chain=input comment="Self fetch requests" disabled=yes log-prefix=WEB port=80 protocol=tcp
+/ip firewall filter add action=jump chain=input comment="Allow router services on the lan" disabled=yes in-interface=main-infrastructure-br jump-target=chain-router-services-lan
+/ip firewall filter add action=accept chain=chain-router-services-lan comment="Winbox (8291/TCP)" disabled=yes dst-port=8291 protocol=tcp
+/ip firewall filter add action=accept chain=chain-router-services-lan comment=SNMP disabled=yes port=161 protocol=udp
+/ip firewall filter add action=accept chain=chain-router-services-lan comment=WEB disabled=yes port=80 protocol=tcp
+/ip firewall filter add action=return chain=chain-router-services-lan comment="Return from chain-router-services-lan Chain" disabled=yes
+/ip firewall filter add action=jump chain=input comment="Allow router services on the wan" disabled=yes in-interface="wan A" jump-target=chain-router-services-wan
+/ip firewall filter add action=drop chain=chain-router-services-wan comment="SSH (22/TCP)" disabled=yes dst-port=22 protocol=tcp
+/ip firewall filter add action=drop chain=chain-router-services-wan comment="Winbox (8291/TCP)" disabled=yes dst-port=8291 protocol=tcp
+/ip firewall filter add action=return chain=chain-router-services-wan comment="Return from chain-router-services-wan Chain" disabled=yes
+/ip firewall filter add action=jump chain=input comment="Check for ping flooding" disabled=yes jump-target=chain-detect-ping-flood protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="0:0 and limit for 5 pac/s Allow Ping" disabled=yes icmp-options=0:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="3:3 and limit for 5 pac/s Allow Traceroute" disabled=yes icmp-options=3:3 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="3:4 and limit for 5 pac/s Allow Path MTU Discovery" disabled=yes icmp-options=3:4 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="8:0 and limit for 5 pac/s Allow Ping" disabled=yes icmp-options=8:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="11:0 and limit for 5 pac/s Allow Traceroute" disabled=yes icmp-options=11:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="0:0 and limit for 50 pac/s Allow Ping tool speed-test" disabled=yes icmp-options=0:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" disabled=yes icmp-options=8:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=drop chain=chain-detect-ping-flood comment="drop everything else" disabled=yes log-prefix="#ICMP DROP" protocol=icmp
+/ip firewall filter add action=return chain=chain-detect-ping-flood comment="Return from chain-detect-ping-flood Chain" disabled=yes
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY1 disabled=yes log-prefix=~~~DUMMY1 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Manually Added)" disabled=yes src-address-list=alist-fw-manual-block
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Manually Added)" disabled=yes src-address-list=alist-fw-manual-block
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (SSH)" disabled=yes src-address-list=alist-fw-ssh-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (SSH)" disabled=yes src-address-list=alist-fw-ssh-ban
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Telnet)" disabled=yes src-address-list=alist-fw-telnet-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Telnet)" disabled=yes src-address-list=alist-fw-telnet-ban
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Winbox)" disabled=yes src-address-list=alist-fw-winbox-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Winbox)" disabled=yes src-address-list=alist-fw-winbox-ban
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the WAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the WAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=passthrough chain=input comment="Drop anyone in the LAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=passthrough chain=forward comment="Drop anyone in the LAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=drop chain=input comment="Drop all Bogons" disabled=yes src-address-list=alist-fw-rfc-special
+/ip firewall filter add action=drop chain=forward comment="Drop all Bogons" disabled=yes src-address-list=alist-fw-rfc-special
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY2 disabled=yes log-prefix=~~~DUMMY2 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to RFC SSH Chain" disabled=yes jump-target=chain-ssh-staged-control
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-ban address-list-timeout=1w3d chain=chain-ssh-staged-control comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage3 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 3" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage2 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 2" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage1 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add intial attempt to SSH Stage 1 List" connection-state=new disabled=yes dst-port=22 protocol=tcp
+/ip firewall filter add action=return chain=chain-ssh-staged-control comment="Return From RFC SSH Chain" disabled=yes
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY3 disabled=yes log-prefix=~~~DUMMY3 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to RFC Telnet Chain" disabled=yes jump-target=chain-telnet-staged-control
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-ban address-list-timeout=1w3d chain=chain-telnet-staged-control comment="Transfer repeated attempts from Telnet Stage 3 to Black-List" connection-state=new disabled=yes dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage3 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 3" connection-state=new disabled=yes dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage2 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 2" connection-state=new disabled=yes dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage1 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add Intial attempt to Telnet Stage 1" connection-state=new disabled=yes dst-port=23 protocol=tcp
+/ip firewall filter add action=return chain=chain-telnet-staged-control comment="Return From RFC Telnet Chain" disabled=yes
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY4 disabled=yes log-prefix=~~~DUMMY4 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to RFC Winbox Chain" disabled=yes jump-target=chain-winbox-staged-control
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-ban address-list-timeout=1w3d chain=chain-winbox-staged-control comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage3 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 3" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage2 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 2" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage1 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add Intial attempt to Winbox Stage 1" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=!alist-fw-vpn-subnets
+/ip firewall filter add action=return chain=chain-winbox-staged-control comment="Return From RFC Winbox Chain" disabled=yes
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY5 disabled=yes log-prefix=~~~DUMMY5 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" disabled=yes protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" disabled=yes protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY6 disabled=yes log-prefix=~~~DUMMY6 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=1h chain=input comment=alist-fw-highload connection-limit=100,32 disabled=yes protocol=tcp
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=10h chain=forward comment=alist-fw-highload connection-limit=100,32 disabled=yes protocol=tcp
+/ip firewall filter add action=jump chain=input comment="Jump to Virus Chain" disabled=yes jump-target=chain-worms-detector
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Conficker disabled=yes dst-port=593 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=1024-1030 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm requester" disabled=yes dst-port=1363 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm server" disabled=yes dst-port=1364 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="screen cast" disabled=yes dst-port=1368 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=hromgrafx disabled=yes dst-port=1373 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" disabled=yes dst-port=1080 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=cichlid disabled=yes dst-port=1377 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=1433-1434 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" disabled=yes dst-port=2283 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle" disabled=yes dst-port=2535 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.C-K" disabled=yes dst-port=2745 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" disabled=yes dst-port=3127-3128 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Backdoor OptixPro" disabled=yes dst-port=3410 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Sasser" disabled=yes dst-port=5554 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=4444 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=4444 protocol=udp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.B" disabled=yes dst-port=8866 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dabber.A-B" disabled=yes dst-port=9898 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" disabled=yes dst-port=10000 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom.B" disabled=yes dst-port=10080 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop NetBus" disabled=yes dst-port=12345 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Kuang2" disabled=yes dst-port=17300 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop SubSeven" disabled=yes dst-port=27374 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop PhatBot, Agobot, Gaobot" disabled=yes dst-port=65506 protocol=tcp
+/ip firewall filter add action=return chain=chain-worms-detector comment="Return From Virus Chain" disabled=yes
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY7 disabled=yes log-prefix=~~~DUMMY7 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to \"Manage Common Ports\" Chain" disabled=yes jump-target=chain-self-common-ports
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All hosts on this subnet\" Broadcast" disabled=yes src-address=224.0.0.1
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All routers on this subnet\" Broadcast" disabled=yes src-address=224.0.0.2
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="DVMRP (Distance Vector Multicast Routing Protocol)" disabled=yes src-address=224.0.0.4
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - All OSPF Routers Broadcast" disabled=yes src-address=224.0.0.5
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - OSPF DR Routers Broadcast" disabled=yes src-address=224.0.0.6
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="RIP Broadcast" disabled=yes src-address=224.0.0.9
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="EIGRP Broadcast" disabled=yes src-address=224.0.0.10
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="PIM Broadcast" disabled=yes src-address=224.0.0.13
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="VRRP Broadcast" disabled=yes src-address=224.0.0.18
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.19
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.20
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.21
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IGMP Broadcast" disabled=yes src-address=224.0.0.22
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="GRE Protocol (Local Management)" disabled=yes protocol=gre
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer" disabled=yes log-prefix=~~~FTP port=20 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPcontrol (command)" disabled=yes log-prefix=~~~FTP port=21 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer  " disabled=yes log-prefix=~~~FTP port=20 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)" disabled=yes port=22 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)   " disabled=yes port=22 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet disabled=yes port=23 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet disabled=yes port=23 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem." disabled=yes port=24 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem.  " disabled=yes port=24 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)" disabled=yes port=25 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)  " disabled=yes port=25 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol" disabled=yes port=37 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol  " disabled=yes port=37 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol & WINS" disabled=yes port=42 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol  & WINS  " disabled=yes port=42 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" disabled=yes port=43 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" disabled=yes port=43 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" disabled=yes port=53 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" disabled=yes port=53 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Mail Transfer Protocol(RFC 780)" disabled=yes port=57 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Server & (DHCP)  " disabled=yes port=67 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Client & (DHCP)  " disabled=yes port=68 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Trivial File Transfer Protocol (TFTP)  " disabled=yes port=69 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Gopher protocol" disabled=yes port=70 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Finger protocol" disabled=yes port=79 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Hypertext Transfer Protocol (HTTP)" disabled=yes port=80 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="RemoteTELNETService protocol" disabled=yes port=107 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv2 (POP2)" disabled=yes port=109 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv3 (POP3)" disabled=yes port=110 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IdentAuthentication Service/Identification Protocol" disabled=yes port=113 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Authentication Service (auth)  " disabled=yes port=113 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple File Transfer Protocol (SFTP)" disabled=yes port=115 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Network Time Protocol(NTP)" disabled=yes port=123 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service" disabled=yes port=137 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service  " disabled=yes port=137 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service" disabled=yes port=138 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service  " disabled=yes port=138 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service" disabled=yes port=139 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service  " disabled=yes port=139 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP)" disabled=yes port=143 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)" disabled=yes port=152 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)  " disabled=yes port=152 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol" disabled=yes port=153 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol  " disabled=yes port=153 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol" disabled=yes port=158 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol  " disabled=yes port=158 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management Protocol(SNMP)  " disabled=yes port=161 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)" disabled=yes port=162 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " disabled=yes port=162 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGP (Border Gateway Protocol)" disabled=yes port=179 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" disabled=yes port=220 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" disabled=yes port=220 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol" disabled=yes port=264 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol  " disabled=yes port=264 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" disabled=yes port=389 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" disabled=yes port=389 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="SSTP TCP Port 443 (Local Management) & HTTPS" disabled=yes port=443 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Microsoft-DSActive Directory, Windows shares" disabled=yes port=445 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP/ IPSEC UDP Port 500 (Local Management)" disabled=yes port=500 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol" disabled=yes port=502 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol  " disabled=yes port=502 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Shell (Remote Shell, rsh, remsh)" disabled=yes port=514 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Syslog - used for system logging  " disabled=yes port=514 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Routing Information Protocol (RIP)  " disabled=yes port=520 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="e-mail message submission (SMTP)" disabled=yes port=587 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" disabled=yes port=646 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" disabled=yes port=646 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" disabled=yes port=989 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" disabled=yes port=989 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" disabled=yes port=990 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" disabled=yes port=990 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" disabled=yes port=992 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" disabled=yes port=992 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol over TLS/SSL (IMAPS)" disabled=yes port=993 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocol3 over TLS/SSL (POP3S)" disabled=yes port=995 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="OVPN TCP Port 1194 (Local Management)" disabled=yes port=1194 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="PPTP Port 1723 (Local Management)" disabled=yes port=1723 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 1701 (Local Management)" disabled=yes port=1701 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 4500 (Local Management)" disabled=yes port=4500 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="WINBOX TCP Port 8291 (Local Management)" disabled=yes port=8291 protocol=tcp
+/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" disabled=yes dst-port=137-138 log-prefix=~~~SMB protocol=udp src-address-list=alist-fw-smb-allow
+/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" disabled=yes dst-port=137,139 log-prefix=~~~SMB protocol=tcp src-address-list=alist-fw-smb-allow
+/ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related disabled=yes log-prefix="#ACCEPTED UNKNOWN (INPUT)"
+/ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new disabled=yes log-prefix="#ACCEPTED UNKNOWN (FWD)"
+/ip firewall filter add action=accept chain=input comment="Allow proxy on 8888" disabled=yes dst-port=8888 in-interface=main-infrastructure-br protocol=tcp
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY8 disabled=yes log-prefix=~~~DUMMY8 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=drop chain=input comment="Open proxy block" disabled=yes dst-port=8888 in-interface="wan A" protocol=tcp
+/ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new disabled=yes in-interface="wan A" log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
+/ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" disabled=yes log-prefix="#DROP UNKNOWN (FWD)"
+/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" disabled=yes log-prefix="#DROP UNKNOWN (INPUT)"
+/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" disabled=yes in-interface=all-ppp new-mss=1360 passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" disabled=yes new-mss=1360 out-interface=all-ppp passthrough=yes protocol=tcp tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" disabled=yes new-mss=1360 passthrough=yes protocol=tcp src-address-list=alist-fw-vpn-subnets tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new disabled=yes dst-address-list=alist-mangle-vpn-tunneled-sites new-connection-mark=cmark-tunnel-connection passthrough=yes
+/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new disabled=yes dst-address-list=alist-mangle-YouTube new-connection-mark=cmark-tunnel-connection passthrough=yes
+/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new disabled=yes dst-address-list=alist-fw-telegram-servers new-connection-mark=cmark-tunnel-connection passthrough=yes
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" disabled=yes dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" disabled=yes dst-address-list=alist-mangle-YouTube log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" disabled=yes dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection disabled=yes dst-address-list=alist-mangle-vpn-tunneled-sites log=yes log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection disabled=yes dst-address-list=alist-mangle-YouTube log=yes log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection disabled=yes dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark disabled=yes dst-port=500,4500 new-connection-mark=cmark-ipsec passthrough=yes protocol=udp
+/ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark disabled=yes new-connection-mark=cmark-ipsec passthrough=yes protocol=ipsec-esp
 /ip firewall mangle add action=mark-routing chain=output comment="VPN (pure IPSEC)" connection-mark=cmark-ipsec disabled=yes dst-address-list=alist-mangle-YouTube new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=output comment="VPN (pure IPSEC)" connection-mark=cmark-ipsec dst-address-list=alist-mangle-vpn-tunneled-sites new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY
-/ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark layer7-protocol=7Z new-connection-mark=conn-7z-download
-/ip firewall mangle add action=mark-packet chain=prerouting comment=7z connection-mark=conn-7z-download layer7-protocol=7Z log-prefix=~~~DL_7z new-packet-mark=7z-mark protocol=tcp
-/ip firewall mangle add action=mark-connection chain=prerouting comment="EXE DL CONN mark" connection-mark=no-mark layer7-protocol=EXE new-connection-mark=conn-exe-download
-/ip firewall mangle add action=mark-packet chain=prerouting comment=exe connection-mark=conn-exe-download layer7-protocol=EXE log-prefix=~~~DL_exe new-packet-mark=exe-mark protocol=tcp
-/ip firewall mangle add action=mark-connection chain=prerouting comment="RAR DL CONN mark" connection-mark=no-mark layer7-protocol=RAR new-connection-mark=conn-rar-download
-/ip firewall mangle add action=mark-packet chain=prerouting comment=rar connection-mark=conn-rar-download layer7-protocol=RAR log-prefix=~~~DL_rar new-packet-mark=rar-mark protocol=tcp
-/ip firewall mangle add action=mark-connection chain=prerouting comment="ZIP DL CONN mark" connection-mark=no-mark layer7-protocol=ZIP new-connection-mark=conn-zip-download
-/ip firewall mangle add action=mark-packet chain=prerouting comment=zip connection-mark=conn-zip-download layer7-protocol=ZIP log-prefix=~~~DL_zip new-packet-mark=zip-mark protocol=tcp
-/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:63
-/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:127
-/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 log-prefix="#DNS Req" protocol=udp
-/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-port=53 protocol=tcp
-/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to GRAFANA (map to port 3000, local only)" dst-address-list=alist-nat-grafana-server dst-port=80 in-interface=main-infrastructure-br log=yes log-prefix="~~~GRAFANA REDIRECT" protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.70 to-ports=3000
-/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to GRAFANA  (local only)" dst-address-list=alist-nat-grafana-service dst-port=3000 log=yes log-prefix="~~~ GRAFANA BACK" out-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets
-/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to INFLUXDB (map to port 8000, local only)" dst-address-list=alist-nat-influxdb-server log=yes log-prefix=~~~INFLUX src-address-list=alist-nat-local-subnets to-addresses=192.168.90.40
-/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to INFLUXDB  (local only)" dst-address-list=alist-nat-influxdb-service log=yes log-prefix="~~~~~~~~INFLUX BACK" src-address-list=alist-nat-local-subnets
+/ip firewall mangle add action=mark-routing chain=output comment="VPN (pure IPSEC)" connection-mark=cmark-ipsec disabled=yes dst-address-list=alist-mangle-vpn-tunneled-sites new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY disabled=yes
+/ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark disabled=yes layer7-protocol=7Z new-connection-mark=conn-7z-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=7z connection-mark=conn-7z-download disabled=yes layer7-protocol=7Z log-prefix=~~~DL_7z new-packet-mark=7z-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-connection chain=prerouting comment="EXE DL CONN mark" connection-mark=no-mark disabled=yes layer7-protocol=EXE new-connection-mark=conn-exe-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=exe connection-mark=conn-exe-download disabled=yes layer7-protocol=EXE log-prefix=~~~DL_exe new-packet-mark=exe-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-connection chain=prerouting comment="RAR DL CONN mark" connection-mark=no-mark disabled=yes layer7-protocol=RAR new-connection-mark=conn-rar-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=rar connection-mark=conn-rar-download disabled=yes layer7-protocol=RAR log-prefix=~~~DL_rar new-packet-mark=rar-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=mark-connection chain=prerouting comment="ZIP DL CONN mark" connection-mark=no-mark disabled=yes layer7-protocol=ZIP new-connection-mark=conn-zip-download passthrough=yes
+/ip firewall mangle add action=mark-packet chain=prerouting comment=zip connection-mark=conn-zip-download disabled=yes layer7-protocol=ZIP log-prefix=~~~DL_zip new-packet-mark=zip-mark passthrough=yes protocol=tcp
+/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" disabled=yes ttl=equal:63
+/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" disabled=yes ttl=equal:127
+/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" disabled=yes dst-port=53 log-prefix="#DNS Req" protocol=udp
+/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" disabled=yes dst-port=53 protocol=tcp
+/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to GRAFANA (map to port 3000, local only)" disabled=yes dst-address-list=alist-nat-grafana-server dst-port=80 in-interface=main-infrastructure-br log=yes log-prefix="~~~GRAFANA REDIRECT" protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.70 to-ports=3000
+/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to GRAFANA  (local only)" disabled=yes dst-address-list=alist-nat-grafana-service dst-port=3000 log=yes log-prefix="~~~ GRAFANA BACK" out-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets
+/ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to INFLUXDB (map to port 8000, local only)" disabled=yes dst-address-list=alist-nat-influxdb-server log=yes log-prefix=~~~INFLUX src-address-list=alist-nat-local-subnets to-addresses=192.168.90.40
+/ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to INFLUXDB  (local only)" disabled=yes dst-address-list=alist-nat-influxdb-service log=yes log-prefix="~~~~~~~~INFLUX BACK" src-address-list=alist-nat-local-subnets
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" disabled=yes dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_NAT src-address-list=alist-nat-local-subnets
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" disabled=yes dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix=~~~VPN_NAT
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" disabled=yes dst-address-list=alist-mangle-YouTube log-prefix=~~~VPN_NAT
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" disabled=yes dst-address-list=alist-nat-local-subnets log-prefix=~~~VPN_NAT src-address-list=alist-fw-vpn-subnets
 /ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" disabled=yes out-interface-list=list-l2tp-tunnels
-/ip firewall nat add action=netmap chain=dstnat comment="WINBOX pass through" dst-port=9999 in-interface="wan A" log-prefix=~~~WNBOX protocol=tcp to-addresses=192.168.90.1 to-ports=8291
-/ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=8291 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.1 to-ports=8291
-/ip firewall nat add action=netmap chain=dstnat comment="WEB pass through" dst-port=8888 in-interface="wan A" log-prefix="#WEB EXT CTRL" protocol=tcp to-addresses=192.168.90.1 to-ports=80
-/ip firewall nat add action=dst-nat chain=dstnat comment="WEB NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=80 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.1 to-ports=80
-/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through" dst-port=1111 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.40 to-ports=21
-/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through PASV" dst-port=65000-65050 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.40 to-ports=65000-65050
-/ip firewall nat add action=dst-nat chain=dstnat comment="FTP NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=21 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.80 to-ports=21
-/ip firewall nat add action=netmap chain=dstnat comment="RDP pass through" dst-address-type=local dst-port=3333 in-interface="wan A" log-prefix=~~~RDP protocol=tcp to-addresses=192.168.90.80 to-ports=3389
-/ip firewall nat add action=dst-nat chain=dstnat comment="RDP NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=3389 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.80 to-ports=3389
+/ip firewall nat add action=netmap chain=dstnat comment="WINBOX pass through" disabled=yes dst-port=9999 in-interface="wan A" log-prefix=~~~WNBOX protocol=tcp to-addresses=192.168.90.1 to-ports=8291
+/ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX NAT loopback" disabled=yes dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=8291 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.1 to-ports=8291
+/ip firewall nat add action=netmap chain=dstnat comment="WEB pass through" disabled=yes dst-port=8888 in-interface="wan A" log-prefix="#WEB EXT CTRL" protocol=tcp to-addresses=192.168.90.1 to-ports=80
+/ip firewall nat add action=dst-nat chain=dstnat comment="WEB NAT loopback" disabled=yes dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=80 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.1 to-ports=80
+/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through" disabled=yes dst-port=1111 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.40 to-ports=21
+/ip firewall nat add action=netmap chain=dstnat comment="FTP pass through PASV" disabled=yes dst-port=65000-65050 in-interface="wan A" log-prefix=~~~FTP protocol=tcp to-addresses=192.168.90.40 to-ports=65000-65050
+/ip firewall nat add action=dst-nat chain=dstnat comment="FTP NAT loopback" disabled=yes dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=21 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.80 to-ports=21
+/ip firewall nat add action=netmap chain=dstnat comment="RDP pass through" disabled=yes dst-address-type=local dst-port=3333 in-interface="wan A" log-prefix=~~~RDP protocol=tcp to-addresses=192.168.90.80 to-ports=3389
+/ip firewall nat add action=dst-nat chain=dstnat comment="RDP NAT loopback" disabled=yes dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=3389 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.80 to-ports=3389
 /ip firewall nat add action=masquerade chain=srcnat comment="all WAN allowed" dst-address-list=!alist-fw-vpn-subnets out-interface="wan A"
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
@@ -772,9 +758,9 @@
 /ip hotspot service-port set ftp disabled=yes
 /ip ipsec identity add auth-method=digital-signature certificate=C.anna.ipsec@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
-/ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-port=1701
-/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" disabled=yes dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
+/ip ipsec policy set 0 disabled=yes proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
+/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
 /ip kid-control add fri=0s-1d mon=0s-1d name=totals sat=0s-1d sun=0s-1d thu=0s-1d tue=0s-1d wed=0s-1d
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
@@ -784,7 +770,7 @@
 /ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
 /ip smb shares set [ find default=yes ] directory=/pub
-/ip ssh set ciphers=aes-gcm,aes-ctr,aes-cbc,3des-cbc,null forwarding-enabled=remote
+/ip ssh set allow-none-crypto=yes forwarding-enabled=remote
 /ip tftp add real-filename=NAS/ req-filename=.*
 /ip traffic-flow set cache-entries=64k enabled=yes interfaces="wan A"
 /ip upnp set enabled=yes
@@ -833,26 +819,14 @@
 /system logging add action=ParseMemoryLog topics=error
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=critical
-/system logging add action=OSXRemoteLog prefix=RLOG topics=!debug
+/system logging add action=macos prefix=RLOG topics=!debug
 /system logging add action=TransfersOnscreenLog topics=fetch
-/system logging add action=PKGInstallationLog regex="^.*install.*\$"
-/system logging add action=REBOOTLog regex="^.*reboot.*\$"
-/system logging add action=PKGInstallationLog regex="^.*package.*\$"
-/system note set note="IPSEC: \t\tokay \
-    \nDefault route: \t10.20.225.1 \
-    \nanna: \t\t7.18.2 \
-    \nUptime:\t\t00:01:09  \
-    \nTime:\t\t2025-04-17 11:14:42  \
-    \nya.ru latency:\t7 ms  \
-    \nCHR:\t\t185.13.148.14  \
-    \nMIK:\t\t178.65.80.245  \
-    \nANNA:\t\t46.39.51.88  \
-    \nClock:\t\tsynchronized  \
-    \n"
+/system note set note=Pending
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
 /system ntp client servers add address=ru.pool.ntp.org
+/system package update set channel=testing
 /system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-01-30 start-time=18:57:09
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-02-21 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-03-21 start-time=19:19:59
@@ -1027,83 +1001,78 @@
     \n\r\
     \n:beep frequency=500 length=500ms;\r\
     \n:delay 1000ms;"
-/system script add comment="Updates address-list that contains my external IP" dont-require-permissions=yes name=doUpdateExternalDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n:local sysname [/system identity get name];\
-    \n:local scriptname \"doUpdateExternalDNS\";\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
-    \n\
-    \n:global globalNoteMe;\
-    \n:local itsOk true;\
-    \n:local payLoad false;\
-    \n:local state \"\";\
-    \n\
-    \n:local content\
-    \n:local IPv4\
-    \n:global LastIPv4\
-    \n\
-    \n# parsing the current IPv4 result\
-    \n/ip cloud force-update;\
-    \n:delay 7s;\
-    \n:set IPv4 [/ip cloud get public-address];\
-    \n\
-    \n:if ([:len \$IPv4] > 0) do={\
-    \n        :if ([ :typeof [ :toip \$IPv4 ] ] != \"ip\" ) do={\
-    \n\
-    \n        :set state \"No cloud-DNS IP recieved\";\
-    \n         \$globalNoteMe value=\$state;\
-    \n        :set itsOk false;\
-    \n   \
-    \n        }\
-    \n    }\
-    \n\
-    \n:if ((\$LastIPv4 != \$IPv4) || (\$force = true)) do={\
-    \n\
-    \n    :set state \"External IP changed: current - (\$IPv4), last - (\$LastIPv4)\";\
-    \n    \$globalNoteMe value=\$state;\
-    \n\
-    \n    /ip firewall address-list remove [find list~\"alist-nat-external-ip\"];\
-    \n    /ip firewall address-list add list=\"alist-nat-external-ip\" address=\$IPv4;\
-    \n   \
-    \n    /ip dns static remove [/ip dns static find name=ftpserver.org];\
-    \n    /ip dns static add name=ftpserver.org address=\$IPv4;\
-    \n \
-    \n    :set LastIPv4 \$IPv4;\
-    \n    :set payLoad true; \
-    \n\
-    \n    :local count [:len [/system script find name=\"doSuperviseCHRviaSSH\"]];\
-    \n    :if (\$count > 0) do={\
-    \n       \
-    \n        :set state \"Refreshing VPN server (CHR) IPSEC policies\";\
-    \n        \$globalNoteMe value=\$state;\
-    \n        /system script run doSuperviseCHRviaSSH;\
-    \n    \
-    \n     }\
-    \n   }\
-    \n\
-    \n:local inf \"\"\
-    \n:if (\$itsOk and \$payLoad ) do={\
-    \n  :set inf \"\$scriptname on \$sysname: external IP address change detected, refreshed\"\
-    \n}\
-    \n\
-    \n:if (\$itsOk and !\$payLoad ) do={\
-    \n  :set inf \"\$scriptname on \$sysname: no external IP address update needed\"\
-    \n}\
-    \n\
-    \n:if (!\$itsOk) do={\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
-    \n}\
-    \n\
-    \n\$globalNoteMe value=\$inf\
-    \n\
-    \n:if (!\$itsOk) do={\
-    \n\
-    \n  :global globalTgMessage;\
-    \n  \$globalTgMessage value=\$inf;\
-    \n  \
-    \n}\
-    \n\
-    \n\
+/system script add comment="Updates address-list that contains my external IP" dont-require-permissions=yes name=doUpdateExternalDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doUpdateExternalDNS\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n:local payLoad false;\r\
+    \n:local state \"\";\r\
+    \n\r\
+    \n:local content\r\
+    \n:local IPv4\r\
+    \n:global LastIPv4\r\
+    \n\r\
+    \n# parsing the current IPv4 result\r\
+    \n/ip cloud force-update;\r\
+    \n:delay 7s;\r\
+    \n:set IPv4 [/ip cloud get public-address];\r\
+    \n\r\
+    \n\r\
+    \n:if ((\$LastIPv4 != \$IPv4) || (\$force = true)) do={\r\
+    \n\r\
+    \n    :set state \"External IP changed: current - (\$IPv4), last - (\$LastIPv4)\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    /ip firewall address-list remove [find list~\"alist-nat-external-ip\"];\r\
+    \n    /ip firewall address-list add list=\"alist-nat-external-ip\" address=\$IPv4;\r\
+    \n   \r\
+    \n    /ip dns static remove [/ip dns static find name=ftpserver.org];\r\
+    \n    /ip dns static add name=ftpserver.org address=\$IPv4;\r\
+    \n \r\
+    \n    :set LastIPv4 \$IPv4;\r\
+    \n    \r\
+    \n    :set payLoad true; \r\
+    \n\r\
+    \n    :local count [:len [/system script find name=\"doSuperviseCHRviaSSH\"]];\r\
+    \n    :if (\$count > 0) do={\r\
+    \n       \r\
+    \n        :set state \"Refreshing VPN server (CHR) IPSEC policies\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n        /system script run doSuperviseCHRviaSSH;\r\
+    \n    \r\
+    \n     }\r\
+    \n   \r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk and \$payLoad ) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: external IP address change detected, refreshed\"\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n:if (\$itsOk and !\$payLoad ) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: no external IP address update needed\"\r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n  \r\
+    \n}\r\
+    \n\r\
+    \n\r\
     \n"
 /system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doCoolConsole\";\r\
@@ -1423,42 +1392,42 @@
     \n\r\
     \n\r\
     \n"
-/system script add comment="Checks device temperature and warns on overheat" dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n:local sysname [/system identity get name];\
-    \n:local scriptname \"doHeatFlag\";\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
-    \n\
-    \n:global globalNoteMe;\
-    \n\
-    \n:local maxTemp;\
-    \n:local currentTemp [/system/health get [find name=cpu-temperature] value];\
-    \n\
-    \n:set maxTemp 68;\
-    \n\
-    \n#\
-    \n\
-    \n:if (\$currentTemp > \$maxTemp) do= {\
-    \n\
-    \n:local inf \"\$scriptname on \$sysname: system overheat at \$currentTemp C\"  \
-    \n\
-    \n\$globalNoteMe value=\$inf\
-    \n\
-    \n:global globalTgMessage;\
-    \n\$globalTgMessage value=\$inf;\
-    \n\
-    \n\
-    \n/beep length=.1\
-    \n :delay 250ms\
-    \n /beep length=.1\
-    \n :delay 800ms\
-    \n /beep length=.1\
-    \n :delay 250ms\
-    \n /beep length=.1\
-    \n :delay 800ms\
-    \n\
-    \n\
-    \n};\
+/system script add comment="Checks device temperature and warns on overheat" dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doHeatFlag\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n\r\
+    \n:local maxTemp;\r\
+    \n:local currentTemp [/system health get temperature];\r\
+    \n\r\
+    \n:set maxTemp 68;\r\
+    \n\r\
+    \n#\r\
+    \n\r\
+    \n:if (\$currentTemp > \$maxTemp) do= {\r\
+    \n\r\
+    \n:local inf \"\$scriptname on \$sysname: system overheat at \$currentTemp C\"  \r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:global globalTgMessage;\r\
+    \n\$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n\r\
+    \n/beep length=.1\r\
+    \n :delay 250ms\r\
+    \n /beep length=.1\r\
+    \n :delay 800ms\r\
+    \n /beep length=.1\r\
+    \n :delay 250ms\r\
+    \n /beep length=.1\r\
+    \n :delay 800ms\r\
+    \n\r\
+    \n\r\
+    \n};\r\
     \n"
 /system script add comment="Collects bandwidth speeds using Mikrotik proprietary protocol, so you need mikrotik devices on both sides (i'm using CHR)" dont-require-permissions=yes name=doCollectSpeedStats owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2062,157 +2031,363 @@
     \n  }\r\
     \n}\r\
     \n"
-/system script add comment="Mikrotik system log dump, collects new entries once per minute. You should have 'ParseMemoryLog' buffer at your 'system-logging'. Calls 'doPeriodicLogParse' when new logs available" dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
-    \n:local scriptname \"doPeriodicLogDump\";\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
+/system script add comment="Mikrotik system log dump, collects new entries once per minute. You should have 'ParseMemoryLog' buffer at your 'system-logging'. Calls 'doPeriodicLogParse' when new logs available" dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n#\$globalScriptBeforeRun \"doPeriodicLogDump\";\r\
+    \n\r\
+    \n# Script Name: Log-Parser\r\
+    \n# This script reads a specified log buffer.  At each log entry read,\r\
+    \n# the global variable 'globalParseVar' is set to \"<log entry time>,<log entry topics>,<log entry message>\"\r\
+    \n# then a parser action script is run.  The parser action script reads the global variable, and performs specified actions.\r\
+    \n# The log buffer is then cleared, so only new entries are read each time this script gets executed.\r\
+    \n\r\
+    \n# Set this to a \"memory\" action log buffer\r\
+    \n:local logBuffer \"ParseMemoryLog\"\r\
+    \n\r\
+    \n# Set to name of parser script to run against each log entry in buffer\r\
+    \n:local logParserScript \"doPeriodicLogParse\"\r\
+    \n# This changes are almost made by the other scripts, so skip them to avoid spam\r\
+    \n:local excludedMsgs [:toarray \"static dns entry, simple queue, script settings, led settings, note settings\"];\r\
+    \n\r\
+    \n# Internal processing below....\r\
+    \n# -----------------------------------\r\
+    \n:global globalParseVar \"\"\r\
+    \n:global globalLastParseTime\r\
+    \n:global globalLastParseMsg\r\
+    \n:global globalNoteMe;\r\
+    \n\r\
+    \n:local findindex\r\
+    \n:local property\r\
+    \n:local value\r\
+    \n:local logEntryTopics\r\
+    \n:local logEntryTime\r\
+    \n:local logEntryMessage\r\
+    \n:local curDate\r\
+    \n:local curMonth\r\
+    \n:local curDay\r\
+    \n:local curYear\r\
+    \n:local clearedbuf\r\
+    \n:local lines\r\
+    \n\r\
+    \n# Get current date settings\r\
+    \n:set \$curDate [/system clock get date]\r\
+    \n:set \$curMonth [:pick [:tostr \$curDate] 0 3]\r\
+    \n:set \$curDay [:pick [:tostr \$curDate] 4 6]\r\
+    \n:set \$curYear [:pick [:tostr \$curDate] 7 11]\r\
+    \n\r\
+    \n:set \$clearedbuf 0\r\
+    \n:foreach rule in=[/log print as-value where buffer=(\$logBuffer)] do={\r\
+    \n# Now all data is collected in memory..\r\
+    \n\r\
+    \n# Clear log buffer right away so new entries come in\r\
+    \n   :if (\$clearedbuf = 0) do={\r\
+    \n      /system logging action {\r\
+    \n         :set \$lines [get (\$logBuffer) memory-lines]\r\
+    \n         set (\$logBuffer) memory-lines 1\r\
+    \n         set (\$logBuffer) memory-lines \$lines\r\
+    \n      }\r\
+    \n      :set \$clearedbuf 1\r\
+    \n   }\r\
+    \n# End clear log buffer\r\
+    \n\r\
+    \n   :set \$logEntryTime \"\"\r\
+    \n   :set \$logEntryTopics \"\"\r\
+    \n   :set \$logEntryMessage \"\"\r\
+    \n\r\
+    \n# Get each log entry's properties\r\
+    \n   :local items {\$rule}\r\
+    \n   :foreach item in=[\$items] do={\r\
+    \n      :set \$logEntryTime (\$item->\"time\")\r\
+    \n      :set \$logEntryTopics (\$item->\"topics\")\r\
+    \n      :set \$logEntryMessage (\$item->\"message\")\r\
+    \n   }\r\
+    \n# end foreach item\r\
+    \n   }\r\
+    \n\r\
+    \n# Set \$logEntryTime to full time format (mmm/dd/yyyy HH:MM:SS)\r\
+    \n   :set \$findindex [:find [:tostr \$logEntryTime] \" \"]\r\
+    \n# If no spaces are found, only time is given (HH:MM:SS), insert mmm/dd/yyyy\r\
+    \n   :if ([:len \$findindex] = 0) do={\r\
+    \n      :set \$logEntryTime (\$curMonth . \"/\" . \$curDay . \"/\" . \$curYear . \" \" . \\\r\
+    \n                                    [:tostr \$logEntryTime])\r\
+    \n   }\r\
+    \n# Only (mmm/dd HH:MM:SS) is given, insert year\r\
+    \n   :if (\$findindex = 6) do={\r\
+    \n      :set \$logEntryTime ([:pick [:tostr \$logEntryTime] 0 \$findindex] . \"/\" . \$curYear . \\\r\
+    \n                                    [:pick [:tostr \$logEntryTime] \$findindex [:len [:tostr \$logEntryTime]]])\r\
+    \n   }\r\
+    \n# Only (mmm HH:MM:SS) is given, insert day and year\r\
+    \n   :if (\$findindex = 3) do={\r\
+    \n      :set \$logEntryTime ([:pick [:tostr \$logEntryTime] 0 \$findindex] . \"/\" . \$curDay . \"/\" . \$curYear . \\\r\
+    \n                                    [:pick [:tostr \$logEntryTime] \$findindex [:len [:tostr \$logEntryTime]]])\r\
+    \n   }\r\
+    \n# End set \$logEntryTime to full time format\r\
+    \n\r\
+    \n# Skip if logEntryTime and logEntryMessage are the same as previous parsed log entry\r\
+    \n   :if (\$logEntryTime = \$globalLastParseTime && \$logEntryMessage = \$globalLastParseMsg) do={\r\
+    \n   \r\
+    \n   } else={\r\
+    \n\r\
+    \n        :local skip false;\r\
+    \n        :foreach i in=\$excludedMsgs do={\r\
+    \n            :if ( !\$skip and \$logEntryMessage~\$i ) do={\r\
+    \n                :set skip true;\r\
+    \n                :put \"log entry skipped due to setup: \$logEntryMessage\";  \r\
+    \n                }\r\
+    \n        }\r\
+    \n\r\
+    \n        # Do not track LOG config changes because we're doing it right there (in that script)\r\
+    \n        # and that will be a huge one-per-minute spam\r\
+    \n        :if ( \$skip or \$logEntryMessage~\"log action\") do={\r\
+    \n\r\
+    \n    \r\
+    \n        } else={\r\
+    \n\r\
+    \n            # Set \$globalParseVar, then run parser script\r\
+    \n            :set \$globalParseVar {\$logEntryTime ; \$logEntryTopics; \$logEntryMessage}\r\
+    \n            /system script run (\$logParserScript)\r\
+    \n\r\
+    \n            # Update last parsed time, and last parsed message\r\
+    \n            :set \$globalLastParseTime \$logEntryTime\r\
+    \n            :set \$globalLastParseMsg \$logEntryMessage\r\
+    \n        }\r\
+    \n   }\r\
+    \n\r\
+    \n# end foreach rule\r\
+    \n}\r\
+    \n\r\
     \n"
-/system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
+/system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:global globalScriptBeforeRun;\
+    \n#\$globalScriptBeforeRun \"doPeriodicLogParse\";\
+    \n\
+    \n:local sysname (\"%C2%A9%EF%B8%8F #\" . [/system identity get name]);\
     \n:local scriptname \"doPeriodicLogParse\";\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
-    \n"
-/system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
-    \n:local scriptname \"doIPSECPunch\";\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
     \n\
+    \n# Script Name: Log-Parser-Script\
+    \n#\
+    \n# This is an EXAMPLE script.  Modify it to your requirements.\
+    \n#\
+    \n# This script will work with all v3.x and v4.x\
+    \n# If your version >= v3.23, you can use the ~ operator to match against\
+    \n# regular expressions.\
+    \n\
+    \n# Get log entry data from global variable and store it locally\
+    \n:global globalParseVar;\
+    \n\
+    \n:global globalTgMessage;\
     \n:global globalNoteMe;\
-    \n:local itsOk true;\
     \n\
-    \n:local state \"\";\
-    \n:local punched \"\";\
+    \n:local logTime (\$globalParseVar->0)\
+    \n:local logTopics [:tostr (\$globalParseVar->1)]\
+    \n:local logMessage [:tostr (\$globalParseVar->2)]\
     \n\
+    \n:set \$globalParseVar \"\"\
     \n\
-    \n/ip ipsec policy {\
-    \n  :foreach vpnEndpoint in=[find (!disabled and !template)] do={\
+    \n:local ruleop\
+    \n:local loguser\
+    \n:local logsettings\
+    \n:local findindex\
+    \n:local tmpstring\
     \n\
-    \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\
-    \n    :local isTunnel [get value-name=tunnel \$vpnEndpoint]\
-    \n    :local peerPoint [get \$vpnEndpoint peer]\
-    \n    :local dstIp;\
+    \n# Uncomment to view the log entry's details\
+    \n:put (\"Log Time: \" . \$logTime)\
+    \n:put (\"Log Topics: \" . \$logTopics)\
+    \n:put (\"Log Message: \" . \$logMessage)\
     \n\
-    \n    :if (\$isTunnel) do={\
-    \n      :set dstIp [get value-name=sa-dst-address \$vpnEndpoint]\
-    \n    } else {\
-    \n      :set dstIp [get value-name=dst-address \$vpnEndpoint]\
-    \n    }\
+    \n# Check for login failure\
+    \n:if (\$logMessage~\"login failure\") do={\
     \n\
-    \n    :if ((\$itsOk) and (\$ph2state != \"established\")) do={\
+    \n   :local inf \"\$scriptname on \$sysname: A login failure has occured: \$logMessage. Take some action\";\
     \n\
-    \n      :set state \"Non-established IPSEC policy found for destination IP \$dstIp. Checking active peers..\"\
-    \n      \$globalNoteMe value=\$state;\
-    \n\
-    \n      :local actPeerProcessed 0;\
-    \n\
-    \n      /ip ipsec active-peers {\
-    \n        :foreach actPeer in=[find remote-address=\$dstIp] do={\
-    \n\
-    \n          :local peerId [get \$actPeer id];\
-    \n          :local peer \"\";\
-    \n\
-    \n          :if ([:typeof \$peerId] != \"nil\") do={\
-    \n            :set peer \"\$peerId\"\
-    \n          } else {\
-    \n            :set peer \"\$dstIp\"\
-    \n          }\
-    \n\
-    \n          :do {\
-    \n\
-    \n            :set state \"Active peer \$peer found Non-established IPSEC policy. Kill it..\"\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n            [remove \$actPeer];\
-    \n\
-    \n            :set state (\"IPSEC tunnel got a punch after down for \$dstIp \");\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n            #waiting for tunnel to come up, because Telegram notes goes through tunnel\
-    \n            :delay 10;\
-    \n\
-    \n            :set punched (\$punched . \"\$peer\");\
-    \n          \
-    \n          } on-error= {\
-    \n\
-    \n            :set state \"Error When \$state\"\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n            :set itsOk false;\
-    \n            \
-    \n          }\
-    \n\
-    \n          :set actPeerProcessed (\$actPeerProcessed + 1);\
-    \n        }\
-    \n\
-    \n      }\
-    \n\
-    \n      #there were no active peers with such remote-address\
-    \n      #This is the most common case if the policy is non-established\
-    \n\
-    \n      :if (\$actPeerProcessed = 0) do={\
-    \n\
-    \n        #should not flush InstalledSA, because ot flushes the whole policies\
-    \n        #just make disable-enable cycle\
-    \n        \
-    \n        :set state (\"There were no active peers with \$dstIp destination IP, but policy is non-established.\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n        :set state (\"Making disable-enable cycle for policy to clear InstalledSA\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n        :delay 2;\
-    \n\
-    \n        [set \$vpnEndpoint disabled=yes];\
-    \n        \
-    \n        #waiting for tunnel to come up, because Telegram notes goes through tunnel\
-    \n        :delay 15;\
-    \n\
-    \n        [set \$vpnEndpoint disabled=no];\
-    \n\
-    \n       :delay 5;\
-    \n\
-    \n        :local peerId (\$peerPoint -> \"id\");\
-    \n        :local peer \"\";\
-    \n\
-    \n        :put \$peerId;        \
-    \n\
-    \n        :if ([:typeof \$peerId] != \"nil\") do={\
-    \n          :set peer \"\$peerId\"\
-    \n        } else {\
-    \n          :set peer \"\$dstIp\"\
-    \n        }\
-    \n\
-    \n        :set punched (\$punched . \"\$peer\");\
-    \n\
-    \n      }      \
-    \n\
-    \n    }\
-    \n  }\
-    \n}\
-    \n\
-    \n:local inf \"\"\
-    \n\
-    \n:if ((\$itsOk) and (\$punched = \"\")) do={\
-    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnels are fine\"\
-    \n}\
-    \n\
-    \n:if ((\$itsOk) and (\$punched != \"\")) do={\
-    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnels refreshed for \$punched\"\
-    \n\
-    \n  :global globalTgMessage;\
-    \n  \$globalTgMessage value=\$inf;\
-    \n}\
-    \n\
-    \n\$globalNoteMe value=\$inf\
-    \n\
-    \n:if (!\$itsOk) do={\
-    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \
-    \n  \
-    \n  :global globalTgMessage;\
-    \n  \$globalTgMessage value=\$inf;\
+    \n   \$globalNoteMe value=\$inf;\
+    \n   \$globalTgMessage value=\$inf;\
     \n\
     \n}\
+    \n# End check for login failure\
     \n\
+    \n# Check for logged in users\
+    \n:if (\$logMessage~\"logged in\") do={\
+    \n   \
+    \n   :local inf \"\$scriptname on \$sysname: A user has logged in: \$logMessage\";\
+    \n\
+    \n   \$globalNoteMe value=\$inf;\
+    \n   \$globalTgMessage value=\$inf;\
+    \n\
+    \n}\
+    \n# End check for logged in users\
+    \n\
+    \n# Check for configuration changes: added, changed, or removed\
+    \n:if ([:tostr \$logTopics] = \"system;info\") do={\
+    \n   :set ruleop \"\"\
+    \n   :if ([:len [:find [:tostr \$logMessage] \"changed \"]] > 0) do={ :set ruleop \"changed\" }\
+    \n   :if ([:len [:find [:tostr \$logMessage] \"added \"]] > 0) do={ :set ruleop \"added\" }\
+    \n   :if ([:len [:find [:tostr \$logMessage] \"removed \"]] > 0) do={ :set ruleop \"removed\" }\
+    \n\
+    \n   :if ([:len \$ruleop] > 0) do={\
+    \n      :set tmpstring \$logMessage\
+    \n      :set findindex [:find [:tostr \$tmpstring] [:tostr \$ruleop]]\
+    \n      :set tmpstring ([:pick [:tostr \$tmpstring] 0 \$findindex] . \\\
+    \n                               [:pick [:tostr \$tmpstring] (\$findindex + [:len [:tostr \$ruleop]]) [:len [:tostr \$tmpstring]]])\
+    \n      :set findindex [:find [:tostr \$tmpstring] \" by \"]\
+    \n      :set loguser ([:pick [:tostr \$tmpstring] (\$findindex + 4) [:len [:tostr \$tmpstring]]])\
+    \n      :set logsettings [:pick [:tostr \$tmpstring] 0 \$findindex]\
+    \n\
+    \n      :put (\$loguser . \" \" . \$ruleop . \" \" . \$logsettings . \" configuration.  We should take a backup now.\")\
+    \n\
+    \n      :local inf \"\$scriptname on \$sysname: \$loguser \$ruleop \$logsettings configuration.  We should take a backup now.\";\
+    \n\
+    \n      \$globalNoteMe value=\$inf;\
+    \n      \$globalTgMessage value=\$inf;\
+    \n\
+    \n   }\
+    \n}\
+    \n\
+    \n# End check for configuration changes\
+    \n\
+    \n}\
+    \n"
+/system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
+    \n:local scriptname \"doIPSECPunch\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n\r\
+    \n:local state \"\";\r\
+    \n:local punched \"\";\r\
+    \n\r\
+    \n\r\
+    \n/ip ipsec policy {\r\
+    \n  :foreach vpnEndpoint in=[find (!disabled and !template)] do={\r\
+    \n\r\
+    \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\r\
+    \n    :local isTunnel [get value-name=tunnel \$vpnEndpoint]\r\
+    \n    :local peerPoint [get \$vpnEndpoint peer]\r\
+    \n    :local dstIp;\r\
+    \n\r\
+    \n    :if (\$isTunnel) do={\r\
+    \n      :set dstIp [get value-name=sa-dst-address \$vpnEndpoint]\r\
+    \n    } else {\r\
+    \n      :set dstIp [get value-name=dst-address \$vpnEndpoint]\r\
+    \n    }\r\
+    \n\r\
+    \n    :if ((\$itsOk) and (\$ph2state != \"established\")) do={\r\
+    \n\r\
+    \n      :set state \"Non-established IPSEC policy found for destination IP \$dstIp. Checking active peers..\"\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n      :local actPeerProcessed 0;\r\
+    \n\r\
+    \n      /ip ipsec active-peers {\r\
+    \n        :foreach actPeer in=[find remote-address=\$dstIp] do={\r\
+    \n\r\
+    \n          :local peerId [get \$actPeer id];\r\
+    \n          :local peer \"\";\r\
+    \n\r\
+    \n          :if ([:typeof \$peerId] != \"nil\") do={\r\
+    \n            :set peer \"\$peerId\"\r\
+    \n          } else {\r\
+    \n            :set peer \"\$dstIp\"\r\
+    \n          }\r\
+    \n\r\
+    \n          :do {\r\
+    \n\r\
+    \n            :set state \"Active peer \$peer found Non-established IPSEC policy. Kill it..\"\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            [remove \$actPeer];\r\
+    \n\r\
+    \n            :set state (\"IPSEC tunnel got a punch after down for \$dstIp \");\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            #waiting for tunnel to come up, because Telegram notes goes through tunnel\r\
+    \n            :delay 10;\r\
+    \n\r\
+    \n            :set punched (\$punched . \"\$peer\");\r\
+    \n          \r\
+    \n          } on-error= {\r\
+    \n\r\
+    \n            :set state \"Error When \$state\"\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :set itsOk false;\r\
+    \n            \r\
+    \n          }\r\
+    \n\r\
+    \n          :set actPeerProcessed (\$actPeerProcessed + 1);\r\
+    \n        }\r\
+    \n\r\
+    \n      }\r\
+    \n\r\
+    \n      #there were no active peers with such remote-address\r\
+    \n      #This is the most common case if the policy is non-established\r\
+    \n\r\
+    \n      :if (\$actPeerProcessed = 0) do={\r\
+    \n\r\
+    \n        #should not flush InstalledSA, because ot flushes the whole policies\r\
+    \n        #just make disable-enable cycle\r\
+    \n        \r\
+    \n        :set state (\"There were no active peers with \$dstIp destination IP, but policy is non-established.\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :set state (\"Making disable-enable cycle for policy to clear InstalledSA\");\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        :delay 2;\r\
+    \n\r\
+    \n        [set \$vpnEndpoint disabled=yes];\r\
+    \n        \r\
+    \n        #waiting for tunnel to come up, because Telegram notes goes through tunnel\r\
+    \n        :delay 15;\r\
+    \n\r\
+    \n        [set \$vpnEndpoint disabled=no];\r\
+    \n\r\
+    \n       :delay 5;\r\
+    \n\r\
+    \n        :local peerId (\$peerPoint -> \"id\");\r\
+    \n        :local peer \"\";\r\
+    \n\r\
+    \n        :put \$peerId;        \r\
+    \n\r\
+    \n        :if ([:typeof \$peerId] != \"nil\") do={\r\
+    \n          :set peer \"\$peerId\"\r\
+    \n        } else {\r\
+    \n          :set peer \"\$dstIp\"\r\
+    \n        }\r\
+    \n\r\
+    \n        :set punched (\$punched . \"\$peer\");\r\
+    \n\r\
+    \n      }      \r\
+    \n\r\
+    \n    }\r\
+    \n  }\r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n\r\
+    \n:if ((\$itsOk) and (\$punched = \"\")) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnels are fine\"\r\
+    \n}\r\
+    \n\r\
+    \n:if ((\$itsOk) and (\$punched != \"\")) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnels refreshed for \$punched\"\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
+    \n  \r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n}\r\
+    \n\r\
     \n"
 /system script add comment="A template to track hotspot users" dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2475,17 +2650,9 @@
     \n\
     \n        :local state (\"Adding CAPs ACL static entries for (\$newBlockedIp/\$newMac) on \$newSsid\");\
     \n        \$globalNoteMe value=\$state;\
-    \n       \
-    \n       # avoid parce errors using Execute when no wireless package installed\
-    \n       :if ( [ :len [ /system package find where name=\"wireless\" and disabled=no ] ] > 0  ) do={\
-    \n          :local Cmd \"/caps-man access-list remove [find mac-address=\$newMac];\";\
-    \n          :local jobid [:execute script=\$Cmd];\
+    \n        /caps-man access-list remove [find mac-address=\$newMac];\
+    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\"\$newSsid\" place-before=1\
     \n\
-    \n          :local Cmd \"/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp='\$newSsid' place-before=1;\";\
-    \n          :local jobid [:execute script=\$Cmd];\
-    \n          \
-    \n      }\
-    \n  \
     \n    } on-error={\
     \n\
     \n        :local state (\"Error: something fail on CAPS configuration step\");\
@@ -2712,7 +2879,6 @@
     \n}\
     \n\
     \n}\
-    \n\
     \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
@@ -3155,14 +3321,8 @@
     \n  :set itsOk false;    \
     \n}\
     \n\
-    \n:foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\
-    \n    /file remove \$backupFile;\
-    \n}\
-    \n\
     \n# Just to sure (or create) if \$SubDir exist\
-    \n  /file/add name=\"\$SubDir/foo.txt\" contents=\"Feel free to remove this\";\
-    \n\
-    \n \$globalNoteMe value=\"Scripts source export..\";\
+    \n/file/add name=\"\$SubDir/foo.txt\" contents=\"Feel free to remove this\";\
     \n\
     \n:foreach scriptId in [/system script find] do={\
     \n  :if (\$itsOk) do={\
@@ -3183,7 +3343,8 @@
     \n      /file print file=\$path where 1=0;\
     \n      #filesystem delay\
     \n      :delay 1s;\
-    \n\
+    \n      #/file set [find name=\"\$path\"] contents=\$scriptSource;\
+    \n      #/file set \$path contents=\$scriptSource;\
     \n      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack\
     \n      /execute script=\":global globalScriptId; :put [/system script get \$globalScriptId source];\" file=\$path;\
     \n      :set state \"Exported '\$theScript' to '\$path'\";\
@@ -3200,8 +3361,6 @@
     \n:delay 5s\
     \n\
     \n:local buFile \"\"\
-    \n\
-    \n \$globalNoteMe value=\"Scripts source pushing..\";\
     \n\
     \n:if (\$itsOk) do={\
     \n  :foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\
@@ -3232,8 +3391,6 @@
     \n\
     \n:delay 5s\
     \n\
-    \n \$globalNoteMe value=\"Housekeeping..\";\
-    \n\
     \n:foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\
     \n  :if ([:typeof [:find \$buFile \".rsc.txt\"]] != \"nil\") do={\
     \n    /file remove \$backupFile;\
@@ -3258,894 +3415,67 @@
     \n  \
     \n}\
     \n"
-/system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n:local sysname [/system identity get name];\
-    \n:local scriptname \"doFreshTheScripts\";\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
-    \n\
-    \n:local GitHubUserName \"Defm\";\
-    \n:local GitHubRepoName \"mikrobackups\";\
-    \n\
-    \n#should be used for private repos\
-    \n:local GitHubAccessToken \"\";\
-    \n\
-    \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\
-    \n\
-    \n:local UseUpdateList true;\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs\"];\
-    \n\
-    \n:global globalNoteMe;\
-    \n:local itsOk true;\
-    \n:local state \"\";\
-    \n\
-    \n:foreach scriptName in=\$UpdateList do={\
-    \n\
-    \n    :if ([:len [/system script find name=\$scriptName]] = 0) do={\
-    \n\
-    \n      :set state \"Script '\$scriptName' skipped due to absence\";\
-    \n      \$globalNoteMe value=\$state;\
-    \n\
-    \n    }\
-    \n}\
-    \n  \
-    \n:foreach scriptId in [/system script find] do={\
-    \n\
-    \n  :local code \"\";\
-    \n  :local theScript [/system script get \$scriptId name];\
-    \n  :local skip false;\
-    \n\
-    \n  :if ( \$UseUpdateList ) do={\
-    \n    :if ( [:len [find key=\$theScript in=\$UpdateList ]] > 0 ) do={\
-    \n    } else={\
-    \n      :set state \"Script '\$theScript' skipped due to setup\";\
-    \n      \$globalNoteMe value=\$state;\
-    \n      :set skip true;\
-    \n    }\
-    \n  } else={\
-    \n  }\
-    \n\
-    \n  :if ( \$itsOk and !\$skip) do={\
-    \n    :do {\
-    \n\
-    \n      :set state \"/tool fetch url=\$RequestUrl\$\$theScript.rsc.txt output=user as-value\";\
-    \n      \$globalNoteMe value=\$state;\
-    \n \
-    \n      #Please keep care about consistency if size over 4096 bytes\
-    \n      :local answer ([ /tool fetch url=\"\$RequestUrl\$\$theScript.rsc.txt\" output=user as-value]);\
-    \n      :set code ( \$answer->\"data\" );\
-    \n      \$globalNoteMe value=\"Done\";\
-    \n\
-    \n    } on-error= { \
-    \n      :set state \"Error When Downloading Script '\$theScript' From GitHub\";\
-    \n      \$globalNoteMe value=\$state;\
-    \n      :set itsOk false;\
-    \n    }\
-    \n  }\
-    \n\
-    \n  :if ( \$itsOk and !\$skip) do={\
-    \n    :do {\
-    \n      :set state \"Setting Up Script source for '\$theScript'\";\
-    \n      \$globalNoteMe value=\$state;\
-    \n      /system script set \$theScript source=\"\$code\";\
-    \n      \$globalNoteMe value=\"Done\";\
-    \n    } on-error= { \
-    \n      :set state \"Error When Setting Up Script source for '\$theScript'\";\
-    \n      \$globalNoteMe value=\$state;\
-    \n      :set itsOk false;\
-    \n    }\
-    \n  }\
-    \n\
-    \n  :delay 1s\
-    \n}\
-    \n\
-    \n:local inf \"\"\
-    \n:if (\$itsOk) do={\
-    \n  :set inf \"\$scriptname on \$sysname: scripts refreshed Successfully\"\
-    \n}\
-    \n\
-    \n:if (!\$itsOk) do={\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
-    \n}\
-    \n\
-    \n\$globalNoteMe value=\$inf\
-    \n\
-    \n:if (!\$itsOk) do={\
-    \n\
-    \n  :global globalTgMessage;\
-    \n  \$globalTgMessage value=\$inf;\
-    \n  \
-    \n}\
-    \n"
-/system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n:local sysname [/system identity get name];\
-    \n:local scriptname \"doPushStatsToInfluxDB\";\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
-    \n\
-    \n#a part of queue comment to locate queues to be processed\
-    \n:local queueCommentMark \"dtq\";\
-    \n\
-    \n#influxDB service URL (beware about port when /fetch)\
-    \n:local tURL \"http://nas.home/api/v2/write\\\?bucket=httpapi&org=home\"\
-    \n:local tPingURL \"http://nas.home/ping\"\
-    \n:global globalNoteMe;\
-    \n:local itsOk true;\
-    \n\
-    \n\
-    \n:local useBandwidthTest false;\
-    \n\
-    \n:local state \"\";\
-    \n\
-    \n:do {\
-    \n\
-    \n  :set state (\"Checking if INFLUXDB Service online\");\
-    \n  \$globalNoteMe value=\$state;\
-    \n\
-    \n  :local result [/tool fetch http-method=get port=8086 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tPingURL\"  as-value output=user];\
-    \n \
-    \n} on-error={\
-    \n  \
-    \n  :set state (\"INFLUXDB: Service Failed!\");\
-    \n  \$globalNoteMe value=\$state;\
-    \n\
-    \n  :local inf \"Error When \$scriptname on \$sysname: \$state\"  \
-    \n\
-    \n  :global globalTgMessage;\
-    \n  # do not spam via Tg on this error - just log error\
-    \n\
-    \n  :error \$inf;\
-    \n}\
-    \n\
-    \n:local state \"\";\
-    \n\
-    \n:local authHeader (\"Authorization: Token nh-mJylW1FCluBlUGXYZq_s5zne_QjzkHcc56y8v6AIlUOOiOm4bU2652r2Vkv3Vp6WzgQT7WPsi4yF0RvdElg==\"); \
-    \n\
-    \n\
-    \n:if ( \$useBandwidthTest  ) do={\
-    \n\
-    \n:local txAvg 0\
-    \n:local rxAvg 0\
-    \n\
-    \n:local btServer 192.168.97.1;\
-    \n\
-    \n:set state (\"Starting VPN bandwidth test\");\
-    \n\$globalNoteMe value=\$state;\
-    \n\
-    \ntool bandwidth-test protocol=tcp direction=transmit user=btest password=btest address=\$btServer duration=15s do={\
-    \n:set txAvg (\$\"tx-total-average\" / 1048576 );\
-    \n}\
-    \n\
-    \ntool bandwidth-test protocol=tcp direction=receive user=btest password=btest address=\$btServer duration=15s do={\
-    \n:set rxAvg (\$\"rx-total-average\" / 1048576 );\
-    \n}\
-    \n\
-    \n:global globalCallFetch;\
-    \n:local fetchCmd  \"/tool fetch http-method=post port=8086 mode=http url=\\\"\$tURL\\\" http-header-field=\\\"\$authHeader, content-type: text/plain\\\" http-data=\\\"bandwidth,host=\$sysname,target=CHR transmit=\$txAvg,recieve=\$rxAvg\\\" keep-result=no\";\
-    \n\
-    \n\$globalCallFetch \$fetchCmd;\
-    \n\
-    \n}\
-    \n \
-    \n/queue simple\
-    \n\
-    \n:foreach z in=[find where comment~\"\$queueCommentMark\"] do={\
-    \n\
-    \n  :local skip false;\
-    \n\
-    \n  :local queuecomment [get \$z comment]\
-    \n  :local ip [get \$z target]\
-    \n\
-    \n  :if ( \$itsOk ) do={\
-    \n\
-    \n    :if ( (\$ip->0) != nil ) do={\
-    \n      :set state (\"Locating queue target IP for queue \$queuecomment\");\
-    \n      \$globalNoteMe value=\$state;\
-    \n      :set ip (\$ip->0) \
-    \n      :set ip ( [:pick \$ip 0 [:find \$ip \"/\" -1]] ) ;\
-    \n      \$globalNoteMe value=\"Done\";\
-    \n    } else {\
-    \n      :set state \"Cant locate queue target IP for queue \$queuecomment. Skip it.\"\
-    \n      \$globalNoteMe value=\$state;\
-    \n      :set skip true;\
-    \n    }\
-    \n\
-    \n  }\
-    \n\
-    \n  :local hostName \"\"\
-    \n  :local upload 0\
-    \n  :local download 0\
-    \n\
-    \n  :if ( \$itsOk and !\$skip) do={\
-    \n    :local bytes [get \$z bytes]\
-    \n    :set upload (\$upload + [:pick \$bytes 0 [:find \$bytes \"/\"]])\
-    \n    :set download (\$download + [:pick \$bytes ([:find \$bytes \"/\"]+1) [:len \$bytes]])\
-    \n  }\
-    \n\
-    \n  :if ( \$itsOk and !\$skip) do={\
-    \n    :do {\
-    \n      #dhcp server for IP->name translation\
-    \n      :set state (\"Picking host name for \$ip via DHCP\");\
-    \n      \$globalNoteMe value=\$state;\
-    \n      :set hostName [/ip dhcp-server lease get [find (address=\$ip)] host-name]\
-    \n\
-    \n      :local typeOfValue [:typeof \$hostName]\
-    \n\
-    \n      :if ((\$typeOfValue = \"nothing\") or (\$typeOfValue = \"nil\")) do={\
-    \n        :set state \"Got empty host name. Skip it.\"\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :set skip true;\
-    \n      } else={\
-    \n        :set state \"Got it \$hostName\"\
-    \n        \$globalNoteMe value=\$state;\
-    \n      }\
-    \n\
-    \n    } on-error= {\
-    \n      :set state \"Error When \$state\"\
-    \n      \$globalNoteMe value=\$state;\
-    \n      :set skip true;\
-    \n    }\
-    \n  }\
-    \n\
-    \n  :if ( \$itsOk and !\$skip) do={\
-    \n    :do {\
-    \n      :set state (\"Pushing stats to influxDB about \$hostName: UP = \$upload, DOWN=\$download\");\
-    \n     \$globalNoteMe value=\$state;\
-    \n      /tool fetch http-method=post port=8086 mode=http url=\"\$tURL\" http-header-field=\"\$authHeader, content-type: text/plain\" http-data=\"traffic,host=\$sysname,target=\$hostName upload=\$upload,download=\$download\" keep-result=no;\
-    \n      \$globalNoteMe value=\"Done\";\
-    \n    } on-error= {\
-    \n      :set state \"Error When \$state\"\
-    \n      \$globalNoteMe value=\$state;\
-    \n      :set itsOk false;\
-    \n    }\
-    \n  }\
-    \n  \
-    \n  :if (\$itsOk and !\$skip) do={\
-    \n    :set state \"Flushing stats..\"\
-    \n    \$globalNoteMe value=\$state;\
-    \n    reset-counters \$z\
-    \n  }  \
-    \n}\
-    \n\
-    \n:local inf \"\"\
-    \n:if (\$itsOk) do={\
-    \n  :set inf \"\$scriptname on \$sysname: stats pushed Succesfully\"\
-    \n}\
-    \n\
-    \n:if (!\$itsOk) do={\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
-    \n}\
-    \n\
-    \n\$globalNoteMe value=\$inf\
-    \n\
-    \n:if (!\$itsOk) do={\
-    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \
-    \n  \
-    \n  :global globalTgMessage;\
-    \n  \$globalTgMessage value=\$inf;\
-    \n\
-    \n}\
-    \n"
-/system script add comment="This will check for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time. Will reboot the router when overload" dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+/system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doCPUHighLoadReboot\";\r\
+    \n:local scriptname \"doFreshTheScripts\";\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:local GitHubUserName \"Defm\";\r\
+    \n:local GitHubRepoName \"mikrobackups\";\r\
+    \n\r\
+    \n#should be used for private repos\r\
+    \n:local GitHubAccessToken \"\";\r\
+    \n\r\
+    \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\r\
+    \n\r\
+    \n:local UseUpdateList true;\r\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs\"];\r\
     \n\r\
     \n:global globalNoteMe;\r\
     \n:local itsOk true;\r\
     \n:local state \"\";\r\
     \n  \r\
-    \n:local UsedCPU [/system resource get cpu-load]\r\
-    \n:local FreeCPU (100 - \$UsedCPU)\r\
-    \n:local FreeRam ((100 * [/system resource get free-memory]) / [/system resource get total-memory])\r\
-    \n:local UsedRam (100 - \$FreeRam)\r\
+    \n:foreach scriptId in [/system script find] do={\r\
     \n\r\
-    \n#available (free) resource (percent), set it to 90 for testing\r\
-    \n:local RamWarnLimit 15;\r\
-    \n:local CpuWarnLimit 15;\r\
+    \n  :local code \"\";\r\
+    \n  :local theScript [/system script get \$scriptId name];\r\
+    \n  :local skip false;\r\
     \n\r\
-    \n:local ticks 7;\r\
-    \n:local delayTime 7;\r\
-    \n:local progressiveDelay true;\r\
-    \n\r\
-    \n:set state (\"Checking for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time\");\r\
-    \n\$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n:set state (\"Step 0: free CPU/RAM \$FreeCPU%/\$FreeRam%, goind deeper..\");\r\
-    \n\$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n:if (\$FreeRam < \$RamWarnLimit or \$FreeCPU < \$CpuWarnLimit) do={\r\
-    \n\r\
-    \n  #this tick is high-HighLoad\r\
-    \n  :set itsOk false;  \r\
-    \n\r\
-    \n  :delay (\$delayTime);\r\
-    \n\r\
-    \n} \r\
-    \n\r\
-    \n:for i from=1 to=\$ticks do={\r\
-    \n\r\
-    \n  :if (!\$itsOk) do={\r\
-    \n\r\
-    \n    :set UsedCPU [/system resource get cpu-load]\r\
-    \n    :set FreeCPU (100 - \$UsedCPU)\r\
-    \n    :set FreeRam ((100 * [/system resource get free-memory]) / [/system resource get total-memory])\r\
-    \n    :set UsedRam (100 - \$FreeRam)\r\
-    \n\r\
-    \n    :set state (\"Recalc stats\");\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n  }\r\
-    \n\r\
-    \n  :if (!\$itsOk and \$FreeRam < \$RamWarnLimit or \$FreeCPU < \$CpuWarnLimit) do={\r\
-    \n\r\
-    \n    #keep \$itsOk = false\r\
-    \n\r\
-    \n    :local delaySec 0;\r\
-    \n    :if (\$progressiveDelay) do={\r\
-    \n      :set delaySec (\$delayTime + \$i)\r\
+    \n  :if ( \$UseUpdateList ) do={\r\
+    \n    :if ( [:len [find key=\$theScript in=\$UpdateList ]] > 0 ) do={\r\
     \n    } else={\r\
-    \n      :set delaySec (\$delayTime)\r\
+    \n      :set state \"Script '\$theScript' skipped due to setup\";\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n      :set skip true;\r\
     \n    }\r\
-    \n\r\
-    \n    :set state (\"Step \$i: free CPU/RAM \$FreeCPU%/\$FreeRam%, its too low, sleep \$delaySec and recheck..\");\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n    :delay (\$delaySec);\r\
-    \n\r\
     \n  } else={\r\
-    \n\r\
-    \n    #if one step is non-HighLoad, then the whole result is non-HighLoad\r\
-    \n    :set itsOk true;\r\
-    \n\r\
     \n  }\r\
     \n\r\
-    \n}\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: cpu load ok\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Warn When \$scriptname on \$sysname: CPU load too high, I'm going reboot\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n\r\
-    \n  /system reboot\r\
-    \n  \r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n"
-/system script add comment="A very special script for CFG restore from *.rsc files (not from backup). This one should be placed at flash/perfectrestore.rsc, your config should be at flash/backup.rsc. Run 'Reset confuguration' with 'no default config', choose 'flash/perfectrestore.rsc' as 'run after reset. Pretty logs will be at flash/import.log and flash/perfectrestore.log" dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="{\r\r\
-    \n:global targetfile \"backup.rsc\"\r\r\
-    \n:global importlog \"import.log\"\r\r\
-    \n:global debuglog \"perfectrestore.log\"\r\r\
-    \n:global rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
-    \n/file remove [find name ~\"\$importlog\"]\r\r\
-    \n/file remove [find name ~\"\$debuglog\"]\r\r\
-    \n# Wait for interfaces to initialize\r\r\
-    \n:delay 5s\r\r\
-    \n# Beep Functions\r\r\
-    \n :local doStartBeep [:parse \":beep frequency=1000 length=300ms;:delay 150ms;:beep frequency=1500 length=300ms;\"];\r\r\
-    \n :local doFinishBeep [:parse \":beep frequency=1000 length=.6;:delay .5s;:beep frequency=1600 length=.6;:delay .5s;:beep frequency=2100 length=.3;:delay .3s;:beep frequency=2500 length=.3;:delay .3s;:beep frequency=2400 length=1;\"];\r\r\
-    \n# Setup temporary logging to disk\r\r\
-    \n/system logging action remove [find where name~\"perfect\"]\r\r\
-    \n/system logging action add disk-file-count=1 disk-file-name=\$debuglog disk-lines-per-file=4096 name=perfectrestore target=disk\r\r\
-    \n/system logging remove [find where action~\"perfect\"]\r\r\
-    \n/system logging add action=perfectrestore topics=system,info\r\r\
-    \n/system logging add action=perfectrestore topics=script,info\r\r\
-    \n/system logging add action=perfectrestore topics=warning\r\r\
-    \n/system logging add action=perfectrestore topics=error\r\r\
-    \n/system logging add action=perfectrestore topics=critical\r\r\
-    \n/system logging add action=perfectrestore topics=debug,!packet\r\r\
-    \n# checks if specific packages exist\r\r\
-    \n:if ( [ :len [ /system package find where name=\"ntp\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
-    \n  :log error \"NTP package should be installed for NTP-server to work\";\r\r\
-    \n  :error \"NTP package should be installed for NTP-server to work\";\r\r\
-    \n}\r\r\
-    \n:if ( [ :len [ /system package find where name=\"iot\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
-    \n  :log error \"IOT package should be installed\";\r\r\
-    \n  :error \"IOT package should be installed\";\r\r\
-    \n}\r\r\
-    \n:if ( [ :len [ /system package find where name=\"lora\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
-    \n  :log error \"LORA package should be installed\";\r\r\
-    \n  :error \"LORA package should be installed\";\r\r\
-    \n}\r\r\
-    \n# Play Audible Start Sequence\r\r\
-    \n\$doStartBeep\r\r\
-    \n:log warning \"GO -----------------------------------------------------------------------------\";\r\r\
-    \n/user active print detail file=activeUsers.txt;\r\r\
-    \n:global currentUsers [/file get activeUsers.txt contents];\r\r\
-    \n:log warning \"ENVIRONMENT IS \$currentUsers\";\r\r\
-    \n# bug 6.49.6 - lora servers stay OK after /system reset-configuration no-defaults=yes\r\r\
-    \n#/lora servers remove [find]\r\r\
-    \n\r\r\
-    \n:log warning \"CREATING ASYNC WRAPPER -----------------------------------------------------------------------------\";\r\r\
-    \n:local AcyncAwait do={\r\r\
-    \n  # this one calls Fetch and catches its errors\r\r\
-    \n  :if (([:len \$1] > 0) and ([:len \$2] > 0)) do={\r\r\
-    \n      # something like \r\r\
-    \n      # \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\r\r\
-    \n      # or\r\r\
-    \n      # \":import file-name=\$targetfile verbose=yes\"\r\r\
-    \n      :local Cmd \"\$1\";\r\r\
-    \n      :local outputFile \"\$2\";\r\r\
-    \n      :local state \"AS-AW--------------------------: I'm now calling and waiting result for: \$Cmd\";\r\r\
-    \n      :log info \$state;\r\r\
-    \n      /file remove [find where name=\"\$outputFile\"]\r\r\
-    \n      {\r\r\
-    \n          :local jobid [:execute file=\"\$outputFile\" script=\$Cmd]\r\r\
-    \n          :local state \"AS-AW----------------------: Waiting the end of process for file \$outputFile to be ready, max 40 seconds...\";\r\r\
-    \n          :log info \$state;\r\r\
-    \n          :global Gltesec 0\r\r\
-    \n          :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 40)) do={\r\r\
-    \n              :set Gltesec (\$Gltesec + 1)\r\r\
-    \n              :delay 1s\r\r\
-    \n              :local state \"AS-AW-------------------: waiting... \$Gltesec\";\r\r\
-    \n              :log info \$state;\r\r\
-    \n          }\r\r\
-    \n          :local state \"AS-AW------------------------: Done. Elapsed Seconds: \$Gltesec\\r\\n\";\r\r\
-    \n          :log info \$state;\r\r\
-    \n          :if ([:len [/file find where name=\"\$outputFile\"]] = 1) do={\r\r\
-    \n              :local filecontent [/file get [/file find where name=\"\$outputFile\"] contents]\r\r\
-    \n              :log warning \"AS-AW--------------------: Result of CALL:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\"\r\r\
-    \n          } else={\r\r\
-    \n              :log info \"AS-AW-----------------------: File not created.\"\r\r\
-    \n          }\r\r\
-    \n      }\r\r\
-    \n  }\r\r\
-    \n}\r\r\
-    \n\r\r\
-    \n:do {\r\r\
-    \n  :log warning \"CERT  -----------------------------------------------------------------------------\";\r\r\
-    \n  # IPSEC\\CAPSMAN\\DoH\\Etc certs have to be imported before the other config is restored\r\r\
-    \n  # should be located in Files root\r\r\
-    \n  # look through your backup.rsc before \r\r\
-    \n  # certificates in '*.p12' format without password protection (without private keys)\r\r\
-    \n  :local certImportListPublicKeys [:toarray \"ca@CHR\"];\r\r\
-    \n  # certificates in '*.p12' format protected using password (containing private keys), set the password to '1234567890' or rewrite the script\r\r\
-    \n  :local certImportListPrivateKeys [:toarray \"anna.capsman@CHR,anna.ipsec@CHR\"];\r\r\
-    \n  :foreach certFile in=\$certImportListPublicKeys do={\r\r\
-    \n    :local certFileName \"\$certFile.p12\";\r\r\
-    \n    :if ([:len [/file find name=\$certFileName]] > 0) do={\r\r\
-    \n    :log info \"GOT PUB CERTIFICATE '\$certFile'\";\r\r\
-    \n    /certificate import file-name=\$certFileName name=\$certFile passphrase=\"\";\r\r\
-    \n    } else={\r\r\
-    \n      :log error \"CANT GET PUB CERTIFICATE FOR '\$certFile'\";\r\r\
-    \n    }\r\r\
-    \n  }\r\r\
-    \n  :foreach certFile in=\$certImportListPrivateKeys do={\r\r\
-    \n    :local certFileName \"\$certFile.p12\";\r\r\
-    \n    :if ([:len [/file find name=\$certFileName]] > 0) do={\r\r\
-    \n    :log info \"GOT PRIV CERTIFICATE '\$certFile'\";\r\r\
-    \n    /certificate import file-name=\$certFileName name=\$certFile passphrase=\"1234567890\";\r\r\
-    \n    } else={\r\r\
-    \n      :log error \"CANT GET PRIV CERTIFICATE FOR '\$certFile'\";\r\r\
-    \n    }\r\r\
-    \n  }\r\r\
-    \n  :local content [/file get [/file find name=\"\$targetfile\"] contents] ;\r\r\
-    \n  :local contentLen [ :len \$content ] ;\r\r\
-    \n  :if ([:len \$contentLen] = 0) do={\r\r\
-    \n     :log error (\"Could not retrieve \$targetfile contents (file size limitation)\")\r\r\
-    \n  }\r\r\
-    \n  :local certNameStart 0;\r\r\
-    \n  :local certName \"\";\r\r\
-    \n  :local certNameEnd 0;\r\r\
-    \n  :local lastEnd 0;\r\r\
-    \n  :local key \"certificate=\";\r\r\
-    \n  :do {\r\r\
-    \n    :put \"Lookup.. \$key starting at \$lastEnd out of \$contentLen\"\r\r\
-    \n    :set certNameStart [:find \$content \$key \$lastEnd ] ;\r\r\
-    \n    :if ( [:typeof \$certNameStart] != \"nil\") do={\r\r\
-    \n      :set certNameEnd [:find \$content \" \" \$certNameStart] ;\r\r\
-    \n      :if ( [:typeof \$certNameEnd ] != \"nil\" ) do={\r\r\
-    \n        :set certName [:pick \$content \$certNameStart \$certNameEnd ] ;\r\r\
-    \n        :set lastEnd ( \$certNameEnd + 2 ) ; \r\r\
-    \n        :log info \"Certificate needed \$certname\"; \r\r\
-    \n        :global entry [:pick \$line 0 \$lineEnd ]\r\r\
-    \n      } else={\r\r\
-    \n       # no more occurenses found\r\r\
-    \n       :set lastEnd \$contentLen ; \r\r\
-    \n      }\r\r\
-    \n    } else={\r\r\
-    \n        # no more occurenses found\r\r\
-    \n        :set lastEnd \$contentLen ; \r\r\
-    \n    }\r\r\
-    \n  } while (\$lastEnd < ( \$contentLen -2 ) )\r\r\
-    \n} on-error={\r\r\
-    \n:log error \"CERT ERROR  -----------------------------------------------------------------------------\"\r\r\
-    \n}\r\r\
-    \n:do {\r\r\
-    \n  # Import the rsc file\r\r\
-    \n  :log warning \" IMPORT -----------------------------------------------------------------------------\"\r\r\
-    \n  :local importCmd \":import file-name=\$targetfile verbose=yes\"\r\r\
-    \n  :log info \"RESTORE START\";\r\r\
-    \n  # DO IT ASYNC!! So we have to wait for it\r\r\
-    \n  \$AcyncAwait \$importCmd \"import.log.txt\";\r\r\
-    \n  # wait for confuguration beeng applied\r\r\
-    \n  :log info \"POST IMPORT DELAY FOR CONFIGURATION BEING APPLIED\";\r\r\
-    \n  :delay 10s;\r\r\
-    \n  :log info \"END IMPORT file=\$targetfile  -----------------------------------------------------------------------------\"\r\r\
-    \n} on-error={\r\r\
-    \n:log error \"ERROR IMPORT  -----------------------------------------------------------------------------\"\r\r\
-    \n}\r\r\
-    \n:do {\r\r\
-    \n  :log warning \"USERS -----------------------------------------------------------------------------\"\r\r\
-    \n  :local mgmtUsername \"owner\"; # main administrator\r\r\
-    \n  :log info \"CREATING MAIN ADMIN USER. new username W/O password (SET IT AFTER FIRST LOGON)- '\$mgmtUsername'\";\r\r\
-    \n  /user remove [/user find name=\$mgmtUsername];\r\r\
-    \n  /user add name=\$mgmtUsername group=full comment=\"management user\" password=\"\";\r\r\
-    \n  :local mgmtUsername \"reserved\"; # additional admin user, it has its own script to periodically regenerate password\r\r\
-    \n  :local thePass ([/certificate scep-server otp generate minutes-valid=0 as-value]->\"password\");\r\r\
-    \n  :log info \"CREATING ADDITIONAL ADMIN USER. new username - '\$mgmtUsername':'\$thePass'\";\r\r\
-    \n  /user remove [/user find name=\$mgmtUsername];\r\r\
-    \n  /user add name=\$mgmtUsername group=full comment=\"additional admin\" password=\"\$thePass\";\r\r\
-    \n  :local mgmtUsername \"automation\"; # user for /system ssh-exec\r\r\
-    \n  :local thePass ([/certificate scep-server otp generate minutes-valid=0 as-value]->\"password\");\r\r\
-    \n  :log info \"CREATING NEW USER AND CHANGING SCRIPTS AND SCHEDULES OWNAGE. new username - '\$mgmtUsername':'\$thePass'\";\r\r\
-    \n  /user remove [/user find name=\$mgmtUsername];\r\r\
-    \n  /user add name=\$mgmtUsername group=full comment=\"outgoing SSH user\" password=\"\$thePass\";\r\r\
-    \n  :log warning \"USERS - OK\"\r\r\
-    \n} on-error={ \r\r\
-    \n  :log error \"USERS - ERROR\"\r\r\
-    \n}\r\r\
-    \n:do {\r\r\
-    \n  :log warning \"SSH KEYS -----------------------------------------------------------------------------\"\r\r\
-    \n  # SSH KEYS\r\r\
-    \n  # HOWTO on linux host\r\r\
-    \n  # ssh-keygen -t rsa -b 4096 -C \"defm.ssh@mbpalxm\" -f ~/.ssh/defm.ssh@mbpalxm -m pem\r\r\
-    \n  # USERS must exist!!\r\r\
-    \n  # public, 1 file in '*.pub', for decryption when connecting TO router. Mapping is MikrotikUser=ImportFileName\r\r\
-    \n  :local PublicKeys [:toarray {\"owner\"=\"defm.ssh@mbpalxm\"}];\r\r\
-    \n  # privates + publics, 2 files, for encryption when connecting FROM router (via /system ssh-exec), set the password to '1234567890' or rewrite the script\r\r\
-    \n  :local PrivateKeys [:toarray {\"owner\"=\"automation.ssh@anna\"}];\r\r\
-    \n  :foreach username,filename in=\$PublicKeys do={\r\r\
-    \n    :local keyFileName \"\$filename.pub\";\r\r\
-    \n    :if ([:len [/file find name=\$keyFileName]] > 0 and [:len [/user find name=\$username]] > 0) do={\r\r\
-    \n      :log info \"GOT PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
-    \n      /user ssh-keys import user=\"\$username\" public-key-file=\"\$keyFileName\";    \r\r\
-    \n    } else={\r\r\
-    \n      :log error \"CANT GET PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
-    \n    }\r\r\
-    \n  }\r\r\
-    \n  :foreach username,filename in=\$PrivateKeys do={\r\r\
-    \n    :local keyFileName \"\$filename.pub\";\r\r\
-    \n    :if ([:len [/file find name=\$keyFileName]] > 0 and [:len [/file find name=\$filename]] > 0 and [:len [/user find name=\$username]] > 0) do={\r\r\
-    \n    :log info \"GOT PRIV KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
-    \n      /user ssh-keys private import user=\"\$username\" private-key-file=\"\$filename\"\r\r\
-    \n    } else={\r\r\
-    \n      :log error \"CANT GET PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
-    \n    }\r\r\
-    \n  }\r\r\
-    \n} on-error={\r\r\
-    \n:log error \"SSH KEYS ERROR  -----------------------------------------------------------------------------\"\r\r\
-    \n}\r\r\
-    \n# Play Audible Finish Sequence\r\r\
-    \n\$doFinishBeep\r\r\
-    \n# remove system Admin\r\r\
-    \n/user remove [/user find name=\"admin\"];\r\r\
-    \n# Teardown temporary logging to disk\r\r\
-    \n/system logging remove [/system logging find where action=perfectrestore]\r\r\
-    \n/system logging action remove [/system logging action find where name=perfectrestore]\r\r\
-    \n/system script environment remove [find name=\"targetfile\"]\r\r\
-    \n/system script environment remove [find name=\"importlog\"]\r\r\
-    \n/system script environment remove [find name=\"debuglog\"]\r\r\
-    \n# new startup scripts maybe restored so...\r\r\
-    \n/system reboot\r\r\
-    \n}"
-/system script add comment="A server-side script, that is called via global function using ssh-exec from another mikrotik-client to update it's IPSEC policy IP address" dont-require-permissions=yes name=doUpdatePoliciesRemotely owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doUpdatePoliciesRemotely\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n:local itsOk true;\r\
-    \n:local state \"\";\r\
-    \n\r\
-    \n# variables should be set before via remote SSH call\r\
-    \n:global globalRemoteIp;\r\
-    \n:global globalPolicyComment;\r\
-    \n\r\
-    \n\r\
-    \n:do {\r\
-    \n    :if ([:len \$globalRemoteIp] > 0) do={\r\
-    \n\r\
-    \n    :local peerID \$globalPolicyComment;\r\
-    \n\r\
-    \n    /ip ipsec policy {\r\
-    \n        :foreach vpnEndpoint in=[find (!disabled and template and comment=\"\$peerID\")] do={\r\
-    \n        \r\
-    \n            :local dstIp;\r\
-    \n            :set dstIp [get value-name=dst-address \$vpnEndpoint];\r\
-    \n\r\
-    \n            :if ((\$itsOk) and (\$globalRemoteIp != \$dstIp )) do={\r\
-    \n\r\
-    \n                [set \$vpnEndpoint disabled=yes];\r\
-    \n\r\
-    \n                :set state \"IPSEC policy template found with wrong IP (\$dstIp). Going change it to (\$globalRemoteIp)\";\r\
-    \n                \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n                /ip ipsec peer {\r\
-    \n                    :foreach thePeer in=[find name=\$peerID] do={\r\
-    \n\r\
-    \n                        :if (\$itsOk) do={\r\
-    \n\r\
-    \n                            :set state \"Setting up peer remote address..\"\r\
-    \n                            \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n                            [set \$thePeer disabled=yes];\r\
-    \n\r\
-    \n                            :delay 5;\r\
-    \n\r\
-    \n                            [set \$thePeer disabled=no address=\$globalRemoteIp];\r\
-    \n\r\
-    \n                          \r\
-    \n                        }\r\
-    \n\r\
-    \n                    }\r\
-    \n\r\
-    \n                }\r\
-    \n\r\
-    \n                :delay 5;\r\
-    \n                \r\
-    \n                [set \$vpnEndpoint dst-address=\$globalRemoteIp disabled=no];\r\
-    \n\r\
-    \n            }\r\
-    \n\r\
-    \n        }\r\
-    \n\r\
-    \n    }\r\
-    \n    \r\
-    \n    }\r\
-    \n} on-error= {\r\
-    \n    :local state (\"globalIPSECPolicyUpdateViaSSH error\");\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    :set itsOk false;\r\
-    \n};\r\
-    \n\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: policies refreshed Successfully\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n  \r\
-    \n}\r\
-    \n\r\
-    \n"
-/system script add comment="This script is a SCEP-client, it request the server to ptovide a new certificate" dont-require-permissions=yes name=doSCEPClientCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n# generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\r\
-    \n\r\
-    \n#clients\r\
-    \n:local IDs [:toarray \"alx.iphone.rw.2021\"];\r\
-    \n:local fakeDomain \"myvpn.fake.org\"\r\
-    \n\r\
-    \n:local scepAlias \"CHR\"\r\
-    \n:local sysver [/system package get system version]\r\
-    \n:local scriptname \"doSCEPClientCertificatesIssuing\"\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
-    \n#:local COUNTRY \"RU\"\r\
-    \n#:local STATE \"MSC\"\r\
-    \n#:local LOC \"Moscow\"\r\
-    \n#:local ORG \"IKEv2 Home\"\r\
-    \n#:local OU \"IKEv2 Mikrotik\"\r\
-    \n\r\
-    \n:local COUNTRY \"\"\r\
-    \n:local STATE \"\"\r\
-    \n:local LOC \"\"\r\
-    \n:local ORG \"\"\r\
-    \n:local OU \"\"\r\
-    \n\r\
-    \n:local KEYSIZE \"2048\"\r\
-    \n:local USERNAME \"anna\"\r\
-    \n\r\
-    \n:local scepUrl \"http://185.13.148.14/scep/grant\";\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n:local itsOk true;\r\
-    \n  \r\
-    \n  :foreach USERNAME in=\$IDs do={\r\
-    \n\r\
-    \n    :local state \"CLIENT TEMPLATE certificates generation...  \$USERNAME\";\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n    ## create a client certificate (that will be just a template while not signed)\r\
-    \n    /certificate add name=\"\$USERNAME@\$scepAlias\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
-    \n\r\
-    \n    :local state \"Pushing sign request...\";\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n    /certificate add-scep template=\"\$USERNAME@\$scepAlias\" scep-url=\"\$scepUrl\"; \r\
-    \n\r\
-    \n    :delay 6s\r\
-    \n\r\
-    \n   ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate\r\
-    \n\r\
-    \n    :local state \"We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... Proceed to remote SCEP please\";\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n  };\r\
-    \n\r\
-    \n} on-error={\r\
-    \n\r\
-    \n  :local state \"Certificates generation script FAILED\";\r\
-    \n  \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n};"
-/system script add dont-require-permissions=yes name=doSwitchDoHOn owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":do {\r\
-    \n    :do {/tool fetch https://cacerts.digicert.com/DigiCertGlobalRootCA.crt.pem check-certificate=no} \\\r\
-    \n        while=([/file print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);\r\
-    \n    :do {/certificate import file-name=\"DigiCertGlobalRootCA.crt.pem\" passphrase=\"\" name=\"DigiCertGlobalRootCA.crt.pem\"} \\\r\
-    \n        while=([/certificate print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);\r\
+    \n  :if ( \$itsOk and !\$skip) do={\r\
     \n    :do {\r\
-    \n        # Change DNS servers\r\
-    \n        /ip dns set servers=\r\
-    \n        /ip dns set use-doh-server=\"https://1.1.1.1/dns-query\" verify-doh-cert=yes\r\
     \n\r\
-    \n    } while=([/certificate print count-only where fingerprint=\"4348a0e9444c78cb265e058d5e8944b4d84f9662bd26db257f8934a443c70161\"]=0);\r\
-    \n} if=([/certificate print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);"
-/system script add comment="keeps scripts and schedules owner constant" dont-require-permissions=yes name=doKeepScriptsOwner owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doKeepScriptsOwner\";\r\
-    \n\r\
-    \n:local state \"\";\r\
-    \n:local mgmtUsername \"owner\"; # main administrator \r\
-    \n:global globalCallFetch;\r\
-    \n:global globalNoteMe;\r\
-    \n\r\
-    \n:local impersonate false; # user password needed when true\r\
-    \n:local thePass \"\";\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \n    # We now need to change script and schedules ownage from *sys user\r\
-    \n    # This can be done via ftp impersonation - here is the trick (the only way to change SCHEDULE owner is to recreate entry UNDER this user)\r\
-    \n    # In RouterOS it is possible to automatically execute scripts - your script file has to be named anything.auto.rsc \r\
-    \n    # once this file is uploaded using FTP to the router, it will automatically be executed, just like with the '/import' command. \r\
-    \n    # This method only works with FTP\r\
-    \n\r\
-    \n    :local scriptCount [:len [/system script find where owner!=\"\$mgmtUsername\"]];\r\
-    \n    :local schedCount  [:len [/system scheduler find where owner!=\"\$mgmtUsername\"]];\r\
-    \n\r\
-    \n    :if (\$scriptCount = 0 and \$schedCount = 0) do={\r\
-    \n        :set state \"No scripts and schedules owner change needed\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :error \$state;\r\
-    \n    };    \r\
-    \n\r\
-    \n    :if ([:len [/user find name=\"\$mgmtUsername\"]] > 0) do={\r\
+    \n      :set state \"/tool fetch url=\$RequestUrl\$\$theScript.rsc.txt output=user as-value\";\r\
+    \n      \$globalNoteMe value=\$state;\r\
     \n \r\
-    \n        :if (\$impersonate) do={\r\
+    \n      #Please keep care about consistency if size over 4096 bytes\r\
+    \n      :local answer ([ /tool fetch url=\"\$RequestUrl\$\$theScript.rsc.txt\" output=user as-value]);\r\
+    \n      :set code ( \$answer->\"data\" );\r\
+    \n      \$globalNoteMe value=\"Done\";\r\
     \n\r\
-    \n            :local buffer \"\\r\\ \r\
-    \n                            \\n # we can change script owner as usual\\r\\\r\
-    \n                            \\n /system script set owner=\\\"\$mgmtUsername\\\" [find where owner!=\\\"\$mgmtUsername\\\"];\\r\\\r\
-    \n                            \\n\\r\\ \r\
-    \n                            \\n # the only way to change schedule owner is to recreate entry\\r\\\r\
-    \n                            \\n /system scheduler;\\r\\ \r\
-    \n                            \\n :foreach schEndpoint in=[find  where owner!=\\\"\$mgmtUsername\\\"] do={\\r\\\r\
-    \n                            \\n  :local name [get value-name=name \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local startTime [get value-name=start-time \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local onEvent [get value-name=on-event \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local interval [get value-name=interval \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local startDate [get value-name=start-date \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local comment [get value-name=comment \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      remove \\\$schEndpoint;\\r\\\r\
-    \n                            \\n      add name=\\\"\\\$name\\\" start-time=\\\"\\\$startTime\\\"  on-event=\\\"\\\$onEvent\\\" interval=\\\"\\\$interval\\\" start-date=\\\"\\\$startDate\\\" comment=\\\"\\\$comment\\\";\\r\\\r\
-    \n                            \\n      }\\r\\\r\
-    \n                            \\n;\";\r\
-    \n\r\
-    \n            # delete all previous files\r\
-    \n            :local rsc \"ownage.rsc.txt\";\r\
-    \n            /file remove [/file find where name=\"\$rsc\"];\r\
-    \n            # create the file as it doesn't exist yet\r\
-    \n            /file print file=\"\$rsc\";\r\
-    \n            # wait for filesystem to create file\r\
-    \n            :delay 6;\r\
-    \n            # write the buffer into it\r\
-    \n            :set state \"Creating script file '\$rsc' with commands '\$buffer'\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n            # i will not remove this file later to got a chance to manually reproduce fetch if it fail via this script\r\
-    \n            /file set [/file find where name=\"\$rsc\"] contents=\"\$buffer\";    \r\
-    \n            :local filecontent [/file get [/file find where name=\"\$rsc\"] contents];\r\
-    \n            :set state \"Created command file '\$rsc' with content '\$filecontent'\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n            # push it and and autorun under mgmtUsername account\r\
-    \n            :set state \"Pushing autorun command file as user '\$mgmtUsername' via FTP\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n            :local fetchCmd  \"/tool fetch address=127.0.0.1 mode=ftp src-path=\$rsc dst-path=ownage.auto.rsc user=\\\"\$mgmtUsername\\\" password=\\\"\$thePass\\\" host=\\\"\\\" upload=\\\"yes\\\"\";\r\
-    \n\r\
-    \n            \$globalCallFetch \$fetchCmd;\r\
-    \n\r\
-    \n            /file remove [/file find where name=\"\$rsc\"];\r\
-    \n\r\
-    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n        } else={\r\
-    \n\r\
-    \n            /system script set owner=\"\$mgmtUsername\" [find where owner!=\"\$mgmtUsername\"];\r\
-    \n            # the only way to change schedule owner is to recreate entry\\r\\\r\
-    \n            /system scheduler;\r\
-    \n            :foreach schEndpoint in=[find  where owner!=\"\$mgmtUsername\"] do={\r\
-    \n              :local name [get value-name=name \$schEndpoint];\r\
-    \n                  :local startTime [get value-name=start-time \$schEndpoint];\r\
-    \n                  :local onEvent [get value-name=on-event \$schEndpoint];\r\
-    \n                  :local interval [get value-name=interval \$schEndpoint];\r\
-    \n                  :local startDate [get value-name=start-date \$schEndpoint];\r\
-    \n                  :local comment [get value-name=comment \$schEndpoint];\r\
-    \n                  remove \$schEndpoint;\r\
-    \n                  add name=\"\$name\" start-time=\"\$startTime\"  on-event=\"\$onEvent\" interval=\"\$interval\" start-date=\"\$startDate\" comment=\"\$comment\";\r\
-    \n                  };\r\
-    \n\r\
-    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n        }  \r\
-    \n\r\
-    \n\r\
-    \n    } else={\r\
-    \n        :set state \"Cant find user '\$mgmtUsername' for impersonation call\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
+    \n    } on-error= { \r\
+    \n      :set state \"Error When Downloading Script '\$theScript' From GitHub\";\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n      :set itsOk false;\r\
     \n    }\r\
+    \n  }\r\
     \n\r\
-    \n} on-error={ \r\
-    \n    :set state \"Changing scripts and schedules ownage - ERROR\";\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n}"
-/system script add comment="periodically Wipes memory-configered logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \"doFlushLogs\";\
-    \n\
-    \n:local state \"\"\
-    \n\
-    \n:set state \"FLUSHING logs..\"\
-    \n\$globalNoteMe value=\$state;\
-    \n\
-    \n/system/logging/action/set memory-lines=1 [find target=memory]\
-    \n/system/logging/action/set memory-lines=1000 [find target=memory]\
-    \n\
-    \n"
-/tool bandwidth-server set enabled=no
-/tool e-mail set from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
-/tool graphing set page-refresh=50
-/tool graphing interface add
-/tool graphing resource add
-/tool mac-server set allowed-interface-list=none
-/tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
-/tool netwatch
-# Warning: probe waiting startup-delay=5m; 2m9s remaining
-add comment="miniAlx status check" down-script="\r\
-    \n:put \"info: Netwatch UP\"\r\
-    \n:log info \"Netwatch UP\"\r\
-    \n\r\
-    \n:global NetwatchHostName \"miniAlx\";\r\
-    \n/system script run doNetwatchHost;" host=192.168.90.180 type=simple up-script="\r\
-    \n:put \"info: Netwatch UP\"\r\
-    \n:log info \"Netwatch UP\"\r\
-    \n\r\
-    \n:global NetwatchHostName \"miniAlx\";\r\
-    \n/system script run doNetwatchHost;"
-/tool sniffer set filter-ip-protocol=icmp filter-src-ip-address=185.85.121.15/32 streaming-server=192.168.90.170
+    \n  :if ( \$itsOk and !\$skip) do={\r\
+    \n    :do {\r\
+    \n      :set state \"Setting Up Script source for '\$theScript'\";\r\
+    \n      \$globalNoteMe value=\$state;\r\
+    \n      /system script set \$theScript source=\"\$code\";\r\
+    \n      \$globalNoteMe value=\"Done\";\r\
+    \n    } on-error= { \r\
+    \n      :set state \"Error When Setting Up Script source for '\$theScript'\";\r\
+    \n      
