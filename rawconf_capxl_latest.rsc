@@ -1,4 +1,4 @@
-# 2025-04-15 21:00:02 by RouterOS 7.18.2
+# 2025-04-20 21:00:02 by RouterOS 7.18.2
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -54,9 +54,9 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.88 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.100 name=ftpserver.org type=A
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.88 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.100 list=alist-nat-external-ip
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
 /ip firewall service-port set sip disabled=yes
@@ -106,12 +106,12 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t192.168.90.1 \
     \ncapxl: \t\t7.18.2 \
-    \nUptime:\t\t5d03:19:40  \
-    \nTime:\t\t2025-04-15 20:53:04  \
-    \nya.ru latency:\t5 ms  \
+    \nUptime:\t\t3d03:12:22  \
+    \nTime:\t\t2025-04-20 20:53:05  \
+    \nya.ru latency:\t4 ms  \
     \nCHR:\t\t185.13.148.14  \
     \nMIK:\t\t178.65.80.245  \
-    \nANNA:\t\t46.39.51.88  \
+    \nANNA:\t\t46.39.51.100  \
     \nClock:\t\tsynchronized  \
     \n"
 /system ntp client set enabled=yes
