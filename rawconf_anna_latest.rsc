@@ -4038,4 +4038,98 @@
     \n                            \\n      :local interval [get value-name=interval \\\$schEndpoint];\\r\\\r\
     \n                            \\n      :local startDate [get value-name=start-date \\\$schEndpoint];\\r\\\r\
     \n                            \\n      :local comment [get value-name=comment \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      remove \\\$schEndpoint;\\r\\\r\
+    \n                            \\n      remove \\\$schEndpoint;\\r\\\r\
+    \n                            \\n      add name=\\\"\\\$name\\\" start-time=\\\"\\\$startTime\\\"  on-event=\\\"\\\$onEvent\\\" interval=\\\"\\\$interval\\\" start-date=\\\"\\\$startDate\\\" comment=\\\"\\\$comment\\\";\\r\\\r\
+    \n                            \\n      }\\r\\\r\
+    \n                            \\n;\";\r\
+    \n\r\
+    \n            # delete all previous files\r\
+    \n            :local rsc \"ownage.rsc.txt\";\r\
+    \n            /file remove [/file find where name=\"\$rsc\"];\r\
+    \n            # create the file as it doesn't exist yet\r\
+    \n            /file print file=\"\$rsc\";\r\
+    \n            # wait for filesystem to create file\r\
+    \n            :delay 6;\r\
+    \n            # write the buffer into it\r\
+    \n            :set state \"Creating script file '\$rsc' with commands '\$buffer'\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            # i will not remove this file later to got a chance to manually reproduce fetch if it fail via this script\r\
+    \n            /file set [/file find where name=\"\$rsc\"] contents=\"\$buffer\";    \r\
+    \n            :local filecontent [/file get [/file find where name=\"\$rsc\"] contents];\r\
+    \n            :set state \"Created command file '\$rsc' with content '\$filecontent'\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n            # push it and and autorun under mgmtUsername account\r\
+    \n            :set state \"Pushing autorun command file as user '\$mgmtUsername' via FTP\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n            :local fetchCmd  \"/tool fetch address=127.0.0.1 mode=ftp src-path=\$rsc dst-path=ownage.auto.rsc user=\\\"\$mgmtUsername\\\" password=\\\"\$thePass\\\" host=\\\"\\\" upload=\\\"yes\\\"\";\r\
+    \n\r\
+    \n            \$globalCallFetch \$fetchCmd;\r\
+    \n\r\
+    \n            /file remove [/file find where name=\"\$rsc\"];\r\
+    \n\r\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n        } else={\r\
+    \n\r\
+    \n            /system script set owner=\"\$mgmtUsername\" [find where owner!=\"\$mgmtUsername\"];\r\
+    \n            # the only way to change schedule owner is to recreate entry\\r\\\r\
+    \n            /system scheduler;\r\
+    \n            :foreach schEndpoint in=[find  where owner!=\"\$mgmtUsername\"] do={\r\
+    \n              :local name [get value-name=name \$schEndpoint];\r\
+    \n                  :local startTime [get value-name=start-time \$schEndpoint];\r\
+    \n                  :local onEvent [get value-name=on-event \$schEndpoint];\r\
+    \n                  :local interval [get value-name=interval \$schEndpoint];\r\
+    \n                  :local startDate [get value-name=start-date \$schEndpoint];\r\
+    \n                  :local comment [get value-name=comment \$schEndpoint];\r\
+    \n                  remove \$schEndpoint;\r\
+    \n                  add name=\"\$name\" start-time=\"\$startTime\"  on-event=\"\$onEvent\" interval=\"\$interval\" start-date=\"\$startDate\" comment=\"\$comment\";\r\
+    \n                  };\r\
+    \n\r\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
+    \n            \$globalNoteMe value=\$state;\r\
+    \n        }  \r\
+    \n\r\
+    \n\r\
+    \n    } else={\r\
+    \n        :set state \"Cant find user '\$mgmtUsername' for impersonation call\";\r\
+    \n        \$globalNoteMe value=\$state;\r\
+    \n    }\r\
+    \n\r\
+    \n} on-error={ \r\
+    \n    :set state \"Changing scripts and schedules ownage - ERROR\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n}"
+/system script add comment="periodically Wipes memory-configered logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doFlushLogs\";\
+    \n\
+    \n:local state \"\"\
+    \n\
+    \n:set state \"FLUSHING logs..\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n/system/logging/action/set memory-lines=1 [find target=memory]\
+    \n/system/logging/action/set memory-lines=1000 [find target=memory]\
+    \n\
+    \n"
+/tool bandwidth-server set enabled=no
+/tool e-mail set from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
+/tool graphing set page-refresh=50
+/tool graphing interface add
+/tool graphing resource add
+/tool mac-server set allowed-interface-list=none
+/tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
+/tool netwatch add comment="miniAlx status check" down-script="\r\
+    \n:put \"info: Netwatch UP\"\r\
+    \n:log info \"Netwatch UP\"\r\
+    \n\r\
+    \n:global NetwatchHostName \"miniAlx\";\r\
+    \n/system script run doNetwatchHost;" host=192.168.90.180 type=simple up-script="\r\
+    \n:put \"info: Netwatch UP\"\r\
+    \n:log info \"Netwatch UP\"\r\
+    \n\r\
+    \n:global NetwatchHostName \"miniAlx\";\r\
+    \n/system script run doNetwatchHost;"
+/tool sniffer set filter-ip-protocol=icmp filter-src-ip-address=185.85.121.15/32 streaming-server=192.168.90.170
