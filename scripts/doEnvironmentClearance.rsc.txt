@@ -2,3 +2,4 @@
 #clear all global variables
 /system script environment remove [find];
 
+

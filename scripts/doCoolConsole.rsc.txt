@@ -5,10 +5,13 @@ $globalScriptBeforeRun "doCoolConsole";
 
 :local logcontenttemp "";
 :local logcontent "";
+:local state ""
 
 :local rosVer [:tonum [:pick [/system resource get version] 0 1]];
 
 # reset current
+:set state "Flush global note"
+$globalNoteMe value=$state;
 /system note set note="Pending";
 
 :local sysver "NA";
@@ -19,7 +22,9 @@ $globalScriptBeforeRun "doCoolConsole";
   :set sysver [/system package get routeros version];
 }
 
-:log info "Picking default route";
+:set state "Picking default route"
+$globalNoteMe value=$state;
+
 :local defaultRoute "unreachable";
 /ip route {
     :foreach i in=[find where dst-address="0.0.0.0/0" and active and routing-table=main] do={
@@ -27,7 +32,9 @@ $globalScriptBeforeRun "doCoolConsole";
     }
 }
 
-:log info "Picking ipsec";
+:set state "Picking ipsec"
+$globalNoteMe value=$state;
+
 :local ipsecState "okay";
 /ip ipsec policy {
   :foreach vpnEndpoint in=[find (!disabled and !template)] do={
@@ -39,13 +46,13 @@ $globalScriptBeforeRun "doCoolConsole";
   }
 }
 
-:set logcontenttemp "IPSEC: 		$ipsecState"
+:set logcontenttemp "Ipsec:         $ipsecState"
 :set logcontent ("$logcontent" ."$logcontenttemp" ." \n") 
-:set logcontenttemp "Default route: 	$defaultRoute"
+:set logcontenttemp "Route:     $defaultRoute"
 :set logcontent ("$logcontent" ."$logcontenttemp" ." \n") 
-:set logcontenttemp "$[/system identity get name]: 		$sysver"
+:set logcontenttemp "Version:         $sysver"
 :set logcontent ("$logcontent" ."$logcontenttemp" ." \n")
-:set logcontenttemp "Uptime:		$[/system resource get uptime]"
+:set logcontenttemp "Uptime:        $[/system resource get uptime]"
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
 
 :local SafeResolve do={
@@ -73,10 +80,15 @@ $globalScriptBeforeRun "doCoolConsole";
 :local numPing 6;
 :local latency "NA";
 
-:local latencySite "ya.ru";
+:set state "Yandex connection test"
+$globalNoteMe value=$state;
+
+:local latencySite "Ya.ru";
 :local yaResolve [$SafeResolve $latencySite];
 
-:log info "Picking latency";
+:set state "Picking latency"
+$globalNoteMe value=$state;
+
 :if ($yaResolve != "ERROR" ) do {
     
     :for tmpA from=1 to=$numPing step=1 do={
@@ -89,41 +101,58 @@ $globalScriptBeforeRun "doCoolConsole";
     :set latency "unreachable";
 }
 
-:log info "Resolving chr";
+:set state "Resolving CHR, MIK, ANNA"
+$globalNoteMe value=$state;
+
 :local hostname "accb195e0dffc6bb.sn.mynetname.net";
 :local chrResolve [$SafeResolve $hostname];
 :if ($chrResolve = "ERROR" ) do {    
     :set chrResolve "unreachable";
 }
 
-:log info "Resolving mik";
 :local hostname "673706ed7949.sn.mynetname.net";
 :local mikResolve [$SafeResolve $hostname];
 :if ($mikResolve = "ERROR" ) do {    
     :set mikResolve "unreachable";
 }
 
-:log info "Resolving anna";
 :local hostname "hcy086pz6xz.sn.mynetname.net";
 :local annaResolve [$SafeResolve $hostname];
 :if ($annaResolve = "ERROR" ) do {    
     :set annaResolve "unreachable";
 }
 
-:set logcontenttemp "Time:		$[/system clock get date] $[/system clock get time]"
+:set logcontenttemp "Time:        $[/system clock get date] $[/system clock get time]"
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
-:set logcontenttemp "$latencySite latency:	$latency ms"
-:set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
-
-:set logcontenttemp "CHR:		$chrResolve"
-:set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
-:set logcontenttemp "MIK:		$mikResolve"
-:set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
-:set logcontenttemp "ANNA:		$annaResolve"
+:set logcontenttemp "Ping:    $latency ms"
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
 
-:set logcontenttemp "Clock:		$[/system ntp client get status]"
+:set logcontenttemp "Chr:        $chrResolve"
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
+:set logcontenttemp "Mik:        $mikResolve"
+:set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
+:set logcontenttemp "Anna:        $annaResolve"
+:set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
+
+:set logcontenttemp "Clock:        $[/system ntp client get status]"
+:set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
+
+:set state "Listing packages"
+$globalNoteMe value=$state;
+
+/system/package {
+  :foreach pkg in=[find (!disabled)] do={
+    :local pkgName [get value-name=name $pkg]
+    
+    :set logcontent ("$logcontent" ." * $pkgName" ."  \n");
+
+    }
+  }
+
+
+:set state "Setting global note"
+$globalNoteMe value=$state;
 
 /system note set note="$logcontent"  
+
 
