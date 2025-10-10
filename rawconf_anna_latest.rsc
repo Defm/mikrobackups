@@ -1,4 +1,4 @@
-# 2025-04-25 21:00:02 by RouterOS 7.15.3
+# 2025-09-22 21:00:02 by RouterOS 7.19
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -6,6 +6,7 @@
 /caps-man channel add band=2ghz-b/g/n comment=CH1 control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
 /caps-man channel add band=5ghz-a/n/ac comment="20Mhz + Ce = 40Mhz, reselect interval from 5180, 5220, 5745, 5785 once per 10h" control-channel-width=20mhz extension-channel=Ce frequency=5180,5220,5745,5785 name=common-chnls-5Ghz reselect-interval=10h tx-power=15
 /caps-man configuration add mode=ap name=empty
+/interface bridge add name=docker-infrastructure-br port-cost-mode=short
 /interface bridge add dhcp-snooping=yes igmp-snooping=yes name=guest-infrastructure-br port-cost-mode=short
 /interface bridge add arp=proxy-arp fast-forward=no name=ip-mapping-br port-cost-mode=short
 /interface bridge add admin-mac=48:8F:5A:D4:5F:69 arp=reply-only auto-mac=no dhcp-snooping=yes igmp-snooping=yes name=main-infrastructure-br port-cost-mode=short
@@ -19,12 +20,16 @@
 /interface ethernet set [ find default-name=ether8 ] comment="to ATV(wire)" loop-protect=on name="lan G"
 /interface ethernet set [ find default-name=sfp-sfpplus1 ] disabled=yes name=optic
 /interface ethernet set [ find default-name=ether1 ] arp=proxy-arp mac-address=20:CF:30:DE:7B:2A name="wan A" poe-out=off
+/interface veth add address=192.168.80.2/24 gateway=192.168.80.1 gateway6="" name=bydpi-tunnel
 /caps-man datapath add arp=proxy-arp bridge=guest-infrastructure-br client-to-client-forwarding=no name=2CapsMan-guest
 /caps-man datapath add arp=reply-only bridge=main-infrastructure-br client-to-client-forwarding=yes name=2CapsMan-private
 /caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps name="5GHz Rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps vht-basic-mcs=mcs0-9 vht-supported-mcs=mcs0-9
 /caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps ht-basic-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 ht-supported-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 name="2GHz rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps
 /caps-man security add authentication-types=wpa2-psk comment="2GHz/5GHz Security" encryption=aes-ccm group-encryption=aes-ccm group-key-update=1h name=private passphrase=mikrotik
 /caps-man security add authentication-types="" comment="2GHz/5GHz FREE" encryption="" group-key-update=5m name=guest
+/disk set usb slot=usb
+/disk add parent=usb partition-number=1 partition-offset=65536 partition-size=5000000000 slot=usb-docker type=partition
+/disk add parent=usb partition-number=2 partition-offset=5000069120 partition-size=1000000000 slot=usb-swap swap=yes type=partition
 /interface list add comment="Trusted networks" name=list-trusted
 /interface list add comment="Semi-Trusted networks" name=list-semi-trusted
 /interface list add comment="Untrusted networks" name=list-untrusted
@@ -42,15 +47,27 @@
 /interface list add comment="Private Wireless" include=list-2ghz-caps-private,list-5ghz-caps-private name=list-private-wireless
 /interface list add comment="infrastructure OSPF interfaces" name=list-ospf-master
 /interface list add comment="support OSPF interfaces" name=list-ospf-bearing
+/interface list add comment="mangle rule: redirect to docker" name=list-mangle-byedpi
 /caps-man configuration add channel=common-chnls-2Ghz country=russia datapath=2CapsMan-private datapath.interface-list=list-2ghz-caps-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
 /caps-man configuration add channel=common-chnls-5Ghz country=russia datapath=2CapsMan-private datapath.interface-list=list-5ghz-caps-private disconnect-timeout=9s distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-5Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 5Ghz PRIVATE" tx-chains=0,1,2,3
 /caps-man configuration add channel=common-chnls-2Ghz country=russia datapath=2CapsMan-guest datapath.interface-list=list-2ghz-caps-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=anna
 /interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" group-key-update=1h management-protection=allowed mode=dynamic-keys name=private supplicant-identity="" wpa-pre-shared-key=mikrotik wpa2-pre-shared-key=mikrotik
 /interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
+/iot lora servers add address=eu1.cloud.thethings.industries name="TTS Cloud (eu1)" protocol=UDP
+/iot lora servers add address=nam1.cloud.thethings.industries name="TTS Cloud (nam1)" protocol=UDP
+/iot lora servers add address=au1.cloud.thethings.industries name="TTS Cloud (au1)" protocol=UDP
+/iot lora servers add address=eu1.cloud.thethings.network name="TTN V3 (eu1)" protocol=UDP
+/iot lora servers add address=nam1.cloud.thethings.network name="TTN V3 (nam1)" protocol=UDP
+/iot lora servers add address=au1.cloud.thethings.network name="TTN V3 (au1)" protocol=UDP
 /ip dhcp-server add authoritative=after-2sec-delay interface=main-infrastructure-br lease-time=1d name=main-dhcp-server
 /ip dhcp-server option add code=15 force=yes name=DomainName_Windows value="s'home'"
 /ip dhcp-server option add code=119 force=yes name=DomainName_LinuxMac value="s'home'"
+/ip dns forwarders add doh-servers=https://dns.google/dns-query name=DOH-Google
+/ip dns forwarders add doh-servers=https://1.1.1.1/dns-query name=DOH-CloudFlare
+/ip dns forwarders add doh-servers=https://dns.quad9.net/dns-query name=DOH-Quad9
+/ip dns forwarders add dns-servers=8.8.8.8 name=DNS-Google8 verify-doh-cert=no
+/ip dns forwarders add doh-servers=https://router.comss.one/dns-query name=DOH-Comss
 /ip firewall layer7-protocol add name=EXE regexp=".(exe)"
 /ip firewall layer7-protocol add name=RAR regexp=".(rar)"
 /ip firewall layer7-protocol add name=ZIP regexp=".(zip)"
@@ -63,12 +80,13 @@
 /ip ipsec mode-config set [ find default=yes ] src-address-list=alist-mangle-vpn-tunneled-sites
 /ip ipsec policy group add name=inside-ipsec-encryption
 /ip ipsec policy group add name=outside-ipsec-encryption
-/ip ipsec profile set [ find default=yes ] dh-group=modp1024
-/ip ipsec profile add dh-group=modp1024 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
-/ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" disabled=yes exchange-mode=ike2 local-address=10.20.225.166 name=CHR-external profile=ROUTEROS
+/ip ipsec profile set [ find default=yes ] dh-group=modp1024 dpd-interval=2m dpd-maximum-failures=5
+/ip ipsec profile add dh-group=modp1024 dpd-interval=2m dpd-maximum-failures=5 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
+/ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" exchange-mode=ike2 local-address=10.20.225.166 name=CHR-external profile=ROUTEROS
 /ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" disabled=yes local-address=10.0.0.3 name=CHR-internal profile=ROUTEROS
 /ip ipsec proposal set [ find default=yes ] enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
 /ip ipsec proposal add auth-algorithms=sha256 enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
+/ip kid-control add fri=0s-1d mon=0s-1d name=totals sat=0s-1d sun=0s-1d thu=0s-1d tue=0s-1d wed=0s-1d
 /ip pool add name=pool-main ranges=192.168.90.100-192.168.90.200
 /ip pool add name=pool-guest ranges=192.168.98.200-192.168.98.230
 /ip pool add name=pool-virtual-machines ranges=192.168.90.0/26
@@ -88,11 +106,11 @@
     \n\r\
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
 /ip smb users set [ find default=yes ] disabled=yes
-/ppp profile add address-list=alist-l2tp-active-clients interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
-/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no ipsec-secret=123 max-mru=1360 max-mtu=1360 name=tunnel password=123 profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
+/ppp profile add address-list=alist-l2tp-active-clients comment=to-CHR interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
+/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1360 max-mtu=1360 name=chr-tunnel password=123 profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
-/queue simple add comment=dtq,90:DD:5D:C8:46:AB, name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
+/queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx (wire)@main-dhcp-server (10:DD:B1:9E:19:5E)" queue=default/default target=192.168.90.70/32 total-queue=default
 /queue simple add comment=dtq,00:11:32:2C:A7:85, name="NAS@main-dhcp-server (00:11:32:2C:A7:85)" queue=default/default target=192.168.90.40/32 total-queue=default
@@ -106,24 +124,24 @@
 /queue simple add comment=dtq,48:65:EE:19:3C:0D, name="MbpAlxm(blocked)@guest-dhcp-server (48:65:EE:19:3C:0D)" queue=default/default target=192.168.98.85/32 total-queue=default
 /queue simple add comment=dtq,F8:3F:51:0D:88:0B,localhost name="SamsungTV(wire)@main-dhcp-server (F8:3F:51:0D:88:0B)" queue=default/default target=192.168.90.205/32 total-queue=default
 /queue simple add comment=dtq,F8:3F:51:0D:88:0B, name="SamsungTV(wire)(blocked)@guest-dhcp-server (F8:3F:51:0D:88:0B)" queue=default/default target=192.168.98.205/32 total-queue=default
-/queue simple add comment=dtq,88:88:88:88:87:88, name="Hare's AsusPC(wire)@main-dhcp-server (88:88:88:88:87:88)" queue=default/default target=192.168.90.100/32 total-queue=default
+/queue simple add comment=dtq,88:88:88:88:87:88,DESKTOP-QMUE5PH name="Hare's AsusPC(wire)@main-dhcp-server (88:88:88:88:87:88)" queue=default/default target=192.168.90.100/32 total-queue=default
 /queue simple add comment=dtq,88:88:88:88:87:88, name="AsusPC(wire)(blocked)@guest-dhcp-server (88:88:88:88:87:88)" queue=default/default target=192.168.98.100/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:CA:8F:B0,AlxATV name="AlxATV(wire)@main-dhcp-server (90:DD:5D:CA:8F:B0)" queue=default/default target=192.168.90.201/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:CA:8F:B0, name="AlxATV(wire)(blocked)@guest-dhcp-server (90:DD:5D:CA:8F:B0)" queue=default/default target=192.168.98.201/32 total-queue=default
-/queue simple add comment=dtq,04:F1:69:8E:12:B6, name="Hare's Honor9x(wireless)@main-dhcp-server (04:F1:69:8E:12:B6)" queue=default/default target=192.168.90.140/32 total-queue=default
+/queue simple add comment=dtq,04:F1:69:8E:12:B6,HONOR_9X-dbcb7b0850fde5c5 name="Hare's Honor9x(wireless)@main-dhcp-server (04:F1:69:8E:12:B6)" queue=default/default target=192.168.90.140/32 total-queue=default
 /queue simple add comment=dtq,04:F1:69:8E:12:B6, name="Hare's Honor9x(wireless)(blocked)@guest-dhcp-server (04:F1:69:8E:12:B6)" queue=default/default target=192.168.98.140/32 total-queue=default
 /queue simple add comment=dtq,B8:87:6E:19:90:33,yandex-mini2-ZGNK name="Alice(wireless)@main-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.90.220/32 total-queue=default
 /queue simple add comment=dtq,B8:87:6E:19:90:33, name="Alice(wireless)(blocked)@guest-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.98.220/32 total-queue=default
 /queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)@main-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.90.180/32 total-queue=default
 /queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)(blocked)@guest-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.98.180/32 total-queue=default
-/queue simple add comment=dtq,D4:3B:04:87:C7:47, name="HareDell@main-dhcp-server (D4:3B:04:87:C7:47)" queue=default/default target=192.168.90.77/32 total-queue=default
+/queue simple add comment=dtq,D4:3B:04:87:C7:47,DESKTOP-G3RE47G name="HareDell@main-dhcp-server (D4:3B:04:87:C7:47)" queue=default/default target=192.168.90.77/32 total-queue=default
 /queue simple add comment=dtq,D4:3B:04:87:C7:47, name="HareDell(blocked)@guest-dhcp-server (D4:3B:04:87:C7:47)" queue=default/default target=192.168.98.77/32 total-queue=default
 /queue simple add comment=dtq,50:DE:06:25:C2:FC, name="iPadAlxPro(blocked)@guest-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.98.130/32 total-queue=default
 /queue simple add comment=dtq,40:80:E1:5B:41:B8,nspanel name="NSPanel(wireless)@main-dhcp-server (40:80:E1:5B:41:B8)" queue=default/default target=192.168.90.165/32 total-queue=default
 /queue simple add comment=dtq,40:80:E1:5B:41:B8, name="NSPanel(wireless)(blocked)@guest-dhcp-server (40:80:E1:5B:41:B8)" queue=default/default target=192.168.98.165/32 total-queue=default
 /queue simple add comment=dtq,DC:10:57:2D:39:7B,iPhoneAlxr name="iPhoneAlxr(wireless)@main-dhcp-server (DC:10:57:2D:39:7B)" queue=default/default target=192.168.90.150/32 total-queue=default
 /queue simple add comment=dtq,DC:10:57:2D:39:7B, name="iPhoneAlxr(wireless)(blocked)@guest-dhcp-server (DC:10:57:2D:39:7B)" queue=default/default target=192.168.98.150/32 total-queue=default
-/queue simple add comment=dtq,00:1C:42:FE:E3:AB, name="W11Parallels@main-dhcp-server (00:1C:42:FE:E3:AB)" queue=default/default target=192.168.90.35/32 total-queue=default
+/queue simple add comment=dtq,00:1C:42:FE:E3:AB,W11 name="W11Parallels@main-dhcp-server (00:1C:42:FE:E3:AB)" queue=default/default target=192.168.90.35/32 total-queue=default
 /queue simple add comment=dtq,00:1C:42:FE:E3:AB, name="W11Parallels(blocked)@guest-dhcp-server (00:1C:42:FE:E3:AB)" queue=default/default target=192.168.98.35/32 total-queue=default
 /queue simple add comment=dtq,00:85:01:01:50:0E,wb name="WB (wire)@main-dhcp-server (00:85:01:01:50:0E)" queue=default/default target=192.168.90.2/32 total-queue=default
 /queue simple add comment=dtq,00:85:01:01:50:0E, name="WB (wire)(blocked)@guest-dhcp-server (00:85:01:01:50:0E)" queue=default/default target=192.168.98.2/32 total-queue=default
@@ -136,8 +154,19 @@
 /queue simple add comment=dtq,BC:74:4B:E8:9B:61, name="nSwitch(wereless)(blocked)@guest-dhcp-server (BC:74:4B:E8:9B:61)" queue=default/default target=192.168.98.199/32 total-queue=default
 /queue simple add comment=dtq,F4:2B:8C:AF:34:20,nadezda-phone name="SamsungS23(wereless)@main-dhcp-server (F4:2B:8C:AF:34:20)" queue=default/default target=192.168.90.135/32 total-queue=default
 /queue simple add comment=dtq,F4:2B:8C:AF:34:20, name="SamsungS23(wereless)(blocked)@guest-dhcp-server (F4:2B:8C:AF:34:20)" queue=default/default target=192.168.98.135/32 total-queue=default
-/queue simple add comment=dtq,00:0E:2D:1A:73:36, name="AST(wire)@main-dhcp-server (00:0E:2D:1A:73:36)" queue=default/default target=192.168.90.203/32 total-queue=default
+/queue simple add comment=dtq,00:0E:2D:1A:73:36,ast25b name="AST(wire)@main-dhcp-server (00:0E:2D:1A:73:36)" queue=default/default target=192.168.90.203/32 total-queue=default
 /queue simple add comment=dtq,00:0E:2D:1A:73:36, name="AST(wire)(blocked)@guest-dhcp-server (00:0E:2D:1A:73:36)" queue=default/default target=192.168.98.203/32 total-queue=default
+/queue simple add comment=dtq,2C:0B:97:C1:A8:C8,Redmi-Note-13-Pro name="Elvira(wireless)@main-dhcp-server (2C:0B:97:C1:A8:C8)" queue=default/default target=192.168.90.133/32 total-queue=default
+/queue simple add comment=dtq,2C:0B:97:C1:A8:C8, name="Elvira(wireless)(blocked)@guest-dhcp-server (2C:0B:97:C1:A8:C8)" queue=default/default target=192.168.98.133/32 total-queue=default
+/queue simple add comment=dtq,BC:B2:CC:5F:9D:C4,A55-pol-zovatela-Sergej name="Serg(wireless)@main-dhcp-server (BC:B2:CC:5F:9D:C4)" queue=default/default target=192.168.90.134/32 total-queue=default
+/queue simple add comment=dtq,BC:B2:CC:5F:9D:C4, name="Serg(wireless)(blocked)@guest-dhcp-server (BC:B2:CC:5F:9D:C4)" queue=default/default target=192.168.98.134/32 total-queue=default
+/queue simple add comment=dtq,34:5A:60:89:1C:E1,NWS-116 name="MSI(wire)@main-dhcp-server (34:5A:60:89:1C:E1)" queue=default/default target=192.168.90.66/32 total-queue=default
+/queue simple add comment=dtq,34:5A:60:89:1C:E1, name="MSI(wire)(blocked)@guest-dhcp-server (34:5A:60:89:1C:E1)" queue=default/default target=192.168.98.66/32 total-queue=default
+/queue simple add comment=dtq,22:26:E9:CA:87:BA, name="Tomm(wireless)@main-dhcp-server (22:26:E9:CA:87:BA)" queue=default/default target=192.168.90.143/32 total-queue=default
+/queue simple add comment=dtq,22:26:E9:CA:87:BA, name="Tomm(wireless)(blocked)@guest-dhcp-server (22:26:E9:CA:87:BA)" queue=default/default target=192.168.98.143/32 total-queue=default
+/queue simple add comment=dtq,C8:90:8A:9A:50:A1,A54-pol-zovatela-Natalya name="Froloff(wireless)@main-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.90.142/32 total-queue=default
+/queue simple add comment=dtq,C8:90:8A:9A:50:A1, name="Froloff(wireless)(blocked)@guest-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.98.142/32 total-queue=default
+/queue simple add comment=dtq,2C:D2:6B:42:D5:54, name="@guest-dhcp-server (2C:D2:6B:42:D5:54)" queue=default/default target=192.168.98.230/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -148,9 +177,11 @@
 /routing ospf area add disabled=no instance=routes-inject-into-main name=backbone
 /routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-main name=anna-space-main no-summaries type=stub
 /routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
+/routing table add comment="dpi swing" disabled=no fib name=rmark-docker-redirect
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
 /system logging action set 1 disk-file-name=journal
+/system logging action set 3 remote=0.0.0.0
 /system logging action add name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=20 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
@@ -169,13 +200,22 @@
 /system logging action add name=SSHOnScreenLog target=memory
 /system logging action add name=PoEOnscreenLog target=memory
 /system logging action add name=EmailOnScreenLog target=memory
-/system logging action add name=OSXRemoteLog remote=192.168.90.70 remote-port=1514 syslog-facility=local0 syslog-time-format=iso8601 target=remote
+/system logging action add name=DockerRemoteLog remote=minialx.home remote-log-format=syslog syslog-facility=local0 target=remote
 /system logging action add name=TransfersOnscreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=PKGInstallationLog disk-lines-per-file=100 name=PKGInstallationLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=REBOOTLog disk-lines-per-file=100 name=REBOOTLog target=disk
+/system logging action add name=DockerOnscreenLog target=memory
+/system logging action add cef-event-delimiter="" name=AlloyRemoteLog remote=minialx.home remote-log-format=cef remote-protocol=tcp syslog-facility=local0 target=remote
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
+/user group add name=mktxp policy=read,api,!local,!telnet,!ssh,!ftp,!reboot,!write,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!romon,!rest-api
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Froloff(wireless)" disabled=no mac-address=B8:94:E7:61:3F:08 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Froloff(wireless)" disabled=no mac-address=C8:90:8A:9A:50:A1 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Tomm(wireless)" disabled=no mac-address=22:26:E9:CA:87:BA ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="MSI(wire)" disabled=no mac-address=34:5A:60:89:1C:E1 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Serg(wireless)" disabled=no mac-address=BC:B2:CC:5F:9D:C4 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Elvira(wireless)" disabled=no mac-address=2C:0B:97:C1:A8:C8 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="SamsungS23(wereless)" disabled=no mac-address=F6:12:A6:71:59:08 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="SamsungS23(wereless)" disabled=no mac-address=F4:2B:8C:AF:34:20 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AST(wire)" disabled=no mac-address=00:0E:2D:1A:73:36 ssid-regexp="WiFi 5"
@@ -209,7 +249,10 @@
 /caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn identity-regexp=anna master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
 /caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac identity-regexp=anna master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
-/ip smb set domain=HNW interfaces=main-infrastructure-br
+/container add cmd="-K u -a 5 --auto=none -Kt,h -d1 -s0+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -An -Ku -a1 -An --debug 1" comment="-Kt,h -q1+s -s29+s -o5+s -f-1 --md5sig -Asn -Ku -a5 -An" interface=bydpi-tunnel logging=yes name=byedpi-hev-socks5-tunnel:redirect root-dir=usb-docker/docker/byedpi-hev-socks5-tunnel start-on-boot=yes workdir=/
+/container config set ram-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/usb-docker/docker/pull
+/disk settings set auto-media-interface=main-infrastructure-br
+/ip smb set domain=HNW enabled=no interfaces=main-infrastructure-br
 /interface bridge port add bridge=main-infrastructure-br interface="lan D" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge port add bridge=main-infrastructure-br interface="lan A" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge port add bridge=main-infrastructure-br interface="lan B" internal-path-cost=10 path-cost=10 trusted=yes
@@ -217,6 +260,7 @@
 /interface bridge port add bridge=main-infrastructure-br interface="lan E" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge port add bridge=main-infrastructure-br interface="lan F" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge port add bridge=main-infrastructure-br interface="lan G" internal-path-cost=10 path-cost=10 trusted=yes
+/interface bridge port add bridge=docker-infrastructure-br interface=bydpi-tunnel
 /interface bridge settings set use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes udp-timeout=10s
 /ip neighbor discovery-settings set discover-interface-list=list-neighbors-lookup
@@ -229,11 +273,12 @@
 /interface list member add comment="LAN, WLAN" interface=main-infrastructure-br list=list-trusted
 /interface list member add comment="neighbors lookup" interface=main-infrastructure-br list=list-neighbors-lookup
 /interface list member add comment="FW: winbox allowed" interface=main-infrastructure-br list=list-winbox-allowed
-/interface list member add comment="neighbors lookup" interface=tunnel list=list-neighbors-lookup
+/interface list member add comment="neighbors lookup" interface=chr-tunnel list=list-neighbors-lookup
 /interface list member add comment="FW: drop invalid" interface="wan A" list=list-drop-invalid-connections
-/interface list member add comment=OSPF interface=tunnel list=list-ospf-bearing
-/interface list member add interface=main-infrastructure-br list=list-ospf-master
+/interface list member add comment=OSPF interface=chr-tunnel list=list-ospf-bearing
+/interface list member add comment=OSPF interface=main-infrastructure-br list=list-ospf-master
 /interface list member add comment=OSPF interface=ospf-loopback-br list=list-ospf-bearing
+/interface list member add comment="redirect to docker" interface=main-infrastructure-br list=list-mangle-byedpi
 /interface wireless snooper set receive-errors=yes
 /ip address add address=192.168.90.1/24 comment="local ip" interface=main-infrastructure-br network=192.168.90.0
 /ip address add address=192.168.98.1/24 comment="local guest wifi" interface=guest-infrastructure-br network=192.168.98.0
@@ -241,6 +286,7 @@
 /ip address add address=172.16.0.16/30 comment="GRAFANA IP redirect" interface=ip-mapping-br network=172.16.0.16
 /ip address add address=172.16.0.17/30 comment="INFLUXDB IP redirect" interface=ip-mapping-br network=172.16.0.16
 /ip address add address=10.20.225.166/24 comment="wan via ACADO edge router" interface="wan A" network=10.20.225.0
+/ip address add address=192.168.80.1/24 comment="docker network" interface=docker-infrastructure-br network=192.168.80.0
 /ip arp add address=192.168.90.200 comment="AlxATV (wireless)" interface=main-infrastructure-br mac-address=90:DD:5D:C8:46:AB
 /ip arp add address=192.168.90.90 comment="MbpAlx (wire)" interface=main-infrastructure-br mac-address=38:C9:86:51:D2:B3
 /ip arp add address=192.168.90.40 comment=NAS interface=main-infrastructure-br mac-address=00:11:32:2C:A7:85
@@ -269,6 +315,11 @@
 /ip arp add address=192.168.90.199 comment="nSwitch(wereless)" interface=main-infrastructure-br mac-address=BC:74:4B:E8:9B:61
 /ip arp add address=192.168.90.135 comment="SamsungS23(wereless)" interface=main-infrastructure-br mac-address=F4:2B:8C:AF:34:20
 /ip arp add address=192.168.90.203 comment="AST(wire)" interface=main-infrastructure-br mac-address=00:0E:2D:1A:73:36
+/ip arp add address=192.168.90.133 comment="Elvira(wireless)" interface=main-infrastructure-br mac-address=2C:0B:97:C1:A8:C8
+/ip arp add address=192.168.90.134 comment="Serg(wireless)" interface=main-infrastructure-br mac-address=BC:B2:CC:5F:9D:C4
+/ip arp add address=192.168.90.66 comment="MSI(wire)" interface=main-infrastructure-br mac-address=34:5A:60:89:1C:E1
+/ip arp add address=192.168.90.143 comment="Tomm(wireless)" interface=main-infrastructure-br mac-address=22:26:E9:CA:87:BA
+/ip arp add address=192.168.90.142 comment="Froloff(wireless)" interface=main-infrastructure-br mac-address=C8:90:8A:9A:50:A1
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=yes interface="wan A" use-peer-dns=no use-peer-ntp=no
 /ip dhcp-server lease add address=192.168.90.200 comment="AlxATV (wireless)" mac-address=90:DD:5D:C8:46:AB server=main-dhcp-server
@@ -319,7 +370,17 @@
 /ip dhcp-server lease add address=192.168.98.135 block-access=yes comment="SamsungS23(wereless)(blocked)" mac-address=F4:2B:8C:AF:34:20 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.203 comment="AST(wire)" mac-address=00:0E:2D:1A:73:36 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.203 block-access=yes comment="AST(wire)(blocked)" mac-address=00:0E:2D:1A:73:36 server=guest-dhcp-server
-/ip dhcp-server matcher add address-pool=pool-vendor code=60 name=vendor-mikrotik-caps server=main-dhcp-server value=mikrotik-cap
+/ip dhcp-server lease add address=192.168.90.133 comment="Elvira(wireless)" mac-address=2C:0B:97:C1:A8:C8 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.133 block-access=yes comment="Elvira(wireless)(blocked)" mac-address=2C:0B:97:C1:A8:C8 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.134 comment="Serg(wireless)" mac-address=BC:B2:CC:5F:9D:C4 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.134 block-access=yes comment="Serg(wireless)(blocked)" mac-address=BC:B2:CC:5F:9D:C4 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.66 comment="MSI(wire)" mac-address=34:5A:60:89:1C:E1 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.66 block-access=yes comment="MSI(wire)(blocked)" mac-address=34:5A:60:89:1C:E1 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.143 comment="Tomm(wireless)" mac-address=22:26:E9:CA:87:BA server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.143 block-access=yes comment="Tomm(wireless)(blocked)" mac-address=22:26:E9:CA:87:BA server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.142 comment="Froloff(wireless)" mac-address=C8:90:8A:9A:50:A1 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.142 block-access=yes comment="Froloff(wireless)(blocked)" mac-address=C8:90:8A:9A:50:A1 server=guest-dhcp-server
+/ip dhcp-server matcher add address-pool=pool-vendor code=60 matching-type=exact name=vendor-mikrotik-caps server=main-dhcp-server value=mikrotik-cap
 /ip dhcp-server network add address=192.168.90.0/27 caps-manager=192.168.90.1 comment="Network devices, CCTV" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.32/27 caps-manager=192.168.90.1 comment="Virtual machines" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.64/26 caps-manager=192.168.90.1 comment="Mac, Pc" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
@@ -328,61 +389,130 @@
 /ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
-/ip dns set address-list-extra-time=1d allow-remote-requests=yes cache-max-ttl=1d cache-size=4096KiB max-concurrent-queries=200 max-concurrent-tcp-sessions=30 query-server-timeout=3s servers=217.10.36.5,217.10.32.4 use-doh-server=https://1.1.1.1/dns-query
+/ip dns set allow-remote-requests=yes cache-max-ttl=1d cache-size=4096KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 use-doh-server="https://security.cloudflare-dns.com/dns-query " verify-doh-cert=yes
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add cname=anna.home name=anna type=CNAME
-/ip dns static add address=192.168.90.1 name=anna.home
+/ip dns static add address=192.168.90.1 name=anna.home type=A
 /ip dns static add cname=wb.home name=wb type=CNAME
-/ip dns static add address=192.168.90.2 name=wb.home
+/ip dns static add address=192.168.90.2 name=wb.home type=A
 /ip dns static add cname=influxdb.home name=influxdb type=CNAME
-/ip dns static add address=172.16.0.17 name=influxdb.home
+/ip dns static add address=172.16.0.17 name=influxdb.home type=A
 /ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
 /ip dns static add cname=grafana.home name=grafana type=CNAME
-/ip dns static add address=172.16.0.16 name=grafana.home
+/ip dns static add address=172.16.0.16 name=grafana.home type=A
 /ip dns static add cname=minialx.home name=grafanasvc.home type=CNAME
 /ip dns static add cname=chr.home name=chr type=CNAME
-/ip dns static add address=192.168.97.1 name=chr.home
+/ip dns static add address=192.168.97.1 name=chr.home type=A
 /ip dns static add cname=mikrouter.home name=mikrouter type=CNAME
-/ip dns static add address=192.168.99.1 name=mikrouter.home
+/ip dns static add address=192.168.99.1 name=mikrouter.home type=A
 /ip dns static add cname=minialx.home name=nas.home type=CNAME
 /ip dns static add cname=nas.home name=nas type=CNAME
-/ip dns static add address=192.168.100.1 name=gateway.home
-/ip dns static add address=192.168.90.10 name=capxl.home
+/ip dns static add address=192.168.100.1 name=gateway.home type=A
+/ip dns static add address=192.168.90.10 name=capxl.home type=A
 /ip dns static add cname=capxl.home name=capxl type=CNAME
-/ip dns static add address=192.168.90.100 name=hare.home ttl=5m
+/ip dns static add address=192.168.90.100 name=hare.home ttl=5m type=A
 /ip dns static add cname=hare.home name=hare ttl=5m type=CNAME
-/ip dns static add address=192.168.90.165 name=nspanel.home
+/ip dns static add address=192.168.90.165 name=nspanel.home type=A
 /ip dns static add cname=nspanel.home name=nspanel type=CNAME
-/ip dns static add address=192.168.90.70 name=miniAlx.home
-/ip dns static add address=95.213.159.180 name=atv.qello.com
-/ip dns static add address=95.213.159.180 name=atv.package2.qello.com
-/ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m
-/ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m
+/ip dns static add address=192.168.90.70 name=miniAlx.home type=A
+/ip dns static add address=95.213.159.180 name=atv.qello.com type=A
+/ip dns static add address=95.213.159.180 name=atv.package2.qello.com type=A
+/ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m type=A
+/ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m type=A
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bbs|\\.chan|\\.cyb|\\.dyn|\\.geek|\\.gopher|\\.indy|\\.libre|\\.neo|\\.null|\\.o)\$" type=FWD
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.oss|\\.oz|\\.parody|\\.pirate|\\.opennic.glue|\\.dns\\.opennic\\.glue)\$" type=FWD
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bazar|\\.coin|\\.emc|\\.lib|\\.fur1|\\.bit|\\.ku|\\.te|\\.ti|\\.uu)\$" type=FWD
-/ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m
-/ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m
-/ip dns static add address=1.1.1.1 name=cloudflare-dns.com
-/ip dns static add address=8.8.8.8 name=dns.google
-/ip dns static add address=8.8.4.4 name=dns.google
+/ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m type=A
+/ip dns static add address=1.1.1.1 name=cloudflare-dns.com type=A
+/ip dns static add address=192.168.90.35 comment=<AUTO:DHCP:main-dhcp-server> name=W11.home ttl=5m type=A
+/ip dns static add address=8.8.8.8 name=dns.google type=A
+/ip dns static add address=8.8.4.4 name=dns.google type=A
 /ip dns static add cname=miniAlx.home name=miniAlx type=CNAME
-/ip dns static add address=192.168.90.220 comment=<AUTO:DHCP:main-dhcp-server> name=yandex-mini2-ZGNK.home ttl=5m
-/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes match-subdomain=yes name=googlevideo.com type=FWD
-/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes match-subdomain=yes name=youtube.com type=FWD
-/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes match-subdomain=yes name=ytimg.com type=FWD
-/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes match-subdomain=yes name=youtu.be type=FWD
-/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes match-subdomain=yes name=yt.be type=FWD
-/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes match-subdomain=yes name=ggpht.com type=FWD
-/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes match-subdomain=yes name=gvt1.com type=FWD
-/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes match-subdomain=yes name=youtube-nocookie.com type=FWD
-/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes match-subdomain=yes name=googleapis.com type=FWD
-/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes match-subdomain=yes name=google.com type=FWD
-/ip dns static add address-list=alist-mangle-YouTube comment="YT Hack" disabled=yes match-subdomain=yes name=google.ru type=FWD
-/ip dns static add address=46.39.51.100 name=ftpserver.org
-/ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m
-/ip dns static add address=192.168.90.135 comment=<AUTO:DHCP:main-dhcp-server> name=nadezda-phone.home ttl=5m
-/ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=HONOR9X-dbcb7b0850fde5c5.home ttl=5m
+/ip dns static add address=192.168.90.220 comment=<AUTO:DHCP:main-dhcp-server> name=yandex-mini2-ZGNK.home ttl=5m type=A
+/ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m type=A
+/ip dns static add address=192.168.90.205 comment=<AUTO:DHCP:main-dhcp-server> name=localhost.home ttl=5m type=A
+/ip dns static add address=192.168.90.135 comment=<AUTO:DHCP:main-dhcp-server> name=nadezda-phone.home ttl=5m type=A
+/ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m type=A
+/ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=HONOR9X-dbcb7b0850fde5c5.home ttl=5m type=A
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=cloudflare-ech.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=googlevideo.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=googleapis.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" disabled=yes forward-to=localhost match-subdomain=yes name=youtube.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=ytimg.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=youtu.be type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=ggpht.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=rutracker.org type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=rutracker.cc type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=medium.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=fb.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=facebook.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=fbcdn.net type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=fbcdn.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=x.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=twitter.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=linkedin.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=prntscr.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=prnt.sc type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=t.co type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=protonvpn.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=nnmclub.to type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=ntc.party type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-PH comment="DPI Hack PH" forward-to=localhost match-subdomain=yes name=pornhub.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-PH comment="DPI Hack PH" forward-to=localhost match-subdomain=yes name=rt.pornhub.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-PH comment="DPI Hack PH" forward-to=localhost match-subdomain=yes name=ei.phncdn.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-PH comment="DPI Hack PH" forward-to=localhost match-subdomain=yes name=phncdn.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-PH comment="DPI Hack PH" forward-to=localhost match-subdomain=yes name=ew.phncdn.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-PH comment="DPI Hack PH" forward-to=localhost match-subdomain=yes name=ss.phncdn.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-PH comment="DPI Hack PH" forward-to=localhost match-subdomain=yes name=cdn1d-static-shared.phncdn.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=cdninstagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=deviantart.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=parastorage.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=wixstatic.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TV comment="DPI Hack: specific list for TVs to fix mss" forward-to=DOH-Google match-subdomain=yes name=youtube.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=DOH-Comss match-subdomain=yes name=chatgpt.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 regexp=instagram type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=bookstagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=carstagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=chickstagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=ig.me type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=igcdn.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=igsonar.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=igtv.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=imstagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=imtagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instaadder.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instachecker.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instafallow.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instafollower.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagainer.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagda.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagify.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagmania.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagor.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagran.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagranm.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagrem.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagrm.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagtram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagy.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instamgram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instangram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instanttelegram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instaplayer.net type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instastyle.tv type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instgram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=intagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=intagrm.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=intgram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=kingstagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=lnstagram-help.com type=FWD
+/ip dns static add address=192.168.90.133 comment=<AUTO:DHCP:main-dhcp-server> name=Redmi-Note-13-Pro.home ttl=5m type=A
+/ip dns static add address=192.168.90.203 comment=<AUTO:DHCP:main-dhcp-server> name=ast25b.home ttl=5m type=A
+/ip dns static add address=192.168.90.134 comment=<AUTO:DHCP:main-dhcp-server> name=A55-pol-zovatela-Sergej.home ttl=5m type=A
+/ip dns static add address=192.168.90.77 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-G3RE47G.home ttl=5m type=A
+/ip dns static add address=192.168.90.66 comment=<AUTO:DHCP:main-dhcp-server> name=NWS-116.home ttl=5m type=A
+/ip dns static add address=192.168.90.142 comment=<AUTO:DHCP:main-dhcp-server> name=A54-pol-zovatela-Natalya.home ttl=5m type=A
+/ip dns static add address=46.39.51.217 name=ftpserver.org type=A
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
@@ -409,14 +539,12 @@
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-rdp-allow
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-smb-allow
 /ip firewall address-list add address=185.13.148.14 list=alist-fw-vpn-server-addr
-/ip firewall address-list add address=rutracker.org list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=rutracker.org disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.97.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=10.0.0.0/29 list=alist-fw-vpn-server-addr
 /ip firewall address-list add address=10.0.0.0/29 list=alist-fw-vpn-subnets
-/ip firewall address-list add address=nnmclub.me list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=10.0.0.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=10.0.0.0/24 list=alist-nat-local-subnets
-/ip firewall address-list add address=myexternalip.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=172.16.0.16/30 list=alist-fw-local-subnets
 /ip firewall address-list add address=172.16.0.16/30 list=alist-nat-local-subnets
 /ip firewall address-list add address=192.168.98.0/24 comment="Add DNS Server to this List" list=alist-fw-dns-allow
@@ -425,64 +553,35 @@
 /ip firewall address-list add address=grafanasvc.home list=alist-nat-grafana-service
 /ip firewall address-list add address=influxdb.home list=alist-nat-influxdb-server
 /ip firewall address-list add address=influxdbsvc.home list=alist-nat-influxdb-service
-/ip firewall address-list add address=speedtest.tele2.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.90.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
-/ip firewall address-list add address=lostfilm.tv list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=nnmclub.to list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=rutor.org list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=rutor.info list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=lostfilm.tv disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=10.0.0.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=185.13.148.14 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=192.168.90.0/24 comment="Port scan entire LAN allow" list=alist-fw-port-scanner-allow
-/ip firewall address-list add address=www.parallels.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=instagram.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=l.instagram.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=www.parallels.com disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=instagram.com disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.100.7 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=217.10.36.5 comment="AKADO official DNS server" list=alist-fw-dns-allow
 /ip firewall address-list add address=217.10.34.2 comment="AKADO official DNS server" list=alist-fw-dns-allow
-/ip firewall address-list add address=2ip.ru disabled=yes list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=www.canva.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=www.canva.com disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.99.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-vpn-subnets
-/ip firewall address-list add address=radarr.video list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=tmdb.org list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=themoviedb.org list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=image.tmdb.org list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=radarr.servarr.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=swagger.io list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=gog.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=pornhub.com disabled=yes list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=www.tinkercad.com comment=www.tinkercad.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=autodesk.com comment=autodesk.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=accounts.autodesk.com comment=accounts.autodesk.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=ntc.party list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=binaryronin.io list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=nmac.to list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=x.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=tkjpedia.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=twitter.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=youtube.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=youtu.be comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=yt.be comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=googlevideo.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=ytimg.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=ggpht.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=gvt1.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=youtube-nocookie.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=youtube-ui.l.google.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=youtubeembeddedplayer.googleapis.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=youtube.googleapis.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=youtubei.googleapis.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=yt-video-upload.l.google.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=wide-youtube.l.google.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=google.com comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=google.ru comment="YT Hack" disabled=yes list=alist-mangle-YouTube
-/ip firewall address-list add address=medium.com list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=46.39.51.100 list=alist-nat-external-ip
+/ip firewall address-list add address=radarr.video disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=tmdb.org disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=themoviedb.org disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=www.tinkercad.com disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=autodesk.com disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=accounts.autodesk.com disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=ntc.party disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=binaryronin.io disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=medium.com disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=192.168.80.2 list=alist-mangle-docker-space
+/ip firewall address-list add address=46.39.51.217 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
 /ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=~~~OSFP protocol=ospf
+/ip firewall filter add action=accept chain=input comment=API log-prefix=~~~API port=8728 protocol=tcp
 /ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
 /ip firewall filter add action=accept chain=output comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
@@ -713,21 +812,23 @@
 /ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new in-interface="wan A" log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
 /ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log-prefix="#DROP UNKNOWN (FWD)"
 /ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log-prefix="#DROP UNKNOWN (INPUT)"
+/ip firewall mangle add action=change-mss chain=forward comment="DPI Hack: specific  for TVs to fix mss" dst-address-list=alist-mangle-byedpi-TV new-mss=88 protocol=tcp tcp-flags=syn
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1360 protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1360 protocol=tcp src-address-list=alist-fw-vpn-subnets tcp-flags=syn tcp-mss=1361-65535
+/ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack" connection-mark=no-mark dst-address-list=alist-mangle-byedpi in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
+/ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack PH" connection-mark=no-mark dst-address-list=alist-mangle-byedpi-PH in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
+/ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack IG" connection-mark=no-mark dst-address-list=alist-mangle-byedpi-IG in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
+/ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack TV" connection-mark=no-mark dst-address-list=alist-mangle-byedpi-TV in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=alist-mangle-vpn-tunneled-sites new-connection-mark=cmark-tunnel-connection
-/ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=alist-mangle-YouTube new-connection-mark=cmark-tunnel-connection
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new dst-address-list=alist-fw-telegram-servers new-connection-mark=cmark-tunnel-connection
+/ip firewall mangle add action=mark-routing chain=prerouting comment="DPI hack" connection-mark=cmark-docker-connection in-interface-list=list-mangle-byedpi new-routing-mark=rmark-docker-redirect passthrough=no routing-mark=!rmark-docker-redirect
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self)" dst-address-list=alist-mangle-YouTube log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-vpn-tunneled-sites log=yes log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-YouTube log=yes log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark dst-port=500,4500 new-connection-mark=cmark-ipsec protocol=udp
 /ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark new-connection-mark=cmark-ipsec protocol=ipsec-esp
-/ip firewall mangle add action=mark-routing chain=output comment="VPN (pure IPSEC)" connection-mark=cmark-ipsec disabled=yes dst-address-list=alist-mangle-YouTube new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=output comment="VPN (pure IPSEC)" connection-mark=cmark-ipsec dst-address-list=alist-mangle-vpn-tunneled-sites new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY
 /ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark layer7-protocol=7Z new-connection-mark=conn-7z-download
@@ -746,11 +847,10 @@
 /ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to GRAFANA  (local only)" dst-address-list=alist-nat-grafana-service dst-port=3000 log=yes log-prefix="~~~ GRAFANA BACK" out-interface=main-infrastructure-br protocol=tcp src-address-list=alist-nat-local-subnets
 /ip firewall nat add action=dst-nat chain=dstnat comment="Redirect to INFLUXDB (map to port 8000, local only)" dst-address-list=alist-nat-influxdb-server log=yes log-prefix=~~~INFLUX src-address-list=alist-nat-local-subnets to-addresses=192.168.90.40
 /ip firewall nat add action=masquerade chain=srcnat comment="Backward redirect to INFLUXDB  (local only)" dst-address-list=alist-nat-influxdb-service log=yes log-prefix="~~~~~~~~INFLUX BACK" src-address-list=alist-nat-local-subnets
-/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" disabled=yes dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_NAT src-address-list=alist-nat-local-subnets
-/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" disabled=yes dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix=~~~VPN_NAT
-/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" disabled=yes dst-address-list=alist-mangle-YouTube log-prefix=~~~VPN_NAT
-/ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" disabled=yes dst-address-list=alist-nat-local-subnets log-prefix=~~~VPN_NAT src-address-list=alist-fw-vpn-subnets
-/ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" disabled=yes out-interface-list=list-l2tp-tunnels
+/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_NAT src-address-list=alist-nat-local-subnets
+/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" dst-address-list=alist-mangle-vpn-tunneled-sites log-prefix=~~~VPN_NAT
+/ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=alist-nat-local-subnets log-prefix=~~~VPN_NAT src-address-list=alist-fw-vpn-subnets
+/ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface-list=list-l2tp-tunnels
 /ip firewall nat add action=netmap chain=dstnat comment="WINBOX pass through" dst-port=9999 in-interface="wan A" log-prefix=~~~WNBOX protocol=tcp to-addresses=192.168.90.1 to-ports=8291
 /ip firewall nat add action=dst-nat chain=dstnat comment="WINBOX NAT loopback" dst-address-list=alist-nat-external-ip dst-address-type="" dst-port=8291 in-interface=main-infrastructure-br log-prefix=~~~LOOP protocol=tcp src-address-list=alist-nat-local-subnets to-addresses=192.168.90.1 to-ports=8291
 /ip firewall nat add action=netmap chain=dstnat comment="WEB pass through" dst-port=8888 in-interface="wan A" log-prefix="#WEB EXT CTRL" protocol=tcp to-addresses=192.168.90.1 to-ports=80
@@ -769,18 +869,19 @@
 /ip ipsec identity add auth-method=digital-signature certificate=C.anna.ipsec@CHR comment=to-CHR-outer-tunnel-encryption-RSA peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-port=1701
-/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" disabled=yes dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
-/ip kid-control add fri=0s-1d mon=0s-1d name=totals sat=0s-1d sun=0s-1d thu=0s-1d tue=0s-1d wed=0s-1d
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-address=185.13.148.14/32 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
+/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
+/ip kid-control device add mac-address=10:DD:B1:9E:19:5E name=miniAlx user=totals
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
 /ip proxy access add action=redirect action-data=influxdb:8000 dst-host=influxdb
 /ip route add comment="GLOBAL AKADO" disabled=no distance=50 dst-address=0.0.0.0/0 gateway=10.20.225.1 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+/ip route add comment="BYE DPI HACK" disabled=no distance=1 dst-address=0.0.0.0/0 gateway=192.168.80.2%docker-infrastructure-br pref-src="" routing-table=rmark-docker-redirect scope=30 suppress-hw-offload=no target-scope=10
 /ip service set telnet disabled=yes
-/ip service set api disabled=yes
+/ip service set api address=192.168.90.0/24
 /ip service set api-ssl disabled=yes
 /ip smb shares set [ find default=yes ] directory=/pub
-/ip ssh set forwarding-enabled=remote
+/ip ssh set ciphers=aes-gcm,aes-ctr,aes-cbc,3des-cbc,null forwarding-enabled=remote
 /ip tftp add real-filename=NAS/ req-filename=.*
 /ip traffic-flow set cache-entries=64k enabled=yes interfaces="wan A"
 /ip upnp set enabled=yes
@@ -791,7 +892,7 @@
 /routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0) { set comment GLOBAL-VPN ; set pref-src 10.0.0.3 ; accept; }"
 /routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter) { set comment LOCAL-AREA ; set pref-src 10.0.0.3 ; accept; }"
 /routing filter rule add chain=ospf-in comment="DROP OTHERS" disabled=no rule="reject;"
-/routing ospf interface-template add area=backbone disabled=no interfaces=tunnel type=ptp
+/routing ospf interface-template add area=backbone disabled=no interfaces=chr-tunnel type=ptp
 /routing ospf interface-template add area=anna-space-main disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.98.0/24 src-address=192.168.90.0/24
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.90.0/24 src-address=192.168.98.0/24
@@ -829,11 +930,13 @@
 /system logging add action=ParseMemoryLog topics=error
 /system logging add action=ParseMemoryLog topics=account
 /system logging add action=ParseMemoryLog topics=critical
-/system logging add action=OSXRemoteLog prefix=RLOG topics=!debug
+/system logging add action=DockerRemoteLog prefix=RLOG topics=!debug
 /system logging add action=TransfersOnscreenLog topics=fetch
-/system logging add action=PKGInstallationLog
-/system logging add action=REBOOTLog
-/system logging add action=PKGInstallationLog
+/system logging add action=PKGInstallationLog regex="^.*install.*\$"
+/system logging add action=REBOOTLog regex="^.*reboot.*\$"
+/system logging add action=PKGInstallationLog regex="^.*package.*\$"
+/system logging add action=DockerOnscreenLog topics=container
+/system logging add action=AlloyRemoteLog prefix=ALOG topics=!debug
 /system note set note=Pending show-at-login=no
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
@@ -1090,6 +1193,7 @@
     \n}\
     \n\
     \n\
+    \n\r\
     \n"
 /system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doCoolConsole\";\r\
@@ -1219,6 +1323,7 @@
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
     \n\r\
     \n/system note set note=\"\$logcontent\"  \r\
+    \n\r\
     \n"
 /system script add dont-require-permissions=yes name=doIpsecPolicyUpd owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local PolicyComment \"UBUNTU VPN traffic\"\r\
     \n:local WANip [/ip address get [find interface=\"wan A\"] address] \r\
@@ -1408,6 +1513,7 @@
     \n};\r\
     \n\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Checks device temperature and warns on overheat" dont-require-permissions=yes name=doHeatFlag owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n:local sysname [/system identity get name];\
@@ -1445,6 +1551,7 @@
     \n\
     \n\
     \n};\
+    \n\r\
     \n"
 /system script add comment="Collects bandwidth speeds using Mikrotik proprietary protocol, so you need mikrotik devices on both sides (i'm using CHR)" dont-require-permissions=yes name=doCollectSpeedStats owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -1545,12 +1652,14 @@
     \n/system leds settings set all-leds-off=immediate\r\
     \n\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Runs at morning to get flashes back (swith on all LEDs)" dont-require-permissions=yes name=doLEDon owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doLEDon\";\r\
     \n\r\
     \n/system leds settings set all-leds-off=never;\r\
+    \n\r\
     \n\r\
     \n"
 /system script add comment="Just some sound" dont-require-permissions=yes name=doBumerSound owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
@@ -1631,6 +1740,7 @@
     \n:log error (\"Telegram notify error\");\r\
     \n:put \"Telegram notify error\";\r\
     \n};\r\
+    \n\r\
     \n"
 /system script add comment="Netwatch handler both when OnUp and OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
@@ -1708,6 +1818,7 @@
     \n\r\
     \n\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="DHCP service OnLease handler, should be called from DHCP server script page (see mikrotik manual available variables \$leaseBound, \$leaseServerName etc..)" dont-require-permissions=yes name=doDHCPLeaseTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -1750,103 +1861,105 @@
 /system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n#clear all global variables\
     \n/system script environment remove [find];\
+    \n\r\
     \n"
-/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# reset current\r\
-    \n/system note set note=\"Pending\";\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \n    # Track sync time (avoid CHR initial clock bug), with this we are also checking if internet comes up\r\
-    \n\r\
-    \n    :local successSyncState \"synchronized\";\r\
-    \n    :local syncOk false;\r\
-    \n    :local syncState \"\";\r\
-    \n    :local timeSpent 0;\r\
-    \n    :local ticks 0;\r\
-    \n    :local maxTicks 40;\r\
-    \n    :local break false;\r\
-    \n    :do {\r\
-    \n        :set syncState [/system ntp client get status];\r\
-    \n        :set syncOk (\$syncState = \$successSyncState);\r\
-    \n\r\
-    \n        :log info \"Waiting 15s for clock sync using NTP.. (\$ticks/\$maxTicks, \$syncState)\";\r\
-    \n        :put \"Waiting 15s for clock sync using NTP.. (\$ticks/\$maxTicks, \$syncState)\";\r\
-    \n        \r\
-    \n        :if (!\$syncOk) do={\r\
-    \n\r\
-    \n            :delay 15s;        \r\
-    \n            :set timeSpent (\$timeSpent + 15);\r\
-    \n            :set break (\$ticks >= \$maxTicks);\r\
-    \n\r\
-    \n        } else={\r\
-    \n            :set break true;\r\
-    \n        };\r\
-    \n\r\
-    \n        :set ticks (\$ticks + 1);\r\
-    \n\r\
-    \n    } while=(! \$break )\r\
-    \n\r\
-    \n    :if (\$syncOk) do={\r\
-    \n        :log warning \"Successful clock sync using NTP in \$timeSpent seconds\";\r\
-    \n        :put \"Successful clock sync using NTP in \$timeSpent seconds\";\r\
-    \n        \r\
-    \n    } else={\r\
-    \n        :log error \"Error when clock sync using NTP in \$timeSpent seconds\";\r\
-    \n        :put \"Error when clock sync using NTP in \$timeSpent seconds\";\r\
-    \n\r\
-    \n    };\r\
-    \n    \r\
-    \n} on-error={\r\
-    \n\r\
-    \n    :log error \"Error when tracking clock sync using NTP\";\r\
-    \n    :put \"Error when tracking clock sync using NTP\";\r\
-    \n\r\
-    \n};\r\
-    \n\r\
-    \n:local SafeScriptCall do={\r\
-    \n\r\
-    \n    :if ([:len \$0]!=0) do={\r\
-    \n        :if ([:len \$1]!=0) do={\r\
-    \n            :if ([:len [/system script find name=\$1]]!=0) do={\r\
-    \n\r\
-    \n                :do {\r\
-    \n                    :log warning \"Starting script: \$1\";\r\
-    \n                    :put \"Starting script: \$1\"\r\
-    \n                    /system script run \$1;\r\
-    \n                } on-error= {\r\
-    \n                    :log error \"FAIL Starting script: \$1\";\r\
-    \n                    :put \"FAIL Starting script: \$1\"\r\
-    \n                };\r\
-    \n\r\
-    \n            }\r\
-    \n        }\r\
-    \n    } \r\
-    \n\r\
-    \n}\r\
-    \n\r\
-    \n\$SafeScriptCall \"doEnvironmentClearance\";\r\
-    \n\$SafeScriptCall \"doEnvironmentSetup\";\r\
-    \n\$SafeScriptCall \"doImperialMarch\";\r\
-    \n\$SafeScriptCall \"doCoolConsole\";\r\
-    \n\$SafeScriptCall \"SAT!start\";\r\
-    \n\r\
-    \n# wait some for all tunnels to come up after reboot and VPN to work\r\
-    \n\r\
-    \n:local inf \"Wait some for all tunnels to come up after reboot and VPN to work..\" ;\r\
-    \n:global globalNoteMe;\r\
-    \n:global globalTgMessage;\r\
-    \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\r\
-    \n\r\
-    \n:delay 15s;\r\
-    \n\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doStartupScript\";\r\
-    \n\r\
-    \n:local inf \"\$scriptname on \$sysname: system restart detected\" ;\r\
-    \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\r\
-    \n:if (any \$globalTgMessage ) do={ \$globalTgMessage value=\$inf; }\r\
-    \n      \r\
-    \n\r\
+/system script add comment="Startup script" dont-require-permissions=yes name=doStartupScript owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# reset current\
+    \n/system note set note=\"Pending\";\
+    \n\
+    \n:do {\
+    \n\
+    \n    # Track sync time (avoid CHR initial clock bug), with this we are also checking if internet comes up\
+    \n\
+    \n    :local successSyncState \"synchronized\";\
+    \n    :local syncOk false;\
+    \n    :local syncState \"\";\
+    \n    :local timeSpent 0;\
+    \n    :local ticks 0;\
+    \n    :local maxTicks 40;\
+    \n    :local break false;\
+    \n    :do {\
+    \n        :set syncState [/system ntp client get status];\
+    \n        :set syncOk (\$syncState = \$successSyncState);\
+    \n\
+    \n        :log info \"Waiting 15s for clock sync using NTP.. (\$ticks/\$maxTicks, \$syncState)\";\
+    \n        :put \"Waiting 15s for clock sync using NTP.. (\$ticks/\$maxTicks, \$syncState)\";\
+    \n        \
+    \n        :if (!\$syncOk) do={\
+    \n\
+    \n            :delay 15s;        \
+    \n            :set timeSpent (\$timeSpent + 15);\
+    \n            :set break (\$ticks >= \$maxTicks);\
+    \n\
+    \n        } else={\
+    \n            :set break true;\
+    \n        };\
+    \n\
+    \n        :set ticks (\$ticks + 1);\
+    \n\
+    \n    } while=(! \$break )\
+    \n\
+    \n    :if (\$syncOk) do={\
+    \n        :log warning \"Successful clock sync using NTP in \$timeSpent seconds\";\
+    \n        :put \"Successful clock sync using NTP in \$timeSpent seconds\";\
+    \n        \
+    \n    } else={\
+    \n        :log error \"Error when clock sync using NTP in \$timeSpent seconds\";\
+    \n        :put \"Error when clock sync using NTP in \$timeSpent seconds\";\
+    \n\
+    \n    };\
+    \n    \
+    \n} on-error={\
+    \n\
+    \n    :log error \"Error when tracking clock sync using NTP\";\
+    \n    :put \"Error when tracking clock sync using NTP\";\
+    \n\
+    \n};\
+    \n\
+    \n:local SafeScriptCall do={\
+    \n\
+    \n    :if ([:len \$0]!=0) do={\
+    \n        :if ([:len \$1]!=0) do={\
+    \n            :if ([:len [/system script find name=\$1]]!=0) do={\
+    \n\
+    \n                :do {\
+    \n                    :log warning \"Starting script: \$1\";\
+    \n                    :put \"Starting script: \$1\"\
+    \n                    /system script run \$1;\
+    \n                } on-error= {\
+    \n                    :log error \"FAIL Starting script: \$1\";\
+    \n                    :put \"FAIL Starting script: \$1\"\
+    \n                };\
+    \n\
+    \n            }\
+    \n        }\
+    \n    } \
+    \n\
+    \n}\
+    \n\
+    \n\$SafeScriptCall \"doEnvironmentClearance\";\
+    \n\$SafeScriptCall \"doEnvironmentSetup\";\
+    \n\$SafeScriptCall \"doImperialMarch\";\
+    \n\$SafeScriptCall \"doCoolConsole\";\
+    \n\$SafeScriptCall \"SAT!start\";\
+    \n\
+    \n# wait some for all tunnels to come up after reboot and VPN to work\
+    \n\
+    \n:local inf \"Wait some for all tunnels to come up after reboot and VPN to work..\" ;\
+    \n:global globalNoteMe;\
+    \n:global globalTgMessage;\
+    \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\
+    \n\
+    \n:delay 15s;\
+    \n\
+    \n:local sysname [/system identity get name];\
+    \n:local scriptname \"doStartupScript\";\
+    \n\
+    \n:local inf \"\$scriptname on \$sysname: system restart detected\" ;\
+    \n:if (any \$globalNoteMe ) do={ \$globalNoteMe value=\$inf; }\
+    \n:if (any \$globalTgMessage ) do={ \$globalTgMessage value=\$inf; }\
+    \n      \
+    \n\
+    \n\
     \n"
 /system script add comment="Updates remote VPN server (CHR) IPSEC policies for this mikrotik client via SSH when external IP changed" dont-require-permissions=yes name=doSuperviseCHRviaSSH owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
@@ -1997,6 +2110,7 @@
     \n}\r\
     \n\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Tracks and notifies about firmware releases" dont-require-permissions=yes name=doTrackFirmwareUpdates owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
@@ -2052,11 +2166,13 @@
     \n:local scriptname \"doPeriodicLogDump\";\
     \n:global globalScriptBeforeRun;\
     \n\$globalScriptBeforeRun \$scriptname;\
+    \n\r\
     \n"
 /system script add comment="Mikrotik system log analyzer, called manually by 'doPeriodicLogDump' script, checks 'interesting' conditions and does the routine" dont-require-permissions=yes name=doPeriodicLogParse owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
     \n:local scriptname \"doPeriodicLogParse\";\
     \n:global globalScriptBeforeRun;\
     \n\$globalScriptBeforeRun \$scriptname;\
+    \n\r\
     \n"
 /system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
     \n:local scriptname \"doIPSECPunch\";\
@@ -2199,6 +2315,7 @@
     \n\
     \n}\
     \n\
+    \n\r\
     \n"
 /system script add comment="A template to track hotspot users" dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2461,17 +2578,9 @@
     \n\
     \n        :local state (\"Adding CAPs ACL static entries for (\$newBlockedIp/\$newMac) on \$newSsid\");\
     \n        \$globalNoteMe value=\$state;\
-    \n       \
-    \n       # avoid parce errors using Execute when no wireless package installed\
-    \n       :if ( [ :len [ /system package find where name=\"wireless\" and disabled=no ] ] > 0  ) do={\
-    \n          :local Cmd \"/caps-man access-list remove [find mac-address=\$newMac];\";\
-    \n          :local jobid [:execute script=\$Cmd];\
+    \n        /caps-man access-list remove [find mac-address=\$newMac];\
+    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\"\$newSsid\" place-before=1\
     \n\
-    \n          :local Cmd \"/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp='\$newSsid' place-before=1;\";\
-    \n          :local jobid [:execute script=\$Cmd];\
-    \n          \
-    \n      }\
-    \n  \
     \n    } on-error={\
     \n\
     \n        :local state (\"Error: something fail on CAPS configuration step\");\
@@ -2698,7 +2807,7 @@
     \n}\
     \n\
     \n}\
-    \n\
+    \n\r\
     \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
@@ -3023,6 +3132,7 @@
     \n  \
     \n}\
     \n\
+    \n\r\
     \n"
 /system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -3104,6 +3214,7 @@
     \n:beep frequency=644 length=1000ms;\r\
     \n\r\
     \n}\r\
+    \n\r\
     \n"
 /system script add comment="Dumps all the scripts from you device to *.rsc.txt files, loads to FTP (all scripts in this Repo made with it)" dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n:local sysname [/system identity get name];\
@@ -3342,6 +3453,7 @@
     \n  \$globalTgMessage value=\$inf;\
     \n  \
     \n}\
+    \n\r\
     \n"
 /system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n:local sysname [/system identity get name];\
@@ -3608,6 +3720,7 @@
     \n  /system reboot\r\
     \n  \r\
     \n}\r\
+    \n\r\
     \n\r\
     \n\r\
     \n"
@@ -3918,6 +4031,7 @@
     \n  \r\
     \n}\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="This script is a SCEP-client, it request the server to ptovide a new certificate" dont-require-permissions=yes name=doSCEPClientCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n# generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\r\
@@ -4113,6 +4227,7 @@
     \n/system/logging/action/set memory-lines=1 [find target=memory]\
     \n/system/logging/action/set memory-lines=1000 [find target=memory]\
     \n\
+    \n\r\
     \n"
 /tool bandwidth-server set enabled=no
 /tool e-mail set from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
@@ -4121,15 +4236,15 @@
 /tool graphing resource add
 /tool mac-server set allowed-interface-list=none
 /tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
-/tool netwatch add comment="miniAlx status check" down-script="\r\
-    \n:put \"info: Netwatch UP\"\r\
-    \n:log info \"Netwatch UP\"\r\
-    \n\r\
-    \n:global NetwatchHostName \"miniAlx\";\r\
-    \n/system script run doNetwatchHost;" host=192.168.90.180 type=simple up-script="\r\
-    \n:put \"info: Netwatch UP\"\r\
-    \n:log info \"Netwatch UP\"\r\
-    \n\r\
-    \n:global NetwatchHostName \"miniAlx\";\r\
+/tool netwatch add comment="miniAlx status check" disabled=no down-script="\
+    \n:put \"info: Netwatch UP\"\
+    \n:log info \"Netwatch UP\"\
+    \n\
+    \n:global NetwatchHostName \"miniAlx\";\
+    \n/system script run doNetwatchHost;" host=192.168.90.70 name=miniAlx test-script="" type=simple up-script="\
+    \n:put \"info: Netwatch UP\"\
+    \n:log info \"Netwatch UP\"\
+    \n\
+    \n:global NetwatchHostName \"miniAlx\";\
     \n/system script run doNetwatchHost;"
 /tool sniffer set filter-ip-protocol=icmp filter-src-ip-address=185.85.121.15/32 streaming-server=192.168.90.170

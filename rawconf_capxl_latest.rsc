@@ -1,4 +1,4 @@
-# 2025-04-25 21:00:02 by RouterOS 7.18.2
+# 2025-09-22 21:00:02 by RouterOS 7.18.2
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -38,6 +38,7 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /system logging action add name=FTPMemoryLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
+/user group add name=mktxp policy=read,api,!local,!telnet,!ssh,!ftp,!reboot,!write,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!romon,!rest-api
 /ip smb set domain=HNW interfaces="main infrastructure"
 /interface bridge port add bridge="main infrastructure" ingress-filtering=no interface="lan A" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge port add bridge="main infrastructure" ingress-filtering=no interface="lan B" internal-path-cost=10 path-cost=10 trusted=yes
@@ -54,9 +55,9 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.100 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.217 name=ftpserver.org type=A
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.100 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.217 list=alist-nat-external-ip
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
 /ip firewall service-port set sip disabled=yes
@@ -66,7 +67,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /ip firewall service-port set sctp disabled=yes
 /ip ipsec profile set [ find default=yes ] dpd-interval=2m dpd-maximum-failures=5
 /ip service set telnet disabled=yes
-/ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
 /ip smb shares set [ find default=yes ] directory=/pub
 /ip ssh set ciphers=aes-gcm,aes-ctr,aes-cbc,3des-cbc,null forwarding-enabled=remote
@@ -106,12 +106,12 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system note set note="IPSEC: \t\tokay \
     \nDefault route: \t192.168.90.1 \
     \ncapxl: \t\t7.18.2 \
-    \nUptime:\t\t4d01:36:05  \
-    \nTime:\t\t2025-04-25 20:53:04  \
-    \nya.ru latency:\t8 ms  \
+    \nUptime:\t\t1d08:19:58  \
+    \nTime:\t\t2025-09-22 20:53:04  \
+    \nya.ru latency:\t5 ms  \
     \nCHR:\t\t185.13.148.14  \
-    \nMIK:\t\t178.65.70.16  \
-    \nANNA:\t\t46.39.51.100  \
+    \nMIK:\t\t178.65.91.156  \
+    \nANNA:\t\t46.39.51.217  \
     \nClock:\t\tsynchronized  \
     \n"
 /system ntp client set enabled=yes
