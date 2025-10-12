@@ -1,4 +1,4 @@
-# 2025-09-22 21:00:02 by RouterOS 7.19
+# 2025-10-12 21:13:03 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -20,7 +20,7 @@
 /interface ethernet set [ find default-name=ether8 ] comment="to ATV(wire)" loop-protect=on name="lan G"
 /interface ethernet set [ find default-name=sfp-sfpplus1 ] disabled=yes name=optic
 /interface ethernet set [ find default-name=ether1 ] arp=proxy-arp mac-address=20:CF:30:DE:7B:2A name="wan A" poe-out=off
-/interface veth add address=192.168.80.2/24 gateway=192.168.80.1 gateway6="" name=bydpi-tunnel
+/interface veth add address=192.168.80.2/24 dhcp=no gateway=192.168.80.1 gateway6="" mac-address=02:23:29:BF:B3:C8 name=bydpi-tunnel
 /caps-man datapath add arp=proxy-arp bridge=guest-infrastructure-br client-to-client-forwarding=no name=2CapsMan-guest
 /caps-man datapath add arp=reply-only bridge=main-infrastructure-br client-to-client-forwarding=yes name=2CapsMan-private
 /caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps name="5GHz Rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps vht-basic-mcs=mcs0-9 vht-supported-mcs=mcs0-9
@@ -64,7 +64,7 @@
 /ip dhcp-server option add code=15 force=yes name=DomainName_Windows value="s'home'"
 /ip dhcp-server option add code=119 force=yes name=DomainName_LinuxMac value="s'home'"
 /ip dns forwarders add doh-servers=https://dns.google/dns-query name=DOH-Google
-/ip dns forwarders add doh-servers=https://1.1.1.1/dns-query name=DOH-CloudFlare
+/ip dns forwarders add doh-servers=https://cloudflare-dns.com/dns-query name=DOH-CloudFlare
 /ip dns forwarders add doh-servers=https://dns.quad9.net/dns-query name=DOH-Quad9
 /ip dns forwarders add dns-servers=8.8.8.8 name=DNS-Google8 verify-doh-cert=no
 /ip dns forwarders add doh-servers=https://router.comss.one/dns-query name=DOH-Comss
@@ -140,7 +140,6 @@
 /queue simple add comment=dtq,40:80:E1:5B:41:B8,nspanel name="NSPanel(wireless)@main-dhcp-server (40:80:E1:5B:41:B8)" queue=default/default target=192.168.90.165/32 total-queue=default
 /queue simple add comment=dtq,40:80:E1:5B:41:B8, name="NSPanel(wireless)(blocked)@guest-dhcp-server (40:80:E1:5B:41:B8)" queue=default/default target=192.168.98.165/32 total-queue=default
 /queue simple add comment=dtq,DC:10:57:2D:39:7B,iPhoneAlxr name="iPhoneAlxr(wireless)@main-dhcp-server (DC:10:57:2D:39:7B)" queue=default/default target=192.168.90.150/32 total-queue=default
-/queue simple add comment=dtq,DC:10:57:2D:39:7B, name="iPhoneAlxr(wireless)(blocked)@guest-dhcp-server (DC:10:57:2D:39:7B)" queue=default/default target=192.168.98.150/32 total-queue=default
 /queue simple add comment=dtq,00:1C:42:FE:E3:AB,W11 name="W11Parallels@main-dhcp-server (00:1C:42:FE:E3:AB)" queue=default/default target=192.168.90.35/32 total-queue=default
 /queue simple add comment=dtq,00:1C:42:FE:E3:AB, name="W11Parallels(blocked)@guest-dhcp-server (00:1C:42:FE:E3:AB)" queue=default/default target=192.168.98.35/32 total-queue=default
 /queue simple add comment=dtq,00:85:01:01:50:0E,wb name="WB (wire)@main-dhcp-server (00:85:01:01:50:0E)" queue=default/default target=192.168.90.2/32 total-queue=default
@@ -166,7 +165,7 @@
 /queue simple add comment=dtq,22:26:E9:CA:87:BA, name="Tomm(wireless)(blocked)@guest-dhcp-server (22:26:E9:CA:87:BA)" queue=default/default target=192.168.98.143/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1,A54-pol-zovatela-Natalya name="Froloff(wireless)@main-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.90.142/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1, name="Froloff(wireless)(blocked)@guest-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.98.142/32 total-queue=default
-/queue simple add comment=dtq,2C:D2:6B:42:D5:54, name="@guest-dhcp-server (2C:D2:6B:42:D5:54)" queue=default/default target=192.168.98.230/32 total-queue=default
+/queue simple add comment=dtq,DC:10:57:2D:39:7B, name="@guest-dhcp-server (DC:10:57:2D:39:7B)" queue=default/default target=192.168.98.229/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -249,8 +248,9 @@
 /caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn identity-regexp=anna master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
 /caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac identity-regexp=anna master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
-/container add cmd="-K u -a 5 --auto=none -Kt,h -d1 -s0+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -An -Ku -a1 -An --debug 1" comment="-Kt,h -q1+s -s29+s -o5+s -f-1 --md5sig -Asn -Ku -a5 -An" interface=bydpi-tunnel logging=yes name=byedpi-hev-socks5-tunnel:redirect root-dir=usb-docker/docker/byedpi-hev-socks5-tunnel start-on-boot=yes workdir=/
-/container config set ram-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/usb-docker/docker/pull
+/container add cmd="-K u -a 5 --auto=none -Kt,h -d1 -s0+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -An -Ku -a1 -An --debug 1" comment="YouTube freedom" interface=bydpi-tunnel logging=yes name=byedpi-hev-socks5-tunnel:mikro remote-image=wiktorbgu/byedpi-hev-socks5-tunnel:mikro root-dir=/usb-docker/docker/byedpi-hev-socks5-tunnel start-on-boot=yes workdir=/
+/container config set memory-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/usb-docker/docker/pull
+/container envs add key=QUIC list=BYEDPI_QUIC_REJECT value=REJECT
 /disk settings set auto-media-interface=main-infrastructure-br
 /ip smb set domain=HNW enabled=no interfaces=main-infrastructure-br
 /interface bridge port add bridge=main-infrastructure-br interface="lan D" internal-path-cost=10 path-cost=10 trusted=yes
@@ -357,7 +357,6 @@
 /ip dhcp-server lease add address=192.168.90.165 comment="NSPanel(wireless)" mac-address=40:80:E1:5B:41:B8 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.165 block-access=yes comment="NSPanel(wireless)(blocked)" mac-address=40:80:E1:5B:41:B8 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.150 comment="iPhoneAlxr(wireless)" mac-address=DC:10:57:2D:39:7B server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.150 block-access=yes comment="iPhoneAlxr(wireless)(blocked)" mac-address=DC:10:57:2D:39:7B server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.35 comment=W11Parallels mac-address=00:1C:42:FE:E3:AB server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.35 block-access=yes comment="W11Parallels(blocked)" mac-address=00:1C:42:FE:E3:AB server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.80 comment="miniAlx(wireless)" mac-address=88:53:95:30:68:9F server=main-dhcp-server
@@ -389,7 +388,7 @@
 /ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
-/ip dns set allow-remote-requests=yes cache-max-ttl=1d cache-size=4096KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 use-doh-server="https://security.cloudflare-dns.com/dns-query " verify-doh-cert=yes
+/ip dns set allow-remote-requests=yes cache-max-ttl=1d cache-size=4096KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 name=anna.home type=A
@@ -423,10 +422,10 @@
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.oss|\\.oz|\\.parody|\\.pirate|\\.opennic.glue|\\.dns\\.opennic\\.glue)\$" type=FWD
 /ip dns static add comment="OpenNIC - dns relay (DoH should not be configured)" forward-to=185.121.177.177,51.15.98.97,2a01:4f8:1c0c:80c9::1 regexp=".*(\\.bazar|\\.coin|\\.emc|\\.lib|\\.fur1|\\.bit|\\.ku|\\.te|\\.ti|\\.uu)\$" type=FWD
 /ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m type=A
-/ip dns static add address=1.1.1.1 name=cloudflare-dns.com type=A
+/ip dns static add address=1.1.1.1 comment="Forwarder bind - DNS CloudFlare" name=cloudflare-dns.com type=A
 /ip dns static add address=192.168.90.35 comment=<AUTO:DHCP:main-dhcp-server> name=W11.home ttl=5m type=A
-/ip dns static add address=8.8.8.8 name=dns.google type=A
-/ip dns static add address=8.8.4.4 name=dns.google type=A
+/ip dns static add address=8.8.8.8 comment="Forwarder bind - DNS CloudFlare" name=dns.google type=A
+/ip dns static add address=8.8.4.4 comment="Forwarder bind - DNS CloudFlare" name=dns.google type=A
 /ip dns static add cname=miniAlx.home name=miniAlx type=CNAME
 /ip dns static add address=192.168.90.220 comment=<AUTO:DHCP:main-dhcp-server> name=yandex-mini2-ZGNK.home ttl=5m type=A
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m type=A
@@ -512,7 +511,11 @@
 /ip dns static add address=192.168.90.77 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-G3RE47G.home ttl=5m type=A
 /ip dns static add address=192.168.90.66 comment=<AUTO:DHCP:main-dhcp-server> name=NWS-116.home ttl=5m type=A
 /ip dns static add address=192.168.90.142 comment=<AUTO:DHCP:main-dhcp-server> name=A54-pol-zovatela-Natalya.home ttl=5m type=A
-/ip dns static add address=46.39.51.217 name=ftpserver.org type=A
+/ip dns static add address=1.0.0.1 comment="Forwarder bind - DNS CloudFlare" name=cloudflare-dns.com type=A
+/ip dns static add address=9.9.9.9 comment="Forwarder bind - DNS Quad9" name=dns.quad9.net type=A
+/ip dns static add address=149.112.112.112 comment="Forwarder bind - DNS Quad9" name=dns.quad9.net type=A
+/ip dns static add address=195.133.25.16 comment="Forwarder bind - DNS Comss" name=router.comss.one type=A
+/ip dns static add address=46.39.51.192 name=ftpserver.org type=A
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
@@ -576,7 +579,7 @@
 /ip firewall address-list add address=binaryronin.io disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=medium.com disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.80.2 list=alist-mangle-docker-space
-/ip firewall address-list add address=46.39.51.217 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.192 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -937,7 +940,22 @@
 /system logging add action=PKGInstallationLog regex="^.*package.*\$"
 /system logging add action=DockerOnscreenLog topics=container
 /system logging add action=AlloyRemoteLog prefix=ALOG topics=!debug
-/system note set note=Pending show-at-login=no
+/system note set note="Ipsec:         okay \
+    \nRoute:     10.20.225.1 \
+    \nVersion:         7.20 \
+    \nUptime:        2d10:03:08  \
+    \nTime:        2025-10-12 21:10:13  \
+    \nPing:    5 ms  \
+    \nChr:        185.13.148.14  \
+    \nMik:        178.65.91.156  \
+    \nAnna:        46.39.51.192  \
+    \nClock:        synchronized  \
+    \n * rose-storage  \
+    \n * iot  \
+    \n * container  \
+    \n * wireless  \
+    \n * routeros  \
+    \n" show-at-cli-login=yes
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
 /system ntp client servers add address=85.21.78.91
@@ -946,15 +964,13 @@
 /system scheduler add interval=10h name=doIpsecPolicyUpd on-event="/system script run doIpsecPolicyUpd" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-02-21 start-time=15:31:13
 /system scheduler add interval=1d name=doUpdateStaticDNSviaDHCP on-event="/system script run doUpdateStaticDNSviaDHCP" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-03-21 start-time=19:19:59
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=15:55:00
-/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:00:00
+/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
 /system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-07-10 start-time=15:10:00
 /system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-07-13 start-time=03:25:00
 /system scheduler add interval=1h name=doCheckPingRate on-event="/system script run doCheckPingRate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-07-13 start-time=02:40:00
 /system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=23:30:00
 /system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
 /system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=11:31:24
-/system scheduler add name=doStartupScript on-event="/system script run doStartupScript;" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
-/system scheduler add interval=1w name=doTrackFirmwareUpdates on-event="/system script run doTrackFirmwareUpdates" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=11:30:00
 /system scheduler add interval=1d name=doCreateTrafficAccountingQueues on-event="/system script run doCreateTrafficAccountingQueues" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=06:05:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
@@ -1195,135 +1211,163 @@
     \n\
     \n\r\
     \n"
-/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doCoolConsole\";\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n\r\
-    \n:local logcontenttemp \"\";\r\
-    \n:local logcontent \"\";\r\
-    \n\r\
-    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]];\r\
-    \n\r\
-    \n# reset current\r\
-    \n/system note set note=\"Pending\";\r\
-    \n\r\
-    \n:local sysver \"NA\";\r\
-    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\r\
-    \n  :set sysver [/system package get system version];\r\
-    \n}\r\
-    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\r\
-    \n  :set sysver [/system package get routeros version];\r\
-    \n}\r\
-    \n\r\
-    \n:log info \"Picking default route\";\r\
-    \n:local defaultRoute \"unreachable\";\r\
-    \n/ip route {\r\
-    \n    :foreach i in=[find where dst-address=\"0.0.0.0/0\" and active and routing-table=main] do={\r\
-    \n        :set defaultRoute [:tostr [/ip route get \$i gateway] ];\r\
-    \n    }\r\
-    \n}\r\
-    \n\r\
-    \n:log info \"Picking ipsec\";\r\
-    \n:local ipsecState \"okay\";\r\
-    \n/ip ipsec policy {\r\
-    \n  :foreach vpnEndpoint in=[find (!disabled and !template)] do={\r\
-    \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\r\
-    \n\r\
-    \n    :if (\$ph2state != \"established\") do={\r\
-    \n        :local ipsecState \"issues found\";\r\
-    \n    }\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n:set logcontenttemp \"IPSEC: \t\t\$ipsecState\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\") \r\
-    \n:set logcontenttemp \"Default route: \t\$defaultRoute\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\") \r\
-    \n:set logcontenttemp \"\$[/system identity get name]: \t\t\$sysver\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\")\r\
-    \n:set logcontenttemp \"Uptime:\t\t\$[/system resource get uptime]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n\r\
-    \n:local SafeResolve do={\r\
-    \n\r\
-    \n    :if ([:len \$0]!=0) do={\r\
-    \n        :if ([:len \$1]!=0) do={\r\
-    \n            :do {\r\
-    \n                :local host [:resolve \"\$1\"];\r\
-    \n                :log warning \"Resolving: \$1\";\r\
-    \n                :put \"Resolving: \$1 - Ok\"\r\
-    \n                :return \$host;\r\
-    \n            } on-error= {\r\
-    \n                :log error \"FAIL resolving: \$1\";\r\
-    \n                :put \"FAIL resolving: \$1\";\r\
-    \n                :return \"ERROR\";\r\
-    \n            };\r\
-    \n        }\r\
-    \n    } \r\
-    \n    :log error \"FAIL resolving: \$1\";\r\
-    \n    :put \"FAIL resolving: \$1\";\r\
-    \n    :return \"ERROR\";\r\
-    \n}\r\
-    \n\r\
-    \n:local avgRttA 0;\r\
-    \n:local numPing 6;\r\
-    \n:local latency \"NA\";\r\
-    \n\r\
-    \n:local latencySite \"ya.ru\";\r\
-    \n:local yaResolve [\$SafeResolve \$latencySite];\r\
-    \n\r\
-    \n:log info \"Picking latency\";\r\
-    \n:if (\$yaResolve != \"ERROR\" ) do {\r\
-    \n    \r\
-    \n    :for tmpA from=1 to=\$numPing step=1 do={\r\
-    \n        /tool flood-ping count=1 size=38 address=\$yaResolve do={ :set avgRttA (\$\"avg-rtt\" + \$avgRttA); }\r\
-    \n        :delay 1s;\r\
-    \n    }\r\
-    \n    :set latency [:tostr (\$avgRttA / \$numPing )];\r\
-    \n\r\
-    \n} else={\r\
-    \n    :set latency \"unreachable\";\r\
-    \n}\r\
-    \n\r\
-    \n:log info \"Resolving chr\";\r\
-    \n:local hostname \"accb195e0dffc6bb.sn.mynetname.net\";\r\
-    \n:local chrResolve [\$SafeResolve \$hostname];\r\
-    \n:if (\$chrResolve = \"ERROR\" ) do {    \r\
-    \n    :set chrResolve \"unreachable\";\r\
-    \n}\r\
-    \n\r\
-    \n:log info \"Resolving mik\";\r\
-    \n:local hostname \"673706ed7949.sn.mynetname.net\";\r\
-    \n:local mikResolve [\$SafeResolve \$hostname];\r\
-    \n:if (\$mikResolve = \"ERROR\" ) do {    \r\
-    \n    :set mikResolve \"unreachable\";\r\
-    \n}\r\
-    \n\r\
-    \n:log info \"Resolving anna\";\r\
-    \n:local hostname \"hcy086pz6xz.sn.mynetname.net\";\r\
-    \n:local annaResolve [\$SafeResolve \$hostname];\r\
-    \n:if (\$annaResolve = \"ERROR\" ) do {    \r\
-    \n    :set annaResolve \"unreachable\";\r\
-    \n}\r\
-    \n\r\
-    \n:set logcontenttemp \"Time:\t\t\$[/system clock get date] \$[/system clock get time]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n:set logcontenttemp \"\$latencySite latency:\t\$latency ms\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n\r\
-    \n:set logcontenttemp \"CHR:\t\t\$chrResolve\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n:set logcontenttemp \"MIK:\t\t\$mikResolve\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n:set logcontenttemp \"ANNA:\t\t\$annaResolve\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n\r\
-    \n:set logcontenttemp \"Clock:\t\t\$[/system ntp client get status]\"\r\
-    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\r\
-    \n\r\
-    \n/system note set note=\"\$logcontent\"  \r\
-    \n\r\
+/system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doCoolConsole\";\
+    \n\
+    \n:global globalNoteMe;\
+    \n\
+    \n:local logcontenttemp \"\";\
+    \n:local logcontent \"\";\
+    \n:local state \"\"\
+    \n\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]];\
+    \n\
+    \n# reset current\
+    \n:set state \"Flush global note\"\
+    \n\$globalNoteMe value=\$state;\
+    \n/system note set note=\"Pending\";\
+    \n\
+    \n:local sysver \"NA\";\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\
+    \n  :set sysver [/system package get system version];\
+    \n}\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\
+    \n  :set sysver [/system package get routeros version];\
+    \n}\
+    \n\
+    \n:set state \"Picking default route\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n:local defaultRoute \"unreachable\";\
+    \n/ip route {\
+    \n    :foreach i in=[find where dst-address=\"0.0.0.0/0\" and active and routing-table=main] do={\
+    \n        :set defaultRoute [:tostr [/ip route get \$i gateway] ];\
+    \n    }\
+    \n}\
+    \n\
+    \n:set state \"Picking ipsec\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n:local ipsecState \"okay\";\
+    \n/ip ipsec policy {\
+    \n  :foreach vpnEndpoint in=[find (!disabled and !template)] do={\
+    \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\
+    \n\
+    \n    :if (\$ph2state != \"established\") do={\
+    \n        :local ipsecState \"issues found\";\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n:set logcontenttemp \"Ipsec:         \$ipsecState\"\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\") \
+    \n:set logcontenttemp \"Route:     \$defaultRoute\"\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\") \
+    \n:set logcontenttemp \"Version:         \$sysver\"\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\")\
+    \n:set logcontenttemp \"Uptime:        \$[/system resource get uptime]\"\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\
+    \n\
+    \n:local SafeResolve do={\
+    \n\
+    \n    :if ([:len \$0]!=0) do={\
+    \n        :if ([:len \$1]!=0) do={\
+    \n            :do {\
+    \n                :local host [:resolve \"\$1\"];\
+    \n                :log warning \"Resolving: \$1\";\
+    \n                :put \"Resolving: \$1 - Ok\"\
+    \n                :return \$host;\
+    \n            } on-error= {\
+    \n                :log error \"FAIL resolving: \$1\";\
+    \n                :put \"FAIL resolving: \$1\";\
+    \n                :return \"ERROR\";\
+    \n            };\
+    \n        }\
+    \n    } \
+    \n    :log error \"FAIL resolving: \$1\";\
+    \n    :put \"FAIL resolving: \$1\";\
+    \n    :return \"ERROR\";\
+    \n}\
+    \n\
+    \n:local avgRttA 0;\
+    \n:local numPing 6;\
+    \n:local latency \"NA\";\
+    \n\
+    \n:set state \"Yandex connection test\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n:local latencySite \"Ya.ru\";\
+    \n:local yaResolve [\$SafeResolve \$latencySite];\
+    \n\
+    \n:set state \"Picking latency\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n:if (\$yaResolve != \"ERROR\" ) do {\
+    \n    \
+    \n    :for tmpA from=1 to=\$numPing step=1 do={\
+    \n        /tool flood-ping count=1 size=38 address=\$yaResolve do={ :set avgRttA (\$\"avg-rtt\" + \$avgRttA); }\
+    \n        :delay 1s;\
+    \n    }\
+    \n    :set latency [:tostr (\$avgRttA / \$numPing )];\
+    \n\
+    \n} else={\
+    \n    :set latency \"unreachable\";\
+    \n}\
+    \n\
+    \n:set state \"Resolving CHR, MIK, ANNA\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n:local hostname \"accb195e0dffc6bb.sn.mynetname.net\";\
+    \n:local chrResolve [\$SafeResolve \$hostname];\
+    \n:if (\$chrResolve = \"ERROR\" ) do {    \
+    \n    :set chrResolve \"unreachable\";\
+    \n}\
+    \n\
+    \n:local hostname \"673706ed7949.sn.mynetname.net\";\
+    \n:local mikResolve [\$SafeResolve \$hostname];\
+    \n:if (\$mikResolve = \"ERROR\" ) do {    \
+    \n    :set mikResolve \"unreachable\";\
+    \n}\
+    \n\
+    \n:local hostname \"hcy086pz6xz.sn.mynetname.net\";\
+    \n:local annaResolve [\$SafeResolve \$hostname];\
+    \n:if (\$annaResolve = \"ERROR\" ) do {    \
+    \n    :set annaResolve \"unreachable\";\
+    \n}\
+    \n\
+    \n:set logcontenttemp \"Time:        \$[/system clock get date] \$[/system clock get time]\"\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\
+    \n:set logcontenttemp \"Ping:    \$latency ms\"\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\
+    \n\
+    \n:set logcontenttemp \"Chr:        \$chrResolve\"\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\
+    \n:set logcontenttemp \"Mik:        \$mikResolve\"\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\
+    \n:set logcontenttemp \"Anna:        \$annaResolve\"\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\
+    \n\
+    \n:set logcontenttemp \"Clock:        \$[/system ntp client get status]\"\
+    \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\
+    \n\
+    \n:set state \"Listing packages\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n/system/package {\
+    \n  :foreach pkg in=[find (!disabled)] do={\
+    \n    :local pkgName [get value-name=name \$pkg]\
+    \n    \
+    \n    :set logcontent (\"\$logcontent\" .\" * \$pkgName\" .\"  \\n\");\
+    \n\
+    \n    }\
+    \n  }\
+    \n\
+    \n\
+    \n:set state \"Setting global note\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n/system note set note=\"\$logcontent\"  \
+    \n\
     \n"
 /system script add dont-require-permissions=yes name=doIpsecPolicyUpd owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local PolicyComment \"UBUNTU VPN traffic\"\r\
     \n:local WANip [/ip address get [find interface=\"wan A\"] address] \r\
@@ -1838,25 +1882,25 @@
     \n\r\
     \n\r\
     \n:if (\$GleaseBound = 1) do={\r\
-    \n\t/ip dhcp-server lease;\r\
-    \n\t:foreach i in=[find dynamic=yes] do={\r\
-    \n\t\t:local dhcpip \r\
-    \n\t\t:set dhcpip [ get \$i address ];\r\
-    \n\t\t:local clientid\r\
-    \n\t\t:set clientid [get \$i host-name];\r\
+    \n    /ip dhcp-server lease;\r\
+    \n    :foreach i in=[find dynamic=yes] do={\r\
+    \n        :local dhcpip \r\
+    \n        :set dhcpip [ get \$i address ];\r\
+    \n        :local clientid\r\
+    \n        :set clientid [get \$i host-name];\r\
     \n\r\
-    \n\t\t:if (\$GleaseActIP = \$dhcpip) do={\r\
-    \n\t\t\t:local comment \"New IP\"\r\
-    \n\t\t\t:set comment ( \$comment . \": \" .  \$dhcpip . \": \" . \$clientid);\r\
-    \n\t\t\t/log error \$comment;\r\
+    \n        :if (\$GleaseActIP = \$dhcpip) do={\r\
+    \n            :local comment \"New IP\"\r\
+    \n            :set comment ( \$comment . \": \" .  \$dhcpip . \": \" . \$clientid);\r\
+    \n            /log error \$comment;\r\
     \n\r\
     \n                                        :local newGuest \"%D0%9A%D0%BB%D0%B8%D0%B5%D0%BD%D1%82%20%D0%B3%D0%BE%D1%81%D1%82%D0%B5%D0%B2%D0%BE%D0%B3%D0%BE%20wi-fi%3A%20\";\r\
     \n                                        :global TelegramMessage \"\$newGuest \$comment\";\r\
     \n                                         /system script run doTelegramNotify;\r\
     \n\r\
     \n                                         /system script run doWestminister;\r\
-    \n\t\t}\r\
-    \n\t}\r\
+    \n        }\r\
+    \n    }\r\
     \n}"
 /system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n#clear all global variables\
@@ -2111,37 +2155,6 @@
     \n\r\
     \n\r\
     \n\r\
-    \n"
-/system script add comment="Tracks and notifies about firmware releases" dont-require-permissions=yes name=doTrackFirmwareUpdates owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doTrackFirmwareUpdates\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n:local isUpdateAvailable false\r\
-    \n\r\
-    \n/system package update check-for-updates once\r\
-    \n:delay 15s\r\
-    \n:if ([/system package update get installed-version] != [/system package update get latest-version]) do={\r\
-    \n  :set isUpdateAvailable true\r\
-    \n}\r\
-    \n:if ([/system routerboard get routerboard] = true) do={\r\
-    \n  :if ([/system routerboard get current-firmware] != [/system routerboard get upgrade-firmware]) do={\r\
-    \n    :set isUpdateAvailable true\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n:if (\$isUpdateAvailable = true) do={\r\
-    \n\r\
-    \n  :local inf \"\$scriptname on \$sysname: system or firmware update available\";\r\
-    \n\r\
-    \n  :global globalNoteMe;\r\
-    \n  \$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n\r\
-    \n}\r\
     \n"
 /system script add dont-require-permissions=yes name=doTranstaleMAC2IP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -3134,88 +3147,104 @@
     \n\
     \n\r\
     \n"
-/system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doRandomGen\";\r\
-    \n\r\
-    \n{\r\
-    \n:log info (\"Starting reserve password generator Script...\");\r\
-    \n\r\
-    \n# special password appendix - current month 3chars\r\
-    \n:local pfx [:pick [/system clock get date] 0 3 ];\r\
-    \n:local newPassword \"\";\r\
-    \n\r\
-    \n#call random.org\r\
-    \n/tool fetch url=\"https://www.random.org/strings/\?num=1&len=8&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new\" keep-result=yes dst-path=\"pass.txt\";\r\
-    \n\r\
-    \ndelay 3;\r\
-    \n\r\
-    \n:local newPassword [/file get pass.txt contents];\r\
-    \n:set newPassword [:pick [\$newPassword] 1 6 ];\r\
-    \n\r\
-    \n/file remove pass.txt;\r\
-    \n\r\
-    \n:log info (\"Randomized: '\$newPassword'\");\r\
-    \n\r\
-    \n# doing salt\r\
-    \n:set newPassword (\$pfx . \$newPassword);\r\
-    \n\r\
-    \n/user set [find name=reserved] password=\$newPassword\r\
-    \n\r\
-    \n# crop appendix\r\
-    \n:local halfPass [:pick [\$newPassword] 3 11 ];\r\
-    \n\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local sysver [/system package get system version];\r\
-    \n\r\
-    \n:local Eaccount \"defm.kopcap@gmail.com\";\r\
-    \n\r\
-    \n:log info (\"Calculating external wan IP...\");\r\
-    \n\r\
-    \n:local extWANip \"\";\r\
-    \n\r\
-    \n:if ( [/ip firewall address-list find list~\"alist-nat-external-ip\" ] = \"\") do={\r\
-    \n        :put \"reserve password generator Script: cant fine ext wan ip address\"\r\
-    \n        :log warning \"reserve password generator Script: cant find ext wan ip address\"\r\
-    \n        } else={\r\
-    \n            :foreach j in=[/ip firewall address-list find list~\"alist-nat-external-ip\"] do={\r\
-    \n\t\t:set extWANip (\$extWANip  . [/ip firewall address-list get \$j address])\r\
-    \n            }\r\
-    \n        }\r\
-    \n\r\
-    \n:log info (\"External wan IP: '\$extWANip'\");\r\
-    \n\r\
-    \n:log info (\"Sending generated data via E-mail...\");\r\
-    \n\r\
-    \n:delay 2;\r\
-    \n\r\
-    \n:local SMTPBody (\"Device '\$sysname'\" . \"\\\r\
-    \n\" . \"\\nRouterOS version: '\$sysver'\" . \"\\\r\
-    \n\" . \"\\nTime and Date: \" . [/system clock get time] .  [/system clock get date] . \"\\\r\
-    \n\" . \"\\nadditional password: '***\$halfPass'\" . \"\\\r\
-    \n\" . \"\\nexternal ip '\$extWANip'\")\r\
-    \n\r\
-    \n:local SMTPSubject (\"\$sysname reserve password generator Script (\" . [/system clock get date] . \")\")\r\
-    \n\r\
-    \n/tool e-mail send to=\$Eaccount body=\$SMTPBody subject=\$SMTPSubject;\r\
-    \n\r\
-    \n:delay 5;\r\
-    \n\r\
-    \n:log info \"Email sent\";\r\
-    \n\r\
-    \n# some beeps to notice\r\
-    \n\r\
-    \n:beep frequency=784 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n:beep frequency=738 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n:beep frequency=684 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n:beep frequency=644 length=1000ms;\r\
-    \n\r\
-    \n}\r\
-    \n\r\
-    \n"
+/system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local scriptname \"doRandomGen\"\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local state \"\";\
+    \n\
+    \n:global simplercurrdatetimestr;\
+    \n\
+    \n:local stamp [\$simplercurrdatetimestr];\
+    \n\
+    \n:local sysname [/system identity get name];\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\
+    \n\
+    \n:local sysver \"NA\"\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\
+    \n  :set sysver [/system package get system version]\
+    \n}\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\
+    \n  :set sysver [/system package get routeros version]\
+    \n}\
+    \n\
+    \n:local SMTPAddress \"defm.kopcap@gmail.com\";\
+    \n:local SMTPSubject (\"\$sysname pwd restoration (\$stamp)\");\
+    \n:local SMTPBody;\
+    \n\
+    \n:local itsOk true;\
+    \n\
+    \n:set state \"Starting reserve password generator Script...\";\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n# special password appendix - current month 3chars\
+    \n:local pfx [:pick [/system clock get date] 0 3 ];\
+    \n:local newPassword \"\";\
+    \n\
+    \n:set newPassword [:rndstr length=6 from=\"0123456789dglpqwBHNTQV\"];\
+    \n\
+    \n:set state \"Randomized: '\$newPassword'\";\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n# doing simple salt\
+    \n:set newPassword (\$pfx . \$newPassword);\
+    \n\
+    \n/user set [find name=reserved] password=\$newPassword\
+    \n\
+    \n# crop appendix\
+    \n:local halfPass [:pick [\$newPassword] 3 11 ];\
+    \n\
+    \n:do {\
+    \n    :set state \"Sending backup password\"\
+    \n    \$globalNoteMe value=\$state\
+    \n\
+    \n    :set SMTPBody (\"Device additional password: '***\$halfPass'\")\
+    \n\
+    \n    #email works in background, delay needed\
+    \n    /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject tls=starttls\
+    \n\
+    \n    #waiting for email to be delivered\
+    \n    :delay 15s;\
+    \n\
+    \n    :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\
+    \n\
+    \n    if (!\$emlResult) do={\
+    \n\
+    \n            :set state \"Error When \$state\"\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :set itsOk false;\
+    \n\
+    \n        } else={\
+    \n\
+    \n            \$globalNoteMe value=\"Done\"\
+    \n    \
+    \n        }\
+    \n\
+    \n    } on-error={ \
+    \n        :set state \"Error When \$state\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :set itsOk false;\
+    \n    }\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: pwd restoration Completed Successfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n  \
+    \n}"
 /system script add comment="Dumps all the scripts from you device to *.rsc.txt files, loads to FTP (all scripts in this Repo made with it)" dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n:local sysname [/system identity get name];\
     \n:local scriptname \"doDumpTheScripts\";\
@@ -4107,127 +4136,134 @@
     \n\r\
     \n    } while=([/certificate print count-only where fingerprint=\"4348a0e9444c78cb265e058d5e8944b4d84f9662bd26db257f8934a443c70161\"]=0);\r\
     \n} if=([/certificate print count-only where name=\"DigiCertGlobalRootCA.crt.pem\"]=0);"
-/system script add comment="keeps scripts and schedules owner constant" dont-require-permissions=yes name=doKeepScriptsOwner owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doKeepScriptsOwner\";\r\
-    \n\r\
-    \n:local state \"\";\r\
-    \n:local mgmtUsername \"owner\"; # main administrator \r\
-    \n:global globalCallFetch;\r\
-    \n:global globalNoteMe;\r\
-    \n\r\
-    \n:local impersonate false; # user password needed when true\r\
-    \n:local thePass \"\";\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \n    # We now need to change script and schedules ownage from *sys user\r\
-    \n    # This can be done via ftp impersonation - here is the trick (the only way to change SCHEDULE owner is to recreate entry UNDER this user)\r\
-    \n    # In RouterOS it is possible to automatically execute scripts - your script file has to be named anything.auto.rsc \r\
-    \n    # once this file is uploaded using FTP to the router, it will automatically be executed, just like with the '/import' command. \r\
-    \n    # This method only works with FTP\r\
-    \n\r\
-    \n    :local scriptCount [:len [/system script find where owner!=\"\$mgmtUsername\"]];\r\
-    \n    :local schedCount  [:len [/system scheduler find where owner!=\"\$mgmtUsername\"]];\r\
-    \n\r\
-    \n    :if (\$scriptCount = 0 and \$schedCount = 0) do={\r\
-    \n        :set state \"No scripts and schedules owner change needed\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :error \$state;\r\
-    \n    };    \r\
-    \n\r\
-    \n    :if ([:len [/user find name=\"\$mgmtUsername\"]] > 0) do={\r\
-    \n \r\
-    \n        :if (\$impersonate) do={\r\
-    \n\r\
-    \n            :local buffer \"\\r\\ \r\
-    \n                            \\n # we can change script owner as usual\\r\\\r\
-    \n                            \\n /system script set owner=\\\"\$mgmtUsername\\\" [find where owner!=\\\"\$mgmtUsername\\\"];\\r\\\r\
-    \n                            \\n\\r\\ \r\
-    \n                            \\n # the only way to change schedule owner is to recreate entry\\r\\\r\
-    \n                            \\n /system scheduler;\\r\\ \r\
-    \n                            \\n :foreach schEndpoint in=[find  where owner!=\\\"\$mgmtUsername\\\"] do={\\r\\\r\
-    \n                            \\n  :local name [get value-name=name \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local startTime [get value-name=start-time \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local onEvent [get value-name=on-event \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local interval [get value-name=interval \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local startDate [get value-name=start-date \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      :local comment [get value-name=comment \\\$schEndpoint];\\r\\\r\
-    \n                            \\n      remove \\\$schEndpoint;\\r\\\r\
-    \n                            \\n      add name=\\\"\\\$name\\\" start-time=\\\"\\\$startTime\\\"  on-event=\\\"\\\$onEvent\\\" interval=\\\"\\\$interval\\\" start-date=\\\"\\\$startDate\\\" comment=\\\"\\\$comment\\\";\\r\\\r\
-    \n                            \\n      }\\r\\\r\
-    \n                            \\n;\";\r\
-    \n\r\
-    \n            # delete all previous files\r\
-    \n            :local rsc \"ownage.rsc.txt\";\r\
-    \n            /file remove [/file find where name=\"\$rsc\"];\r\
-    \n            # create the file as it doesn't exist yet\r\
-    \n            /file print file=\"\$rsc\";\r\
-    \n            # wait for filesystem to create file\r\
-    \n            :delay 6;\r\
-    \n            # write the buffer into it\r\
-    \n            :set state \"Creating script file '\$rsc' with commands '\$buffer'\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n            # i will not remove this file later to got a chance to manually reproduce fetch if it fail via this script\r\
-    \n            /file set [/file find where name=\"\$rsc\"] contents=\"\$buffer\";    \r\
-    \n            :local filecontent [/file get [/file find where name=\"\$rsc\"] contents];\r\
-    \n            :set state \"Created command file '\$rsc' with content '\$filecontent'\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n            # push it and and autorun under mgmtUsername account\r\
-    \n            :set state \"Pushing autorun command file as user '\$mgmtUsername' via FTP\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n            :local fetchCmd  \"/tool fetch address=127.0.0.1 mode=ftp src-path=\$rsc dst-path=ownage.auto.rsc user=\\\"\$mgmtUsername\\\" password=\\\"\$thePass\\\" host=\\\"\\\" upload=\\\"yes\\\"\";\r\
-    \n\r\
-    \n            \$globalCallFetch \$fetchCmd;\r\
-    \n\r\
-    \n            /file remove [/file find where name=\"\$rsc\"];\r\
-    \n\r\
-    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n        } else={\r\
-    \n\r\
-    \n            /system script set owner=\"\$mgmtUsername\" [find where owner!=\"\$mgmtUsername\"];\r\
-    \n            # the only way to change schedule owner is to recreate entry\\r\\\r\
-    \n            /system scheduler;\r\
-    \n            :foreach schEndpoint in=[find  where owner!=\"\$mgmtUsername\"] do={\r\
-    \n              :local name [get value-name=name \$schEndpoint];\r\
-    \n                  :local startTime [get value-name=start-time \$schEndpoint];\r\
-    \n                  :local onEvent [get value-name=on-event \$schEndpoint];\r\
-    \n                  :local interval [get value-name=interval \$schEndpoint];\r\
-    \n                  :local startDate [get value-name=start-date \$schEndpoint];\r\
-    \n                  :local comment [get value-name=comment \$schEndpoint];\r\
-    \n                  remove \$schEndpoint;\r\
-    \n                  add name=\"\$name\" start-time=\"\$startTime\"  on-event=\"\$onEvent\" interval=\"\$interval\" start-date=\"\$startDate\" comment=\"\$comment\";\r\
-    \n                  };\r\
-    \n\r\
-    \n            :set state \"Changing scripts and schedules ownage - OK\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n        }  \r\
-    \n\r\
-    \n\r\
-    \n    } else={\r\
-    \n        :set state \"Cant find user '\$mgmtUsername' for impersonation call\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n    }\r\
-    \n\r\
-    \n} on-error={ \r\
-    \n    :set state \"Changing scripts and schedules ownage - ERROR\";\r\
-    \n    \$globalNoteMe value=\$state;\r\
+/system script add comment="keeps scripts and schedules owner constant" dont-require-permissions=yes name=doKeepScriptsOwner owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doKeepScriptsOwner\";\
+    \n\
+    \n:local state \"\";\
+    \n:local mgmtUsername \"owner\"; # main administrator \
+    \n:global globalCallFetch;\
+    \n:global globalNoteMe;\
+    \n\
+    \n:local impersonate false; # user password needed when true\
+    \n:local thePass \"\";\
+    \n\
+    \n:do {\
+    \n\
+    \n    # We now need to change script and schedules ownage from *sys user\
+    \n    # This can be done via ftp impersonation - here is the trick (the only way to change SCHEDULE owner is to recreate entry UNDER this user)\
+    \n    # In RouterOS it is possible to automatically execute scripts - your script file has to be named anything.auto.rsc \
+    \n    # once this file is uploaded using FTP to the router, it will automatically be executed, just like with the '/import' command. \
+    \n    # This method only works with FTP\
+    \n\
+    \n    :local scriptCount [:len [/system script find where owner!=\"\$mgmtUsername\"]];\
+    \n    :local schedCount  [:len [/system scheduler find where owner!=\"\$mgmtUsername\"]];\
+    \n\
+    \n    :if (\$scriptCount = 0 and \$schedCount = 0) do={\
+    \n        :set state \"No scripts and schedules owner change needed\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :error \$state;\
+    \n    };    \
+    \n\
+    \n    :if ([:len [/user find name=\"\$mgmtUsername\"]] > 0) do={\
+    \n \
+    \n        :if (\$impersonate) do={\
+    \n\
+    \n            :local buffer \"\\r\\ \
+    \n                            \\n # we can change script owner as usual\\r\\\
+    \n                            \\n /system script set owner=\\\"\$mgmtUsername\\\" [find where owner!=\\\"\$mgmtUsername\\\"];\\r\\\
+    \n                            \\n\\r\\ \
+    \n                            \\n # the only way to change schedule owner is to recreate entry\\r\\\
+    \n                            \\n /system scheduler;\\r\\ \
+    \n                            \\n :foreach schEndpoint in=[find  where owner!=\\\"\$mgmtUsername\\\"] do={\\r\\\
+    \n                            \\n  :local name [get value-name=name \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local startTime [get value-name=start-time \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local onEvent [get value-name=on-event \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local interval [get value-name=interval \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local startDate [get value-name=start-date \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local comment [get value-name=comment \\\$schEndpoint];\\r\\\
+    \n                            \\n      remove \\\$schEndpoint;\\r\\\
+    \n                            \\n      add name=\\\"\\\$name\\\" start-time=\\\"\\\$startTime\\\"  on-event=\\\"\\\$onEvent\\\" interval=\\\"\\\$interval\\\" start-date=\\\"\\\$startDate\\\" comment=\\\"\\\$comment\\\";\\r\\\
+    \n                            \\n      }\\r\\\
+    \n                            \\n;\";\
+    \n\
+    \n            # delete all previous files\
+    \n            :local rsc \"ownage.rsc.txt\";\
+    \n            /file remove [/file find where name=\"\$rsc\"];\
+    \n            # create the file as it doesn't exist yet\
+    \n            /file print file=\"\$rsc\";\
+    \n            # wait for filesystem to create file\
+    \n            :delay 6;\
+    \n            # write the buffer into it\
+    \n            :set state \"Creating script file '\$rsc' with commands '\$buffer'\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n            # i will not remove this file later to got a chance to manually reproduce fetch if it fail via this script\
+    \n            /file set [/file find where name=\"\$rsc\"] contents=\"\$buffer\";    \
+    \n            :local filecontent [/file get [/file find where name=\"\$rsc\"] contents];\
+    \n            :set state \"Created command file '\$rsc' with content '\$filecontent'\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n            # push it and and autorun under mgmtUsername account\
+    \n            :set state \"Pushing autorun command file as user '\$mgmtUsername' via FTP\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :local fetchCmd  \"/tool fetch address=127.0.0.1 mode=ftp src-path=\$rsc dst-path=ownage.auto.rsc user=\\\"\$mgmtUsername\\\" password=\\\"\$thePass\\\" host=\\\"\\\" upload=\\\"yes\\\"\";\
+    \n\
+    \n            \$globalCallFetch \$fetchCmd;\
+    \n\
+    \n            /file remove [/file find where name=\"\$rsc\"];\
+    \n\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n        } else={\
+    \n\
+    \n            /system script set owner=\"\$mgmtUsername\" [find where owner!=\"\$mgmtUsername\"];\
+    \n            # the only way to change schedule owner is to recreate entry\\r\\\
+    \n            /system scheduler;\
+    \n            :foreach schEndpoint in=[find  where owner!=\"\$mgmtUsername\"] do={\
+    \n              :local name [get value-name=name \$schEndpoint];\
+    \n                  :local startTime [get value-name=start-time \$schEndpoint];\
+    \n                  :local onEvent [get value-name=on-event \$schEndpoint];\
+    \n                  :local interval [get value-name=interval \$schEndpoint];\
+    \n                  :local startDate [get value-name=start-date \$schEndpoint];\
+    \n                  :local comment [get value-name=comment \$schEndpoint];\
+    \n                  remove \$schEndpoint;\
+    \n                  add name=\"\$name\" start-time=\"\$startTime\"  on-event=\"\$onEvent\" interval=\"\$interval\" start-date=\"\$startDate\" comment=\"\$comment\";\
+    \n                  };\
+    \n\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n        }  \
+    \n\
+    \n\
+    \n    } else={\
+    \n        :set state \"Cant find user '\$mgmtUsername' for impersonation call\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n    }\
+    \n\
+    \n} on-error={ \
+    \n    :set state \"Changing scripts and schedules ownage - ERROR\";\
+    \n    \$globalNoteMe value=\$state;\
     \n}"
 /system script add comment="periodically Wipes memory-configered logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n:global globalScriptBeforeRun;\
     \n\$globalScriptBeforeRun \"doFlushLogs\";\
     \n\
+    \n:global globalNoteMe;\
     \n:local state \"\"\
     \n\
     \n:set state \"FLUSHING logs..\"\
     \n\$globalNoteMe value=\$state;\
     \n\
-    \n/system/logging/action/set memory-lines=1 [find target=memory]\
-    \n/system/logging/action/set memory-lines=1000 [find target=memory]\
+    \n/system/logging/action {\
+    \n  :foreach memAction in=[find target=memory] do={\
+    \n    :local actName [get value-name=name \$memAction]\
     \n\
-    \n\r\
+    \n    clear action=\$actName;\
+    \n\
+    \n    }\
+    \n  }\
+    \n\
+    \n\
     \n"
 /tool bandwidth-server set enabled=no
 /tool e-mail set from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
