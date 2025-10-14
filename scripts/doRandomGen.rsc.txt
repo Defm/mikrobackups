@@ -1,27 +1,45 @@
 
+:local scriptname "doRandomGen"
 :global globalScriptBeforeRun;
-$globalScriptBeforeRun "doRandomGen";
+$globalScriptBeforeRun $scriptname;
 
-{
-:log info ("Starting reserve password generator Script...");
+:global globalNoteMe;
+:local state "";
+
+:global simplercurrdatetimestr;
+
+:local stamp [$simplercurrdatetimestr];
+
+:local sysname [/system identity get name];
+:local rosVer [:tonum [:pick [/system resource get version] 0 1]]
+
+:local sysver "NA"
+:if ( [ :len [ /system package find where name="system" and disabled=no ] ] > 0 and $rosVer = 6 ) do={
+  :set sysver [/system package get system version]
+}
+:if ( [ :len [ /system package find where name="routeros" and disabled=no ] ] > 0 and $rosVer = 7 ) do={
+  :set sysver [/system package get routeros version]
+}
+
+:local SMTPAddress "defm.kopcap@gmail.com";
+:local SMTPSubject ("$sysname pwd restoration ($stamp)");
+:local SMTPBody;
+
+:local itsOk true;
+
+:set state "Starting reserve password generator Script...";
+$globalNoteMe value=$state;
 
 # special password appendix - current month 3chars
 :local pfx [:pick [/system clock get date] 0 3 ];
 :local newPassword "";
 
-#call random.org
-/tool fetch url="https://www.random.org/strings/?num=1&len=8&digits=on&upperalpha=on&loweralpha=on&unique=on&format=plain&rnd=new" keep-result=yes dst-path="pass.txt";
+:set newPassword [:rndstr length=6 from="0123456789dglpqwBHNTQV"];
 
-delay 3;
+:set state "Randomized: '$newPassword'";
+$globalNoteMe value=$state;
 
-:local newPassword [/file get pass.txt contents];
-:set newPassword [:pick [$newPassword] 1 6 ];
-
-/file remove pass.txt;
-
-:log info ("Randomized: '$newPassword'");
-
-# doing salt
+# doing simple salt
 :set newPassword ($pfx . $newPassword);
 
 /user set [find name=reserved] password=$newPassword
@@ -29,53 +47,52 @@ delay 3;
 # crop appendix
 :local halfPass [:pick [$newPassword] 3 11 ];
 
-:local sysname [/system identity get name];
-:local sysver [/system package get system version];
+:do {
+    :set state "Sending backup password"
+    $globalNoteMe value=$state
 
-:local Eaccount "defm.kopcap@gmail.com";
+    :set SMTPBody ("Device additional password: '***$halfPass'")
 
-:log info ("Calculating external wan IP...");
+    #email works in background, delay needed
+    /tool e-mail send to=$SMTPAddress body=$SMTPBody subject=$SMTPSubject tls=starttls
 
-:local extWANip "";
+    #waiting for email to be delivered
+    :delay 15s;
 
-:if ( [/ip firewall address-list find list~"alist-nat-external-ip" ] = "") do={
-        :put "reserve password generator Script: cant fine ext wan ip address"
-        :log warning "reserve password generator Script: cant find ext wan ip address"
+    :local emlResult ([/tool e-mail get last-status] = "succeeded")
+
+    if (!$emlResult) do={
+
+            :set state "Error When $state"
+            $globalNoteMe value=$state;
+            :set itsOk false;
+
         } else={
-            :foreach j in=[/ip firewall address-list find list~"alist-nat-external-ip"] do={
-		:set extWANip ($extWANip  . [/ip firewall address-list get $j address])
-            }
+
+            $globalNoteMe value="Done"
+    
         }
 
-:log info ("External wan IP: '$extWANip'");
+    } on-error={ 
+        :set state "Error When $state"
+        $globalNoteMe value=$state;
+        :set itsOk false;
+    }
 
-:log info ("Sending generated data via E-mail...");
-
-:delay 2;
-
-:local SMTPBody ("Device '$sysname'" . "\
-" . "\nRouterOS version: '$sysver'" . "\
-" . "\nTime and Date: " . [/system clock get time] .  [/system clock get date] . "\
-" . "\nadditional password: '***$halfPass'" . "\
-" . "\nexternal ip '$extWANip'")
-
-:local SMTPSubject ("$sysname reserve password generator Script (" . [/system clock get date] . ")")
-
-/tool e-mail send to=$Eaccount body=$SMTPBody subject=$SMTPSubject;
-
-:delay 5;
-
-:log info "Email sent";
-
-# some beeps to notice
-
-:beep frequency=784 length=500ms;
-:delay 500ms;
-:beep frequency=738 length=500ms;
-:delay 500ms;
-:beep frequency=684 length=500ms;
-:delay 500ms;
-:beep frequency=644 length=1000ms;
-
+:local inf ""
+:if ($itsOk) do={
+  :set inf "$scriptname on $sysname: pwd restoration Completed Successfully"
 }
 
+:if (!$itsOk) do={
+  :set inf "Error When $scriptname on $sysname: $state"  
+}
+
+$globalNoteMe value=$inf
+
+:if (!$itsOk) do={
+
+  :global globalTgMessage;
+  $globalTgMessage value=$inf;
+  
+}

@@ -16,23 +16,23 @@ $globalScriptBeforeRun "doDHCPLeaseTrack";
 
 
 :if ($GleaseBound = 1) do={
-	/ip dhcp-server lease;
-	:foreach i in=[find dynamic=yes] do={
-		:local dhcpip 
-		:set dhcpip [ get $i address ];
-		:local clientid
-		:set clientid [get $i host-name];
+    /ip dhcp-server lease;
+    :foreach i in=[find dynamic=yes] do={
+        :local dhcpip 
+        :set dhcpip [ get $i address ];
+        :local clientid
+        :set clientid [get $i host-name];
 
-		:if ($GleaseActIP = $dhcpip) do={
-			:local comment "New IP"
-			:set comment ( $comment . ": " .  $dhcpip . ": " . $clientid);
-			/log error $comment;
+        :if ($GleaseActIP = $dhcpip) do={
+            :local comment "New IP"
+            :set comment ( $comment . ": " .  $dhcpip . ": " . $clientid);
+            /log error $comment;
 
                                         :local newGuest "%D0%9A%D0%BB%D0%B8%D0%B5%D0%BD%D1%82%20%D0%B3%D0%BE%D1%81%D1%82%D0%B5%D0%B2%D0%BE%D0%B3%D0%BE%20wi-fi%3A%20";
                                         :global TelegramMessage "$newGuest $comment";
                                          /system script run doTelegramNotify;
 
                                          /system script run doWestminister;
-		}
-	}
+        }
+    }
 }

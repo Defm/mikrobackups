@@ -222,8 +222,16 @@
 
         :local state ("Adding CAPs ACL static entries for ($newBlockedIp/$newMac) on $newSsid");
         $globalNoteMe value=$state;
-        /caps-man access-list remove [find mac-address=$newMac];
-        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=$comment disabled=no mac-address=$newMac ssid-regexp="$newSsid" place-before=1
+        
+         # avoid parce errors using Execute when no wireless package installed
+       :if ( [ :len [ /system package find where name="wireless" and disabled=no ] ] > 0  ) do={
+          :local Cmd "/caps-man access-list remove [find mac-address=$newMac];";
+          :local jobid [:execute script=$Cmd];
+
+          :local Cmd "/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=$comment disabled=no mac-address=$newMac ssid-regexp='$newSsid' place-before=1;";
+          :local jobid [:execute script=$Cmd];
+
+          }
 
     } on-error={
 
@@ -451,4 +459,5 @@
 }
 
 }
+
 
