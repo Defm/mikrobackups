@@ -1,4 +1,4 @@
-# 2025-10-12 21:13:03 by RouterOS 7.20
+# 2025-10-14 11:50:28 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -107,6 +107,7 @@
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
 /ip smb users set [ find default=yes ] disabled=yes
 /ppp profile add address-list=alist-l2tp-active-clients comment=to-CHR interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
+/ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1360 max-mtu=1360 name=chr-tunnel password=123 profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
@@ -165,7 +166,7 @@
 /queue simple add comment=dtq,22:26:E9:CA:87:BA, name="Tomm(wireless)(blocked)@guest-dhcp-server (22:26:E9:CA:87:BA)" queue=default/default target=192.168.98.143/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1,A54-pol-zovatela-Natalya name="Froloff(wireless)@main-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.90.142/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1, name="Froloff(wireless)(blocked)@guest-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.98.142/32 total-queue=default
-/queue simple add comment=dtq,DC:10:57:2D:39:7B, name="@guest-dhcp-server (DC:10:57:2D:39:7B)" queue=default/default target=192.168.98.229/32 total-queue=default
+/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.230/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -891,6 +892,8 @@
 /ip upnp interfaces add interface="wan A" type=external
 /ip upnp interfaces add interface=main-infrastructure-br type=internal
 /ip upnp interfaces add interface=guest-infrastructure-br type=internal
+/ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
 /routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf && ospf-type intra) { set comment DISCARDED-INTRA-AREA ; reject; }"
 /routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0) { set comment GLOBAL-VPN ; set pref-src 10.0.0.3 ; accept; }"
 /routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter) { set comment LOCAL-AREA ; set pref-src 10.0.0.3 ; accept; }"
@@ -943,9 +946,9 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.20 \
-    \nUptime:        2d10:03:08  \
-    \nTime:        2025-10-12 21:10:13  \
-    \nPing:    5 ms  \
+    \nUptime:        4d00:43:08  \
+    \nTime:        2025-10-14 11:50:12  \
+    \nPing:    8 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
     \nAnna:        46.39.51.192  \
@@ -977,6 +980,7 @@
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
 /system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=22:00:00
 /system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
+/system scheduler add name=doStartupScript on-event="/system script run doStartupScript;" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -2419,13 +2423,86 @@
     \n  }\
     \n}\
     \n\
+    \n### \$SECRET\
+    \n#   get <name>\
+    \n#   set <name> password=<password>\
+    \n# . remove <name\
+    \n#   print\
+    \n:if (!any \$SECRET) do={\
+    \n:global SECRET do={\
+    \n\
+    \n    # helpers\
+    \n    :local fixprofile do={\
+    \n        :if ([/ppp profile find name=\"null\"]) do={:put \"nothing\"} else={\
+    \n            /ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=\"null\" only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no\
+    \n        }\
+    \n    }\
+    \n    :local lppp [:len [/ppp secret find where name=\$2]]\
+    \n    :local checkexist do={\
+    \n        :if (lppp=0) do={\
+    \n            :error \"\\\$SECRET: cannot find \$2 in secret store\"\
+    \n        }\
+    \n    }\
+    \n\
+    \n    # \$SECRET\
+    \n    :if ([:typeof \$1]!=\"str\") do={\
+    \n        :put \"\\\$SECRET\"\
+    \n        :put \"   uses /ppp/secrets to store stuff like REST apikeys, or other sensative data\"\
+    \n        :put \"\\t\\\$SECRET print - prints stored secret passwords\"\
+    \n        :put \"\\t\\\$SECRET get <name> - gets a stored secret\"\
+    \n        :put \"\\t\\\$SECRET set <name> password=\\\"YOUR_SECRET\\\" - sets a secret password\" \
+    \n        :put \"\\t\\\$SECRET remove <name> - removes a secret\" \
+    \n    }\
+    \n\
+    \n    # \$SECRET print\
+    \n    :if (\$1~\"^pr\") do={\
+    \n        /ppp secret print where comment~\"\\\\\\\$SECRET\"\
+    \n        :return [:nothing] \
+    \n    }\
+    \n\
+    \n    # \$SECRET get\
+    \n    :if (\$1~\"get\") do={\
+    \n        \$checkexist\
+    \n       :return [/ppp secret get \$2 password] \
+    \n    }\
+    \n\
+    \n    # \$SECRET set\
+    \n    :if (\$1~\"set|add\") do={\
+    \n        :if ([:typeof \$password]=\"str\") do={} else={:error \"\\\$SECRET: password= required\"}\
+    \n        :if (lppp=0) do={\
+    \n            /ppp secret add name=\$2 password=\$password \
+    \n        } else={\
+    \n            /ppp secret set \$2 password=\$password\
+    \n        }\
+    \n        \$fixprofile\
+    \n        /ppp secret set \$2 comment=\"used by \\\$SECRET\"\
+    \n        /ppp secret set \$2 profile=\"null\"\
+    \n        /ppp secret set \$2 service=\"async\"\
+    \n        :return [\$SECRET get \$2]\
+    \n    } \
+    \n\
+    \n    # \$SECRET remove\
+    \n    :if (\$1~\"rm|rem|del\") do={\
+    \n        \$checkexist\
+    \n        :return [/ppp secret remove \$2]\
+    \n    }\
+    \n    :error \"\\\$SECRET: bad command\"\
+    \n}\
+    \n}\
+    \n\
+    \n\
     \n:global globalTgMessage;\
     \n:if (!any \$globalTgMessage) do={\
     \n  :global globalTgMessage do={\
     \n\
     \n    :global globalNoteMe;\
-    \n    :local tToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
-    \n    :local tGroupID \"-1001798127067\";\
+    \n    :global SECRET;\
+    \n\
+    \n     \$SECRET set TELEGRAM_TOKEN=\"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
+    \n    \$SECRET set TELEGRAM_CHAT_ID password=\"-1001798127067\";\
+    \n\
+    \n    :local tToken \"\$[\$SECRET get TELEGRAM_TOKEN]\";\
+    \n    :local tGroupID \"\$[\$SECRET get TELEGRAM_CHAT_ID]\";\
     \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
     \n\
     \n    :local sysname (\"%C2%A9%EF%B8%8F #\" . [/system identity get name]);\
@@ -2591,8 +2668,16 @@
     \n\
     \n        :local state (\"Adding CAPs ACL static entries for (\$newBlockedIp/\$newMac) on \$newSsid\");\
     \n        \$globalNoteMe value=\$state;\
-    \n        /caps-man access-list remove [find mac-address=\$newMac];\
-    \n        /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp=\"\$newSsid\" place-before=1\
+    \n        \
+    \n         # avoid parce errors using Execute when no wireless package installed\
+    \n       :if ( [ :len [ /system package find where name=\"wireless\" and disabled=no ] ] > 0  ) do={\
+    \n          :local Cmd \"/caps-man access-list remove [find mac-address=\$newMac];\";\
+    \n          :local jobid [:execute script=\$Cmd];\
+    \n\
+    \n          :local Cmd \"/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp='\$newSsid' place-before=1;\";\
+    \n          :local jobid [:execute script=\$Cmd];\
+    \n\
+    \n          }\
     \n\
     \n    } on-error={\
     \n\
@@ -2820,7 +2905,7 @@
     \n}\
     \n\
     \n}\
-    \n\r\
+    \n\
     \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
     \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
