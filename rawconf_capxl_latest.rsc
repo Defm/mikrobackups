@@ -1,4 +1,4 @@
-# 2025-10-14 12:40:54 by RouterOS 7.20.1
+# 2025-10-17 21:13:02 by RouterOS 7.20.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -55,9 +55,9 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.192 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.206 name=ftpserver.org type=A
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.192 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.206 list=alist-nat-external-ip
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
 /ip firewall service-port set sip disabled=yes
@@ -103,19 +103,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system logging add action=CAPSOnScreenLog topics=wireless
 /system logging add action=ParseMemoryLog topics=info,system,!script
 /system logging add action=FTPMemoryLog topics=tftp
-/system note set note="Ipsec:         okay \
-    \nRoute:     192.168.90.1 \
-    \nVersion:         7.20.1 \
-    \nUptime:        00:01:42  \
-    \nTime:        2025-10-14 12:40:16  \
-    \nPing:    5 ms  \
-    \nChr:        185.13.148.14  \
-    \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.192  \
-    \nClock:        synchronized  \
-    \n * wireless  \
-    \n * routeros  \
-    \n" show-at-cli-login=yes
+/system note set note=Pending show-at-cli-login=yes
 /system ntp client set enabled=yes
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=2018-03-01 start-time=15:55:00
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
