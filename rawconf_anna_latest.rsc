@@ -1,4 +1,4 @@
-# 2025-10-24 22:01:11 by RouterOS 7.20
+# 2025-10-24 22:02:27 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -2401,7 +2401,7 @@
     \n           :if ([/system script job print count-only as-value where script=\$scriptname] > 1) do={\
     \n              :log error \$state\
     \n               \$globalNoteMe value=\$state;\
-    \n               :error \"script instance already running\"\
+    \n               :error \$state\
     \n            }\
     \n\
     \n      :local state \"Starting script: \$scriptname\";\
