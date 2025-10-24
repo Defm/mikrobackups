@@ -1,4 +1,4 @@
-# 2025-10-24 21:48:26 by RouterOS 7.20
+# 2025-10-24 22:01:11 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -946,8 +946,8 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.20 \
-    \nUptime:        2w10:33:07  \
-    \nTime:        2025-10-24 21:40:12  \
+    \nUptime:        2w10:53:07  \
+    \nTime:        2025-10-24 22:00:12  \
     \nPing:    4 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
@@ -2395,32 +2395,18 @@
     \n    :global globalNoteMe;\
     \n    :if ([:len \$1] > 0) do={\
     \n\
-    \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\
-    \n      :local scriptname \"\$1\";\
-    \n      :local count [:len [/system script job find script=\$scriptname]];\
+    \n           :local scriptname [:jobname] ;\
+    \n           :local state \"\$scriptname instance already running - prevent new instance\";\
     \n\
-    \n      :if (\$count > 0) do={\
-    \n\
-    \n        :foreach counter in=[/system script job find script=\$scriptname] do={\
-    \n         #But ignoring scripts started right NOW\
-    \n\
-    \n         \$globalNoteMe value=[:jobname];\
-    \n\
-    \n         :local thisScriptCallTime  [/system script job get \$counter started];\
-    \n         :if (\$currentTime != \$thisScriptCallTime) do={\
-    \n\
-    \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\
-    \n             :log error \$state\
-    \n             \$globalNoteMe value=\$state;\
-    \n            /system script job remove \$counter;\
-    \n\
-    \n          }\
-    \n        }\
-    \n      }\
+    \n           :if ([/system script job print count-only as-value where script=\$scriptname] > 1) do={\
+    \n              :log error \$state\
+    \n               \$globalNoteMe value=\$state;\
+    \n               :error \"script instance already running\"\
+    \n            }\
     \n\
     \n      :local state \"Starting script: \$scriptname\";\
-    \n      :put \"info: \$state\"\
-    \n      :log info \"\$state\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
     \n    }\
     \n  }\
     \n}\
