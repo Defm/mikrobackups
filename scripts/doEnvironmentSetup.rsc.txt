@@ -5,11 +5,13 @@
 
   :global globalNoteMe do={
 
+  :local scriptname [:jobname] ;
   ## outputs $value using both :put and :log info
   ## example $outputInfo value="12345"
 
-  :put "info: $value"
-  :log info "$value"
+  :local state "$scriptname: $value";
+  :put "$state"
+  :log info "$state"
 
   }
 }
@@ -113,15 +115,17 @@
     :global globalNoteMe;
     :global SECRET;
 
-     $SECRET set TELEGRAM_TOKEN="798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M";
+    $SECRET set TELEGRAM_TOKEN password="798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M";
     $SECRET set TELEGRAM_CHAT_ID password="-1001798127067";
 
     :local tToken "$[$SECRET get TELEGRAM_TOKEN]";
     :local tGroupID "$[$SECRET get TELEGRAM_CHAT_ID]";
     :local tURL "https://api.telegram.org/bot$tToken/sendMessage\?chat_id=$tGroupID";
 
-    :local sysname ("%C2%A9%EF%B8%8F #" . [/system identity get name]);
-    :local tgmessage  ("$sysname: $value");  
+    :local sysname ("#" . [/system identity get name]);
+    :local scriptname [:jobname] ;
+
+    :local tgmessage  ("$scriptname %C2%A9%EF%B8%8F $sysname: $value");  
 
     :local state ("Sending telegram message... $tgmessage");
     $globalNoteMe value=$tgmessage;
