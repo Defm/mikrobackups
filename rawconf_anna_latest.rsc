@@ -1,4 +1,4 @@
-# 2025-10-22 21:13:03 by RouterOS 7.20
+# 2025-10-24 21:48:26 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -517,7 +517,6 @@
 /ip dns static add address=149.112.112.112 comment="Forwarder bind - DNS Quad9" name=dns.quad9.net type=A
 /ip dns static add address=195.133.25.16 comment="Forwarder bind - DNS Comss" name=router.comss.one type=A
 /ip dns static add address=46.39.51.206 name=ftpserver.org type=A
-/ip dns static add address=192.168.90.165 comment=<AUTO:DHCP:main-dhcp-server> name=SmartHomeControlPanel.home ttl=5m type=A
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
@@ -947,9 +946,9 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.20 \
-    \nUptime:        1w5d10:03:08  \
-    \nTime:        2025-10-22 21:10:18  \
-    \nPing:    13 ms  \
+    \nUptime:        2w10:33:07  \
+    \nTime:        2025-10-24 21:40:12  \
+    \nPing:    4 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
     \nAnna:        46.39.51.206  \
@@ -2404,6 +2403,8 @@
     \n\
     \n        :foreach counter in=[/system script job find script=\$scriptname] do={\
     \n         #But ignoring scripts started right NOW\
+    \n\
+    \n         \$globalNoteMe value=[:jobname];\
     \n\
     \n         :local thisScriptCallTime  [/system script job get \$counter started];\
     \n         :if (\$currentTime != \$thisScriptCallTime) do={\
