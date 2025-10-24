@@ -1,4 +1,4 @@
-# 2025-10-22 21:13:02 by RouterOS 7.20.1
+# 2025-10-25 00:29:11 by RouterOS 7.20.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -18,6 +18,7 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
 /ip dhcp-client option add code=60 name=classid value="'mikrotik-cap'"
 /ip smb users set [ find default=yes ] disabled=yes
+/ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
 /system logging action add name=IpsecOnScreenLog target=memory
@@ -73,10 +74,13 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /ip tftp add real-filename=NAS/ req-filename=.*
 /ip upnp set enabled=yes
 /ip upnp interfaces add interface="main infrastructure" type=internal
+/ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
 /routing bfd configuration add disabled=no
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=capxl
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -103,7 +107,19 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system logging add action=CAPSOnScreenLog topics=wireless
 /system logging add action=ParseMemoryLog topics=info,system,!script
 /system logging add action=FTPMemoryLog topics=tftp
-/system note set note=Pending show-at-cli-login=yes
+/system note set note="Ipsec:         okay \
+    \nRoute:     192.168.90.1 \
+    \nVersion:         7.20.1 \
+    \nUptime:        00:01:29  \
+    \nTime:        2025-10-25 00:27:10  \
+    \nPing:    5 ms  \
+    \nChr:        185.13.148.14  \
+    \nMik:        178.65.91.156  \
+    \nAnna:        46.39.51.206  \
+    \nClock:        synchronized  \
+    \n * routeros  \
+    \n * wireless  \
+    \n" show-at-cli-login=yes
 /system ntp client set enabled=yes
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=2018-03-01 start-time=15:55:00
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
@@ -250,11 +266,12 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
     \n  \
     \n}\
     \n\
     \n\
-    \n\r\
+    \n\
     \n\r\
     \n"
 /system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
@@ -540,7 +557,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\$SafeScriptCall \"doEnvironmentSetup\";\
     \n\$SafeScriptCall \"doImperialMarch\";\
     \n\$SafeScriptCall \"doCoolConsole\";\
-    \n\$SafeScriptCall \"SAT!start\";\
     \n\
     \n# wait some for all tunnels to come up after reboot and VPN to work\
     \n\
@@ -583,11 +599,13 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n  :global globalNoteMe do={\
     \n\
+    \n  :local scriptname [:jobname] ;\
     \n  ## outputs \$value using both :put and :log info\
     \n  ## example \$outputInfo value=\"12345\"\
     \n\
-    \n  :put \"info: \$value\"\
-    \n  :log info \"\$value\"\
+    \n  :local state \"\$scriptname: \$value\";\
+    \n  :put \"\$state\"\
+    \n  :log info \"\$state\"\
     \n\
     \n  }\
     \n}\
@@ -600,30 +618,18 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n    :global globalNoteMe;\
     \n    :if ([:len \$1] > 0) do={\
     \n\
-    \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\
-    \n      :local scriptname \"\$1\";\
-    \n      :local count [:len [/system script job find script=\$scriptname]];\
+    \n           :local scriptname [:jobname] ;\
+    \n           :local state \"\$scriptname instance already running - prevent new instance\";\
     \n\
-    \n      :if (\$count > 0) do={\
-    \n\
-    \n        :foreach counter in=[/system script job find script=\$scriptname] do={\
-    \n         #But ignoring scripts started right NOW\
-    \n\
-    \n         :local thisScriptCallTime  [/system script job get \$counter started];\
-    \n         :if (\$currentTime != \$thisScriptCallTime) do={\
-    \n\
-    \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\
-    \n             :log error \$state\
-    \n             \$globalNoteMe value=\$state;\
-    \n            /system script job remove \$counter;\
-    \n\
-    \n          }\
-    \n        }\
-    \n      }\
+    \n           :if ([/system script job print count-only as-value where script=\$scriptname] > 1) do={\
+    \n              :log error \$state\
+    \n               \$globalNoteMe value=\$state;\
+    \n               :error \$state\
+    \n            }\
     \n\
     \n      :local state \"Starting script: \$scriptname\";\
-    \n      :put \"info: \$state\"\
-    \n      :log info \"\$state\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
     \n    }\
     \n  }\
     \n}\
@@ -703,15 +709,17 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n    :global globalNoteMe;\
     \n    :global SECRET;\
     \n\
-    \n     \$SECRET set TELEGRAM_TOKEN=\"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
+    \n    \$SECRET set TELEGRAM_TOKEN password=\"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
     \n    \$SECRET set TELEGRAM_CHAT_ID password=\"-1001798127067\";\
     \n\
     \n    :local tToken \"\$[\$SECRET get TELEGRAM_TOKEN]\";\
     \n    :local tGroupID \"\$[\$SECRET get TELEGRAM_CHAT_ID]\";\
     \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
     \n\
-    \n    :local sysname (\"%C2%A9%EF%B8%8F #\" . [/system identity get name]);\
-    \n    :local tgmessage  (\"\$sysname: \$value\");  \
+    \n    :local sysname (\"#\" . [/system identity get name]);\
+    \n    :local scriptname [:jobname] ;\
+    \n\
+    \n    :local tgmessage  (\"\$scriptname %C2%A9%EF%B8%8F \$sysname: \$value\");  \
     \n\
     \n    :local state (\"Sending telegram message... \$tgmessage\");\
     \n    \$globalNoteMe value=\$tgmessage;\
@@ -1290,10 +1298,11 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
-    \n  \
+    \n  :error \$inf; \
+    \n \
     \n}\
     \n\
-    \n\r\
+    \n\
     \n\r\
     \n"
 /system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\
@@ -1392,6 +1401,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
     \n  \
     \n}\r\
     \n"
@@ -1491,9 +1501,10 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
     \n  \
     \n}\
-    \n\r\
+    \n\
     \n\r\
     \n"
 /system script add comment="This will check for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time. Will reboot the router when overload" dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
