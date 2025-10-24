@@ -22,30 +22,18 @@
     :global globalNoteMe;
     :if ([:len $1] > 0) do={
 
-      :local currentTime ([/system clock get date] . " " . [/system clock get time]);
-      :local scriptname "$1";
-      :local count [:len [/system script job find script=$scriptname]];
+           :local scriptname [:jobname] ;
+           :local state "$scriptname instance already running - prevent new instance";
 
-      :if ($count > 0) do={
-
-        :foreach counter in=[/system script job find script=$scriptname] do={
-         #But ignoring scripts started right NOW
-
-         :local thisScriptCallTime  [/system script job get $counter started];
-         :if ($currentTime != $thisScriptCallTime) do={
-
-           :local state "$scriptname already Running at $thisScriptCallTime - killing old script before continuing";
-             :log error $state
-             $globalNoteMe value=$state;
-            /system script job remove $counter;
-
-          }
-        }
-      }
+           :if ([/system script job print count-only as-value where script=$scriptname] > 1) do={
+              :log error $state
+               $globalNoteMe value=$state;
+               :error $state
+            }
 
       :local state "Starting script: $scriptname";
-      :put "info: $state"
-      :log info "$state"
+      $globalNoteMe value=$state;
+
     }
   }
 }
