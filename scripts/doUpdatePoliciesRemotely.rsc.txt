@@ -84,7 +84,9 @@ $globalNoteMe value=$inf
 :if (!$itsOk) do={
 
   :global globalTgMessage;
-  $globalTgMessage value=$inf;
+  $globalTgMessage value=$inf;  
+  :error $inf; 
+
   
 }
 
