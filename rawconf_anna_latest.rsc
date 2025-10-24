@@ -1,4 +1,4 @@
-# 2025-10-24 22:02:27 by RouterOS 7.20
+# 2025-10-24 23:56:52 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -28,7 +28,7 @@
 /caps-man security add authentication-types=wpa2-psk comment="2GHz/5GHz Security" encryption=aes-ccm group-encryption=aes-ccm group-key-update=1h name=private passphrase=mikrotik
 /caps-man security add authentication-types="" comment="2GHz/5GHz FREE" encryption="" group-key-update=5m name=guest
 /disk set usb slot=usb
-/disk add parent=usb partition-number=1 partition-offset=65536 partition-size=5000000000 slot=usb-docker type=partition
+/disk add comment=container-disk parent=usb partition-number=1 partition-offset=65536 partition-size=5000000000 slot=usb-docker type=partition
 /disk add parent=usb partition-number=2 partition-offset=5000069120 partition-size=1000000000 slot=usb-swap swap=yes type=partition
 /interface list add comment="Trusted networks" name=list-trusted
 /interface list add comment="Semi-Trusted networks" name=list-semi-trusted
@@ -249,7 +249,7 @@
 /caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn identity-regexp=anna master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
 /caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac identity-regexp=anna master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
-/container add cmd="-K u -a 5 --auto=none -Kt,h -d1 -s0+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -An -Ku -a1 -An --debug 1" comment="YouTube freedom" interface=bydpi-tunnel logging=yes name=byedpi-hev-socks5-tunnel:mikro remote-image=wiktorbgu/byedpi-hev-socks5-tunnel:mikro root-dir=/usb-docker/docker/byedpi-hev-socks5-tunnel start-on-boot=yes workdir=/
+/container add cmd="-K u -a 5 --auto=none -Kt,h -d1 -s0+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -An -Ku -a1 -An --debug 1" comment="YouTube freedom" envlists=BYEDPI_QUIC_REJECT interface=bydpi-tunnel logging=yes name=byedpi-hev-socks5-tunnel:mikro remote-image=wiktorbgu/byedpi-hev-socks5-tunnel:mikro root-dir=/usb-docker/docker/byedpi-hev-socks5-tunnel start-on-boot=yes workdir=/
 /container config set memory-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/usb-docker/docker/pull
 /container envs add key=QUIC list=BYEDPI_QUIC_REJECT value=REJECT
 /disk settings set auto-media-interface=main-infrastructure-br
@@ -389,7 +389,7 @@
 /ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
-/ip dns set allow-remote-requests=yes cache-max-ttl=1d cache-size=4096KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 verify-doh-cert=yes
+/ip dns set allow-remote-requests=yes cache-max-ttl=1d cache-size=4096KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 name=anna.home type=A
@@ -906,6 +906,7 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
 /system clock set time-zone-name=Europe/Moscow
 /system identity set name=anna
+/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -946,8 +947,8 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.20 \
-    \nUptime:        2w10:53:07  \
-    \nTime:        2025-10-24 22:00:12  \
+    \nUptime:        00:34:49  \
+    \nTime:        2025-10-24 23:50:12  \
     \nPing:    4 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
@@ -1209,11 +1210,12 @@
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
     \n  \
     \n}\
     \n\
     \n\
-    \n\r\
+    \n\
     \n"
 /system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
     \n\$globalScriptBeforeRun \"doCoolConsole\";\
@@ -1769,27 +1771,6 @@
     \n:delay 200ms;\r\
     \n:beep frequency=1950 length=700ms;\r\
     \n:delay 200ms;"
-/system script add dont-require-permissions=yes name=doTelegramNotify owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doTelegramNotify\";\r\
-    \n\r\
-    \n:global TelegramToken \"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\r\
-    \n:global TelegramGroupID \"-343674739\";\r\
-    \n:global TelegramURL \"https://api.telegram.org/bot\$TelegramToken/sendMessage\\\?chat_id=\$TelegramGroupID\";\r\
-    \n\r\
-    \n:global TelegramMessage;\r\
-    \n\r\
-    \n:log info (\"Sending telegram message... \$TelegramMessage\");\r\
-    \n:put \"Sending telegram message... \$TelegramMessage\";\r\
-    \n\r\
-    \n:do {\r\
-    \n/tool fetch http-method=post mode=https url=\"\$TelegramURL\" http-data=\"text=\$TelegramMessage\" keep-result=no;\r\
-    \n} on-error= {\r\
-    \n:log error (\"Telegram notify error\");\r\
-    \n:put \"Telegram notify error\";\r\
-    \n};\r\
-    \n\r\
-    \n"
 /system script add comment="Netwatch handler both when OnUp and OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
     \n:local sysname [/system identity get name];\r\
@@ -1988,7 +1969,6 @@
     \n\$SafeScriptCall \"doEnvironmentSetup\";\
     \n\$SafeScriptCall \"doImperialMarch\";\
     \n\$SafeScriptCall \"doCoolConsole\";\
-    \n\$SafeScriptCall \"SAT!start\";\
     \n\
     \n# wait some for all tunnels to come up after reboot and VPN to work\
     \n\
@@ -2009,156 +1989,157 @@
     \n\
     \n\
     \n"
-/system script add comment="Updates remote VPN server (CHR) IPSEC policies for this mikrotik client via SSH when external IP changed" dont-require-permissions=yes name=doSuperviseCHRviaSSH owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doSuperviseCHRviaSSH\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n:local itsOk true;\r\
-    \n:local state \"n/d\";\r\
-    \n\r\
-    \n:local exitCode 0;\r\
-    \n\r\
-    \n:local callSSH do={\r\
-    \n\r\
-    \n    # reading params\r\
-    \n    :local cmd \$1;\r\
-    \n\r\
-    \n    # ssh server attr\r\
-    \n    :local dst \"185.13.148.14\";\r\
-    \n    :local port 2222;\r\
-    \n    :local user \"automation\";\r\
-    \n\r\
-    \n    :local errorDef \"\";\r\
-    \n\r\
-    \n    :do {\r\
-    \n \r\
-    \n        #password-less (RSA keys) connection should be set up before\r\
-    \n        :local callResult ([/system ssh-exec address=\$dst user=\$user port=\$port command=\$cmd as-value]);\r\
-    \n        :local exitCode ([\$callResult]->\"exit-code\");\r\
-    \n\r\
-    \n        :if (\$exitCode != 0) do={\r\
-    \n\r\
-    \n            :set errorDef \"RPC: script parameter setup returns exit code (\$exitCode)\";\r\
-    \n\r\
-    \n        } else={\r\
-    \n\r\
-    \n            # success\r\
-    \n\r\
-    \n        }\r\
-    \n\r\
-    \n    } on-error= {\r\
-    \n        :set errorDef \"Remote SSH session gets unexperted error\";\r\
-    \n    };\r\
-    \n\r\
-    \n    :return \$errorDef;\r\
-    \n\r\
-    \n};\r\
-    \n\r\
-    \n:do {\r\
-    \n    \r\
-    \n    :local policyComment [/ip dns static get value-name=text [find where type=TXT and name=\"special-remote-CHR-ipsec-policy-comment\"]]\r\
-    \n    :local remoteCommand \":global globalPolicyComment \$policyComment\";\r\
-    \n\r\
-    \n    :set state \"Calling --- \$remoteCommand\";\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n    :local errorDef [\$callSSH \$remoteCommand];\r\
-    \n\r\
-    \n    :if ([:len \$errorDef] > 0) do={\r\
-    \n\r\
-    \n        :set state \$errorDef;\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n        :set itsOk false;\r\
-    \n\r\
-    \n    } else={\r\
-    \n\r\
-    \n        :set state \"RPC: set remote preferred policy comment variable: (\$policyComment) - Ok\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n    \r\
-    \n    }\r\
-    \n\r\
-    \n};\r\
-    \n\r\
-    \n:if (\$itsOk) do={\r\
-    \n\r\
-    \n    :do {\r\
-    \n        \r\
-    \n        :local wanIp [/ip cloud get public-address];\r\
-    \n        :local remoteCommand \":global globalRemoteIp \$wanIp/32\";\r\
-    \n\r\
-    \n        :set state \"Calling --- \$remoteCommand\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n       \r\
-    \n        :local errorDef [\$callSSH \$remoteCommand];\r\
-    \n\r\
-    \n        :if ([:len \$errorDef] > 0) do={\r\
-    \n\r\
-    \n            :set state \$errorDef;\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n            :set itsOk false;\r\
-    \n\r\
-    \n        } else={\r\
-    \n\r\
-    \n            :set state \"RPC: set remote preferred policy IP variable: (\$wanIp) - Ok\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n        \r\
-    \n        }\r\
-    \n\r\
-    \n    };\r\
-    \n\r\
-    \n}\r\
-    \n\r\
-    \n:if (\$itsOk) do={\r\
-    \n\r\
-    \n    :do {\r\
-    \n        \r\
-    \n        :local remoteCommand \"/system script run doUpdatePoliciesRemotely\";\r\
-    \n\r\
-    \n        :set state \"Calling --- \$remoteCommand\";\r\
-    \n        \$globalNoteMe value=\$state;\r\
-    \n       \r\
-    \n        :local errorDef [\$callSSH \$remoteCommand];\r\
-    \n\r\
-    \n        :if ([:len \$errorDef] > 0) do={\r\
-    \n\r\
-    \n            :set state \$errorDef;\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n            :set itsOk false;\r\
-    \n\r\
-    \n        } else={\r\
-    \n\r\
-    \n            :set state \"RPC: call remote script: doUpdatePoliciesRemotely - Ok\";\r\
-    \n            \$globalNoteMe value=\$state;\r\
-    \n        \r\
-    \n        }\r\
-    \n\r\
-    \n    };\r\
-    \n\r\
-    \n}\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: remote policies refreshed Successfully\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n  \r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n\r\
+/system script add comment="Updates remote VPN server (CHR) IPSEC policies for this mikrotik client via SSH when external IP changed" dont-require-permissions=yes name=doSuperviseCHRviaSSH owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local sysname [/system identity get name];\
+    \n:local scriptname \"doSuperviseCHRviaSSH\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n:local state \"n/d\";\
+    \n\
+    \n:local exitCode 0;\
+    \n\
+    \n:local callSSH do={\
+    \n\
+    \n    # reading params\
+    \n    :local cmd \$1;\
+    \n\
+    \n    # ssh server attr\
+    \n    :local dst \"185.13.148.14\";\
+    \n    :local port 2222;\
+    \n    :local user \"automation\";\
+    \n\
+    \n    :local errorDef \"\";\
+    \n\
+    \n    :do {\
+    \n \
+    \n        #password-less (RSA keys) connection should be set up before\
+    \n        :local callResult ([/system ssh-exec address=\$dst user=\$user port=\$port command=\$cmd as-value]);\
+    \n        :local exitCode ([\$callResult]->\"exit-code\");\
+    \n\
+    \n        :if (\$exitCode != 0) do={\
+    \n\
+    \n            :set errorDef \"RPC: script parameter setup returns exit code (\$exitCode)\";\
+    \n\
+    \n        } else={\
+    \n\
+    \n            # success\
+    \n\
+    \n        }\
+    \n\
+    \n    } on-error= {\
+    \n        :set errorDef \"Remote SSH session gets unexperted error\";\
+    \n    };\
+    \n\
+    \n    :return \$errorDef;\
+    \n\
+    \n};\
+    \n\
+    \n:do {\
+    \n    \
+    \n    :local policyComment [/ip dns static get value-name=text [find where type=TXT and name=\"special-remote-CHR-ipsec-policy-comment\"]]\
+    \n    :local remoteCommand \":global globalPolicyComment \$policyComment\";\
+    \n\
+    \n    :set state \"Calling --- \$remoteCommand\";\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n    :local errorDef [\$callSSH \$remoteCommand];\
+    \n\
+    \n    :if ([:len \$errorDef] > 0) do={\
+    \n\
+    \n        :set state \$errorDef;\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :set itsOk false;\
+    \n\
+    \n    } else={\
+    \n\
+    \n        :set state \"RPC: set remote preferred policy comment variable: (\$policyComment) - Ok\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n    \
+    \n    }\
+    \n\
+    \n};\
+    \n\
+    \n:if (\$itsOk) do={\
+    \n\
+    \n    :do {\
+    \n        \
+    \n        :local wanIp [/ip cloud get public-address];\
+    \n        :local remoteCommand \":global globalRemoteIp \$wanIp/32\";\
+    \n\
+    \n        :set state \"Calling --- \$remoteCommand\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n       \
+    \n        :local errorDef [\$callSSH \$remoteCommand];\
+    \n\
+    \n        :if ([:len \$errorDef] > 0) do={\
+    \n\
+    \n            :set state \$errorDef;\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :set itsOk false;\
+    \n\
+    \n        } else={\
+    \n\
+    \n            :set state \"RPC: set remote preferred policy IP variable: (\$wanIp) - Ok\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n        \
+    \n        }\
+    \n\
+    \n    };\
+    \n\
+    \n}\
+    \n\
+    \n:if (\$itsOk) do={\
+    \n\
+    \n    :do {\
+    \n        \
+    \n        :local remoteCommand \"/system script run doUpdatePoliciesRemotely\";\
+    \n\
+    \n        :set state \"Calling --- \$remoteCommand\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n       \
+    \n        :local errorDef [\$callSSH \$remoteCommand];\
+    \n\
+    \n        :if ([:len \$errorDef] > 0) do={\
+    \n\
+    \n            :set state \$errorDef;\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :set itsOk false;\
+    \n\
+    \n        } else={\
+    \n\
+    \n            :set state \"RPC: call remote script: doUpdatePoliciesRemotely - Ok\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n        \
+    \n        }\
+    \n\
+    \n    };\
+    \n\
+    \n}\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: remote policies refreshed Successfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
+    \n \
+    \n}\
+    \n\
+    \n\
+    \n\
     \n"
 /system script add dont-require-permissions=yes name=doTranstaleMAC2IP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2329,10 +2310,11 @@
     \n  \
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
     \n\
     \n}\
     \n\
-    \n\r\
+    \n\
     \n"
 /system script add comment="A template to track hotspot users" dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2378,11 +2360,13 @@
     \n\
     \n  :global globalNoteMe do={\
     \n\
+    \n  :local scriptname [:jobname] ;\
     \n  ## outputs \$value using both :put and :log info\
     \n  ## example \$outputInfo value=\"12345\"\
     \n\
-    \n  :put \"info: \$value\"\
-    \n  :log info \"\$value\"\
+    \n  :local state \"\$scriptname: \$value\";\
+    \n  :put \"\$state\"\
+    \n  :log info \"\$state\"\
     \n\
     \n  }\
     \n}\
@@ -2486,15 +2470,17 @@
     \n    :global globalNoteMe;\
     \n    :global SECRET;\
     \n\
-    \n     \$SECRET set TELEGRAM_TOKEN=\"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
+    \n    \$SECRET set TELEGRAM_TOKEN password=\"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
     \n    \$SECRET set TELEGRAM_CHAT_ID password=\"-1001798127067\";\
     \n\
     \n    :local tToken \"\$[\$SECRET get TELEGRAM_TOKEN]\";\
     \n    :local tGroupID \"\$[\$SECRET get TELEGRAM_CHAT_ID]\";\
     \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
     \n\
-    \n    :local sysname (\"%C2%A9%EF%B8%8F #\" . [/system identity get name]);\
-    \n    :local tgmessage  (\"\$sysname: \$value\");  \
+    \n    :local sysname (\"#\" . [/system identity get name]);\
+    \n    :local scriptname [:jobname] ;\
+    \n\
+    \n    :local tgmessage  (\"\$scriptname %C2%A9%EF%B8%8F \$sysname: \$value\");  \
     \n\
     \n    :local state (\"Sending telegram message... \$tgmessage\");\
     \n    \$globalNoteMe value=\$tgmessage;\
@@ -2895,148 +2881,150 @@
     \n}\
     \n\
     \n"
-/system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\r\
-    \n:local scriptname \"doCreateTrafficAccountingQueues\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n#a part of queue comment to locate queues to be processed\r\
-    \n:local qCommentMark \"dtq\";\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n:local itsOk true;\r\
-    \n\r\
-    \n:local state \"\";\r\
-    \n \r\
-    \n/ip dhcp-server lease\r\
-    \n:foreach x in=[find] do={\r\
-    \n   \r\
-    \n  # grab variables for use below\r\
-    \n  :local dhcpIp ([get \$x address])\r\
-    \n  :local dhcpMac [get \$x mac-address]\r\
-    \n  :local dhcpHost [get \$x host-name]\r\
-    \n  :local dhcpComment [get \$x comment]\r\
-    \n  :local dhcpServer [get \$x server]\r\
-    \n  :local qComment \"\"\r\
-    \n   \r\
-    \n  :local leaseinqueue false\r\
-    \n\r\
-    \n  /queue simple\r\
-    \n  :foreach y in=[find where comment~\"\$qCommentMark\"] do={\r\
-    \n     \r\
-    \n    #grab variables for use below\r\
-    \n    :local qIp [get \$y target]\r\
-    \n    :set qComment [get \$y comment]\r\
-    \n\r\
-    \n    :local skip false;\r\
-    \n  \r\
-    \n    :if ( (\$qIp->0) != nil ) do={\r\
-    \n      :set qIp (\$qIp->0) \r\
-    \n      :set qIp ( [:pick \$qIp 0 [:find \$qIp \"/\" -1]] ) ;\r\
-    \n    } else {\r\
-    \n      :set skip true;\r\
-    \n    }\r\
-    \n         \r\
-    \n    # Isolate information  from the comment field (MAC, Hostname)\r\
-    \n    :local qMac [:pick \$qComment 4 21]\r\
-    \n    :local qHost [:pick \$qComment 22 [:len \$qComment]]\r\
-    \n\r\
-    \n    # If MAC from lease matches the queue MAC and IPs are the same - then refresh the queue item\r\
-    \n    :if (\$qMac = \$dhcpMac and \$qIp = \$dhcpIp and !\$skip) do={\r\
-    \n\r\
-    \n      # build a comment field\r\
-    \n      :set qComment (\$qCommentMark . \",\" . \$dhcpMac . \",\" . \$dhcpHost)\r\
-    \n\r\
-    \n      set \$y target=\$dhcpIp comment=\$qComment\r\
-    \n\r\
-    \n      :if (\$dhcpComment != \"\") do= {\r\
-    \n        set \$y name=(\$dhcpComment . \"@\" . \$dhcpServer . \" (\" . \$dhcpMac . \")\")\r\
-    \n      } else= {\r\
-    \n        :if (\$dhcpHost != \"\") do= {\r\
-    \n          set \$y name=(\$dhcpHost . \"@\" . \$dhcpServer . \" (\" . \$dhcpMac . \")\")\r\
-    \n        } else= {\r\
-    \n          set \$y name=(\$dhcpMac . \"@\" . \$dhcpServer)\r\
-    \n        }\r\
-    \n      }\r\
-    \n\r\
-    \n      :local queuename [get \$y name]\r\
-    \n\r\
-    \n      :set state \"Queue \$queuename updated\"\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n      :set leaseinqueue true\r\
-    \n    } \r\
-    \n  }\r\
-    \n\r\
-    \n  # There was not an existing entry so add one for this lease\r\
-    \n  :if (\$leaseinqueue = false) do={\r\
-    \n\r\
-    \n    # build a comment field\r\
-    \n    :set qComment (\$qCommentMark . \",\" . \$dhcpMac . \",\" . \$dhcpHost)\r\
-    \n\r\
-    \n    # build command (queue names should be unique)\r\
-    \n    :local cmd \"/queue simple add target=\$dhcpIp comment=\$qComment queue=default/default total-queue=default\"\r\
-    \n    :if (\$dhcpComment != \"\") do={ \r\
-    \n      :set cmd \"\$cmd name=\\\"\$dhcpComment@\$dhcpServer (\$dhcpMac)\\\"\" \r\
-    \n    } else= {\r\
-    \n      :if (\$dhcpHost != \"\") do={\r\
-    \n        :set cmd \"\$cmd name=\\\"\$dhcpHost@\$dhcpServer (\$dhcpMac)\\\"\"\r\
-    \n      } else= {\r\
-    \n        :set cmd \"\$cmd name=\\\"\$dhcpMac@\$dhcpServer\\\"\"\r\
-    \n      }\r\
-    \n    }\r\
-    \n\r\
-    \n    :execute \$cmd\r\
-    \n\r\
-    \n    :set state \"Queue \$qComment created\"\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n  }\r\
-    \n}\r\
-    \n\r\
-    \n# Cleanup Routine - remove dynamic entries that no longer exist in the lease table\r\
-    \n/queue simple\r\
-    \n:foreach z in=[find where comment~\"\$qCommentMark\"] do={\r\
-    \n\r\
-    \n  :local qComment [get \$z comment]\r\
-    \n  :local qMac [:pick \$qComment 4 21]\r\
-    \n\r\
-    \n  :local qIp [get \$z target]\r\
-    \n  :local skip false\r\
-    \n\r\
-    \n  :if ( (\$qIp->0) != nil ) do={\r\
-    \n    :set qIp (\$qIp->0) \r\
-    \n    :set qIp ( [:pick \$qIp 0 [:find \$qIp \"/\" -1]] ) ;\r\
-    \n  } else {\r\
-    \n    :set skip true;\r\
-    \n  }\r\
-    \n\r\
-    \n  :if (\$itsOk and !\$skip) do={\r\
-    \n    :if ( [/ip dhcp-server lease find address=\$qIp and mac-address=\$qMac] = \"\") do={\r\
-    \n      :set state \"Queue \$qComment dropped as stale\"\r\
-    \n      \$globalNoteMe value=\$state;\r\
-    \n      remove \$z\r\
-    \n    }\r\
-    \n  }    \r\
-    \n}\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: refreshed traffic accounting queues Succesfully\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n  \r\
-    \n}\r\
+/system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
+    \n:local scriptname \"doCreateTrafficAccountingQueues\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n#a part of queue comment to locate queues to be processed\
+    \n:local qCommentMark \"dtq\";\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n\
+    \n:local state \"\";\
+    \n \
+    \n/ip dhcp-server lease\
+    \n:foreach x in=[find] do={\
+    \n   \
+    \n  # grab variables for use below\
+    \n  :local dhcpIp ([get \$x address])\
+    \n  :local dhcpMac [get \$x mac-address]\
+    \n  :local dhcpHost [get \$x host-name]\
+    \n  :local dhcpComment [get \$x comment]\
+    \n  :local dhcpServer [get \$x server]\
+    \n  :local qComment \"\"\
+    \n   \
+    \n  :local leaseinqueue false\
+    \n\
+    \n  /queue simple\
+    \n  :foreach y in=[find where comment~\"\$qCommentMark\"] do={\
+    \n     \
+    \n    #grab variables for use below\
+    \n    :local qIp [get \$y target]\
+    \n    :set qComment [get \$y comment]\
+    \n\
+    \n    :local skip false;\
+    \n  \
+    \n    :if ( (\$qIp->0) != nil ) do={\
+    \n      :set qIp (\$qIp->0) \
+    \n      :set qIp ( [:pick \$qIp 0 [:find \$qIp \"/\" -1]] ) ;\
+    \n    } else {\
+    \n      :set skip true;\
+    \n    }\
+    \n         \
+    \n    # Isolate information  from the comment field (MAC, Hostname)\
+    \n    :local qMac [:pick \$qComment 4 21]\
+    \n    :local qHost [:pick \$qComment 22 [:len \$qComment]]\
+    \n\
+    \n    # If MAC from lease matches the queue MAC and IPs are the same - then refresh the queue item\
+    \n    :if (\$qMac = \$dhcpMac and \$qIp = \$dhcpIp and !\$skip) do={\
+    \n\
+    \n      # build a comment field\
+    \n      :set qComment (\$qCommentMark . \",\" . \$dhcpMac . \",\" . \$dhcpHost)\
+    \n\
+    \n      set \$y target=\$dhcpIp comment=\$qComment\
+    \n\
+    \n      :if (\$dhcpComment != \"\") do= {\
+    \n        set \$y name=(\$dhcpComment . \"@\" . \$dhcpServer . \" (\" . \$dhcpMac . \")\")\
+    \n      } else= {\
+    \n        :if (\$dhcpHost != \"\") do= {\
+    \n          set \$y name=(\$dhcpHost . \"@\" . \$dhcpServer . \" (\" . \$dhcpMac . \")\")\
+    \n        } else= {\
+    \n          set \$y name=(\$dhcpMac . \"@\" . \$dhcpServer)\
+    \n        }\
+    \n      }\
+    \n\
+    \n      :local queuename [get \$y name]\
+    \n\
+    \n      :set state \"Queue \$queuename updated\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n      :set leaseinqueue true\
+    \n    } \
+    \n  }\
+    \n\
+    \n  # There was not an existing entry so add one for this lease\
+    \n  :if (\$leaseinqueue = false) do={\
+    \n\
+    \n    # build a comment field\
+    \n    :set qComment (\$qCommentMark . \",\" . \$dhcpMac . \",\" . \$dhcpHost)\
+    \n\
+    \n    # build command (queue names should be unique)\
+    \n    :local cmd \"/queue simple add target=\$dhcpIp comment=\$qComment queue=default/default total-queue=default\"\
+    \n    :if (\$dhcpComment != \"\") do={ \
+    \n      :set cmd \"\$cmd name=\\\"\$dhcpComment@\$dhcpServer (\$dhcpMac)\\\"\" \
+    \n    } else= {\
+    \n      :if (\$dhcpHost != \"\") do={\
+    \n        :set cmd \"\$cmd name=\\\"\$dhcpHost@\$dhcpServer (\$dhcpMac)\\\"\"\
+    \n      } else= {\
+    \n        :set cmd \"\$cmd name=\\\"\$dhcpMac@\$dhcpServer\\\"\"\
+    \n      }\
+    \n    }\
+    \n\
+    \n    :execute \$cmd\
+    \n\
+    \n    :set state \"Queue \$qComment created\"\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n  }\
+    \n}\
+    \n\
+    \n# Cleanup Routine - remove dynamic entries that no longer exist in the lease table\
+    \n/queue simple\
+    \n:foreach z in=[find where comment~\"\$qCommentMark\"] do={\
+    \n\
+    \n  :local qComment [get \$z comment]\
+    \n  :local qMac [:pick \$qComment 4 21]\
+    \n\
+    \n  :local qIp [get \$z target]\
+    \n  :local skip false\
+    \n\
+    \n  :if ( (\$qIp->0) != nil ) do={\
+    \n    :set qIp (\$qIp->0) \
+    \n    :set qIp ( [:pick \$qIp 0 [:find \$qIp \"/\" -1]] ) ;\
+    \n  } else {\
+    \n    :set skip true;\
+    \n  }\
+    \n\
+    \n  :if (\$itsOk and !\$skip) do={\
+    \n    :if ( [/ip dhcp-server lease find address=\$qIp and mac-address=\$qMac] = \"\") do={\
+    \n      :set state \"Queue \$qComment dropped as stale\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n      remove \$z\
+    \n    }\
+    \n  }    \
+    \n}\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: refreshed traffic accounting queues Succesfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;  \
+    \n  :error \$inf; \
+    \n\
+    \n  \
+    \n}\
     \n"
 /system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
     \n\$globalScriptBeforeRun \"doBackup\";\
@@ -3215,7 +3203,8 @@
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
-    \n  \
+    \n  :error \$inf; \
+    \n \
     \n}\
     \n\
     \n\
@@ -3316,6 +3305,7 @@
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
     \n  \
     \n}"
 /system script add comment="Dumps all the scripts from you device to *.rsc.txt files, loads to FTP (all scripts in this Repo made with it)" dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
@@ -3454,6 +3444,7 @@
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
     \n  \
     \n}\
     \n"
@@ -3553,9 +3544,10 @@
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
     \n  \
     \n}\
-    \n\r\
+    \n\
     \n"
 /system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n:local sysname [/system identity get name];\
@@ -3723,6 +3715,8 @@
     \n  \
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
+    \n\
     \n\
     \n}\
     \n"
@@ -4043,97 +4037,99 @@
     \n# new startup scripts maybe restored so...\r\r\
     \n/system reboot\r\r\
     \n}"
-/system script add comment="A server-side script, that is called via global function using ssh-exec from another mikrotik-client to update it's IPSEC policy IP address" dont-require-permissions=yes name=doUpdatePoliciesRemotely owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doUpdatePoliciesRemotely\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n:local itsOk true;\r\
-    \n:local state \"\";\r\
-    \n\r\
-    \n# variables should be set before via remote SSH call\r\
-    \n:global globalRemoteIp;\r\
-    \n:global globalPolicyComment;\r\
-    \n\r\
-    \n\r\
-    \n:do {\r\
-    \n    :if ([:len \$globalRemoteIp] > 0) do={\r\
-    \n\r\
-    \n    :local peerID \$globalPolicyComment;\r\
-    \n\r\
-    \n    /ip ipsec policy {\r\
-    \n        :foreach vpnEndpoint in=[find (!disabled and template and comment=\"\$peerID\")] do={\r\
-    \n        \r\
-    \n            :local dstIp;\r\
-    \n            :set dstIp [get value-name=dst-address \$vpnEndpoint];\r\
-    \n\r\
-    \n            :if ((\$itsOk) and (\$globalRemoteIp != \$dstIp )) do={\r\
-    \n\r\
-    \n                [set \$vpnEndpoint disabled=yes];\r\
-    \n\r\
-    \n                :set state \"IPSEC policy template found with wrong IP (\$dstIp). Going change it to (\$globalRemoteIp)\";\r\
-    \n                \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n                /ip ipsec peer {\r\
-    \n                    :foreach thePeer in=[find name=\$peerID] do={\r\
-    \n\r\
-    \n                        :if (\$itsOk) do={\r\
-    \n\r\
-    \n                            :set state \"Setting up peer remote address..\"\r\
-    \n                            \$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n                            [set \$thePeer disabled=yes];\r\
-    \n\r\
-    \n                            :delay 5;\r\
-    \n\r\
-    \n                            [set \$thePeer disabled=no address=\$globalRemoteIp];\r\
-    \n\r\
-    \n                          \r\
-    \n                        }\r\
-    \n\r\
-    \n                    }\r\
-    \n\r\
-    \n                }\r\
-    \n\r\
-    \n                :delay 5;\r\
-    \n                \r\
-    \n                [set \$vpnEndpoint dst-address=\$globalRemoteIp disabled=no];\r\
-    \n\r\
-    \n            }\r\
-    \n\r\
-    \n        }\r\
-    \n\r\
-    \n    }\r\
-    \n    \r\
-    \n    }\r\
-    \n} on-error= {\r\
-    \n    :local state (\"globalIPSECPolicyUpdateViaSSH error\");\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    :set itsOk false;\r\
-    \n};\r\
-    \n\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: policies refreshed Successfully\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n\r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n  \r\
-    \n}\r\
-    \n\r\
-    \n\r\
+/system script add comment="A server-side script, that is called via global function using ssh-exec from another mikrotik-client to update it's IPSEC policy IP address" dont-require-permissions=yes name=doUpdatePoliciesRemotely owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local sysname [/system identity get name];\
+    \n:local scriptname \"doUpdatePoliciesRemotely\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n:local state \"\";\
+    \n\
+    \n# variables should be set before via remote SSH call\
+    \n:global globalRemoteIp;\
+    \n:global globalPolicyComment;\
+    \n\
+    \n\
+    \n:do {\
+    \n    :if ([:len \$globalRemoteIp] > 0) do={\
+    \n\
+    \n    :local peerID \$globalPolicyComment;\
+    \n\
+    \n    /ip ipsec policy {\
+    \n        :foreach vpnEndpoint in=[find (!disabled and template and comment=\"\$peerID\")] do={\
+    \n        \
+    \n            :local dstIp;\
+    \n            :set dstIp [get value-name=dst-address \$vpnEndpoint];\
+    \n\
+    \n            :if ((\$itsOk) and (\$globalRemoteIp != \$dstIp )) do={\
+    \n\
+    \n                [set \$vpnEndpoint disabled=yes];\
+    \n\
+    \n                :set state \"IPSEC policy template found with wrong IP (\$dstIp). Going change it to (\$globalRemoteIp)\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n                /ip ipsec peer {\
+    \n                    :foreach thePeer in=[find name=\$peerID] do={\
+    \n\
+    \n                        :if (\$itsOk) do={\
+    \n\
+    \n                            :set state \"Setting up peer remote address..\"\
+    \n                            \$globalNoteMe value=\$state;\
+    \n\
+    \n                            [set \$thePeer disabled=yes];\
+    \n\
+    \n                            :delay 5;\
+    \n\
+    \n                            [set \$thePeer disabled=no address=\$globalRemoteIp];\
+    \n\
+    \n                          \
+    \n                        }\
+    \n\
+    \n                    }\
+    \n\
+    \n                }\
+    \n\
+    \n                :delay 5;\
+    \n                \
+    \n                [set \$vpnEndpoint dst-address=\$globalRemoteIp disabled=no];\
+    \n\
+    \n            }\
+    \n\
+    \n        }\
+    \n\
+    \n    }\
+    \n    \
+    \n    }\
+    \n} on-error= {\
+    \n    :local state (\"globalIPSECPolicyUpdateViaSSH error\");\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :set itsOk false;\
+    \n};\
+    \n\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: policies refreshed Successfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;  \
+    \n  :error \$inf; \
+    \n\
+    \n  \
+    \n}\
+    \n\
+    \n\
     \n"
 /system script add comment="This script is a SCEP-client, it request the server to ptovide a new certificate" dont-require-permissions=yes name=doSCEPClientCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n# generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\r\
