@@ -71,6 +71,7 @@ $globalNoteMe value=$inf
 
   :global globalTgMessage;
   $globalTgMessage value=$inf;
+  :error $inf; 
   
 }
 
