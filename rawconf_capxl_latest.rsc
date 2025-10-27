@@ -1,4 +1,4 @@
-# 2025-10-25 00:29:11 by RouterOS 7.20.1
+# 2025-10-27 21:13:02 by RouterOS 7.20.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -80,7 +80,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=capxl
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -107,19 +106,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system logging add action=CAPSOnScreenLog topics=wireless
 /system logging add action=ParseMemoryLog topics=info,system,!script
 /system logging add action=FTPMemoryLog topics=tftp
-/system note set note="Ipsec:         okay \
-    \nRoute:     192.168.90.1 \
-    \nVersion:         7.20.1 \
-    \nUptime:        00:01:29  \
-    \nTime:        2025-10-25 00:27:10  \
-    \nPing:    5 ms  \
-    \nChr:        185.13.148.14  \
-    \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.206  \
-    \nClock:        synchronized  \
-    \n * routeros  \
-    \n * wireless  \
-    \n" show-at-cli-login=yes
+/system note set note=Pending show-at-cli-login=yes
 /system ntp client set enabled=yes
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=2018-03-01 start-time=15:55:00
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
