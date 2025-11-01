@@ -1,4 +1,4 @@
-# 2025-10-27 21:13:02 by RouterOS 7.20.1
+# 2025-11-01 21:13:02 by RouterOS 7.20.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -10,7 +10,7 @@
 set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5180/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /interface ethernet set [ find default-name=ether1 ] arp=disabled name="lan A"
 /interface ethernet set [ find default-name=ether2 ] name="lan B"
@@ -893,7 +893,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n}\
     \n\
     \n\
-    \n\
     \n#Example call\
     \n#\$globalNewClientCert argClients=\"anna.ipsec, mikrouter.ipsec\" argUsage=\"tls-client,digital-signature,key-encipherment\"\
     \n#\$globalNewClientCert argClients=\"anna.capsman, mikrouter.capsman\" argUsage=\"digital-signature,key-encipherment\"\
@@ -970,7 +969,17 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n                :set tname \"S.\$USERNAME@\$scepAlias\";\
     \n\
-    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\
+    \n                :if ([ :len [ /certificate find where name=\"\$tname\" ] ] > 0) do={\
+    \n\
+    \n                  :local state (\"Error: found certificate named (\$tname) -  cannot create the same one\");\
+    \n                  \$globalNoteMe value=\$state;\
+    \n                  :return false;\
+    \n\
+    \n                } else={\
+    \n\
+    \n                  /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\
+    \n\
+    \n                };\
     \n\
     \n            } else={\
     \n\
@@ -979,7 +988,17 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n                :set tname \"C.\$USERNAME@\$scepAlias\";\
     \n\
-    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\
+    \n                :if ([ :len [ /certificate find where name=\"\$tname\" ] ] > 0) do={\
+    \n\
+    \n                  :local state (\"Error: found certificate named (\$tname) -  cannot create the same one\");\
+    \n                  \$globalNoteMe value=\$state;\
+    \n                  :return false;\
+    \n\
+    \n                } else={\
+    \n\
+    \n                  /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\
+    \n\
+    \n                };\
     \n\
     \n            }\
     \n\
@@ -1033,7 +1052,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n    }\
     \n  }\
     \n}\
-    \n\
     \n\
     \n\
     \n:if (!any \$globalCallFetch) do={\
@@ -1106,7 +1124,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n}\
     \n\
-    \n\r\
+    \n\
     \n"
 /system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
     \n\$globalScriptBeforeRun \"doBackup\";\
