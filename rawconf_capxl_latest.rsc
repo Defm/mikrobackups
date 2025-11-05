@@ -1,4 +1,4 @@
-# 2025-10-22 21:13:02 by RouterOS 7.20.1
+# 2025-11-01 21:13:02 by RouterOS 7.20.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -10,7 +10,7 @@
 set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+# channel: 5180/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /interface ethernet set [ find default-name=ether1 ] arp=disabled name="lan A"
 /interface ethernet set [ find default-name=ether2 ] name="lan B"
@@ -18,6 +18,7 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
 /ip dhcp-client option add code=60 name=classid value="'mikrotik-cap'"
 /ip smb users set [ find default=yes ] disabled=yes
+/ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
 /system logging action add name=IpsecOnScreenLog target=memory
@@ -73,6 +74,8 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /ip tftp add real-filename=NAS/ req-filename=.*
 /ip upnp set enabled=yes
 /ip upnp interfaces add interface="main infrastructure" type=internal
+/ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
 /routing bfd configuration add disabled=no
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
@@ -250,11 +253,12 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
     \n  \
     \n}\
     \n\
     \n\
-    \n\r\
+    \n\
     \n\r\
     \n"
 /system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
@@ -540,7 +544,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\$SafeScriptCall \"doEnvironmentSetup\";\
     \n\$SafeScriptCall \"doImperialMarch\";\
     \n\$SafeScriptCall \"doCoolConsole\";\
-    \n\$SafeScriptCall \"SAT!start\";\
     \n\
     \n# wait some for all tunnels to come up after reboot and VPN to work\
     \n\
@@ -583,11 +586,13 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n  :global globalNoteMe do={\
     \n\
+    \n  :local scriptname [:jobname] ;\
     \n  ## outputs \$value using both :put and :log info\
     \n  ## example \$outputInfo value=\"12345\"\
     \n\
-    \n  :put \"info: \$value\"\
-    \n  :log info \"\$value\"\
+    \n  :local state \"\$scriptname: \$value\";\
+    \n  :put \"\$state\"\
+    \n  :log info \"\$state\"\
     \n\
     \n  }\
     \n}\
@@ -600,30 +605,18 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n    :global globalNoteMe;\
     \n    :if ([:len \$1] > 0) do={\
     \n\
-    \n      :local currentTime ([/system clock get date] . \" \" . [/system clock get time]);\
-    \n      :local scriptname \"\$1\";\
-    \n      :local count [:len [/system script job find script=\$scriptname]];\
+    \n           :local scriptname [:jobname] ;\
+    \n           :local state \"\$scriptname instance already running - prevent new instance\";\
     \n\
-    \n      :if (\$count > 0) do={\
-    \n\
-    \n        :foreach counter in=[/system script job find script=\$scriptname] do={\
-    \n         #But ignoring scripts started right NOW\
-    \n\
-    \n         :local thisScriptCallTime  [/system script job get \$counter started];\
-    \n         :if (\$currentTime != \$thisScriptCallTime) do={\
-    \n\
-    \n           :local state \"\$scriptname already Running at \$thisScriptCallTime - killing old script before continuing\";\
-    \n             :log error \$state\
-    \n             \$globalNoteMe value=\$state;\
-    \n            /system script job remove \$counter;\
-    \n\
-    \n          }\
-    \n        }\
-    \n      }\
+    \n           :if ([/system script job print count-only as-value where script=\$scriptname] > 1) do={\
+    \n              :log error \$state\
+    \n               \$globalNoteMe value=\$state;\
+    \n               :error \$state\
+    \n            }\
     \n\
     \n      :local state \"Starting script: \$scriptname\";\
-    \n      :put \"info: \$state\"\
-    \n      :log info \"\$state\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
     \n    }\
     \n  }\
     \n}\
@@ -703,15 +696,17 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n    :global globalNoteMe;\
     \n    :global SECRET;\
     \n\
-    \n     \$SECRET set TELEGRAM_TOKEN=\"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
+    \n    \$SECRET set TELEGRAM_TOKEN password=\"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
     \n    \$SECRET set TELEGRAM_CHAT_ID password=\"-1001798127067\";\
     \n\
     \n    :local tToken \"\$[\$SECRET get TELEGRAM_TOKEN]\";\
     \n    :local tGroupID \"\$[\$SECRET get TELEGRAM_CHAT_ID]\";\
     \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
     \n\
-    \n    :local sysname (\"%C2%A9%EF%B8%8F #\" . [/system identity get name]);\
-    \n    :local tgmessage  (\"\$sysname: \$value\");  \
+    \n    :local sysname (\"#\" . [/system identity get name]);\
+    \n    :local scriptname [:jobname] ;\
+    \n\
+    \n    :local tgmessage  (\"\$scriptname %C2%A9%EF%B8%8F \$sysname: \$value\");  \
     \n\
     \n    :local state (\"Sending telegram message... \$tgmessage\");\
     \n    \$globalNoteMe value=\$tgmessage;\
@@ -898,7 +893,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n}\
     \n\
     \n\
-    \n\
     \n#Example call\
     \n#\$globalNewClientCert argClients=\"anna.ipsec, mikrouter.ipsec\" argUsage=\"tls-client,digital-signature,key-encipherment\"\
     \n#\$globalNewClientCert argClients=\"anna.capsman, mikrouter.capsman\" argUsage=\"digital-signature,key-encipherment\"\
@@ -975,7 +969,17 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n                :set tname \"S.\$USERNAME@\$scepAlias\";\
     \n\
-    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\
+    \n                :if ([ :len [ /certificate find where name=\"\$tname\" ] ] > 0) do={\
+    \n\
+    \n                  :local state (\"Error: found certificate named (\$tname) -  cannot create the same one\");\
+    \n                  \$globalNoteMe value=\$state;\
+    \n                  :return false;\
+    \n\
+    \n                } else={\
+    \n\
+    \n                  /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\
+    \n\
+    \n                };\
     \n\
     \n            } else={\
     \n\
@@ -984,7 +988,17 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n                :set tname \"C.\$USERNAME@\$scepAlias\";\
     \n\
-    \n                /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\
+    \n                :if ([ :len [ /certificate find where name=\"\$tname\" ] ] > 0) do={\
+    \n\
+    \n                  :local state (\"Error: found certificate named (\$tname) -  cannot create the same one\");\
+    \n                  \$globalNoteMe value=\$state;\
+    \n                  :return false;\
+    \n\
+    \n                } else={\
+    \n\
+    \n                  /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\
+    \n\
+    \n                };\
     \n\
     \n            }\
     \n\
@@ -1038,7 +1052,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n    }\
     \n  }\
     \n}\
-    \n\
     \n\
     \n\
     \n:if (!any \$globalCallFetch) do={\
@@ -1111,7 +1124,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n}\
     \n\
-    \n\r\
+    \n\
     \n"
 /system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
     \n\$globalScriptBeforeRun \"doBackup\";\
@@ -1290,10 +1303,11 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
-    \n  \
+    \n  :error \$inf; \
+    \n \
     \n}\
     \n\
-    \n\r\
+    \n\
     \n\r\
     \n"
 /system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sensitive source="\
@@ -1392,6 +1406,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
     \n  \
     \n}\r\
     \n"
@@ -1491,9 +1506,10 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
     \n  \
     \n}\
-    \n\r\
+    \n\
     \n\r\
     \n"
 /system script add comment="This will check for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time. Will reboot the router when overload" dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
