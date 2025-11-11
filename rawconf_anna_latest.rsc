@@ -1,4 +1,4 @@
-# 2025-11-06 21:13:02 by RouterOS 7.20
+# 2025-11-11 21:13:02 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -167,7 +167,7 @@
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1,A54-pol-zovatela-Natalya name="Froloff(wireless)@main-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.90.142/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1, name="Froloff(wireless)(blocked)@guest-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.98.142/32 total-queue=default
 /queue simple add comment=dtq,2C:D2:6B:42:D5:54, name="@guest-dhcp-server (2C:D2:6B:42:D5:54)" queue=default/default target=192.168.98.227/32 total-queue=default
-/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.230/32 total-queue=default
+/queue simple add comment=dtq,F6:12:A6:71:59:08, name="@guest-dhcp-server (F6:12:A6:71:59:08)" queue=default/default target=192.168.98.228/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -444,7 +444,6 @@
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=ggpht.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=rutracker.org type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=rutracker.cc type=FWD
-/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=medium.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=fb.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=facebook.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=fbcdn.net type=FWD
@@ -456,8 +455,15 @@
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=prnt.sc type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=t.co type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=protonvpn.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=nnmclub.to type=FWD
-/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=ntc.party type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN Hack" forward-to=localhost match-subdomain=yes name=nnmclub.to type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=ntc.party type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=medium.com type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=www.canva.com type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=www.tinkercad.com type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=xvideos.com type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=xhamster.com type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=www.parallels.com type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=radarr.video type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-PH comment="DPI Hack PH" forward-to=localhost match-subdomain=yes name=pornhub.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-PH comment="DPI Hack PH" forward-to=localhost match-subdomain=yes name=rt.pornhub.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-PH comment="DPI Hack PH" forward-to=localhost match-subdomain=yes name=ei.phncdn.com type=FWD
@@ -544,7 +550,7 @@
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-rdp-allow
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-smb-allow
 /ip firewall address-list add address=185.13.148.14 list=alist-fw-vpn-server-addr
-/ip firewall address-list add address=rutracker.org disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=rutracker.org list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.97.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=10.0.0.0/29 list=alist-fw-vpn-server-addr
 /ip firewall address-list add address=10.0.0.0/29 list=alist-fw-vpn-subnets
@@ -563,23 +569,17 @@
 /ip firewall address-list add address=10.0.0.1 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=185.13.148.14 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=192.168.90.0/24 comment="Port scan entire LAN allow" list=alist-fw-port-scanner-allow
-/ip firewall address-list add address=www.parallels.com disabled=yes list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=instagram.com disabled=yes list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=2ip.ru list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.100.7 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=217.10.36.5 comment="AKADO official DNS server" list=alist-fw-dns-allow
 /ip firewall address-list add address=217.10.34.2 comment="AKADO official DNS server" list=alist-fw-dns-allow
-/ip firewall address-list add address=www.canva.com disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.99.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-vpn-subnets
-/ip firewall address-list add address=radarr.video disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=tmdb.org disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=themoviedb.org disabled=yes list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=www.tinkercad.com disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=autodesk.com disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=accounts.autodesk.com disabled=yes list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=ntc.party disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=binaryronin.io disabled=yes list=alist-mangle-vpn-tunneled-sites
-/ip firewall address-list add address=medium.com disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.80.2 list=alist-mangle-docker-space
 /ip firewall address-list add address=46.39.51.206 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
@@ -947,9 +947,9 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.20 \
-    \nUptime:        1w5d21:54:48  \
-    \nTime:        2025-11-06 21:10:12  \
-    \nPing:    5 ms  \
+    \nUptime:        2w3d21:54:48  \
+    \nTime:        2025-11-11 21:10:12  \
+    \nPing:    4 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
     \nAnna:        46.39.51.206  \
