@@ -1,4 +1,4 @@
-# 2025-11-16 21:13:02 by RouterOS 7.20
+# 2025-11-21 21:13:02 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -166,6 +166,7 @@
 /queue simple add comment=dtq,22:26:E9:CA:87:BA, name="Tomm(wireless)(blocked)@guest-dhcp-server (22:26:E9:CA:87:BA)" queue=default/default target=192.168.98.143/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1,A54-pol-zovatela-Natalya name="Froloff(wireless)@main-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.90.142/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1, name="Froloff(wireless)(blocked)@guest-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.98.142/32 total-queue=default
+/queue simple add comment=dtq,2C:D2:6B:42:D5:54, name="@guest-dhcp-server (2C:D2:6B:42:D5:54)" queue=default/default target=192.168.98.227/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -454,7 +455,8 @@
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=t.co type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=protonvpn.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN Hack" forward-to=localhost match-subdomain=yes name=nnmclub.to type=FWD
-/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=ntc.party type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI  Hack" forward-to=DOH-Comss match-subdomain=yes name=ntc.party type=FWD
+/ip dns static add cname=box.ntc.party comment="DPI  Hack" name=ntc.party type=CNAME
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=medium.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=www.canva.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=www.tinkercad.com type=FWD
@@ -474,7 +476,7 @@
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=parastorage.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=wixstatic.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-TV comment="DPI Hack: specific list for TVs to fix mss" forward-to=DOH-Google match-subdomain=yes name=youtube.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=DOH-Comss match-subdomain=yes name=chatgpt.com type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN Hack" forward-to=DOH-Comss match-subdomain=yes name=chatgpt.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 regexp=instagram type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=bookstagram.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=carstagram.com type=FWD
@@ -580,6 +582,529 @@
 /ip firewall address-list add address=binaryronin.io disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.80.2 list=alist-mangle-docker-space
 /ip firewall address-list add address=46.39.51.206 list=alist-nat-external-ip
+/ip firewall address-list add address=103.224.182.238 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=103.224.182.253 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=103.224.212.131 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.17.10.106 comment=pip4-xhamsterlive.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.17.11.106 comment=pip4-xhamsterlive.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.17.111.106 comment=pip4-xhamsterlive.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.17.112.106 comment=pip4-xhamsterlive.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.17.117.12 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.17.118.12 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.17.34.109 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.17.35.109 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.18.146.40 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.18.147.40 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.18.32.43 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.18.36.123 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.18.42.152 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.20.43.5 comment=pip4-rule34.xxx list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.21.112.1 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.21.16.1 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.21.32.1 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.21.48.1 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.21.56.86 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.21.64.1 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.21.79.118 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.21.80.1 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.21.96.1 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.22.18.113 comment=pip4-rule34.xxx list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.22.19.113 comment=pip4-rule34.xxx list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.26.12.144 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=104.26.13.144 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=109.61.41.62 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=109.61.88.166 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=109.61.92.8 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=109.61.92.9 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=121.127.45.89 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=121.127.45.90 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=13.229.114.252 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.14.36 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.14.37 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.14.48 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.14.49 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.15.35 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.15.36 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.20.245 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.20.246 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.20.248 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.20.249 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.26.16 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.26.22 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.26.54 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.26.57 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.26.7 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.37.28 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.37.43 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.37.44 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.5.14 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.5.15 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.5.6 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=138.199.57.82 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.138 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.147 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.149 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.152 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.153 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.156 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.157 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.159 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.161 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.169 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.173 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.33.179 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.51.200 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.51.201 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.51.215 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.51.216 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.56.1 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.56.13 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.56.14 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.56.15 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.56.7 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.57.38 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.57.44 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.57.47 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=143.244.57.48 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=152.195.34.118 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.33.137 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.33.138 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.33.140 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.33.141 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.33.168 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.33.169 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.33.170 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.35.196 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.35.197 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.35.207 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.35.208 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.35.213 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.35.214 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.36.12 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.38.29 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.38.30 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.38.32 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.38.33 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.53.12 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.59.222 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.61.130 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.61.131 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.61.133 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.61.134 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.61.142 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=156.146.61.143 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=169.150.214.134 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=169.150.214.135 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=169.150.237.34 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=169.150.237.35 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=169.150.237.37 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=169.150.237.38 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=169.150.252.37 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=169.150.252.38 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.233.219.123 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.233.219.49 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.233.219.55 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.233.219.78 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.234.212.122 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.236.123.101 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.237.146.25 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.237.146.38 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.237.146.8 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.64.145.104 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.64.151.133 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.64.155.213 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.66.156.23 comment=pip4-rule34.xxx list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.67.170.134 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.67.181.179 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.67.4.152 comment=pip4-rule34.xxx list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=172.67.68.97 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=18.141.199.30 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=18.141.222.153 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.102.217.104 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.102.217.105 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.102.217.37 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.102.217.40 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.102.217.41 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.110.92.40 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.110.92.41 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.180.12.22 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.180.12.23 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.180.13.213 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.180.13.214 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.180.13.216 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.180.13.217 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.185.15.5 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.207.236.138 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.207.236.139 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.246.208.13 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.246.208.14 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.246.208.27 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.246.208.28 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.246.208.6 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.246.211.25 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.246.211.3 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.59.222.11 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.59.222.12 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.61.148.21 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.11 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.12 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.18 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.19 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.21 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.22 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.23 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.24 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.25 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.26 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.27 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.4 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.5 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.7 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.76.9.8 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.10 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.100 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.11 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.110 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.2 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.3 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.4 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.5 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.53 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.54 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.55 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.56 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.57 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.58 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.59 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.6 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.60 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.7 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.8 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.88.181.9 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.93.2.2 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=185.93.2.23 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.96.0 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.96.1 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.96.10 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.96.12 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.96.3 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.96.4 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.96.7 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.96.9 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.97.0 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.97.1 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.97.10 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.97.12 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.97.3 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.97.4 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.97.7 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.97.9 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.98.224 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.98.228 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.98.229 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.98.232 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.98.233 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.98.235 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.98.236 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.99.224 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.99.228 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.99.229 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.99.232 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.99.233 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.99.235 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=188.114.99.236 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.162.6 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.166.14 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.166.15 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.170.26 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.170.27 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.172.2 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.172.3 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.172.5 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.172.6 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.175.10 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.175.15 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.175.16 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.175.18 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.175.19 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=195.181.175.9 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=199.59.243.228 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=207.211.213.108 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=207.211.213.109 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=208.99.84.16 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.54.206 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.54.207 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.54.212 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.54.213 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.55.131 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.55.132 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.55.142 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.55.143 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.55.157 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.55.158 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.56.165 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.56.166 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.56.167 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.56.175 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.56.176 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.56.181 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=212.102.56.182 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=216.18.191.192 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=216.18.191.193 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=216.18.191.194 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=216.18.191.195 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=216.18.191.196 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=216.18.191.197 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=216.18.191.198 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=216.18.191.199 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.194.77 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.194.78 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.202.26 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.202.27 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.202.35 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.202.36 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.202.38 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.202.39 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.202.44 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.202.45 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.203.48 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.203.49 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.203.51 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.203.52 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.208.35 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.208.59 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.218.82 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=37.19.218.83 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=45.133.44.22 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=45.133.44.23 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=45.133.44.26 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=45.133.44.27 comment=pip4-beeg.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=45.133.44.3 comment=pip4-hqporner.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=45.133.44.4 comment=pip4-hqporner.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=45.82.101.62 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=46.151.194.30 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=46.151.194.36 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=46.151.194.37 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=54.169.253.230 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.112 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.113 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.114 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.115 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.116 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.117 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.118 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.119 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.144 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.145 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.146 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.147 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.148 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.149 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.150 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.135.151 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.136.1 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.147.16 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.147.17 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.1 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.16 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.17 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.18 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.19 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.2 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.20 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.21 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.22 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.23 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.3 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.4 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.5 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.6 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.156.7 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.158.16 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.210.158.17 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.245.17 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.16 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.17 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.18 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.19 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.20 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.21 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.22 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.23 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.32 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.33 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.34 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.35 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.36 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.37 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.38 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.246.39 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.254.160 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=64.88.254.161 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.114.238 comment=pip4-redtube.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.114.41 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.16 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.17 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.18 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.19 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.20 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.21 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.22 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.23 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.32 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.33 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.34 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.35 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.36 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.37 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.38 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=66.254.122.39 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.48.16 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.48.17 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.1 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.16 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.17 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.18 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.19 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.2 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.20 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.21 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.22 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.23 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.3 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.4 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.5 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.6 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.50.7 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.16 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.17 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.18 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.19 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.20 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.21 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.22 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.23 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.32 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.33 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.34 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.35 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.36 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.37 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.38 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.51.39 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.16 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.17 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.18 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.19 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.20 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.21 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.22 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.23 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.32 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.33 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.34 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.35 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.36 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.37 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.38 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.52.39 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.55.17 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.56.0 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.56.1 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.56.2 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.56.3 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.56.4 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.56.5 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.56.6 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.56.7 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.57.192 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.57.193 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.57.194 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.57.195 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.57.196 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.57.197 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.57.198 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=67.22.57.199 comment=pip4-pornhub.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.178.164 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.178.172 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.178.173 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.203.24 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.203.25 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.203.27 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.203.28 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.203.30 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.203.31 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.216.222 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.216.223 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.216.225 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.216.226 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.216.228 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=79.127.216.229 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=8.47.69.0 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=8.47.69.4 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=8.47.69.6 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=8.47.69.8 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=8.47.69.9 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=8.6.112.0 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=8.6.112.4 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=8.6.112.6 comment=pip4-redgifs.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=8.6.112.8 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=8.6.112.9 comment=pip4-reddxxx.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=84.17.50.10 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=84.17.50.12 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=84.17.50.55 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=84.17.50.56 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=84.17.57.19 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=84.17.57.20 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=84.17.57.22 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=84.17.57.23 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=84.17.59.16 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=84.17.59.17 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=87.249.131.106 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=87.249.131.107 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=87.249.131.2 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=87.249.131.3 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=88.208.29.180 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=88.208.35.41 comment=pip4-hqporner.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=88.208.60.136 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.130 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.133 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.137 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.140 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.142 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.145 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.149 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.36 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.37 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.41 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.53 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.162.54 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.163.101 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.163.113 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.163.82 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.165.7 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.165.8 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.167.24 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.171.28 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.187.183.31 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.203 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.204 comment=pip4-xhamster.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.209 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.210 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.212 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.213 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.215 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.216 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.218 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.219 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.221 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=89.222.125.222 comment=pip4-xnxx-ru.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=91.206.163.163 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=92.223.40.62 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=93.123.17.252 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=93.123.17.254 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=94.140.112.80 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
+/ip firewall address-list add address=95.215.46.63 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
@@ -945,9 +1470,9 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.20 \
-    \nUptime:        3w1d21:54:49  \
-    \nTime:        2025-11-16 21:10:12  \
-    \nPing:    9 ms  \
+    \nUptime:        3w6d21:54:49  \
+    \nTime:        2025-11-21 21:10:12  \
+    \nPing:    5 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
     \nAnna:        46.39.51.206  \
@@ -977,7 +1502,7 @@
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=06:05:00
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
-/system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=22:00:00
+/system scheduler add interval=1d name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=02:00:00
 /system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript;" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
