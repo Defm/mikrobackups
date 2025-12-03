@@ -1,144 +1,339 @@
-:local sysname [/system identity get name];
-:local scriptname "doIPSECPunch";
+# protect from starting twice:
 :global globalScriptBeforeRun;
-$globalScriptBeforeRun $scriptname;
+$globalScriptBeforeRun "doIPSECTest";
 
 :global globalNoteMe;
+
 :local itsOk true;
-
 :local state "";
-:local punched "";
 
 
-/ip ipsec policy {
-  :foreach vpnEndpoint in=[find (!disabled and !template)] do={
+# ping trigger settings
+:local Pingcount 10
+:local PingSucRate 80
+:local Pingint 1000ms
+:local PingTrigger ($Pingcount*$PingSucRate/100)
+:local Pingresult
+# :log info "PingTrigger is $PingTrigger"
 
-    :local ph2state [get value-name=ph2-state $vpnEndpoint]
-    :local isTunnel [get value-name=tunnel $vpnEndpoint]
-    :local peerPoint [get $vpnEndpoint peer]
-    :local dstIp;
+# ping test 2 delay
+:local PingTest2Delay 20s
 
-    :if ($isTunnel) do={
-      :set dstIp [get value-name=sa-dst-address $vpnEndpoint]
-    } else {
-      :set dstIp [get value-name=dst-address $vpnEndpoint]
-    }
+# local Script variables
+:local Time [/system clock get time]
+:local Hour [:pick $Time 0 2]
+:local phase2counter 0
+:local CheckIPsec 0
+:local PoliciesOnline [/ip ipsec policy find active ph2-state=established ]
+:local PoliciesOffline [/ip ipsec policy find active ph2-state!=established ]
 
-    :if (($itsOk) and ($ph2state != "established")) do={
+# local Peer variables
+:local L2TPSession
+:local L2TPPeer
+:local L2TPDstadd
+:local L2TPSrcadd
+:local BadPeer
+:local BadPeerDst
+:local BadPeerSrc
 
-      :set state "Non-established IPSEC policy found for destination IP $dstIp. Checking active peers.."
-      $globalNoteMe value=$state;
+# global variables
+:global CheckIPsecBadPeerList
+:global CheckIPsecClearBadPeerList
 
-      :local actPeerProcessed 0;
+# clear <Check IPsec Bad Peer List>
+if ($Hour > 23) do={
+    :global CheckIPsecBadPeerList [:toarray ""]
 
-      /ip ipsec active-peers {
-        :foreach actPeer in=[find remote-address=$dstIp] do={
-
-          :local peerId [get $actPeer id];
-          :local peer "";
-
-          :if ([:typeof $peerId] != "nil") do={
-            :set peer "$peerId"
-          } else {
-            :set peer "$dstIp"
-          }
-
-          :do {
-
-            :set state "Active peer $peer found Non-established IPSEC policy. Kill it.."
-            $globalNoteMe value=$state;
-
-            [remove $actPeer];
-
-            :set state ("IPSEC tunnel got a punch after down for $dstIp ");
-            $globalNoteMe value=$state;
-
-            #waiting for tunnel to come up, because Telegram notes goes through tunnel
-            :delay 10;
-
-            :set punched ($punched . "$peer");
-          
-          } on-error= {
-
-            :set state "Error When $state"
-            $globalNoteMe value=$state;
-
-            :set itsOk false;
-            
-          }
-
-          :set actPeerProcessed ($actPeerProcessed + 1);
-        }
-
-      }
-
-      #there were no active peers with such remote-address
-      #This is the most common case if the policy is non-established
-
-      :if ($actPeerProcessed = 0) do={
-
-        #should not flush InstalledSA, because ot flushes the whole policies
-        #just make disable-enable cycle
-        
-        :set state ("There were no active peers with $dstIp destination IP, but policy is non-established.");
-        $globalNoteMe value=$state;
-
-        :set state ("Making disable-enable cycle for policy to clear InstalledSA");
-        $globalNoteMe value=$state;
-
-        :delay 2;
-
-        [set $vpnEndpoint disabled=yes];
-        
-        #waiting for tunnel to come up, because Telegram notes goes through tunnel
-        :delay 15;
-
-        [set $vpnEndpoint disabled=no];
-
-       :delay 5;
-
-        :local peerId ($peerPoint -> "id");
-        :local peer "";
-
-        :put $peerId;        
-
-        :if ([:typeof $peerId] != "nil") do={
-          :set peer "$peerId"
-        } else {
-          :set peer "$dstIp"
-        }
-
-        :set punched ($punched . "$peer");
-
-      }      
-
-    }
-  }
+    :set state "Check IPsec: Bad Peer List is daily cleared"
+    $globalNoteMe value=$state;
 }
+
+# manual clear <Check IPsec Bad Peer List>  >>  just set <CheckIPsecClearBadPeerList> to any value
+if ([:len $CheckIPsecClearBadPeerList] > 0) do={
+    :global CheckIPsecBadPeerList [:toarray ""]
+    :global CheckIPsecClearBadPeerList ""
+
+    :set state "Check IPsec: Bad Peer List is manualy cleared"
+    $globalNoteMe value=$state;    
+}
+
+# Show Check IPsec Bad Peer List
+if ([:len $CheckIPsecBadPeerList] = 0) do={
+    :global CheckIPsecBadPeerList [:toarray ""]
+} else={
+    foreach i in=$CheckIPsecBadPeerList do={
+
+        :set state "Check IPsec: $i in Bad Peer List"
+        $globalNoteMe value=$state;       
+    }
+}
+
+# if can't find IPSec Tunnel Peers
+if ([:len $PoliciesOffline] != 0) do={
+
+    :set itsOk false;
+    :set state "Active but non-established IPSEC policy found"
+    $globalNoteMe value=$state;    
+
+
+} else={
+
+    if ([:len $PoliciesOnline] = 0) do={
+
+        :set itsOk false;
+        :set state "No active (established) policies found"
+        $globalNoteMe value=$state;    
+
+    }         
+ }
+
+
+# start detect bad IPSec peers
+if ([:len $PoliciesOnline] > 0  and $itsOk) do={
+    :foreach i in=$PoliciesOnline do={
+        :local Dstadd ""
+        :local Srcadd ""        
+        :local L2TPSession ""
+        :local L2TPPeer ""
+        :local L2TPDstadd ""
+        :local L2TPSrcadd ""
+        :local L2TPNetwork ""
+        :local Pingresult ""
+        :local BadPeer ""
+        :local BadPeerDst ""
+        :local BadPeerSrc ""
+        :local ActivePeersForKill ""
+
+        :local Peer [/ip ipsec policy get $i peer]
+
+        :local Dstadd
+        :local Srcadd
+   
+        :local isTunnel [/ip ipsec policy get value-name=tunnel $i]
+        :if ($isTunnel) do={
+            :set Dstadd [/ip ipsec policy get value-name=sa-dst-address $i]
+        } else {
+            :set Dstadd [/ip ipsec policy get value-name=dst-address $i]
+            :set Dstadd  [:pick $Dstadd 0 [:find $Dstadd "/"]] 
+        }      
+
+        :if ($isTunnel) do={
+            :set Srcadd [/ip ipsec policy get value-name=sa-src-address $i]
+        } else {
+            :set Srcadd [/ip ipsec policy get value-name=src-address $i]
+            :set Srcadd  [:pick $Srcadd 0 [:find $Srcadd "/"]] 
+        }      
+
+       :local L2TPSession [/ppp/active find caller-id=$Dstadd]
+        
+        :delay 1s
+
+        if ([:len $L2TPSession] != 0) do={
+ 
+            :set state "Found active L2TP Incoming Active Connection fo peer $Peer (dst IP $Dstadd)"
+            $globalNoteMe value=$state;   
+
+            :set L2TPPeer [/ppp/active get $L2TPSession name]
+            :set L2TPDstadd [/ppp/active get $L2TPSession address]
+            :set L2TPNetwork [/ip/address/ get [find network=$L2TPDstadd] address]
+            :set L2TPSrcadd [:pick $L2TPNetwork 0 [:find $L2TPNetwork "/"]]
+            :delay 1s
+            
+            :set state "Incoming L2TP: Trying for ping L2TP > $L2TPPeer : $L2TPDstadd : $L2TPSrcadd"
+            $globalNoteMe value=$state;   
+
+        } else={
+
+            :local L2TPSession [/interface/l2tp-client find where running and connect-to=$Dstadd]
+
+            if ([:len $L2TPSession] != 0) do={
+        
+                    :set state "Found active Outgoing L2TP Active Connection fo peer $Peer (dst IP $Dstadd)"
+                    $globalNoteMe value=$state;   
+
+                    :set L2TPPeer [/interface/l2tp-client get $L2TPSession name]
+                    :local monitorData [/interface l2tp-client monitor $L2TPSession once as-value]
+
+                    :local L2TPDstadd ($monitorData->"remote-address")
+                    :set L2TPNetwork [/ip/address/ get [find network=$L2TPDstadd] address]
+                    :set L2TPSrcadd [:pick $L2TPNetwork 0 [:find $L2TPNetwork "/"]]
+                    :delay 1s
+
+                    :set state "Outgoing L2TP: Trying for ping L2TP > $L2TPPeer : $L2TPDstadd : $L2TPSrcadd"
+                    $globalNoteMe value=$state;   
+
+                } else={
+
+                    :set state "Outgoing L2TP: Trying for ping L2TP > $L2TPPeer : $L2TPDstadd : $L2TPSrcadd"
+                    $globalNoteMe value=$state;   
+
+                }
+
+        }
+
+         # ping phase 1
+        if ([:len $L2TPSession] != 0) do={
+
+            :set state "Testing L2TP IPs connectivity: Start ping $L2TPDstadd from $L2TPSrcadd "
+            $globalNoteMe value=$state;   
+
+            :set Pingresult [/ping address=$L2TPDstadd src-address=$L2TPSrcadd count=$Pingcount interval=$Pingint]
+
+            :set state "Ping result is: $Pingresult Ping trigger is: $PingTrigger"
+            $globalNoteMe value=$state;   
+
+
+        } else={
+
+            :set state "Testing IPSEC IPs connectivity: Start ping $Dstadd from $Srcadd "
+            $globalNoteMe value=$state;   
+
+            :set Pingresult [/ping address=$Dstadd src-address=$Srcadd count=$Pingcount interval=$Pingint]
+
+            :set state "Ping result is: $Pingresult Ping trigger is: $PingTrigger"
+            $globalNoteMe value=$state;   
+
+        }
+
+         
+         # reset phase
+        if ($Pingresult < $PingTrigger or [:len $Pingresult] = 0) do={
+                       
+            :set BadPeer $Peer
+            :set BadPeerDst $Dstadd
+            :set BadPeerSrc $Srcadd
+            
+            :set state "Find a BAD Peer > $BadPeer : $L2TPPeer  > Ping result is: $Pingresult Ping trigger is: $PingTrigger"
+            $globalNoteMe value=$state;   
+           
+            # find Bad Peer in Bad Peer List if yes > skip reset phase           
+            :local BadPeerFindResult [:find $CheckIPsecBadPeerList $BadPeerDst]
+            if ([:typeof $BadPeerFindResult] = "num") do={
+                
+                :set CheckIPsec 1
+                
+                :set state "SKIP RESET FOR > $BadPeer : $L2TPPeer > Find in <Bad Peer List> with index=$BadPeerFindResult > Reset is disabled for this Peer"
+                $globalNoteMe value=$state;   
+
+
+            } else={
+                # start reset
+                if ([:len $BadPeer] !=0) do={
+
+                    :set state "STARTING RESET FOR > $BadPeer : $L2TPPeer"
+                    $globalNoteMe value=$state;   
+
+                    :set CheckIPsec 1
+
+                    :delay 1s
+                    # kill L2TP Sesson
+                    if ([:len $L2TPSession] != 0 ) do={
+                        :do {
+                            /ppp/active remove $L2TPSession
+
+                            :set state "For $BadPeer : $L2TPPeer : $L2TPDstadd > connection in -=PPP Active Connections=- is killed!"
+                            $globalNoteMe value=$state;   
+
+                        } on-error={
+
+                            :set state "Can't kill $BadPeer : $L2TPPeer : $BadPeerDst connection in -=PPP Active Connections=-"
+                            $globalNoteMe value=$state;   
+
+                        } 
+                    }
+                    :delay 1s
+                    # find and kill all Active Peers with peer dst
+                    :set ActivePeersForKill [/ip ipsec active-peers find remote-address=$BadPeerDst]
+                    if ([:len $ActivePeersForKill] != 0) do={
+                        :do {
+
+                            :set state "For $BadPeer : $L2TPPeer : $BadPeerDst > find Active Peers with numbers: $ActivePeersForKill in -=IPsec Active Peers=-"
+                            $globalNoteMe value=$state;   
+
+                            :foreach i in=$ActivePeersForKill do={
+                                /ip/ipsec/active-peers remove $i
+                                :set state "For $BadPeer : $L2TPPeer : $BadPeerDst > Active Peer with number $i in -=IPsec Active Peers=- is killed!"
+                                $globalNoteMe value=$state;   
+
+                            }
+
+                        } on-error={
+                            
+                            :set state "Can't kill $BadPeer : $L2TPPeer : $BadPeerDst connection: $ActivePeerToDelete in -=IPsec Active Peers=-"
+                            $globalNoteMe value=$state;   
+
+                        }   
+                    }
+                    :delay 1s
+                    :set $CheckIPsecBadPeerList ($CheckIPsecBadPeerList, $BadPeerDst)
+ 
+                    :set state "Dst-Address: $BadPeerDst added to bad peer list."
+                    $globalNoteMe value=$state;   
+
+                    :delay 1s
+ 
+                    :set state "RESET PHASE 1 FOR $BadPeer : $L2TPPeer : $BadPeerDst : $L2TPDstadd > Complete!"
+                    $globalNoteMe value=$state;   
+
+                } 
+            }
+        } else={
+
+            :local FindResult [:find $CheckIPsecBadPeerList $Dstadd]
+
+            if ([:typeof $FindResult] = "num") do={
+
+                :set state "$Dstadd in <Bad Peer List> with nuber: $FindResult"
+                $globalNoteMe value=$state;   
+
+                :delay 1s
+                :local LenOfList [:len $CheckIPsecBadPeerList]
+                :local ArrgPosition [:find $CheckIPsecBadPeerList $Dstadd -1]
+                :set CheckIPsecBadPeerList ([:pick $CheckIPsecBadPeerList 0 $ArrgPosition],[:pick $CheckIPsecBadPeerList ($ArrgPosition + 1) $LenOfList]) 
+
+                :set state "Bad peer $Peer : $L2TPPeer : $Dstadd is UP! > And deleted from <Bad Peer List>!"
+                $globalNoteMe value=$state;   
+            }
+        }
+    }
+}
+
+# test if we fix it
+:local PoliciesOnline [/ip ipsec policy find active ph2-state=established ]
+:local PoliciesOffline [/ip ipsec policy find active ph2-state!=established ]
+
+if ([:len $PoliciesOffline] != 0 and !$itsOk) do={
+
+    :set itsOk false;
+    :set state "Active but non-established IPSEC policy found after punch"
+
+
+} else={
+
+    if ([:len $PoliciesOnline] = 0 and !$itsOk) do={
+
+        :set itsOk false;
+        :set state "No active (established) policies found"
+
+    }         
+ }
 
 :local inf ""
-
-:if (($itsOk) and ($punched = "")) do={
-  :set inf "$scriptname on $sysname: IPSEC tunnels are fine"
+:if ($itsOk) do={
+  :set inf "IPSEC Test completed Successfully"
 }
 
-:if (($itsOk) and ($punched != "")) do={
-  :set inf "$scriptname on $sysname: IPSEC tunnels refreshed for $punched"
-
-  :global globalTgMessage;
-  $globalTgMessage value=$inf;
+:if (!$itsOk) do={
+  :set inf "Error When testing IPSEC: $state"  
 }
 
 $globalNoteMe value=$inf
 
 :if (!$itsOk) do={
-  :set inf "$scriptname on $sysname: $state"  
-  
+
   :global globalTgMessage;
   $globalTgMessage value=$inf;
   :error $inf; 
-
+  
 }
-
-
 
