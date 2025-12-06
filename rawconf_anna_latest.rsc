@@ -1,4 +1,4 @@
-# 2025-11-26 21:13:02 by RouterOS 7.20
+# 2025-12-06 21:13:02 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -166,9 +166,6 @@
 /queue simple add comment=dtq,22:26:E9:CA:87:BA, name="Tomm(wireless)(blocked)@guest-dhcp-server (22:26:E9:CA:87:BA)" queue=default/default target=192.168.98.143/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1,A54-pol-zovatela-Natalya name="Froloff(wireless)@main-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.90.142/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1, name="Froloff(wireless)(blocked)@guest-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.98.142/32 total-queue=default
-/queue simple add comment=dtq,2C:D2:6B:42:D5:54, name="@guest-dhcp-server (2C:D2:6B:42:D5:54)" queue=default/default target=192.168.98.227/32 total-queue=default
-/queue simple add comment=dtq,6C:06:D6:88:95:4F,HUAWEI_MediaPad_M6-8c7ab4 name="HUAWEI_MediaPad_M6-8c7ab4@guest-dhcp-server (6C:06:D6:88:95:4F)" queue=default/default target=192.168.98.223/32 total-queue=default
-/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.230/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -1358,9 +1355,9 @@
 /ip firewall mangle add action=mark-routing chain=output comment="VPN Sites (self, telegram notify)" dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites" connection-mark=cmark-tunnel-connection dst-address-list=alist-mangle-vpn-tunneled-sites log=yes log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=prerouting comment="VPN Sites (telegram)" connection-mark=cmark-tunnel-connection dst-address-list=alist-fw-telegram-servers log-prefix="#VPN ROUTE MARK" new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=output comment="VPN (pure IPSEC)" connection-mark=cmark-ipsec dst-address-list=alist-mangle-vpn-tunneled-sites new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark dst-port=500,4500 new-connection-mark=cmark-ipsec protocol=udp
 /ip firewall mangle add action=mark-connection chain=output comment="VPN (pure IPSEC)" connection-mark=no-mark new-connection-mark=cmark-ipsec protocol=ipsec-esp
-/ip firewall mangle add action=mark-routing chain=output comment="VPN (pure IPSEC)" connection-mark=cmark-ipsec dst-address-list=alist-mangle-vpn-tunneled-sites new-routing-mark=rmark-vpn-redirect passthrough=no
 /ip firewall mangle add action=passthrough chain=prerouting comment=DUMMY
 /ip firewall mangle add action=mark-connection chain=prerouting comment="7Z DL CONN mark" connection-mark=no-mark layer7-protocol=7Z new-connection-mark=conn-7z-download
 /ip firewall mangle add action=mark-packet chain=prerouting comment=7z connection-mark=conn-7z-download layer7-protocol=7Z log-prefix=~~~DL_7z new-packet-mark=7z-mark protocol=tcp
@@ -1473,9 +1470,9 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.20 \
-    \nUptime:        4w4d21:54:48  \
-    \nTime:        2025-11-26 21:10:12  \
-    \nPing:    9 ms  \
+    \nUptime:        6w21:54:49  \
+    \nTime:        2025-12-06 21:10:12  \
+    \nPing:    5 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
     \nAnna:        46.39.51.206  \
@@ -1506,7 +1503,7 @@
 /system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
 /system scheduler add interval=1d name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=02:00:00
-/system scheduler add interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
+/system scheduler add disabled=yes interval=10m name=doPushStatsToInfluxDB on-event="/system script run doPushStatsToInfluxDB" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript;" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2698,149 +2695,346 @@
     \n\$globalScriptBeforeRun \$scriptname;\
     \n\r\
     \n"
-/system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
-    \n:local scriptname \"doIPSECPunch\";\
+/system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# protect from starting twice:\
     \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\$globalScriptBeforeRun \"doIPSECTest\";\
     \n\
     \n:global globalNoteMe;\
+    \n\
     \n:local itsOk true;\
-    \n\
     \n:local state \"\";\
-    \n:local punched \"\";\
     \n\
     \n\
-    \n/ip ipsec policy {\
-    \n  :foreach vpnEndpoint in=[find (!disabled and !template)] do={\
+    \n# ping trigger settings\
+    \n:local Pingcount 10\
+    \n:local PingSucRate 80\
+    \n:local Pingint 1000ms\
+    \n:local PingTrigger (\$Pingcount*\$PingSucRate/100)\
+    \n:local Pingresult\
+    \n# :log info \"PingTrigger is \$PingTrigger\"\
     \n\
-    \n    :local ph2state [get value-name=ph2-state \$vpnEndpoint]\
-    \n    :local isTunnel [get value-name=tunnel \$vpnEndpoint]\
-    \n    :local peerPoint [get \$vpnEndpoint peer]\
-    \n    :local dstIp;\
+    \n# ping test 2 delay\
+    \n:local PingTest2Delay 20s\
     \n\
-    \n    :if (\$isTunnel) do={\
-    \n      :set dstIp [get value-name=sa-dst-address \$vpnEndpoint]\
-    \n    } else {\
-    \n      :set dstIp [get value-name=dst-address \$vpnEndpoint]\
-    \n    }\
+    \n# local Script variables\
+    \n:local Time [/system clock get time]\
+    \n:local Hour [:pick \$Time 0 2]\
+    \n:local phase2counter 0\
+    \n:local CheckIPsec 0\
+    \n:local PoliciesOnline [/ip ipsec policy find active ph2-state=established ]\
+    \n:local PoliciesOffline [/ip ipsec policy find active ph2-state!=established ]\
     \n\
-    \n    :if ((\$itsOk) and (\$ph2state != \"established\")) do={\
+    \n# local Peer variables\
+    \n:local L2TPSession\
+    \n:local L2TPPeer\
+    \n:local L2TPDstadd\
+    \n:local L2TPSrcadd\
+    \n:local BadPeer\
+    \n:local BadPeerDst\
+    \n:local BadPeerSrc\
     \n\
-    \n      :set state \"Non-established IPSEC policy found for destination IP \$dstIp. Checking active peers..\"\
-    \n      \$globalNoteMe value=\$state;\
+    \n# global variables\
+    \n:global globalTroublesomePeers\
+    \n:global globalForceTroublesomePeersFlush\
     \n\
-    \n      :local actPeerProcessed 0;\
+    \n# clear <Check IPsec Bad Peer List>\
+    \nif (\$Hour > 23) do={\
+    \n    :global globalTroublesomePeers [:toarray \"\"]\
     \n\
-    \n      /ip ipsec active-peers {\
-    \n        :foreach actPeer in=[find remote-address=\$dstIp] do={\
-    \n\
-    \n          :local peerId [get \$actPeer id];\
-    \n          :local peer \"\";\
-    \n\
-    \n          :if ([:typeof \$peerId] != \"nil\") do={\
-    \n            :set peer \"\$peerId\"\
-    \n          } else {\
-    \n            :set peer \"\$dstIp\"\
-    \n          }\
-    \n\
-    \n          :do {\
-    \n\
-    \n            :set state \"Active peer \$peer found Non-established IPSEC policy. Kill it..\"\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n            [remove \$actPeer];\
-    \n\
-    \n            :set state (\"IPSEC tunnel got a punch after down for \$dstIp \");\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n            #waiting for tunnel to come up, because Telegram notes goes through tunnel\
-    \n            :delay 10;\
-    \n\
-    \n            :set punched (\$punched . \"\$peer\");\
-    \n          \
-    \n          } on-error= {\
-    \n\
-    \n            :set state \"Error When \$state\"\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n            :set itsOk false;\
-    \n            \
-    \n          }\
-    \n\
-    \n          :set actPeerProcessed (\$actPeerProcessed + 1);\
-    \n        }\
-    \n\
-    \n      }\
-    \n\
-    \n      #there were no active peers with such remote-address\
-    \n      #This is the most common case if the policy is non-established\
-    \n\
-    \n      :if (\$actPeerProcessed = 0) do={\
-    \n\
-    \n        #should not flush InstalledSA, because ot flushes the whole policies\
-    \n        #just make disable-enable cycle\
-    \n        \
-    \n        :set state (\"There were no active peers with \$dstIp destination IP, but policy is non-established.\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n        :set state (\"Making disable-enable cycle for policy to clear InstalledSA\");\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n        :delay 2;\
-    \n\
-    \n        [set \$vpnEndpoint disabled=yes];\
-    \n        \
-    \n        #waiting for tunnel to come up, because Telegram notes goes through tunnel\
-    \n        :delay 15;\
-    \n\
-    \n        [set \$vpnEndpoint disabled=no];\
-    \n\
-    \n       :delay 5;\
-    \n\
-    \n        :local peerId (\$peerPoint -> \"id\");\
-    \n        :local peer \"\";\
-    \n\
-    \n        :put \$peerId;        \
-    \n\
-    \n        :if ([:typeof \$peerId] != \"nil\") do={\
-    \n          :set peer \"\$peerId\"\
-    \n        } else {\
-    \n          :set peer \"\$dstIp\"\
-    \n        }\
-    \n\
-    \n        :set punched (\$punched . \"\$peer\");\
-    \n\
-    \n      }      \
-    \n\
-    \n    }\
-    \n  }\
+    \n    :set state \"Flush troublesome peers list (daily)\"\
+    \n    \$globalNoteMe value=\$state;\
     \n}\
+    \n\
+    \n# manual clear <Check IPsec Bad Peer List>  >>  just set <globalForceTroublesomePeersFlush> to any value\
+    \nif ([:len \$globalForceTroublesomePeersFlush] > 0) do={\
+    \n    :global globalTroublesomePeers [:toarray \"\"]\
+    \n    :global globalForceTroublesomePeersFlush \"\"\
+    \n\
+    \n    :set state \"Flush troublesome peers list (manually)\"\
+    \n    \$globalNoteMe value=\$state;    \
+    \n}\
+    \n\
+    \n# Show Check IPsec Bad Peer List\
+    \nif ([:len \$globalTroublesomePeers] = 0) do={\
+    \n    :global globalTroublesomePeers [:toarray \"\"]\
+    \n} else={\
+    \n    foreach i in=\$globalTroublesomePeers do={\
+    \n\
+    \n        :set state \"Last check got troublesome peer: \$i (will skip it's session that time)\"\
+    \n        \$globalNoteMe value=\$state;       \
+    \n    }\
+    \n}\
+    \n\
+    \n# if can't find IPSec Tunnel Peers\
+    \nif ([:len \$PoliciesOffline] != 0) do={\
+    \n\
+    \n    :set itsOk false;\
+    \n    :set state \"Active but non-established IPSEC policy found\"\
+    \n    \$globalNoteMe value=\$state;    \
+    \n\
+    \n\
+    \n} else={\
+    \n\
+    \n    if ([:len \$PoliciesOnline] = 0) do={\
+    \n\
+    \n        :set itsOk false;\
+    \n        :set state \"No active (established) policies found\"\
+    \n        \$globalNoteMe value=\$state;    \
+    \n\
+    \n    }         \
+    \n }\
+    \n\
+    \n\
+    \n# start detect bad IPSec peers\
+    \nif ([:len \$PoliciesOnline] > 0  and \$itsOk) do={\
+    \n    :foreach i in=\$PoliciesOnline do={\
+    \n        :local Dstadd \"\"\
+    \n        :local Srcadd \"\"        \
+    \n        :local L2TPSession \"\"\
+    \n        :local L2TPPeer \"\"\
+    \n        :local L2TPDstadd \"\"\
+    \n        :local L2TPSrcadd \"\"\
+    \n        :local L2TPNetwork \"\"\
+    \n        :local Pingresult \"\"\
+    \n        :local BadPeer \"\"\
+    \n        :local BadPeerDst \"\"\
+    \n        :local BadPeerSrc \"\"\
+    \n        :local ActivePeersForKill \"\"\
+    \n\
+    \n        :local Peer [/ip ipsec policy get \$i peer]\
+    \n\
+    \n        :local Dstadd\
+    \n        :local Srcadd\
+    \n   \
+    \n        :local isTunnel [/ip ipsec policy get value-name=tunnel \$i]\
+    \n        :if (\$isTunnel) do={\
+    \n            :set Dstadd [/ip ipsec policy get value-name=sa-dst-address \$i]\
+    \n        } else {\
+    \n            :set Dstadd [/ip ipsec policy get value-name=dst-address \$i]\
+    \n            :set Dstadd  [:pick \$Dstadd 0 [:find \$Dstadd \"/\"]] \
+    \n        }      \
+    \n\
+    \n        :if (\$isTunnel) do={\
+    \n            :set Srcadd [/ip ipsec policy get value-name=sa-src-address \$i]\
+    \n        } else {\
+    \n            :set Srcadd [/ip ipsec policy get value-name=src-address \$i]\
+    \n            :set Srcadd  [:pick \$Srcadd 0 [:find \$Srcadd \"/\"]] \
+    \n        }      \
+    \n\
+    \n       :local L2TPSession [/ppp/active find caller-id=\$Dstadd]\
+    \n        \
+    \n        :delay 1s\
+    \n\
+    \n        if ([:len \$L2TPSession] != 0) do={\
+    \n \
+    \n            :set state \"Found active L2TP Incoming Active Connection fo peer \$Peer (dst IP \$Dstadd)\"\
+    \n            \$globalNoteMe value=\$state;   \
+    \n\
+    \n            :set L2TPPeer [/ppp/active get \$L2TPSession name]\
+    \n            :set L2TPDstadd [/ppp/active get \$L2TPSession address]\
+    \n            :set L2TPNetwork [/ip/address/ get [find network=\$L2TPDstadd] address]\
+    \n            :set L2TPSrcadd [:pick \$L2TPNetwork 0 [:find \$L2TPNetwork \"/\"]]\
+    \n            :delay 1s\
+    \n            \
+    \n            :set state \"Incoming L2TP: Trying for ping L2TP > \$L2TPPeer : \$L2TPDstadd : \$L2TPSrcadd\"\
+    \n            \$globalNoteMe value=\$state;   \
+    \n\
+    \n        } else={\
+    \n\
+    \n            :set L2TPSession [/interface/l2tp-client find where running and connect-to=\$Dstadd]\
+    \n\
+    \n            if ([:len \$L2TPSession] != 0) do={\
+    \n        \
+    \n                    :set state \"Found active Outgoing L2TP Active Connection fo peer \$Peer (dst IP \$Dstadd)\"\
+    \n                    \$globalNoteMe value=\$state;   \
+    \n\
+    \n                    :set L2TPPeer [/interface/l2tp-client get \$L2TPSession name]\
+    \n                    :local monitorData ([/interface l2tp-client monitor \$L2TPSession once as-value])\
+    \n\
+    \n                    :set L2TPDstadd (\$monitorData->\"remote-address\")\
+    \n                    :set L2TPNetwork [/ip/address/ get [find network=\$L2TPDstadd] address]\
+    \n                    :set L2TPSrcadd [:pick \$L2TPNetwork 0 [:find \$L2TPNetwork \"/\"]]\
+    \n                    :delay 1s\
+    \n\
+    \n                    :set state \"Outgoing L2TP: Trying for ping L2TP > \$L2TPPeer : \$L2TPDstadd : \$L2TPSrcadd\"\
+    \n                    \$globalNoteMe value=\$state;   \
+    \n\
+    \n                } else={\
+    \n\
+    \n\
+    \n                }\
+    \n\
+    \n        }\
+    \n\
+    \n         # ping phase 1\
+    \n        if ([:len \$L2TPSession] != 0) do={\
+    \n\
+    \n            :set state \"Testing L2TP IPs connectivity: Start ping \$L2TPDstadd from \$L2TPSrcadd (\$Dstadd from \$Srcadd)\"\
+    \n            \$globalNoteMe value=\$state;   \
+    \n\
+    \n            :set Pingresult [/ping address=\$L2TPDstadd src-address=\$L2TPSrcadd count=\$Pingcount interval=\$Pingint]\
+    \n\
+    \n            :set state \"Ping result is: \$Pingresult Ping trigger is: \$PingTrigger\"\
+    \n            \$globalNoteMe value=\$state;   \
+    \n\
+    \n\
+    \n        } else={\
+    \n\
+    \n            :set state \"Testing IPSEC IPs connectivity: Start ping \$Dstadd from \$Srcadd\"\
+    \n            \$globalNoteMe value=\$state;   \
+    \n\
+    \n            :set Pingresult [/ping address=\$Dstadd src-address=\$Srcadd count=\$Pingcount interval=\$Pingint]\
+    \n\
+    \n            :set state \"Ping result is: \$Pingresult Ping trigger is: \$PingTrigger\"\
+    \n            \$globalNoteMe value=\$state;   \
+    \n\
+    \n        }\
+    \n\
+    \n         \
+    \n         # reset phase\
+    \n        if (\$Pingresult < \$PingTrigger or [:len \$Pingresult] = 0) do={\
+    \n                       \
+    \n            :set BadPeer \$Peer\
+    \n            :set BadPeerDst \$Dstadd\
+    \n            :set BadPeerSrc \$Srcadd\
+    \n            \
+    \n            :set state \"Candidate > \$BadPeer : \$L2TPPeer  > Ping result is: \$Pingresult Ping trigger is: \$PingTrigger\"\
+    \n            \$globalNoteMe value=\$state;   \
+    \n           \
+    \n            # find Bad Peer in Bad Peer List if yes > skip reset phase           \
+    \n            :local BadPeerFindResult [:find \$globalTroublesomePeers \$BadPeerDst]\
+    \n            if ([:typeof \$BadPeerFindResult] = \"num\") do={\
+    \n                \
+    \n                :set CheckIPsec 1\
+    \n                \
+    \n                :set state \"SKIP RESET FOR > \$BadPeer : \$L2TPPeer > Find in <Bad Peer List> with index=\$BadPeerFindResult > Reset is disabled for this Peer\"\
+    \n                \$globalNoteMe value=\$state;   \
+    \n\
+    \n\
+    \n            } else={\
+    \n                # start reset\
+    \n                if ([:len \$BadPeer] !=0) do={\
+    \n\
+    \n\
+    \n                    :set CheckIPsec 1\
+    \n\
+    \n                    :delay 1s\
+    \n                    # kill L2TP Sesson\
+    \n                    if ([:len \$L2TPSession] != 0 ) do={\
+    \n                        :do {\
+    \n\
+    \n                            :set state \"STEP: Killing L2TP active connection > \$BadPeer : \$L2TPPeer (\$BadPeerDst)\"\
+    \n                            \$globalNoteMe value=\$state;   \
+    \n\
+    \n                            /ppp/active remove \$L2TPSession\
+    \n\
+    \n                            :set state \"Done\"\
+    \n                            \$globalNoteMe value=\$state;   \
+    \n\
+    \n                        } on-error={\
+    \n\
+    \n                            :set state \"Fail\"\
+    \n                            \$globalNoteMe value=\$state;   \
+    \n\
+    \n                        } \
+    \n                    }\
+    \n\
+    \n                    :delay 1s\
+    \n\
+    \n                    # find and kill all Active Peers with peer dst\
+    \n                    :set ActivePeersForKill [/ip ipsec active-peers find remote-address=\$BadPeerDst]\
+    \n                    if ([:len \$ActivePeersForKill] != 0) do={\
+    \n                        :do {\
+    \n\
+    \n                            :set state \"STEP: Killing IPSEC active peers > \$BadPeer : \$L2TPPeer (\$BadPeerDst, \$ActivePeersForKill)\"\
+    \n                            \$globalNoteMe value=\$state;   \
+    \n\
+    \n                            :foreach i in=\$ActivePeersForKill do={\
+    \n                                /ip/ipsec/active-peers remove \$i\
+    \n                                :set state \"Done\"\
+    \n                                \$globalNoteMe value=\$state;   \
+    \n\
+    \n                            }\
+    \n\
+    \n                        } on-error={\
+    \n                            \
+    \n                            :set state \"Fail\"\
+    \n                            \$globalNoteMe value=\$state;   \
+    \n\
+    \n                        }   \
+    \n                    }\
+    \n                    :delay 1s\
+    \n                    :set \$globalTroublesomePeers (\$globalTroublesomePeers, \$BadPeerDst)\
+    \n \
+    \n                    :set state \"Dst-Address: \$BadPeerDst added to bad peer list.\"\
+    \n                    \$globalNoteMe value=\$state;   \
+    \n\
+    \n                    :delay 1s\
+    \n \
+    \n                    :set state \"RESET PHASE 1 FOR \$BadPeer : \$L2TPPeer : \$BadPeerDst : \$L2TPDstadd > Complete!\"\
+    \n                    \$globalNoteMe value=\$state;   \
+    \n\
+    \n                } \
+    \n            }\
+    \n        } else={\
+    \n\
+    \n            :local FindResult [:find \$globalTroublesomePeers \$Dstadd]\
+    \n\
+    \n            if ([:typeof \$FindResult] = \"num\") do={\
+    \n\
+    \n                :set state \"\$Dstadd in <Bad Peer List> with nuber: \$FindResult\"\
+    \n                \$globalNoteMe value=\$state;   \
+    \n\
+    \n                :delay 1s\
+    \n                :local LenOfList [:len \$globalTroublesomePeers]\
+    \n                :local ArrgPosition [:find \$globalTroublesomePeers \$Dstadd -1]\
+    \n                :set globalTroublesomePeers ([:pick \$globalTroublesomePeers 0 \$ArrgPosition],[:pick \$globalTroublesomePeers (\$ArrgPosition + 1) \$LenOfList]) \
+    \n\
+    \n                :set state \"Bad peer \$Peer : \$L2TPPeer : \$Dstadd is UP! > And deleted from <Bad Peer List>!\"\
+    \n                \$globalNoteMe value=\$state;   \
+    \n            }\
+    \n        }\
+    \n    }\
+    \n}\
+    \n\
+    \n# test if we fix it\
+    \n:local PoliciesOnline [/ip ipsec policy find active ph2-state=established ]\
+    \n:local PoliciesOffline [/ip ipsec policy find active ph2-state!=established ]\
+    \n\
+    \nif ([:len \$PoliciesOffline] != 0 and !\$itsOk) do={\
+    \n\
+    \n    :set itsOk false;\
+    \n    :set state \"Active but non-established IPSEC policy found after punch\"\
+    \n\
+    \n\
+    \n} else={\
+    \n\
+    \n    if ([:len \$PoliciesOnline] = 0 and !\$itsOk) do={\
+    \n\
+    \n        :set itsOk false;\
+    \n        :set state \"No active (established) policies found\"\
+    \n\
+    \n    }         \
+    \n }\
     \n\
     \n:local inf \"\"\
-    \n\
-    \n:if ((\$itsOk) and (\$punched = \"\")) do={\
-    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnels are fine\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"IPSEC Test completed Successfully\"\
     \n}\
     \n\
-    \n:if ((\$itsOk) and (\$punched != \"\")) do={\
-    \n  :set inf \"\$scriptname on \$sysname: IPSEC tunnels refreshed for \$punched\"\
-    \n\
-    \n  :global globalTgMessage;\
-    \n  \$globalTgMessage value=\$inf;\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When testing IPSEC: \$state\"  \
     \n}\
     \n\
     \n\$globalNoteMe value=\$inf\
     \n\
     \n:if (!\$itsOk) do={\
-    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \
-    \n  \
+    \n\
     \n  :global globalTgMessage;\
     \n  \$globalTgMessage value=\$inf;\
     \n  :error \$inf; \
-    \n\
+    \n  \
     \n}\
-    \n\
-    \n\
     \n"
 /system script add comment="A template to track hotspot users" dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
