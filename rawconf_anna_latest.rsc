@@ -1,4 +1,4 @@
-# 2025-12-06 21:13:02 by RouterOS 7.20
+# 2025-12-11 21:13:02 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -166,6 +166,7 @@
 /queue simple add comment=dtq,22:26:E9:CA:87:BA, name="Tomm(wireless)(blocked)@guest-dhcp-server (22:26:E9:CA:87:BA)" queue=default/default target=192.168.98.143/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1,A54-pol-zovatela-Natalya name="Froloff(wireless)@main-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.90.142/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1, name="Froloff(wireless)(blocked)@guest-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.98.142/32 total-queue=default
+/queue simple add comment=dtq,2C:D2:6B:42:D5:54, name="@guest-dhcp-server (2C:D2:6B:42:D5:54)" queue=default/default target=192.168.98.227/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -388,7 +389,7 @@
 /ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
-/ip dns set allow-remote-requests=yes cache-max-ttl=1d cache-size=40000KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
+/ip dns set address-list-extra-time=2m allow-remote-requests=yes cache-max-ttl=1d cache-size=40000KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
 /ip dns adlist add url=https://schakal.hopto.org/alive_hosts.txt
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add cname=anna.home name=anna type=CNAME
@@ -461,7 +462,7 @@
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=www.canva.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=www.tinkercad.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=xvideos.com type=FWD
-/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=xhamster.com type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=DOH-Comss match-subdomain=yes name=xhamster.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=www.parallels.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=radarr.video type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-PH comment="DPI Hack PH" forward-to=localhost match-subdomain=yes name=pornhub.com type=FWD
@@ -477,6 +478,7 @@
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=wixstatic.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-TV comment="DPI Hack: specific list for TVs to fix mss" forward-to=DOH-Google match-subdomain=yes name=youtube.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN Hack" forward-to=DOH-Comss match-subdomain=yes name=chatgpt.com type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN Hack" forward-to=DOH-Comss match-subdomain=yes name=openai.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 regexp=instagram type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=bookstagram.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=carstagram.com type=FWD
@@ -1345,7 +1347,7 @@
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1360 protocol=tcp src-address-list=alist-fw-vpn-subnets tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack" connection-mark=no-mark dst-address-list=alist-mangle-byedpi in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
-/ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack PH" connection-mark=no-mark dst-address-list=alist-mangle-byedpi-PH in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
+/ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack PH" connection-mark=no-mark disabled=yes dst-address-list=alist-mangle-byedpi-PH in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
 /ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack IG" connection-mark=no-mark dst-address-list=alist-mangle-byedpi-IG in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
 /ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack TV" connection-mark=no-mark dst-address-list=alist-mangle-byedpi-TV in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=alist-mangle-vpn-tunneled-sites new-connection-mark=cmark-tunnel-connection
@@ -1403,7 +1405,7 @@
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
 /ip proxy access add action=redirect action-data=influxdb:8000 dst-host=influxdb
-/ip route add comment="GLOBAL AKADO" disabled=no distance=50 dst-address=0.0.0.0/0 gateway=10.20.225.1 pref-src="" routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+/ip route add comment="GLOBAL AKADO" disabled=no distance=50 dst-address=0.0.0.0/0 gateway=10.20.225.1 routing-table=main scope=30 suppress-hw-offload=no target-scope=10
 /ip route add comment="BYE DPI HACK" disabled=no distance=1 dst-address=0.0.0.0/0 gateway=192.168.80.2%docker-infrastructure-br pref-src="" routing-table=rmark-docker-redirect scope=30 suppress-hw-offload=no target-scope=10
 /ip service set telnet disabled=yes
 /ip service set api address=192.168.90.0/24
@@ -1420,13 +1422,14 @@
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
 /routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf && ospf-type intra) { set comment DISCARDED-INTRA-AREA ; reject; }"
 /routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0) { set comment GLOBAL-VPN ; set pref-src 10.0.0.3 ; accept; }"
-/routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter) { set comment LOCAL-AREA ; set pref-src 10.0.0.3 ; accept; }"
+/routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter) { set comment LOCAL-AREA ; set distance 20; set pref-src 192.168.90.1 ; accept; }"
 /routing filter rule add chain=ospf-in comment="DROP OTHERS" disabled=no rule="reject;"
 /routing ospf interface-template add area=backbone disabled=no interfaces=chr-tunnel type=ptp
 /routing ospf interface-template add area=anna-space-main disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.98.0/24 src-address=192.168.90.0/24
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.90.0/24 src-address=192.168.98.0/24
 /routing rule add action=lookup-only-in-table comment=API.TELEGRAM.ORG disabled=yes dst-address=185.85.121.15/24 table=rmark-vpn-redirect
+/routing rule add action=lookup-only-in-table disabled=no dst-address=192.168.97.0/29 table=rmark-vpn-redirect
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
 /system clock set time-zone-name=Europe/Moscow
 /system identity set name=anna
@@ -1470,8 +1473,8 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.20 \
-    \nUptime:        6w21:54:49  \
-    \nTime:        2025-12-06 21:10:12  \
+    \nUptime:        6w5d21:54:49  \
+    \nTime:        2025-12-11 21:10:12  \
     \nPing:    5 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
@@ -2695,7 +2698,8 @@
     \n\$globalScriptBeforeRun \$scriptname;\
     \n\r\
     \n"
-/system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# protect from starting twice:\
+/system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n# protect from starting twice:\
     \n:global globalScriptBeforeRun;\
     \n\$globalScriptBeforeRun \"doIPSECTest\";\
     \n\
@@ -2736,6 +2740,21 @@
     \n# global variables\
     \n:global globalTroublesomePeers\
     \n:global globalForceTroublesomePeersFlush\
+    \n\
+    \n# Define a global script/function to calculate IP details\
+    \n:local IPCalc do={\
+    \n    :local Input [:tostr \$1];\
+    \n    :local Address [:toip [:pick \$Input 0 [:find \$Input \"/\"]]];\
+    \n    :local Bits [:tonum [:pick \$Input ([:find \$Input \"/\"] + 1) [:len \$Input]]];\
+    \n    :local Mask ((255.255.255.255 << (32 - \$Bits)) & 255.255.255.255);\
+    \n    :local Return {\
+    \n        \"networkaddress\"=(\$Address & \$Mask);\
+    \n        \"hostmin\"=((\$Address & \$Mask) | 0.0.0.1);\
+    \n        \"broadcast\"=(\$Address | ~\$Mask);\
+    \n    }\
+    \n    :return \$Return;\
+    \n}\
+    \n\
     \n\
     \n# clear <Check IPsec Bad Peer List>\
     \nif (\$Hour > 23) do={\
@@ -2809,6 +2828,10 @@
     \n        :local isTunnel [/ip ipsec policy get value-name=tunnel \$i]\
     \n        :if (\$isTunnel) do={\
     \n            :set Dstadd [/ip ipsec policy get value-name=sa-dst-address \$i]\
+    \n\
+    \n            :local subnet [/ip ipsec policy get value-name=dst-address \$i];\
+    \n            :local calcResults [\$IPCalc \$subnet];\
+    \n            :set Dstadd  (\$calcResults->\"hostmin\");\
     \n        } else {\
     \n            :set Dstadd [/ip ipsec policy get value-name=dst-address \$i]\
     \n            :set Dstadd  [:pick \$Dstadd 0 [:find \$Dstadd \"/\"]] \
@@ -2816,6 +2839,10 @@
     \n\
     \n        :if (\$isTunnel) do={\
     \n            :set Srcadd [/ip ipsec policy get value-name=sa-src-address \$i]\
+    \n\
+    \n            :local subnet [/ip ipsec policy get value-name=src-address \$i];\
+    \n            :local calcResults [\$IPCalc \$subnet];\
+    \n            :set Srcadd  (\$calcResults->\"hostmin\");\
     \n        } else {\
     \n            :set Srcadd [/ip ipsec policy get value-name=src-address \$i]\
     \n            :set Srcadd  [:pick \$Srcadd 0 [:find \$Srcadd \"/\"]] \
@@ -3023,7 +3050,7 @@
     \n}\
     \n\
     \n:if (!\$itsOk) do={\
-    \n  :set inf \"Error When testing IPSEC: \$state\"  \
+    \n  :set inf \"Error When testing IPSEC: \$state. Pay attention to: L2TP interface status, IPSec policies PH2 state, Routes (ospf) presence\"  \
     \n}\
     \n\
     \n\$globalNoteMe value=\$inf\
