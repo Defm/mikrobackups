@@ -1,4 +1,4 @@
-# 2025-12-11 21:13:02 by RouterOS 7.20
+# 2025-12-16 21:13:02 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -106,9 +106,10 @@
     \n\r\
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
 /ip smb users set [ find default=yes ] disabled=yes
+/ip vrf add disabled=yes interfaces=ospf-lo name=ospf-plain
 /ppp profile add address-list=alist-l2tp-active-clients comment=to-CHR interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
-/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1360 max-mtu=1360 name=chr-tunnel password=123 profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
+/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 max-mru=1360 max-mtu=1360 name=chr-tunnel password=123 profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
@@ -166,16 +167,20 @@
 /queue simple add comment=dtq,22:26:E9:CA:87:BA, name="Tomm(wireless)(blocked)@guest-dhcp-server (22:26:E9:CA:87:BA)" queue=default/default target=192.168.98.143/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1,A54-pol-zovatela-Natalya name="Froloff(wireless)@main-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.90.142/32 total-queue=default
 /queue simple add comment=dtq,C8:90:8A:9A:50:A1, name="Froloff(wireless)(blocked)@guest-dhcp-server (C8:90:8A:9A:50:A1)" queue=default/default target=192.168.98.142/32 total-queue=default
-/queue simple add comment=dtq,2C:D2:6B:42:D5:54, name="@guest-dhcp-server (2C:D2:6B:42:D5:54)" queue=default/default target=192.168.98.227/32 total-queue=default
+/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.230/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
 /queue tree add name=7Z packet-mark=7z-mark parent="Total Bandwidth" queue=default
 /queue tree add name=ZIP packet-mark=zip-mark parent="Total Bandwidth" queue=default
-/routing id add comment="OSPF Common" disabled=no id=10.255.255.3 name=anna-10.255.255.3
-/routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-main originate-default=always redistribute="" router-id=anna-10.255.255.3 routing-table=rmark-vpn-redirect
-/routing ospf area add disabled=no instance=routes-inject-into-main name=backbone
+/routing id add comment="OSPF Common for vpn routing table" disabled=no id=10.255.255.3 name=anna-vpn-10.255.255.3 select-dynamic-id=""
+/routing id add comment="OSPF Common for main routing table" disabled=no id=10.255.0.3 name=anna-main-10.255.0.3 select-dynamic-id=""
+/routing ospf instance add comment="OSPF Common - inject into \"specific\" table" disabled=yes in-filter-chain=ospf-in name=routes-inject-into-vpn originate-default=always redistribute="" router-id=anna-vpn-10.255.255.3 routing-table=main
+/routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=yes in-filter-chain=ospf-in name=routes-inject-into-main originate-default=never out-filter-chain=ospf-out-filter-reject-all router-id=anna-main-10.255.0.3 routing-table=main
+/routing ospf area add disabled=no instance=routes-inject-into-vpn name=backbone-vpn
+/routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-vpn name=anna-space-vpn no-summaries type=stub
 /routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-main name=anna-space-main no-summaries type=stub
+/routing ospf area add disabled=no instance=routes-inject-into-main name=backbone-main
 /routing table add comment="tunnel swing" fib name=rmark-vpn-redirect
 /routing table add comment="dpi swing" disabled=no fib name=rmark-docker-redirect
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
@@ -288,6 +293,7 @@
 /ip address add address=172.16.0.17/30 comment="INFLUXDB IP redirect" interface=ip-mapping-br network=172.16.0.16
 /ip address add address=10.20.225.166/24 comment="wan via ACADO edge router" interface="wan A" network=10.20.225.0
 /ip address add address=192.168.80.1/24 comment="docker network" interface=docker-infrastructure-br network=192.168.80.0
+/ip address add address=10.255.0.3 comment="ospf router-id binding for vpn routing table" interface=ospf-lo network=10.255.0.3
 /ip arp add address=192.168.90.200 comment="AlxATV (wireless)" interface=main-infrastructure-br mac-address=90:DD:5D:C8:46:AB
 /ip arp add address=192.168.90.90 comment="MbpAlx (wire)" interface=main-infrastructure-br mac-address=38:C9:86:51:D2:B3
 /ip arp add address=192.168.90.40 comment=NAS interface=main-infrastructure-br mac-address=00:11:32:2C:A7:85
@@ -1347,7 +1353,7 @@
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1360 protocol=tcp src-address-list=alist-fw-vpn-subnets tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack" connection-mark=no-mark dst-address-list=alist-mangle-byedpi in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
-/ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack PH" connection-mark=no-mark disabled=yes dst-address-list=alist-mangle-byedpi-PH in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
+/ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack PH" connection-mark=no-mark dst-address-list=alist-mangle-byedpi-PH in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
 /ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack IG" connection-mark=no-mark dst-address-list=alist-mangle-byedpi-IG in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
 /ip firewall mangle add action=mark-connection chain=prerouting comment="DPI Hack TV" connection-mark=no-mark dst-address-list=alist-mangle-byedpi-TV in-interface-list=list-mangle-byedpi new-connection-mark=cmark-docker-connection
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp" connection-mark=no-mark connection-state=new dst-address-list=alist-mangle-vpn-tunneled-sites new-connection-mark=cmark-tunnel-connection
@@ -1405,8 +1411,9 @@
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
 /ip proxy access add action=redirect action-data=influxdb:8000 dst-host=influxdb
-/ip route add comment="GLOBAL AKADO" disabled=no distance=50 dst-address=0.0.0.0/0 gateway=10.20.225.1 routing-table=main scope=30 suppress-hw-offload=no target-scope=10
-/ip route add comment="BYE DPI HACK" disabled=no distance=1 dst-address=0.0.0.0/0 gateway=192.168.80.2%docker-infrastructure-br pref-src="" routing-table=rmark-docker-redirect scope=30 suppress-hw-offload=no target-scope=10
+/ip route add comment="GLOBAL AKADO" disabled=no distance=50 dst-address=0.0.0.0/0 gateway=10.20.225.1 pref-src=192.168.90.1 routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+/ip route add comment=GLOBAL-BYE-DPI disabled=no distance=10 dst-address=0.0.0.0/0 gateway=docker-infrastructure-br pref-src="" routing-table=rmark-docker-redirect scope=30 suppress-hw-offload=no target-scope=10
+/ip route add comment=GLOBAL-VPN disabled=no distance=1 dst-address=0.0.0.0/0 gateway=chr-tunnel pref-src=10.0.0.3 routing-table=rmark-vpn-redirect scope=20 suppress-hw-offload=no target-scope=10
 /ip service set telnet disabled=yes
 /ip service set api address=192.168.90.0/24
 /ip service set api-ssl disabled=yes
@@ -1420,16 +1427,20 @@
 /ip upnp interfaces add interface=guest-infrastructure-br type=internal
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
+/routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf) { set comment PENDING; }"
 /routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf && ospf-type intra) { set comment DISCARDED-INTRA-AREA ; reject; }"
-/routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0) { set comment GLOBAL-VPN ; set pref-src 10.0.0.3 ; accept; }"
-/routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter) { set comment LOCAL-AREA ; set distance 20; set pref-src 192.168.90.1 ; accept; }"
-/routing filter rule add chain=ospf-in comment="DROP OTHERS" disabled=no rule="reject;"
-/routing ospf interface-template add area=backbone disabled=no interfaces=chr-tunnel type=ptp
-/routing ospf interface-template add area=anna-space-main disabled=no interfaces=main-infrastructure-br networks=192.168.90.0/24 passive
+/routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0 ) { set comment DISCARDED-GLOBAL ; set pref-src 10.0.0.3 ; reject; }"
+/routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=yes rule="if ( protocol ospf && dst-len==0 && rtab main) { set comment DISCARDED-MAIN; reject; }"
+/routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter ) { set comment LOCAL-AREA ; set distance 20;  accept; }"
+/routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=yes rule="if ( protocol ospf && ospf-type inter && rtab rmark-vpn-redirect) { set comment DISCARDED-VPN ;  reject; }"
+/routing filter rule add chain=ospf-in comment="drop others" disabled=no rule="set comment UNKNOWN; reject;"
+/routing filter rule add chain=ospf-out-filter-reject-all comment="drop outgoing" disabled=no rule="set comment UNKNOWN; reject;"
+/routing ospf interface-template add area=backbone-main disabled=no interfaces=chr-tunnel type=ptp
+/routing ospf interface-template add area=backbone-vpn disabled=no interfaces=chr-tunnel type=ptp
+/routing ospf interface-template add area=anna-space-vpn disabled=no networks=192.168.90.0/24,192.168.98.0/24 passive
+/routing ospf interface-template add area=anna-space-main comment="empty announcement" disabled=no interfaces=ospf-lo passive
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.98.0/24 src-address=192.168.90.0/24
 /routing rule add action=unreachable comment="LAN/GUEST isolation" disabled=no dst-address=192.168.90.0/24 src-address=192.168.98.0/24
-/routing rule add action=lookup-only-in-table comment=API.TELEGRAM.ORG disabled=yes dst-address=185.85.121.15/24 table=rmark-vpn-redirect
-/routing rule add action=lookup-only-in-table disabled=no dst-address=192.168.97.0/29 table=rmark-vpn-redirect
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
 /system clock set time-zone-name=Europe/Moscow
 /system identity set name=anna
@@ -1473,9 +1484,9 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.20 \
-    \nUptime:        6w5d21:54:49  \
-    \nTime:        2025-12-11 21:10:12  \
-    \nPing:    5 ms  \
+    \nUptime:        7w3d21:54:49  \
+    \nTime:        2025-12-16 21:10:12  \
+    \nPing:    8 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
     \nAnna:        46.39.51.206  \
@@ -2848,7 +2859,7 @@
     \n            :set Srcadd  [:pick \$Srcadd 0 [:find \$Srcadd \"/\"]] \
     \n        }      \
     \n\
-    \n       :local L2TPSession [/ppp/active find caller-id=\$Dstadd]\
+    \n        :local L2TPSession [/ppp/active find caller-id=\$Dstadd]\
     \n        \
     \n        :delay 1s\
     \n\
@@ -2893,33 +2904,78 @@
     \n\
     \n        }\
     \n\
-    \n         # ping phase 1\
+    \n\
+    \n\
+    \n        # ping phase 1\
     \n        if ([:len \$L2TPSession] != 0) do={\
     \n\
-    \n            :set state \"Testing L2TP IPs connectivity: Start ping \$L2TPDstadd from \$L2TPSrcadd (\$Dstadd from \$Srcadd)\"\
-    \n            \$globalNoteMe value=\$state;   \
+    \n            :set state \"Testing routes to \$L2TPDstadd from \$L2TPSrcadd\"\
+    \n            \$globalNoteMe value=\$state;  \
     \n\
-    \n            :set Pingresult [/ping address=\$L2TPDstadd src-address=\$L2TPSrcadd count=\$Pingcount interval=\$Pingint]\
+    \n            # we need specific route in the main table to that subnet \
+    \n            :local Traceresult [ /ip/route/check dst-ip=\$L2TPDstadd src-ip=\$L2TPSrcadd once as-value proplist=interface,status ]\
+    \n            :local Trace ( \$Traceresult->\"status\" );\
     \n\
-    \n            :set state \"Ping result is: \$Pingresult Ping trigger is: \$PingTrigger\"\
-    \n            \$globalNoteMe value=\$state;   \
+    \n            if ( \$Trace != \"ok\") do={\
     \n\
+    \n                :set itsOk false;\
+    \n                :set state \"We need specific route in the main table to \$L2TPDstadd but we haven't: check OSPF, static routes and routing rules\"\
+    \n                \$globalNoteMe value=\$state;  \
+    \n\
+    \n            } else={\
+    \n\
+    \n                :local iface ( \$Traceresult->\"interface\" );\
+    \n\
+    \n                :set state \"Found route to \$L2TPDstadd via \$iface\"\
+    \n                \$globalNoteMe value=\$state;  \
+    \n\
+    \n                :set state \"Testing L2TP IPs connectivity: Start ping \$L2TPDstadd from \$L2TPSrcadd (\$Dstadd from \$Srcadd)\"\
+    \n                \$globalNoteMe value=\$state;   \
+    \n\
+    \n                :set Pingresult [/ping address=\$L2TPDstadd src-address=\$L2TPSrcadd count=\$Pingcount interval=\$Pingint]\
+    \n\
+    \n                :set state \"Ping result is: \$Pingresult Ping trigger is: \$PingTrigger\"\
+    \n                \$globalNoteMe value=\$state;   \
+    \n\
+    \n            }\
     \n\
     \n        } else={\
     \n\
-    \n            :set state \"Testing IPSEC IPs connectivity: Start ping \$Dstadd from \$Srcadd\"\
-    \n            \$globalNoteMe value=\$state;   \
+    \n            :set state \"Testing routes to \$Dstadd from \$Srcadd\"\
+    \n            \$globalNoteMe value=\$state;  \
     \n\
-    \n            :set Pingresult [/ping address=\$Dstadd src-address=\$Srcadd count=\$Pingcount interval=\$Pingint]\
+    \n            # we need specific route in the main table to that subnet \
+    \n            :local Traceresult [ /ip/route/check dst-ip=\$Dstadd src-ip=\$Srcadd once as-value proplist=interface,status ]\
+    \n            :local Trace ( \$Traceresult->\"status\" );\
     \n\
-    \n            :set state \"Ping result is: \$Pingresult Ping trigger is: \$PingTrigger\"\
-    \n            \$globalNoteMe value=\$state;   \
+    \n            if ( \$Trace != \"ok\") do={\
+    \n\
+    \n                :set itsOk false;\
+    \n                :set state \"We need specific route in the main table to \$Dstadd but we haven't: check OSPF, static routes and routing rules\"\
+    \n                \$globalNoteMe value=\$state;  \
+    \n\
+    \n            } else={\
+    \n\
+    \n                :local iface ( \$Traceresult->\"interface\" );\
+    \n\
+    \n                :set state \"Found route to \$Dstadd via \$iface\"\
+    \n                \$globalNoteMe value=\$state;  \
+    \n\
+    \n                :set state \"Testing IPSEC IPs connectivity: Start ping \$Dstadd from \$Srcadd\"\
+    \n                \$globalNoteMe value=\$state;   \
+    \n\
+    \n                :set Pingresult [/ping address=\$Dstadd src-address=\$Srcadd count=\$Pingcount interval=\$Pingint]\
+    \n\
+    \n                :set state \"Ping result is: \$Pingresult Ping trigger is: \$PingTrigger\"\
+    \n                \$globalNoteMe value=\$state;   \
+    \n\
+    \n            }\
+    \n\
     \n\
     \n        }\
-    \n\
     \n         \
     \n         # reset phase\
-    \n        if (\$Pingresult < \$PingTrigger or [:len \$Pingresult] = 0) do={\
+    \n        if (\$itsOk and ( \$Pingresult < \$PingTrigger or [:len \$Pingresult] = 0 )) do={\
     \n                       \
     \n            :set BadPeer \$Peer\
     \n            :set BadPeerDst \$Dstadd\
@@ -3050,7 +3106,7 @@
     \n}\
     \n\
     \n:if (!\$itsOk) do={\
-    \n  :set inf \"Error When testing IPSEC: \$state. Pay attention to: L2TP interface status, IPSec policies PH2 state, Routes (ospf) presence\"  \
+    \n  :set inf \"Error When testing IPSEC: \$state\"  \
     \n}\
     \n\
     \n\$globalNoteMe value=\$inf\
