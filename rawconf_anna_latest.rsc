@@ -1,4 +1,4 @@
-# 2025-12-16 21:13:02 by RouterOS 7.20
+# 2025-12-21 21:13:03 by RouterOS 7.20
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -106,10 +106,9 @@
     \n\r\
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server
 /ip smb users set [ find default=yes ] disabled=yes
-/ip vrf add disabled=yes interfaces=ospf-lo name=ospf-plain
 /ppp profile add address-list=alist-l2tp-active-clients comment=to-CHR interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1
 /ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
-/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 max-mru=1360 max-mtu=1360 name=chr-tunnel password=123 profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
+/interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1360 max-mtu=1360 name=chr-tunnel password=123 profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
@@ -173,9 +172,9 @@
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
 /queue tree add name=7Z packet-mark=7z-mark parent="Total Bandwidth" queue=default
 /queue tree add name=ZIP packet-mark=zip-mark parent="Total Bandwidth" queue=default
-/routing id add comment="OSPF Common for vpn routing table" disabled=no id=10.255.255.3 name=anna-vpn-10.255.255.3 select-dynamic-id=""
+/routing id add comment="OSPF Common for specific routing table" disabled=no id=10.255.255.3 name=anna-vpn-10.255.255.3 select-dynamic-id=""
 /routing id add comment="OSPF Common for main routing table" disabled=no id=10.255.0.3 name=anna-main-10.255.0.3 select-dynamic-id=""
-/routing ospf instance add comment="OSPF Common - inject into \"specific\" table" disabled=yes in-filter-chain=ospf-in name=routes-inject-into-vpn originate-default=always redistribute="" router-id=anna-vpn-10.255.255.3 routing-table=main
+/routing ospf instance add comment="OSPF Common - inject into \"specific\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-vpn originate-default=never redistribute="" router-id=anna-vpn-10.255.255.3 routing-table=main
 /routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=yes in-filter-chain=ospf-in name=routes-inject-into-main originate-default=never out-filter-chain=ospf-out-filter-reject-all router-id=anna-main-10.255.0.3 routing-table=main
 /routing ospf area add disabled=no instance=routes-inject-into-vpn name=backbone-vpn
 /routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-vpn name=anna-space-vpn no-summaries type=stub
@@ -254,7 +253,7 @@
 /caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn identity-regexp=anna master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
 /caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac identity-regexp=anna master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
 /caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
-/container add cmd="-K u -a 5 --auto=none -Kt,h -d1 -s0+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -An -Ku -a1 -An --debug 1" comment="YouTube freedom" envlists=BYEDPI_QUIC_REJECT interface=bydpi-tunnel logging=yes name=byedpi-hev-socks5-tunnel:mikro remote-image=wiktorbgu/byedpi-hev-socks5-tunnel:mikro root-dir=/usb-docker/docker/byedpi-hev-socks5-tunnel start-on-boot=yes workdir=/
+/container add cmd="-K u -a 5 --auto=none -Kt,h -d1 -s0+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -An -Ku -a1 -An --debug 1" comment="YouTube freedom" dns=192.168.80.1 interface=bydpi-tunnel logging=yes name=byedpi-hev-socks5-tunnel:mikro remote-image=wiktorbgu/byedpi-hev-socks5-tunnel:mikro root-dir=/usb-docker/docker/byedpi-hev-socks5-tunnel start-on-boot=yes workdir=/
 /container config set memory-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/usb-docker/docker/pull
 /container envs add key=QUIC list=BYEDPI_QUIC_REJECT value=REJECT
 /disk settings set auto-media-interface=main-infrastructure-br
@@ -395,7 +394,7 @@
 /ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
-/ip dns set address-list-extra-time=2m allow-remote-requests=yes cache-max-ttl=1d cache-size=40000KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
+/ip dns set address-list-extra-time=30s allow-remote-requests=yes cache-max-ttl=1d cache-size=40000KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
 /ip dns adlist add url=https://schakal.hopto.org/alive_hosts.txt
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
 /ip dns static add cname=anna.home name=anna type=CNAME
@@ -444,7 +443,6 @@
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=cloudflare-ech.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=googlevideo.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=googleapis.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" disabled=yes forward-to=localhost match-subdomain=yes name=youtube.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=ytimg.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=youtu.be type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=ggpht.com type=FWD
@@ -467,7 +465,7 @@
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=medium.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=www.canva.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=www.tinkercad.com type=FWD
-/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=xvideos.com type=FWD
+/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=DOH-Comss match-subdomain=yes name=xvideos.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=DOH-Comss match-subdomain=yes name=xhamster.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=www.parallels.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" forward-to=localhost match-subdomain=yes name=radarr.video type=FWD
@@ -485,42 +483,42 @@
 /ip dns static add address-list=alist-mangle-byedpi-TV comment="DPI Hack: specific list for TVs to fix mss" forward-to=DOH-Google match-subdomain=yes name=youtube.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN Hack" forward-to=DOH-Comss match-subdomain=yes name=chatgpt.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN Hack" forward-to=DOH-Comss match-subdomain=yes name=openai.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 regexp=instagram type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=bookstagram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=carstagram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=chickstagram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=ig.me type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=igcdn.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=igsonar.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=igtv.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=imstagram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=imtagram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instaadder.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instachecker.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instafallow.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instafollower.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagainer.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagda.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagify.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagmania.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagor.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagran.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagranm.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagrem.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagrm.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagtram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instagy.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instamgram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instangram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instanttelegram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instaplayer.net type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instastyle.tv type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=instgram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=intagram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=intagrm.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=intgram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=kingstagram.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Quad9 match-subdomain=yes name=lnstagram-help.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss regexp=instagram type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=bookstagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=carstagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=chickstagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=ig.me type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=igcdn.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=igsonar.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=igtv.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=imstagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=imtagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instaadder.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instachecker.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instafallow.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instafollower.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instagainer.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instagda.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instagify.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instagmania.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instagor.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instagran.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instagranm.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instagrem.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instagrm.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instagtram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instagy.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instamgram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instangram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instanttelegram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instaplayer.net type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instastyle.tv type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=instgram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=intagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=intagrm.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=intgram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=kingstagram.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=lnstagram-help.com type=FWD
 /ip dns static add address=192.168.90.133 comment=<AUTO:DHCP:main-dhcp-server> name=Redmi-Note-13-Pro.home ttl=5m type=A
 /ip dns static add address=192.168.90.203 comment=<AUTO:DHCP:main-dhcp-server> name=ast25b.home ttl=5m type=A
 /ip dns static add address=192.168.90.134 comment=<AUTO:DHCP:main-dhcp-server> name=A55-pol-zovatela-Sergej.home ttl=5m type=A
@@ -589,7 +587,6 @@
 /ip firewall address-list add address=accounts.autodesk.com disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=binaryronin.io disabled=yes list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=192.168.80.2 list=alist-mangle-docker-space
-/ip firewall address-list add address=46.39.51.206 list=alist-nat-external-ip
 /ip firewall address-list add address=103.224.182.238 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=103.224.182.253 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=103.224.212.131 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
@@ -1113,242 +1110,244 @@
 /ip firewall address-list add address=93.123.17.254 comment=pip4-xvideos.com list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=94.140.112.80 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
 /ip firewall address-list add address=95.215.46.63 comment=pip4-pornolab.net list=alist-mangle-vpn-tunneled-sites
-/ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections
-/ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets
-/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (FWD)"
-/ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" log-prefix=~~~OSFP protocol=ospf
-/ip firewall filter add action=accept chain=input comment=API log-prefix=~~~API port=8728 protocol=tcp
-/ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
-/ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
-/ip firewall filter add action=accept chain=output comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
-/ip firewall filter add action=accept chain=input comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
-/ip firewall filter add action=jump chain=input comment="VPN Access" jump-target=chain-vpn-rules
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="L2TP tunnel" dst-port=1701 log-prefix=~~~L2TP protocol=udp
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-ah\"" log-prefix=~~~VPN protocol=ipsec-ah src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-esp\"" log-prefix=~~~VPN_FRW protocol=ipsec-esp src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IKE\" - IPSEC connection establishing" dst-port=500 log-prefix=~~~VPN_FRW protocol=udp src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow UDP\" - IPSEC data trasfer" dst-port=4500 log-prefix=~~~VPN_FRW protocol=udp src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=return chain=chain-vpn-rules comment="VPN Access"
-/ip firewall filter add action=accept chain=forward comment=VPN dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_FRW src-address-list=alist-fw-local-subnets
-/ip firewall filter add action=accept chain=forward comment=VPN dst-address-list=alist-fw-local-subnets log-prefix=~~~VPN_FRW src-address-list=alist-fw-vpn-subnets
-/ip firewall filter add action=jump chain=forward comment="Jump to chain-rdp-staged-control" jump-target=chain-rdp-staged-control
-/ip firewall filter add action=drop chain=chain-rdp-staged-control comment="drop rdp brute forcers" dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-block
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-block address-list-timeout=10h chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage3 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage2 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage1 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=!alist-fw-rdp-allow
-/ip firewall filter add action=return chain=chain-rdp-staged-control comment="Return From chain-rdp-staged-control"
-/ip firewall filter add action=jump chain=forward comment="jump to chain-smb-staged-control" jump-target=chain-smb-staged-control src-address-list=!alist-fw-smb-allow
-/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log-prefix=~~~SMB protocol=udp
-/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log-prefix=~~~SMB protocol=tcp
-/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log-prefix=~~~SMB protocol=tcp src-address-list=alist-smb-shares-track
-/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log-prefix=~~~SMB protocol=udp src-address-list=alist-smb-shares-track
-/ip firewall filter add action=return chain=chain-smb-staged-control comment="Return from chain-smb-staged-control"
-/ip firewall filter add action=drop chain=input comment="drop ftp brute forcers" dst-port=21 protocol=tcp src-address-list=alist-fw-ftp-block
-/ip firewall filter add action=accept chain=output comment="drop ftp brute forcers" content="530 Login incorrect" dst-limit=1/1m,9,dst-address/1m protocol=tcp
-/ip firewall filter add action=add-dst-to-address-list address-list=alist-fw-ftp-block address-list-timeout=3h chain=output comment="drop ftp brute forcers" content="530 Login incorrect" protocol=tcp
+/ip firewall address-list add address=46.39.51.206 list=alist-nat-external-ip
+/ip firewall address-list add address=192.168.80.0/24 comment="Add DNS Server to this List" list=alist-fw-dns-allow
+/ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid disabled=yes in-interface-list=list-drop-invalid-connections
+/ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid disabled=yes dst-address-list=!alist-fw-vpn-subnets
+/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related disabled=yes log-prefix="#ACCEPTED UNKNOWN (FWD)"
+/ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" disabled=yes log-prefix=~~~OSFP protocol=ospf
+/ip firewall filter add action=accept chain=input comment=API disabled=yes log-prefix=~~~API port=8728 protocol=tcp
+/ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" disabled=yes dst-address-type=broadcast dst-port=5678 protocol=udp
+/ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" disabled=yes dst-address-type=broadcast dst-port=5678 protocol=udp
+/ip firewall filter add action=accept chain=output comment=CAPsMAN disabled=yes dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
+/ip firewall filter add action=accept chain=input comment=CAPsMAN disabled=yes dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
+/ip firewall filter add action=jump chain=input comment="VPN Access" disabled=yes jump-target=chain-vpn-rules
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="L2TP tunnel" disabled=yes dst-port=1701 log-prefix=~~~L2TP protocol=udp
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-ah\"" disabled=yes log-prefix=~~~VPN protocol=ipsec-ah src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-esp\"" disabled=yes log-prefix=~~~VPN_FRW protocol=ipsec-esp src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IKE\" - IPSEC connection establishing" disabled=yes dst-port=500 log-prefix=~~~VPN_FRW protocol=udp src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow UDP\" - IPSEC data trasfer" disabled=yes dst-port=4500 log-prefix=~~~VPN_FRW protocol=udp src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=return chain=chain-vpn-rules comment="VPN Access" disabled=yes
+/ip firewall filter add action=accept chain=forward comment=VPN disabled=yes dst-address-list=alist-fw-vpn-subnets log-prefix=~~~VPN_FRW src-address-list=alist-fw-local-subnets
+/ip firewall filter add action=accept chain=forward comment=VPN disabled=yes dst-address-list=alist-fw-local-subnets log-prefix=~~~VPN_FRW src-address-list=alist-fw-vpn-subnets
+/ip firewall filter add action=jump chain=forward comment="Jump to chain-rdp-staged-control" disabled=yes jump-target=chain-rdp-staged-control
+/ip firewall filter add action=drop chain=chain-rdp-staged-control comment="drop rdp brute forcers" disabled=yes dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-block
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-block address-list-timeout=10h chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage3 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage2 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage1 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=!alist-fw-rdp-allow
+/ip firewall filter add action=return chain=chain-rdp-staged-control comment="Return From chain-rdp-staged-control" disabled=yes
+/ip firewall filter add action=jump chain=forward comment="jump to chain-smb-staged-control" disabled=yes jump-target=chain-smb-staged-control src-address-list=!alist-fw-smb-allow
+/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 log-prefix=~~~SMB protocol=udp
+/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 log-prefix=~~~SMB protocol=tcp
+/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 log-prefix=~~~SMB protocol=tcp src-address-list=alist-smb-shares-track
+/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 log-prefix=~~~SMB protocol=udp src-address-list=alist-smb-shares-track
+/ip firewall filter add action=return chain=chain-smb-staged-control comment="Return from chain-smb-staged-control" disabled=yes
+/ip firewall filter add action=drop chain=input comment="drop ftp brute forcers" disabled=yes dst-port=21 protocol=tcp src-address-list=alist-fw-ftp-block
+/ip firewall filter add action=accept chain=output comment="drop ftp brute forcers" content="530 Login incorrect" disabled=yes dst-limit=1/1m,9,dst-address/1m protocol=tcp
+/ip firewall filter add action=add-dst-to-address-list address-list=alist-fw-ftp-block address-list-timeout=3h chain=output comment="drop ftp brute forcers" content="530 Login incorrect" disabled=yes protocol=tcp
 /ip firewall filter add action=jump chain=input comment="Jump to DNS Amplification" jump-target=chain-dns-amp-attack
 /ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" log-prefix=~~~DNS port=53 protocol=udp src-address-list=alist-fw-dns-allow
 /ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" dst-address-list=alist-fw-dns-allow log-prefix=~~~DNS port=53 protocol=udp
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-dns-amp-block address-list-timeout=10h chain=chain-dns-amp-attack comment="Add DNS Amplification to Blacklist" log=yes log-prefix=~~~~DNS port=53 protocol=udp src-address-list=!alist-fw-dns-allow
-/ip firewall filter add action=drop chain=chain-dns-amp-attack comment="Drop DNS Amplification" src-address-list=alist-fw-dns-amp-block
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-dns-amp-ban address-list-timeout=10h chain=chain-dns-amp-attack comment="Add DNS Amplification to Blacklist" log=yes log-prefix=~~~~DNS port=53 protocol=udp src-address-list=!alist-fw-dns-allow
+/ip firewall filter add action=drop chain=chain-dns-amp-attack comment="Drop DNS Amplification" src-address-list=alist-fw-dns-amp-ban
 /ip firewall filter add action=return chain=chain-dns-amp-attack comment="Return from DNS Amplification"
-/ip firewall filter add action=accept chain=input comment="Self fetch requests" log-prefix=WEB port=80 protocol=tcp
-/ip firewall filter add action=jump chain=input comment="Allow router services on the lan" in-interface=main-infrastructure-br jump-target=chain-router-services-lan
-/ip firewall filter add action=accept chain=chain-router-services-lan comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
-/ip firewall filter add action=accept chain=chain-router-services-lan comment=SNMP port=161 protocol=udp
-/ip firewall filter add action=accept chain=chain-router-services-lan comment=WEB port=80 protocol=tcp
-/ip firewall filter add action=return chain=chain-router-services-lan comment="Return from chain-router-services-lan Chain"
-/ip firewall filter add action=jump chain=input comment="Allow router services on the wan" in-interface="wan A" jump-target=chain-router-services-wan
-/ip firewall filter add action=drop chain=chain-router-services-wan comment="SSH (22/TCP)" dst-port=22 protocol=tcp
-/ip firewall filter add action=drop chain=chain-router-services-wan comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
-/ip firewall filter add action=return chain=chain-router-services-wan comment="Return from chain-router-services-wan Chain"
-/ip firewall filter add action=jump chain=input comment="Check for ping flooding" jump-target=chain-detect-ping-flood protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="0:0 and limit for 5 pac/s Allow Ping" icmp-options=0:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="3:3 and limit for 5 pac/s Allow Traceroute" icmp-options=3:3 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="3:4 and limit for 5 pac/s Allow Path MTU Discovery" icmp-options=3:4 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="8:0 and limit for 5 pac/s Allow Ping" icmp-options=8:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="11:0 and limit for 5 pac/s Allow Traceroute" icmp-options=11:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="0:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=0:0-255 limit=50,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=8:0-255 limit=50,5:packet protocol=icmp
-/ip firewall filter add action=drop chain=chain-detect-ping-flood comment="drop everything else" log-prefix="#ICMP DROP" protocol=icmp
-/ip firewall filter add action=return chain=chain-detect-ping-flood comment="Return from chain-detect-ping-flood Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY1 log-prefix=~~~DUMMY1 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Manually Added)" src-address-list=alist-fw-manual-block
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Manually Added)" src-address-list=alist-fw-manual-block
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (SSH)" src-address-list=alist-fw-ssh-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (SSH)" src-address-list=alist-fw-ssh-ban
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Telnet)" src-address-list=alist-fw-telnet-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Telnet)" src-address-list=alist-fw-telnet-ban
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Winbox)" src-address-list=alist-fw-winbox-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Winbox)" src-address-list=alist-fw-winbox-ban
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the WAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the WAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=passthrough chain=input comment="Drop anyone in the LAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=passthrough chain=forward comment="Drop anyone in the LAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=drop chain=input comment="Drop all Bogons" src-address-list=alist-fw-rfc-special
-/ip firewall filter add action=drop chain=forward comment="Drop all Bogons" src-address-list=alist-fw-rfc-special
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY2 log-prefix=~~~DUMMY2 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to RFC SSH Chain" jump-target=chain-ssh-staged-control
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-ban address-list-timeout=1w3d chain=chain-ssh-staged-control comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage3 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 3" connection-state=new dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage2 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 2" connection-state=new dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage1 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add intial attempt to SSH Stage 1 List" connection-state=new dst-port=22 protocol=tcp
-/ip firewall filter add action=return chain=chain-ssh-staged-control comment="Return From RFC SSH Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY3 log-prefix=~~~DUMMY3 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to RFC Telnet Chain" jump-target=chain-telnet-staged-control
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-ban address-list-timeout=1w3d chain=chain-telnet-staged-control comment="Transfer repeated attempts from Telnet Stage 3 to Black-List" connection-state=new dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage3 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 3" connection-state=new dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage2 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 2" connection-state=new dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage1 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add Intial attempt to Telnet Stage 1" connection-state=new dst-port=23 protocol=tcp
-/ip firewall filter add action=return chain=chain-telnet-staged-control comment="Return From RFC Telnet Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY4 log-prefix=~~~DUMMY4 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to RFC Winbox Chain" jump-target=chain-winbox-staged-control
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-ban address-list-timeout=1w3d chain=chain-winbox-staged-control comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage3 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 3" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage2 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 2" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage1 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp src-address-list=!alist-fw-vpn-subnets
-/ip firewall filter add action=return chain=chain-winbox-staged-control comment="Return From RFC Winbox Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY5 log-prefix=~~~DUMMY5 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY6 log-prefix=~~~DUMMY6 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=1h chain=input comment=alist-fw-highload connection-limit=100,32 protocol=tcp
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=10h chain=forward comment=alist-fw-highload connection-limit=100,32 protocol=tcp
-/ip firewall filter add action=jump chain=input comment="Jump to Virus Chain" jump-target=chain-worms-detector
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Conficker dst-port=593 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=1024-1030 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm requester" dst-port=1363 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm server" dst-port=1364 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="screen cast" dst-port=1368 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=hromgrafx dst-port=1373 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" dst-port=1080 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=cichlid dst-port=1377 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=1433-1434 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" dst-port=2283 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle" dst-port=2535 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.C-K" dst-port=2745 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" dst-port=3127-3128 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Backdoor OptixPro" dst-port=3410 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Sasser" dst-port=5554 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=4444 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=4444 protocol=udp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.B" dst-port=8866 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dabber.A-B" dst-port=9898 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" dst-port=10000 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom.B" dst-port=10080 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop NetBus" dst-port=12345 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Kuang2" dst-port=17300 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop SubSeven" dst-port=27374 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop PhatBot, Agobot, Gaobot" dst-port=65506 protocol=tcp
-/ip firewall filter add action=return chain=chain-worms-detector comment="Return From Virus Chain"
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY7 log-prefix=~~~DUMMY7 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to \"Manage Common Ports\" Chain" jump-target=chain-self-common-ports
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All hosts on this subnet\" Broadcast" src-address=224.0.0.1
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All routers on this subnet\" Broadcast" src-address=224.0.0.2
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="DVMRP (Distance Vector Multicast Routing Protocol)" src-address=224.0.0.4
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - All OSPF Routers Broadcast" src-address=224.0.0.5
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - OSPF DR Routers Broadcast" src-address=224.0.0.6
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="RIP Broadcast" src-address=224.0.0.9
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="EIGRP Broadcast" src-address=224.0.0.10
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="PIM Broadcast" src-address=224.0.0.13
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="VRRP Broadcast" src-address=224.0.0.18
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" src-address=224.0.0.19
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" src-address=224.0.0.20
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" src-address=224.0.0.21
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IGMP Broadcast" src-address=224.0.0.22
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="GRE Protocol (Local Management)" protocol=gre
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer" log-prefix=~~~FTP port=20 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPcontrol (command)" log-prefix=~~~FTP port=21 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer  " log-prefix=~~~FTP port=20 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)" port=22 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)   " port=22 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet port=23 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet port=23 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem." port=24 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem.  " port=24 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)" port=25 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)  " port=25 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol" port=37 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol  " port=37 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol & WINS" port=42 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol  & WINS  " port=42 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" port=43 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" port=43 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" port=53 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" port=53 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Mail Transfer Protocol(RFC 780)" port=57 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Server & (DHCP)  " port=67 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Client & (DHCP)  " port=68 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Trivial File Transfer Protocol (TFTP)  " port=69 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Gopher protocol" port=70 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Finger protocol" port=79 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Hypertext Transfer Protocol (HTTP)" port=80 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="RemoteTELNETService protocol" port=107 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv2 (POP2)" port=109 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv3 (POP3)" port=110 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IdentAuthentication Service/Identification Protocol" port=113 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Authentication Service (auth)  " port=113 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple File Transfer Protocol (SFTP)" port=115 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Network Time Protocol(NTP)" port=123 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service" port=137 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service  " port=137 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service" port=138 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service  " port=138 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service" port=139 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service  " port=139 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP)" port=143 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)" port=152 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)  " port=152 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol" port=153 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol  " port=153 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol" port=158 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol  " port=158 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management Protocol(SNMP)  " port=161 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)" port=162 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " port=162 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGP (Border Gateway Protocol)" port=179 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" port=220 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" port=220 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol" port=264 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol  " port=264 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" port=389 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" port=389 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="SSTP TCP Port 443 (Local Management) & HTTPS" port=443 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Microsoft-DSActive Directory, Windows shares" port=445 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP/ IPSEC UDP Port 500 (Local Management)" port=500 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol" port=502 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol  " port=502 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Shell (Remote Shell, rsh, remsh)" port=514 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Syslog - used for system logging  " port=514 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Routing Information Protocol (RIP)  " port=520 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="e-mail message submission (SMTP)" port=587 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" port=646 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" port=646 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" port=989 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" port=989 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" port=990 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" port=990 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" port=992 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" port=992 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol over TLS/SSL (IMAPS)" port=993 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocol3 over TLS/SSL (POP3S)" port=995 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="OVPN TCP Port 1194 (Local Management)" port=1194 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="PPTP Port 1723 (Local Management)" port=1723 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 1701 (Local Management)" port=1701 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 4500 (Local Management)" port=4500 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="WINBOX TCP Port 8291 (Local Management)" port=8291 protocol=tcp
-/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" dst-port=137-138 log-prefix=~~~SMB protocol=udp src-address-list=alist-fw-smb-allow
-/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" dst-port=137,139 log-prefix=~~~SMB protocol=tcp src-address-list=alist-fw-smb-allow
-/ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related log-prefix="#ACCEPTED UNKNOWN (INPUT)"
-/ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new log-prefix="#ACCEPTED UNKNOWN (FWD)"
-/ip firewall filter add action=accept chain=input comment="Allow proxy on 8888" dst-port=8888 in-interface=main-infrastructure-br protocol=tcp
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY8 log-prefix=~~~DUMMY8 src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=drop chain=input comment="Open proxy block" dst-port=8888 in-interface="wan A" protocol=tcp
-/ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new in-interface="wan A" log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
-/ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log-prefix="#DROP UNKNOWN (FWD)"
-/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log-prefix="#DROP UNKNOWN (INPUT)"
-/ip firewall mangle add action=change-mss chain=forward comment="DPI Hack: specific  for TVs to fix mss" dst-address-list=alist-mangle-byedpi-TV new-mss=88 protocol=tcp tcp-flags=syn
+/ip firewall filter add action=accept chain=input comment="Self fetch requests" disabled=yes log-prefix=WEB port=80 protocol=tcp
+/ip firewall filter add action=jump chain=input comment="Allow router services on the lan" disabled=yes in-interface=main-infrastructure-br jump-target=chain-router-services-lan
+/ip firewall filter add action=accept chain=chain-router-services-lan comment="Winbox (8291/TCP)" disabled=yes dst-port=8291 protocol=tcp
+/ip firewall filter add action=accept chain=chain-router-services-lan comment=SNMP disabled=yes port=161 protocol=udp
+/ip firewall filter add action=accept chain=chain-router-services-lan comment=WEB disabled=yes port=80 protocol=tcp
+/ip firewall filter add action=return chain=chain-router-services-lan comment="Return from chain-router-services-lan Chain" disabled=yes
+/ip firewall filter add action=jump chain=input comment="Allow router services on the wan" disabled=yes in-interface="wan A" jump-target=chain-router-services-wan
+/ip firewall filter add action=drop chain=chain-router-services-wan comment="SSH (22/TCP)" disabled=yes dst-port=22 protocol=tcp
+/ip firewall filter add action=drop chain=chain-router-services-wan comment="Winbox (8291/TCP)" disabled=yes dst-port=8291 protocol=tcp
+/ip firewall filter add action=return chain=chain-router-services-wan comment="Return from chain-router-services-wan Chain" disabled=yes
+/ip firewall filter add action=jump chain=input comment="Check for ping flooding" disabled=yes jump-target=chain-detect-ping-flood protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="0:0 and limit for 5 pac/s Allow Ping" disabled=yes icmp-options=0:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="3:3 and limit for 5 pac/s Allow Traceroute" disabled=yes icmp-options=3:3 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="3:4 and limit for 5 pac/s Allow Path MTU Discovery" disabled=yes icmp-options=3:4 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="8:0 and limit for 5 pac/s Allow Ping" disabled=yes icmp-options=8:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="11:0 and limit for 5 pac/s Allow Traceroute" disabled=yes icmp-options=11:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="0:0 and limit for 50 pac/s Allow Ping tool speed-test" disabled=yes icmp-options=0:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-ping-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" disabled=yes icmp-options=8:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=drop chain=chain-detect-ping-flood comment="drop everything else" disabled=yes log-prefix="#ICMP DROP" protocol=icmp
+/ip firewall filter add action=return chain=chain-detect-ping-flood comment="Return from chain-detect-ping-flood Chain" disabled=yes
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY1 disabled=yes log-prefix=~~~DUMMY1 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Manually Added)" disabled=yes src-address-list=alist-fw-manual-block
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Manually Added)" disabled=yes src-address-list=alist-fw-manual-block
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (SSH)" disabled=yes src-address-list=alist-fw-ssh-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (SSH)" disabled=yes src-address-list=alist-fw-ssh-ban
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Telnet)" disabled=yes src-address-list=alist-fw-telnet-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Telnet)" disabled=yes src-address-list=alist-fw-telnet-ban
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Winbox)" disabled=yes src-address-list=alist-fw-winbox-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Winbox)" disabled=yes src-address-list=alist-fw-winbox-ban
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the WAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the WAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=passthrough chain=input comment="Drop anyone in the LAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=passthrough chain=forward comment="Drop anyone in the LAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=drop chain=input comment="Drop all Bogons" disabled=yes src-address-list=alist-fw-rfc-special
+/ip firewall filter add action=drop chain=forward comment="Drop all Bogons" disabled=yes src-address-list=alist-fw-rfc-special
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY2 disabled=yes log-prefix=~~~DUMMY2 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to RFC SSH Chain" disabled=yes jump-target=chain-ssh-staged-control
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-ban address-list-timeout=1w3d chain=chain-ssh-staged-control comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage3 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 3" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage2 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 2" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage1 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add intial attempt to SSH Stage 1 List" connection-state=new disabled=yes dst-port=22 protocol=tcp
+/ip firewall filter add action=return chain=chain-ssh-staged-control comment="Return From RFC SSH Chain" disabled=yes
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY3 disabled=yes log-prefix=~~~DUMMY3 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to RFC Telnet Chain" disabled=yes jump-target=chain-telnet-staged-control
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-ban address-list-timeout=1w3d chain=chain-telnet-staged-control comment="Transfer repeated attempts from Telnet Stage 3 to Black-List" connection-state=new disabled=yes dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage3 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 3" connection-state=new disabled=yes dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage2 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 2" connection-state=new disabled=yes dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage1 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add Intial attempt to Telnet Stage 1" connection-state=new disabled=yes dst-port=23 protocol=tcp
+/ip firewall filter add action=return chain=chain-telnet-staged-control comment="Return From RFC Telnet Chain" disabled=yes
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY4 disabled=yes log-prefix=~~~DUMMY4 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to RFC Winbox Chain" disabled=yes jump-target=chain-winbox-staged-control
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-ban address-list-timeout=1w3d chain=chain-winbox-staged-control comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage3 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 3" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage2 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 2" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage1 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add Intial attempt to Winbox Stage 1" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=!alist-fw-vpn-subnets
+/ip firewall filter add action=return chain=chain-winbox-staged-control comment="Return From RFC Winbox Chain" disabled=yes
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY5 disabled=yes log-prefix=~~~DUMMY5 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" disabled=yes protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" disabled=yes protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY6 disabled=yes log-prefix=~~~DUMMY6 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=1h chain=input comment=alist-fw-highload connection-limit=100,32 disabled=yes protocol=tcp
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=10h chain=forward comment=alist-fw-highload connection-limit=100,32 disabled=yes protocol=tcp
+/ip firewall filter add action=jump chain=input comment="Jump to Virus Chain" disabled=yes jump-target=chain-worms-detector
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Conficker disabled=yes dst-port=593 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=1024-1030 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm requester" disabled=yes dst-port=1363 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm server" disabled=yes dst-port=1364 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="screen cast" disabled=yes dst-port=1368 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=hromgrafx disabled=yes dst-port=1373 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" disabled=yes dst-port=1080 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=cichlid disabled=yes dst-port=1377 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=1433-1434 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" disabled=yes dst-port=2283 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle" disabled=yes dst-port=2535 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.C-K" disabled=yes dst-port=2745 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" disabled=yes dst-port=3127-3128 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Backdoor OptixPro" disabled=yes dst-port=3410 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Sasser" disabled=yes dst-port=5554 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=4444 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=4444 protocol=udp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.B" disabled=yes dst-port=8866 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dabber.A-B" disabled=yes dst-port=9898 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" disabled=yes dst-port=10000 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom.B" disabled=yes dst-port=10080 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop NetBus" disabled=yes dst-port=12345 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Kuang2" disabled=yes dst-port=17300 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop SubSeven" disabled=yes dst-port=27374 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop PhatBot, Agobot, Gaobot" disabled=yes dst-port=65506 protocol=tcp
+/ip firewall filter add action=return chain=chain-worms-detector comment="Return From Virus Chain" disabled=yes
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY7 disabled=yes log-prefix=~~~DUMMY7 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to \"Manage Common Ports\" Chain" disabled=yes jump-target=chain-self-common-ports
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All hosts on this subnet\" Broadcast" disabled=yes src-address=224.0.0.1
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All routers on this subnet\" Broadcast" disabled=yes src-address=224.0.0.2
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="DVMRP (Distance Vector Multicast Routing Protocol)" disabled=yes src-address=224.0.0.4
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - All OSPF Routers Broadcast" disabled=yes src-address=224.0.0.5
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - OSPF DR Routers Broadcast" disabled=yes src-address=224.0.0.6
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="RIP Broadcast" disabled=yes src-address=224.0.0.9
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="EIGRP Broadcast" disabled=yes src-address=224.0.0.10
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="PIM Broadcast" disabled=yes src-address=224.0.0.13
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="VRRP Broadcast" disabled=yes src-address=224.0.0.18
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.19
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.20
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.21
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IGMP Broadcast" disabled=yes src-address=224.0.0.22
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="GRE Protocol (Local Management)" disabled=yes protocol=gre
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer" disabled=yes log-prefix=~~~FTP port=20 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPcontrol (command)" disabled=yes log-prefix=~~~FTP port=21 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer  " disabled=yes log-prefix=~~~FTP port=20 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)" disabled=yes port=22 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)   " disabled=yes port=22 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet disabled=yes port=23 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet disabled=yes port=23 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem." disabled=yes port=24 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem.  " disabled=yes port=24 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)" disabled=yes port=25 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)  " disabled=yes port=25 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol" disabled=yes port=37 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol  " disabled=yes port=37 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol & WINS" disabled=yes port=42 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol  & WINS  " disabled=yes port=42 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" disabled=yes port=43 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" disabled=yes port=43 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" disabled=yes port=53 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" disabled=yes port=53 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Mail Transfer Protocol(RFC 780)" disabled=yes port=57 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Server & (DHCP)  " disabled=yes port=67 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Client & (DHCP)  " disabled=yes port=68 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Trivial File Transfer Protocol (TFTP)  " disabled=yes port=69 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Gopher protocol" disabled=yes port=70 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Finger protocol" disabled=yes port=79 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Hypertext Transfer Protocol (HTTP)" disabled=yes port=80 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="RemoteTELNETService protocol" disabled=yes port=107 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv2 (POP2)" disabled=yes port=109 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv3 (POP3)" disabled=yes port=110 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IdentAuthentication Service/Identification Protocol" disabled=yes port=113 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Authentication Service (auth)  " disabled=yes port=113 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple File Transfer Protocol (SFTP)" disabled=yes port=115 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Network Time Protocol(NTP)" disabled=yes port=123 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service" disabled=yes port=137 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service  " disabled=yes port=137 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service" disabled=yes port=138 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service  " disabled=yes port=138 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service" disabled=yes port=139 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service  " disabled=yes port=139 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP)" disabled=yes port=143 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)" disabled=yes port=152 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)  " disabled=yes port=152 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol" disabled=yes port=153 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol  " disabled=yes port=153 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol" disabled=yes port=158 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol  " disabled=yes port=158 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management Protocol(SNMP)  " disabled=yes port=161 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)" disabled=yes port=162 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " disabled=yes port=162 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGP (Border Gateway Protocol)" disabled=yes port=179 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" disabled=yes port=220 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" disabled=yes port=220 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol" disabled=yes port=264 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol  " disabled=yes port=264 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" disabled=yes port=389 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" disabled=yes port=389 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="SSTP TCP Port 443 (Local Management) & HTTPS" disabled=yes port=443 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Microsoft-DSActive Directory, Windows shares" disabled=yes port=445 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP/ IPSEC UDP Port 500 (Local Management)" disabled=yes port=500 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol" disabled=yes port=502 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol  " disabled=yes port=502 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Shell (Remote Shell, rsh, remsh)" disabled=yes port=514 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Syslog - used for system logging  " disabled=yes port=514 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Routing Information Protocol (RIP)  " disabled=yes port=520 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="e-mail message submission (SMTP)" disabled=yes port=587 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" disabled=yes port=646 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" disabled=yes port=646 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" disabled=yes port=989 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" disabled=yes port=989 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" disabled=yes port=990 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" disabled=yes port=990 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" disabled=yes port=992 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" disabled=yes port=992 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol over TLS/SSL (IMAPS)" disabled=yes port=993 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocol3 over TLS/SSL (POP3S)" disabled=yes port=995 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="OVPN TCP Port 1194 (Local Management)" disabled=yes port=1194 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="PPTP Port 1723 (Local Management)" disabled=yes port=1723 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 1701 (Local Management)" disabled=yes port=1701 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 4500 (Local Management)" disabled=yes port=4500 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="WINBOX TCP Port 8291 (Local Management)" disabled=yes port=8291 protocol=tcp
+/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" disabled=yes dst-port=137-138 log-prefix=~~~SMB protocol=udp src-address-list=alist-fw-smb-allow
+/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" disabled=yes dst-port=137,139 log-prefix=~~~SMB protocol=tcp src-address-list=alist-fw-smb-allow
+/ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related disabled=yes log-prefix="#ACCEPTED UNKNOWN (INPUT)"
+/ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new disabled=yes log-prefix="#ACCEPTED UNKNOWN (FWD)"
+/ip firewall filter add action=accept chain=input comment="Allow proxy on 8888" disabled=yes dst-port=8888 in-interface=main-infrastructure-br protocol=tcp
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY8 disabled=yes log-prefix=~~~DUMMY8 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=drop chain=input comment="Open proxy block" disabled=yes dst-port=8888 in-interface="wan A" protocol=tcp
+/ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new disabled=yes in-interface="wan A" log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
+/ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" disabled=yes log-prefix="#DROP UNKNOWN (FWD)"
+/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" disabled=yes log-prefix="#DROP UNKNOWN (INPUT)"
+/ip firewall mangle add action=change-mss chain=forward comment="DPI Hack: specific  for TVs to fix mss" disabled=yes dst-address-list=alist-mangle-byedpi-TV new-mss=88 protocol=tcp tcp-flags=syn
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1360 protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1360 protocol=tcp src-address-list=alist-fw-vpn-subnets tcp-flags=syn tcp-mss=1361-65535
@@ -1411,9 +1410,10 @@
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
 /ip proxy access add action=redirect action-data=grafana:3000 dst-host=grafana
 /ip proxy access add action=redirect action-data=influxdb:8000 dst-host=influxdb
-/ip route add comment="GLOBAL AKADO" disabled=no distance=50 dst-address=0.0.0.0/0 gateway=10.20.225.1 pref-src=192.168.90.1 routing-table=main scope=30 suppress-hw-offload=no target-scope=10
-/ip route add comment=GLOBAL-BYE-DPI disabled=no distance=10 dst-address=0.0.0.0/0 gateway=docker-infrastructure-br pref-src="" routing-table=rmark-docker-redirect scope=30 suppress-hw-offload=no target-scope=10
-/ip route add comment=GLOBAL-VPN disabled=no distance=1 dst-address=0.0.0.0/0 gateway=chr-tunnel pref-src=10.0.0.3 routing-table=rmark-vpn-redirect scope=20 suppress-hw-offload=no target-scope=10
+/ip route add check-gateway=ping comment="GLOBAL AKADO" disabled=no distance=50 dst-address=0.0.0.0/0 gateway=10.20.225.1 routing-table=main scope=30 suppress-hw-offload=no target-scope=10
+/ip route add comment=GLOBAL-BYE-DPI disabled=no distance=10 dst-address=0.0.0.0/0 gateway=docker-infrastructure-br routing-table=rmark-docker-redirect scope=30 suppress-hw-offload=no target-scope=10
+/ip route add comment=GLOBAL-VPN disabled=no distance=1 dst-address=0.0.0.0/0 gateway=chr-tunnel pref-src=10.0.0.3 routing-table=rmark-vpn-redirect scope=20 suppress-hw-offload=no target-scope=20
+/ip route add blackhole comment=OSPF-LOCAL-AREA-blackhole disabled=no distance=200 dst-address=192.168.97.0/29 gateway=chr-tunnel routing-table=main scope=30 suppress-hw-offload=no
 /ip service set telnet disabled=yes
 /ip service set api address=192.168.90.0/24
 /ip service set api-ssl disabled=yes
@@ -1430,9 +1430,7 @@
 /routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf) { set comment PENDING; }"
 /routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf && ospf-type intra) { set comment DISCARDED-INTRA-AREA ; reject; }"
 /routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0 ) { set comment DISCARDED-GLOBAL ; set pref-src 10.0.0.3 ; reject; }"
-/routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=yes rule="if ( protocol ospf && dst-len==0 && rtab main) { set comment DISCARDED-MAIN; reject; }"
-/routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter ) { set comment LOCAL-AREA ; set distance 20;  accept; }"
-/routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=yes rule="if ( protocol ospf && ospf-type inter && rtab rmark-vpn-redirect) { set comment DISCARDED-VPN ;  reject; }"
+/routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter ) { set comment OSPF-LOCAL-AREA ;  accept; }"
 /routing filter rule add chain=ospf-in comment="drop others" disabled=no rule="set comment UNKNOWN; reject;"
 /routing filter rule add chain=ospf-out-filter-reject-all comment="drop outgoing" disabled=no rule="set comment UNKNOWN; reject;"
 /routing ospf interface-template add area=backbone-main disabled=no interfaces=chr-tunnel type=ptp
@@ -1456,7 +1454,7 @@
 /system logging add action=OnScreenLog topics=smb
 /system logging add action=OnScreenLog topics=critical
 /system logging add action=DHCPOnScreenLog topics=dhcp
-/system logging add action=DNSOnScreenLog topics=dns
+/system logging add action=DNSOnScreenLog topics=dns,!packet
 /system logging add action=OSPFOnscreenLog topics=ospf,!raw
 /system logging add action=OnScreenLog topics=event
 /system logging add action=L2TPOnScreenLog topics=l2tp
@@ -1484,8 +1482,8 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.20 \
-    \nUptime:        7w3d21:54:49  \
-    \nTime:        2025-12-16 21:10:12  \
+    \nUptime:        2d09:24:01  \
+    \nTime:        2025-12-21 21:10:12  \
     \nPing:    8 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
@@ -1508,7 +1506,7 @@
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
 /system scheduler add interval=30m name=doHeatFlag on-event="/system script run doHeatFlag" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-07-10 start-time=15:10:00
 /system scheduler add interval=1h name=doCollectSpeedStats on-event="/system script run doCollectSpeedStats" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-07-13 start-time=03:25:00
-/system scheduler add interval=1h name=doCheckPingRate on-event="/system script run doCheckPingRate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-07-13 start-time=02:40:00
+/system scheduler add interval=1h name=doCheckPingRate on-event="/system script run doCheckPingRate" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-07-13 start-time=02:25:00
 /system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=23:30:00
 /system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
 /system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=11:31:24
@@ -2545,7 +2543,7 @@
     \n\
     \n    # ssh server attr\
     \n    :local dst \"185.13.148.14\";\
-    \n    :local port 2222;\
+    \n    :local port 2223;\
     \n    :local user \"automation\";\
     \n\
     \n    :local errorDef \"\";\
@@ -2709,414 +2707,549 @@
     \n\$globalScriptBeforeRun \$scriptname;\
     \n\r\
     \n"
-/system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n# protect from starting twice:\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \"doIPSECTest\";\
+/system script add comment="Punches IPSEC policies when they're not in 'established' state" dont-require-permissions=yes name=doIPSECPunch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# ============================================================\
+    \n# IPSec/L2TP Connection Monitor & Auto-Recovery Script\
+    \n# Version: 2.1\
+    \n# ============================================================\
     \n\
-    \n:global globalNoteMe;\
+    \n# === INITIALIZATION ===\
+    \n:global globalScriptBeforeRun\
+    \n:global globalNoteMe\
+    \n:global globalTgMessage\
     \n\
-    \n:local itsOk true;\
-    \n:local state \"\";\
+    \n# Prevent concurrent execution\
+    \n\$globalScriptBeforeRun \"doIPSECTest\"\
+    \n\
+    \n# === CONFIGURATION ===\
+    \n:local Config {\
+    \n    \"pingCount\"=10;\
+    \n    \"pingSuccessRate\"=80;\
+    \n    \"pingInterval\"=1000ms;\
+    \n    \"pingRetryDelay\"=20s;\
+    \n    \"maxRetryAttempts\"=3;\
+    \n    \"flushHour\"=23;\
+    \n    \"enableAutoRecovery\"=true\
+    \n}\
+    \n\
+    \n:local PingTrigger ((\$Config->\"pingCount\") * (\$Config->\"pingSuccessRate\") / 100)\
     \n\
     \n\
-    \n# ping trigger settings\
-    \n:local Pingcount 10\
-    \n:local PingSucRate 80\
-    \n:local Pingint 1000ms\
-    \n:local PingTrigger (\$Pingcount*\$PingSucRate/100)\
-    \n:local Pingresult\
-    \n# :log info \"PingTrigger is \$PingTrigger\"\
+    \n# Log with timestamp\
+    \n:local Log do={\
+    \n    :global globalNoteMe\
+    \n    :local message [:tostr \$1]\
+    \n    :local level [:tostr \$2]\
+    \n    :if ([:len \$level] = 0) do={ :set level \"info\" }\
+    \n    :local timestamp [/system clock get time]\
+    \n    :local fullMessage (\"[\" . \$timestamp . \"][\" . \$level . \"] \" . \$message)\
+    \n    \$globalNoteMe value=\$fullMessage\
+    \n  \
+    \n}\
     \n\
-    \n# ping test 2 delay\
-    \n:local PingTest2Delay 20s\
-    \n\
-    \n# local Script variables\
-    \n:local Time [/system clock get time]\
-    \n:local Hour [:pick \$Time 0 2]\
-    \n:local phase2counter 0\
-    \n:local CheckIPsec 0\
-    \n:local PoliciesOnline [/ip ipsec policy find active ph2-state=established ]\
-    \n:local PoliciesOffline [/ip ipsec policy find active ph2-state!=established ]\
-    \n\
-    \n# local Peer variables\
-    \n:local L2TPSession\
-    \n:local L2TPPeer\
-    \n:local L2TPDstadd\
-    \n:local L2TPSrcadd\
-    \n:local BadPeer\
-    \n:local BadPeerDst\
-    \n:local BadPeerSrc\
-    \n\
-    \n# global variables\
-    \n:global globalTroublesomePeers\
-    \n:global globalForceTroublesomePeersFlush\
-    \n\
-    \n# Define a global script/function to calculate IP details\
+    \n# Calculate IP details from CIDR\
     \n:local IPCalc do={\
-    \n    :local Input [:tostr \$1];\
-    \n    :local Address [:toip [:pick \$Input 0 [:find \$Input \"/\"]]];\
-    \n    :local Bits [:tonum [:pick \$Input ([:find \$Input \"/\"] + 1) [:len \$Input]]];\
-    \n    :local Mask ((255.255.255.255 << (32 - \$Bits)) & 255.255.255.255);\
-    \n    :local Return {\
-    \n        \"networkaddress\"=(\$Address & \$Mask);\
-    \n        \"hostmin\"=((\$Address & \$Mask) | 0.0.0.1);\
-    \n        \"broadcast\"=(\$Address | ~\$Mask);\
-    \n    }\
-    \n    :return \$Return;\
-    \n}\
-    \n\
-    \n\
-    \n# clear <Check IPsec Bad Peer List>\
-    \nif (\$Hour > 23) do={\
-    \n    :global globalTroublesomePeers [:toarray \"\"]\
-    \n\
-    \n    :set state \"Flush troublesome peers list (daily)\"\
-    \n    \$globalNoteMe value=\$state;\
-    \n}\
-    \n\
-    \n# manual clear <Check IPsec Bad Peer List>  >>  just set <globalForceTroublesomePeersFlush> to any value\
-    \nif ([:len \$globalForceTroublesomePeersFlush] > 0) do={\
-    \n    :global globalTroublesomePeers [:toarray \"\"]\
-    \n    :global globalForceTroublesomePeersFlush \"\"\
-    \n\
-    \n    :set state \"Flush troublesome peers list (manually)\"\
-    \n    \$globalNoteMe value=\$state;    \
-    \n}\
-    \n\
-    \n# Show Check IPsec Bad Peer List\
-    \nif ([:len \$globalTroublesomePeers] = 0) do={\
-    \n    :global globalTroublesomePeers [:toarray \"\"]\
-    \n} else={\
-    \n    foreach i in=\$globalTroublesomePeers do={\
-    \n\
-    \n        :set state \"Last check got troublesome peer: \$i (will skip it's session that time)\"\
-    \n        \$globalNoteMe value=\$state;       \
+    \n    :local cidr [:tostr \$1]\
+    \n    :local address [:toip [:pick \$cidr 0 [:find \$cidr \"/\"]]]\
+    \n    :local bits [:tonum [:pick \$cidr ([:find \$cidr \"/\"] + 1) [:len \$cidr]]]\
+    \n    :local mask ((255.255.255.255 << (32 - \$bits)) & 255.255.255.255)\
+    \n    :return {\
+    \n        \"network\"=(\$address & \$mask);\
+    \n        \"hostmin\"=((\$address & \$mask) | 0.0.0.1);\
+    \n        \"broadcast\"=(\$address | ~\$mask)\
     \n    }\
     \n}\
     \n\
-    \n# if can't find IPSec Tunnel Peers\
-    \nif ([:len \$PoliciesOffline] != 0) do={\
+    \n# Extract first IP from CIDR or return as-is\
+    \n:local ExtractIP do={\
+    \n    :local input [:tostr \$1]\
+    \n    :if ([:find \$input \"/\"] >= 0) do={\
+    \n        :return [:pick \$input 0 [:find \$input \"/\"]]\
+    \n    }\
+    \n    :return \$input\
+    \n}\
     \n\
-    \n    :set itsOk false;\
-    \n    :set state \"Active but non-established IPSEC policy found\"\
-    \n    \$globalNoteMe value=\$state;    \
+    \n# Find L2TP session info\
+    \n:local FindL2TPSession do={\
+    \n    :local dstIP [:tostr \$1]\
+    \n    :local result {\"found\"=false; \"type\"=\"none\"}\
     \n\
+    \n    # Incoming L2TP (server)\
+    \n    :local incoming [/ppp/active find caller-id=\$dstIP]\
+    \n    :if ([:len \$incoming] != 0) do={\
+    \n        :set (\$result->\"found\") true\
+    \n        :set (\$result->\"type\") \"incoming\"\
+    \n        :set (\$result->\"session\") \$incoming\
+    \n        :set (\$result->\"peer\") [/ppp/active get \$incoming name]\
+    \n        :set (\$result->\"remoteIP\") [/ppp/active get \$incoming address]\
+    \n        :local network [/ip/address get [find network=(\$result->\"remoteIP\")] address]\
+    \n        :set (\$result->\"localIP\") [:pick \$network 0 [:find \$network \"/\"]]\
+    \n        :return \$result\
+    \n    }\
     \n\
-    \n} else={\
+    \n    # Outgoing L2TP (client)\
+    \n    :local outgoing [/interface/l2tp-client find where running connect-to=\$dstIP]\
+    \n    :if ([:len \$outgoing] != 0) do={\
+    \n        :local monitor [/interface l2tp-client monitor \$outgoing once as-value]\
+    \n        :set (\$result->\"found\") true\
+    \n        :set (\$result->\"type\") \"outgoing\"\
+    \n        :set (\$result->\"session\") \$outgoing\
+    \n        :set (\$result->\"peer\") [/interface/l2tp-client get \$outgoing name]\
+    \n        :set (\$result->\"remoteIP\") (\$monitor->\"remote-address\")\
+    \n        :local network [/ip/address get [find network=(\$result->\"remoteIP\")] address]\
+    \n        :set (\$result->\"localIP\") [:pick \$network 0 [:find \$network \"/\"]]\
+    \n        :return \$result\
+    \n    }\
     \n\
-    \n    if ([:len \$PoliciesOnline] = 0) do={\
+    \n    :return \$result\
+    \n}\
     \n\
-    \n        :set itsOk false;\
-    \n        :set state \"No active (established) policies found\"\
-    \n        \$globalNoteMe value=\$state;    \
+    \n# Test connectivity with retry\
+    \n:local TestConnectivity do={\
+    \n    :local targetIP [:toip \$1]\
+    \n    :local sourceIP [:toip \$2]\
+    \n    :local count [:tonum \$3]\
+    \n    :local threshold [:tonum \$4]\
+    \n    :local retryDelay \$5\
     \n\
-    \n    }         \
-    \n }\
+    \n    :local result1 [/ping address=\$targetIP src-address=\$sourceIP count=\$count interval=1000ms]\
+    \n    :if (\$result1 >= \$threshold) do={\
+    \n        :return {\"success\"=true; \"attempts\"=1; \"received\"=\$result1; \"required\"=\$threshold}\
+    \n    }\
     \n\
+    \n    :delay \$retryDelay\
+    \n    :local result2 [/ping address=\$targetIP src-address=\$sourceIP count=\$count interval=1000ms]\
+    \n    :if (\$result2 >= \$threshold) do={\
+    \n        :return {\"success\"=true; \"attempts\"=2; \"received\"=\$result2; \"required\"=\$threshold}\
+    \n    }\
     \n\
-    \n# start detect bad IPSec peers\
-    \nif ([:len \$PoliciesOnline] > 0  and \$itsOk) do={\
-    \n    :foreach i in=\$PoliciesOnline do={\
-    \n        :local Dstadd \"\"\
-    \n        :local Srcadd \"\"        \
-    \n        :local L2TPSession \"\"\
-    \n        :local L2TPPeer \"\"\
-    \n        :local L2TPDstadd \"\"\
-    \n        :local L2TPSrcadd \"\"\
-    \n        :local L2TPNetwork \"\"\
-    \n        :local Pingresult \"\"\
-    \n        :local BadPeer \"\"\
-    \n        :local BadPeerDst \"\"\
-    \n        :local BadPeerSrc \"\"\
-    \n        :local ActivePeersForKill \"\"\
+    \n    :return {\"success\"=false; \"attempts\"=2; \"received\"=\$result2; \"required\"=\$threshold}\
+    \n}\
     \n\
-    \n        :local Peer [/ip ipsec policy get \$i peer]\
+    \n# Check route availability\
+    \n:local CheckRoute do={\
+    \n    :local dstIP [:toip \$1]\
+    \n    :local srcIP [:toip \$2]\
+    \n    :local check [/ip/route/check dst-ip=\$dstIP src-ip=\$srcIP once as-value]\
+    \n    :local status (\$check->\"status\")\
+    \n    :if (\$status = \"ok\") do={\
+    \n        :return {\
+    \n            \"reachable\"=true;\
+    \n            \"interface\"=(\$check->\"interface\");\
+    \n            \"gateway\"=(\$check->\"gateway\");\
+    \n            \"nexthop\"=(\$check->\"nexthop\")\
+    \n        }\
+    \n    }\
+    \n    :return {\"reachable\"=false; \"status\"=\$status}\
+    \n}\
     \n\
-    \n        :local Dstadd\
-    \n        :local Srcadd\
+    \n# Kill L2TP session\
+    \n:local KillL2TPSession do={\
+    \n    :local sessionInfo \$1\
+    \n    :local Log \$2\
+    \n    :if (!(\$sessionInfo->\"found\")) do={ :return false }\
+    \n\
+    \n    :do {\
+    \n        :if ((\$sessionInfo->\"type\") = \"incoming\") do={\
+    \n            /ppp/active remove (\$sessionInfo->\"session\")\
+    \n            :local msg (\"Killed incoming L2TP session: \" . (\$sessionInfo->\"peer\"))\
+    \n            \$Log \$msg\
+    \n        } else={\
+    \n            /interface/l2tp-client disable (\$sessionInfo->\"session\")\
+    \n            :delay 4s\
+    \n            /interface/l2tp-client enable (\$sessionInfo->\"session\")\
+    \n            :local msg (\"Restarted outgoing L2TP client: \" . (\$sessionInfo->\"peer\"))\
+    \n            \$Log \$msg\
+    \n        }\
+    \n        :return true\
+    \n    } on-error={\
+    \n        :local msg (\"FAILED to kill L2TP session for peer: \" . . (\$sessionInfo->\"peer\"))\
+    \n        \$Log \$msg \"error\"\
+    \n        :return false\
+    \n    }\
+    \n}\
+    \n\
+    \n# Kill IPSec active peers\
+    \n:local KillIPSecPeers do={\
+    \n    :local peerIP [:tostr \$1]\
+    \n    :local Log \$2\
+    \n    :local activePeers [/ip/ipsec/active-peers find remote-address=\$peerIP]\
+    \n\
+    \n    :if ([:len \$activePeers] = 0) do={\
+    \n        :local msg (\"No active IPSec peers found for \" . \$peerIP)\
+    \n        \$Log \$msg \"warning\"\
+    \n        :return false\
+    \n    }\
+    \n\
+    \n    :local killCount 0\
+    \n    :foreach peer in=\$activePeers do={\
+    \n        :do {\
+    \n            /ip/ipsec/active-peers remove \$peer\
+    \n            :set killCount (\$killCount + 1)\
+    \n        } on-error={ \
+    \n            :local err\
+    \n            :local msg (\"FAILED to kill IPSec peer: \" . \$peerIP)\
+    \n            \$Log \$msg \"error\"\
+    \n        }\
+    \n    }\
+    \n\
+    \n    :if (\$killCount > 0) do={\
+    \n        :local msg (\"Killed \" . \$killCount . \" IPSec active peer(s) for \" . \$peerIP)\
+    \n        \$Log \$msg\
+    \n        :return true\
+    \n    }\
+    \n\
+    \n    :return false\
+    \n}\
+    \n\
+    \n# Perform recovery actions\
+    \n:local RecoverPeer do={\
+    \n\
+    \n    :global globalPeerRetryCount\
+    \n    :local peerIP [:tostr \$1]\
+    \n    :local peerName [:tostr \$2]\
+    \n    :local l2tpSession \$3\
+    \n    :local Config \$4\
+    \n    :local Log \$5\
+    \n    :local KillL2TP \$6\
+    \n    :local KillIPSec \$7\
+    \n\
+    \n    :local retryCount (\$globalPeerRetryCount->\$peerIP)\
+    \n\
+    \n    :if ([:typeof \$retryCount] != \"num\") do={ :set retryCount 0 }\
     \n   \
-    \n        :local isTunnel [/ip ipsec policy get value-name=tunnel \$i]\
+    \n    :set retryCount (\$retryCount + 1)\
+    \n    :set (\$globalPeerRetryCount->\$peerIP) \$retryCount\
+    \n\
+    \n    :if (\$retryCount > (\$Config->\"maxRetryAttempts\")) do={\
+    \n        :local msg (\"Peer \" . \$peerName . \" (\" . \$peerIP . \") exceeded max retry attempts (\" . \$retryCount . \") - MANUAL INTERVENTION REQUIRED\")\
+    \n        \$Log \$msg \"error\"\
+    \n        :return false\
+    \n    }\
+    \n\
+    \n    :local startMsg (\"=== RECOVERY START: \" . \$peerName . \" (\" . \$peerIP . \") - Attempt \" . \$retryCount . \" ===\")\
+    \n    \$Log \$startMsg\
+    \n\
+    \n    :if ((\$l2tpSession->\"found\")) do={\
+    \n        :local killed [\$KillL2TP \$l2tpSession \$Log]\
+    \n        :if (\$killed) do={ :delay 2s }\
+    \n    }\
+    \n\
+    \n    :local ipsecKilled [\$KillIPSec \$peerIP \$Log]\
+    \n    :if (\$ipsecKilled) do={ :delay 2s }\
+    \n\
+    \n    :local endMsg (\"=== RECOVERY COMPLETE: \" . \$peerName . \" (\" . \$peerIP . \") ===\")\
+    \n    \$Log \$endMsg\
+    \n    :return true\
+    \n}\
+    \n\
+    \n# === MAIN EXECUTION ===\
+    \n\
+    \n\$Log \"=== IPSec/L2TP Connection Monitor Started ===\"\
+    \n\
+    \n:local PoliciesOnline [/ip/ipsec/policy find ( !template !disabled) ]\
+    \n\
+    \n:local msgPolicies (\"Found \" . [:len \$PoliciesOnline] . \" IPSec policies to investigate\")\
+    \n\$Log \$msgPolicies\
+    \n\
+    \n# === STATISTICS ===\
+    \n:local Stats {\
+    \n    \"totalPolicies\"=[:len \$PoliciesOnline];\
+    \n    \"testedPeers\"=0;\
+    \n    \"passedPeers\"=0;\
+    \n    \"failedPeers\"=0;\
+    \n    \"recoveredPeers\"=0;\
+    \n    \"skippedPeers\"=0\
+    \n}\
+    \n\
+    \n# === MAIN POLICY CHECK LOOP ===\
+    \n\
+    \n:foreach policy in=\$PoliciesOnline do={\
+    \n\
+    \n    :do {\
+    \n        :local peerName [/ip/ipsec/policy get \$policy peer]\
+    \n        :local isTunnel [/ip/ipsec/policy get \$policy tunnel]\
+    \n\
+    \n        :local isActive [/ip/ipsec/policy get \$policy active]\
+    \n        :local polState [/ip/ipsec/policy get \$policy ph2-state]\
+    \n\
+    \n\
+    \n        :local srcAddr\
+    \n        :local dstAddr\
+    \n\
     \n        :if (\$isTunnel) do={\
-    \n            :set Dstadd [/ip ipsec policy get value-name=sa-dst-address \$i]\
+    \n            :local dstSubnet [/ip/ipsec/policy get \$policy dst-address]\
+    \n            :local srcSubnet [/ip/ipsec/policy get \$policy src-address]\
+    \n            :local dstCalc [\$IPCalc \$dstSubnet]\
+    \n            :local srcCalc [\$IPCalc \$srcSubnet]\
+    \n            :set dstAddr (\$dstCalc->\"hostmin\")\
+    \n            :set srcAddr (\$srcCalc->\"hostmin\")\
+    \n        } else={\
+    \n            :set dstAddr [\$ExtractIP [/ip/ipsec/policy get \$policy dst-address]]\
+    \n            :set srcAddr [\$ExtractIP [/ip/ipsec/policy get \$policy src-address]]\
+    \n        }\
     \n\
-    \n            :local subnet [/ip ipsec policy get value-name=dst-address \$i];\
-    \n            :local calcResults [\$IPCalc \$subnet];\
-    \n            :set Dstadd  (\$calcResults->\"hostmin\");\
-    \n        } else {\
-    \n            :set Dstadd [/ip ipsec policy get value-name=dst-address \$i]\
-    \n            :set Dstadd  [:pick \$Dstadd 0 [:find \$Dstadd \"/\"]] \
-    \n        }      \
+    \n        :set (\$Stats->\"testedPeers\") ((\$Stats->\"testedPeers\") + 1)\
     \n\
-    \n        :if (\$isTunnel) do={\
-    \n            :set Srcadd [/ip ipsec policy get value-name=sa-src-address \$i]\
+    \n        :local testMsg (\"Examine Peer \" . \$peerName . \" (\" . \$dstAddr . \")\")\
+    \n        \$Log \$testMsg\
     \n\
-    \n            :local subnet [/ip ipsec policy get value-name=src-address \$i];\
-    \n            :local calcResults [\$IPCalc \$subnet];\
-    \n            :set Srcadd  (\$calcResults->\"hostmin\");\
-    \n        } else {\
-    \n            :set Srcadd [/ip ipsec policy get value-name=src-address \$i]\
-    \n            :set Srcadd  [:pick \$Srcadd 0 [:find \$Srcadd \"/\"]] \
-    \n        }      \
+    \n        :if (!\$isActive) do={\
     \n\
-    \n        :local L2TPSession [/ppp/active find caller-id=\$Dstadd]\
+    \n            :local errL2tp (\"Non-active policy investigated for \" . \$peerName . \"\")\
+    \n            \$Log \$errL2tp \"error\"\
+    \n            :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n            :error \"skip-continue\"\
+    \n\
+    \n        }\
+    \n\
+    \n        :if ( \$polState!=\"established\" ) do={\
+    \n\
+    \n            :local errL2tp (\"Non-established policy investigated for \" . \$peerName . \"\")\
+    \n            \$Log \$errL2tp \"error\"\
+    \n            :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n            :error \"skip-continue\"\
+    \n\
+    \n        }\
+    \n\
+    \n        # 1) Looking for host L2TP session\
+    \n        :local l2tpInfo [\$FindL2TPSession \$dstAddr]\
+    \n\
+    \n        :local policyDstIP \$dstAddr\
+    \n        :local policySrcIP \$srcAddr\
+    \n\
+    \n        :local mustUseL2TP false\
     \n        \
-    \n        :delay 1s\
+    \n        :local l2tpIf \"\"\
+    \n        :local l2tpRouteIf \"\"\
+    \n        :local policyRouteIf \"\"\
     \n\
-    \n        if ([:len \$L2TPSession] != 0) do={\
-    \n \
-    \n            :set state \"Found active L2TP Incoming Active Connection fo peer \$Peer (dst IP \$Dstadd)\"\
-    \n            \$globalNoteMe value=\$state;   \
+    \n        :if ((\$l2tpInfo->\"found\")) do={\
+    \n            :local l2tpMsg (\"Active \". (\$l2tpInfo->\"type\") . \" L2TP host-tunnel found for IPSEC: \" . (\$l2tpInfo->\"peer\"))\
+    \n            \$Log \$l2tpMsg\
     \n\
-    \n            :set L2TPPeer [/ppp/active get \$L2TPSession name]\
-    \n            :set L2TPDstadd [/ppp/active get \$L2TPSession address]\
-    \n            :set L2TPNetwork [/ip/address/ get [find network=\$L2TPDstadd] address]\
-    \n            :set L2TPSrcadd [:pick \$L2TPNetwork 0 [:find \$L2TPNetwork \"/\"]]\
-    \n            :delay 1s\
-    \n            \
-    \n            :set state \"Incoming L2TP: Trying for ping L2TP > \$L2TPPeer : \$L2TPDstadd : \$L2TPSrcadd\"\
-    \n            \$globalNoteMe value=\$state;   \
+    \n            :local L2TPDstadd (\$l2tpInfo->\"remoteIP\")\
+    \n            :local L2TPSrcadd (\$l2tpInfo->\"localIP\")\
+    \n            :set mustUseL2TP true\
+    \n            :set l2tpIf (\$l2tpInfo->\"peer\")\
+    \n\
+    \n            :set l2tpMsg \"Looking for specific (l2tp) routes to \$L2TPDstadd from \$L2TPSrcadd\"\
+    \n            \$Log \$l2tpMsg\
+    \n\
+    \n            # we need specific route in the main table to that subnet\
+    \n            :local l2tpRouteCheck [\$CheckRoute \$L2TPDstadd \$L2TPSrcadd]\
+    \n            :if (!(\$l2tpRouteCheck->\"reachable\")) do={\
+    \n\
+    \n                :local errL2tp (\"Cannot find specific route (l2tp) to \" . \$L2TPDstadd . \" from \" . \$L2TPSrcadd . \" - status: \" . (\$l2tpRouteCheck->\"status\"))\
+    \n                \$Log \$errL2tp \"error\"\
+    \n                :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n                :error \"skip-continue\"\
+    \n\
+    \n            } else={\
+    \n\
+    \n                :set l2tpRouteIf (\$l2tpRouteCheck->\"interface\")\
+    \n                :local okL2tp (\"Found specific route (l2tp) to \" . \$L2TPDstadd .  \" from \" . \$L2TPSrcadd . \" via \" . (\$l2tpRouteCheck->\"nexthop\") . \" (\" . \$l2tpRouteIf . \")\")\
+    \n                \$Log \$okL2tp\
+    \n\
+    \n            }\
+    \n\
+    \n            :set policyDstIP \$L2TPDstadd\
+    \n            :set policySrcIP \$L2TPSrcadd\
+    \n        \
+    \n        } else={\
+    \n\
+    \n            :if (!\$isTunnel) do={\
+    \n                # on transtort mode l2tp session have to exist (just a local convinience)\
+    \n                :local errL2tp (\"No active L2TP host-tunnel found for IPSEC peer - \" . \$peerName . \" (on transport policy l2tp session have to exist)\")\
+    \n                \$Log \$errL2tp \"error\"\
+    \n                :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n                :error \"skip-continue\"\
+    \n\
+    \n            } else={\
+    \n                :local l2tpMsg (\"No active L2TP host-tunnel found for IPSEC peer - \" . \$peerName . \" (pure IPSEC, tunneled=\$isTunnel)\")\
+    \n                \$Log \$l2tpMsg\
+    \n            }\
+    \n\
+    \n        }\
+    \n\
+    \n\
+    \n        :local polMsg \"Looking for specific (policy) routes to \$policyDstIP from \$policySrcIP\"\
+    \n        \$Log \$polMsg\
+    \n\
+    \n        # 2) Policy route check\
+    \n\
+    \n        # we need specific route in the main table to that subnet\
+    \n        :local policyRouteCheck [\$CheckRoute \$policyDstIP \$policySrcIP]\
+    \n        :if (!(\$policyRouteCheck->\"reachable\")) do={\
+    \n\
+    \n            :local errPol (\"Cannot find specific route (policy) to \" . \$policyDstIP . \" from \" . \$policySrcIP . \" - status: \" . (\$policyRouteCheck->\"status\"))\
+    \n            \$Log \$errPol \"error\"\
+    \n            :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n            :error \"skip-continue\"\
     \n\
     \n        } else={\
     \n\
-    \n            :set L2TPSession [/interface/l2tp-client find where running and connect-to=\$Dstadd]\
+    \n            :set policyRouteIf (\$policyRouteCheck->\"interface\")\
+    \n            :local okPol (\"Found specific route (policy) to \" . \$policyDstIP .  \" from \" . \$policySrcIP . \" via \" . (\$policyRouteCheck->\"nexthop\") . \" (\" . \$policyRouteIf . \")\")\
+    \n            \$Log \$okPol\
     \n\
-    \n            if ([:len \$L2TPSession] != 0) do={\
-    \n        \
-    \n                    :set state \"Found active Outgoing L2TP Active Connection fo peer \$Peer (dst IP \$Dstadd)\"\
-    \n                    \$globalNoteMe value=\$state;   \
+    \n                # 3) both routes have to be via the same catched L2TP interface\\gw\
+    \n            :if (\$mustUseL2TP) do={\
     \n\
-    \n                    :set L2TPPeer [/interface/l2tp-client get \$L2TPSession name]\
-    \n                    :local monitorData ([/interface l2tp-client monitor \$L2TPSession once as-value])\
+    \n                :local pingMsg \"Checking policy-l2tp routes' interfaces match\"\
+    \n                \$Log \$pingMsg\
     \n\
-    \n                    :set L2TPDstadd (\$monitorData->\"remote-address\")\
-    \n                    :set L2TPNetwork [/ip/address/ get [find network=\$L2TPDstadd] address]\
-    \n                    :set L2TPSrcadd [:pick \$L2TPNetwork 0 [:find \$L2TPNetwork \"/\"]]\
-    \n                    :delay 1s\
-    \n\
-    \n                    :set state \"Outgoing L2TP: Trying for ping L2TP > \$L2TPPeer : \$L2TPDstadd : \$L2TPSrcadd\"\
-    \n                    \$globalNoteMe value=\$state;   \
+    \n                # \D0\9E\D0\B1\D0\B0 \D0\BC\D0\B0\D1\80\D1\88\D1\80\D1\83\D1\82\D0\B0 (policy \D0\B8 test) \D0\B4\D0\BE\D0\BB\D0\B6\D0\BD\D1\8B \D0\B1\D1\8B\D1\82\D1\8C \D1\87\D0\B5\D1\80\D0\B5\D0\B7 L2TP\E2\80\91\D0\B8\D0\BD\D1\82\D0\B5\D1\80\D1\84\D0\B5\D0\B9\D1\81\
+    \n                :if ((\$policyRouteIf != \$l2tpIf) or (\$l2tpRouteIf != \$l2tpIf)) do={\
+    \n                    :local errIf (\"Found routes mismatch (policy via \" . \$policyRouteIf . \", l2tp via \" . \$l2tpRouteIf . \", expected \" . \$l2tpIf . \")\")\
+    \n                    \$Log \$errIf \"error\"\
+    \n                    :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n                    :error \"skip-continue\"\
     \n\
     \n                } else={\
     \n\
+    \n                    :local rL2tp (\"Found routes' interfaces are the same on L2TP \" . \$l2tpIf . \" and Policy \" . \$peerName )\
+    \n                    \$Log \$rL2tp\
+    \n\
+    \n                    :set rL2tp (\"Pinging remote IP \" . \$policyDstIP )\
+    \n                    \$Log \$rL2tp\
+    \n\
+    \n                    :local pingResult [\$TestConnectivity \$policyDstIP \$policySrcIP (\$Config->\"pingCount\") \$PingTrigger (\$Config->\"pingRetryDelay\")]\
+    \n                    :if ((\$pingResult->\"success\")) do={\
+    \n                        \
+    \n                        :local pMsg (\"PASS: Ping test successful \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" (\" . (\$pingResult->\"attempts\") . \" attempt(s))\")\
+    \n                        \$Log \$pMsg\
+    \n\
+    \n                        :set (\$Stats->\"passedPeers\") ((\$Stats->\"passedPeers\") + 1)\
+    \n\
+    \n                        # :set (\$globalPeerRetryCount->\$dstAddr) 0\
+    \n                    } else={\
+    \n\
+    \n                        :local fMsg (\"FAIL: Ping test failed \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" after \" . (\$pingResult->\"attempts\") . \" attempts\")\
+    \n\
+    \n                        :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n\
+    \n                        :if ((\$Config->\"enableAutoRecovery\")) do={\
+    \n                            :local recovered [\$RecoverPeer \$dstAddr \$peerName \$l2tpInfo \$Config \$Log \$KillL2TPSession \$KillIPSecPeers]\
+    \n                            :if (\$recovered) do={\
+    \n\
+    \n                                :set (\$Stats->\"recoveredPeers\") ((\$Stats->\"recoveredPeers\") + 1)\
+    \n\
+    \n                            }\
+    \n                        } else={\
+    \n                            \$Log \"Auto-recovery disabled - manual intervention required\" \"warning\"\
+    \n                        }\
+    \n\
+    \n                        \$Log \$fMsg \"error\"\
+    \n                        :error \"skip-continue\"\
+    \n\
+    \n                    }\
+    \n                }\
+    \n            \
+    \n            } else={\
+    \n\
+    \n                :local pingMsg \"Skip policy-l2tp routes' interfaces match - no active L2TP host-tunnel available\"\
+    \n                \$Log \$pingMsg\
+    \n\
+    \n                :local rL2tp (\"Pinging remote IP \" . \$policyDstIP )\
+    \n                \$Log \$rL2tp\
+    \n\
+    \n                :local pingResult [\$TestConnectivity \$policyDstIP \$policySrcIP (\$Config->\"pingCount\") \$PingTrigger (\$Config->\"pingRetryDelay\")]\
+    \n                :if ((\$pingResult->\"success\")) do={\
+    \n                    \
+    \n                    :local pMsg (\"PASS: Ping test successful \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" (\" . (\$pingResult->\"attempts\") . \" attempt(s))\")\
+    \n                    \$Log \$pMsg\
+    \n\
+    \n                    :set (\$Stats->\"passedPeers\") ((\$Stats->\"passedPeers\") + 1)\
+    \n\
+    \n                    # :set (\$globalPeerRetryCount->\$dstAddr) 0\
+    \n                } else={\
+    \n\
+    \n                    :local fMsg (\"FAIL: Ping test failed \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" after \" . (\$pingResult->\"attempts\") . \" attempts\")\
+    \n \
+    \n                    :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n\
+    \n                    :if ((\$Config->\"enableAutoRecovery\")) do={\
+    \n                        :local recovered [\$RecoverPeer \$dstAddr \$peerName \$l2tpInfo \$Config \$Log \$KillL2TPSession \$KillIPSecPeers]\
+    \n                        :if (\$recovered) do={\
+    \n\
+    \n                            :set (\$Stats->\"recoveredPeers\") ((\$Stats->\"recoveredPeers\") + 1)\
+    \n\
+    \n                        }\
+    \n                    } else={\
+    \n                        \$Log \"Auto-recovery disabled - manual intervention required\" \"warning\"\
+    \n                    }\
+    \n                   \
+    \n                    \$Log \$fMsg \"error\"\
+    \n                    :error \"skip-continue\"\
     \n\
     \n                }\
     \n\
-    \n        }\
-    \n\
-    \n\
-    \n\
-    \n        # ping phase 1\
-    \n        if ([:len \$L2TPSession] != 0) do={\
-    \n\
-    \n            :set state \"Testing routes to \$L2TPDstadd from \$L2TPSrcadd\"\
-    \n            \$globalNoteMe value=\$state;  \
-    \n\
-    \n            # we need specific route in the main table to that subnet \
-    \n            :local Traceresult [ /ip/route/check dst-ip=\$L2TPDstadd src-ip=\$L2TPSrcadd once as-value proplist=interface,status ]\
-    \n            :local Trace ( \$Traceresult->\"status\" );\
-    \n\
-    \n            if ( \$Trace != \"ok\") do={\
-    \n\
-    \n                :set itsOk false;\
-    \n                :set state \"We need specific route in the main table to \$L2TPDstadd but we haven't: check OSPF, static routes and routing rules\"\
-    \n                \$globalNoteMe value=\$state;  \
-    \n\
-    \n            } else={\
-    \n\
-    \n                :local iface ( \$Traceresult->\"interface\" );\
-    \n\
-    \n                :set state \"Found route to \$L2TPDstadd via \$iface\"\
-    \n                \$globalNoteMe value=\$state;  \
-    \n\
-    \n                :set state \"Testing L2TP IPs connectivity: Start ping \$L2TPDstadd from \$L2TPSrcadd (\$Dstadd from \$Srcadd)\"\
-    \n                \$globalNoteMe value=\$state;   \
-    \n\
-    \n                :set Pingresult [/ping address=\$L2TPDstadd src-address=\$L2TPSrcadd count=\$Pingcount interval=\$Pingint]\
-    \n\
-    \n                :set state \"Ping result is: \$Pingresult Ping trigger is: \$PingTrigger\"\
-    \n                \$globalNoteMe value=\$state;   \
-    \n\
     \n            }\
     \n\
-    \n        } else={\
+    \n        } \
     \n\
-    \n            :set state \"Testing routes to \$Dstadd from \$Srcadd\"\
-    \n            \$globalNoteMe value=\$state;  \
+    \n        \$Log \"Continue next\"\
     \n\
-    \n            # we need specific route in the main table to that subnet \
-    \n            :local Traceresult [ /ip/route/check dst-ip=\$Dstadd src-ip=\$Srcadd once as-value proplist=interface,status ]\
-    \n            :local Trace ( \$Traceresult->\"status\" );\
+    \n    } on-error={ \
     \n\
-    \n            if ( \$Trace != \"ok\") do={\
+    \n        # just go next policy\
+    \n        \$Log \"Continue next (in case of skip or erros)\" \"warning\"\
     \n\
-    \n                :set itsOk false;\
-    \n                :set state \"We need specific route in the main table to \$Dstadd but we haven't: check OSPF, static routes and routing rules\"\
-    \n                \$globalNoteMe value=\$state;  \
-    \n\
-    \n            } else={\
-    \n\
-    \n                :local iface ( \$Traceresult->\"interface\" );\
-    \n\
-    \n                :set state \"Found route to \$Dstadd via \$iface\"\
-    \n                \$globalNoteMe value=\$state;  \
-    \n\
-    \n                :set state \"Testing IPSEC IPs connectivity: Start ping \$Dstadd from \$Srcadd\"\
-    \n                \$globalNoteMe value=\$state;   \
-    \n\
-    \n                :set Pingresult [/ping address=\$Dstadd src-address=\$Srcadd count=\$Pingcount interval=\$Pingint]\
-    \n\
-    \n                :set state \"Ping result is: \$Pingresult Ping trigger is: \$PingTrigger\"\
-    \n                \$globalNoteMe value=\$state;   \
-    \n\
-    \n            }\
-    \n\
-    \n\
-    \n        }\
-    \n         \
-    \n         # reset phase\
-    \n        if (\$itsOk and ( \$Pingresult < \$PingTrigger or [:len \$Pingresult] = 0 )) do={\
-    \n                       \
-    \n            :set BadPeer \$Peer\
-    \n            :set BadPeerDst \$Dstadd\
-    \n            :set BadPeerSrc \$Srcadd\
-    \n            \
-    \n            :set state \"Candidate > \$BadPeer : \$L2TPPeer  > Ping result is: \$Pingresult Ping trigger is: \$PingTrigger\"\
-    \n            \$globalNoteMe value=\$state;   \
-    \n           \
-    \n            # find Bad Peer in Bad Peer List if yes > skip reset phase           \
-    \n            :local BadPeerFindResult [:find \$globalTroublesomePeers \$BadPeerDst]\
-    \n            if ([:typeof \$BadPeerFindResult] = \"num\") do={\
-    \n                \
-    \n                :set CheckIPsec 1\
-    \n                \
-    \n                :set state \"SKIP RESET FOR > \$BadPeer : \$L2TPPeer > Find in <Bad Peer List> with index=\$BadPeerFindResult > Reset is disabled for this Peer\"\
-    \n                \$globalNoteMe value=\$state;   \
-    \n\
-    \n\
-    \n            } else={\
-    \n                # start reset\
-    \n                if ([:len \$BadPeer] !=0) do={\
-    \n\
-    \n\
-    \n                    :set CheckIPsec 1\
-    \n\
-    \n                    :delay 1s\
-    \n                    # kill L2TP Sesson\
-    \n                    if ([:len \$L2TPSession] != 0 ) do={\
-    \n                        :do {\
-    \n\
-    \n                            :set state \"STEP: Killing L2TP active connection > \$BadPeer : \$L2TPPeer (\$BadPeerDst)\"\
-    \n                            \$globalNoteMe value=\$state;   \
-    \n\
-    \n                            /ppp/active remove \$L2TPSession\
-    \n\
-    \n                            :set state \"Done\"\
-    \n                            \$globalNoteMe value=\$state;   \
-    \n\
-    \n                        } on-error={\
-    \n\
-    \n                            :set state \"Fail\"\
-    \n                            \$globalNoteMe value=\$state;   \
-    \n\
-    \n                        } \
-    \n                    }\
-    \n\
-    \n                    :delay 1s\
-    \n\
-    \n                    # find and kill all Active Peers with peer dst\
-    \n                    :set ActivePeersForKill [/ip ipsec active-peers find remote-address=\$BadPeerDst]\
-    \n                    if ([:len \$ActivePeersForKill] != 0) do={\
-    \n                        :do {\
-    \n\
-    \n                            :set state \"STEP: Killing IPSEC active peers > \$BadPeer : \$L2TPPeer (\$BadPeerDst, \$ActivePeersForKill)\"\
-    \n                            \$globalNoteMe value=\$state;   \
-    \n\
-    \n                            :foreach i in=\$ActivePeersForKill do={\
-    \n                                /ip/ipsec/active-peers remove \$i\
-    \n                                :set state \"Done\"\
-    \n                                \$globalNoteMe value=\$state;   \
-    \n\
-    \n                            }\
-    \n\
-    \n                        } on-error={\
-    \n                            \
-    \n                            :set state \"Fail\"\
-    \n                            \$globalNoteMe value=\$state;   \
-    \n\
-    \n                        }   \
-    \n                    }\
-    \n                    :delay 1s\
-    \n                    :set \$globalTroublesomePeers (\$globalTroublesomePeers, \$BadPeerDst)\
-    \n \
-    \n                    :set state \"Dst-Address: \$BadPeerDst added to bad peer list.\"\
-    \n                    \$globalNoteMe value=\$state;   \
-    \n\
-    \n                    :delay 1s\
-    \n \
-    \n                    :set state \"RESET PHASE 1 FOR \$BadPeer : \$L2TPPeer : \$BadPeerDst : \$L2TPDstadd > Complete!\"\
-    \n                    \$globalNoteMe value=\$state;   \
-    \n\
-    \n                } \
-    \n            }\
-    \n        } else={\
-    \n\
-    \n            :local FindResult [:find \$globalTroublesomePeers \$Dstadd]\
-    \n\
-    \n            if ([:typeof \$FindResult] = \"num\") do={\
-    \n\
-    \n                :set state \"\$Dstadd in <Bad Peer List> with nuber: \$FindResult\"\
-    \n                \$globalNoteMe value=\$state;   \
-    \n\
-    \n                :delay 1s\
-    \n                :local LenOfList [:len \$globalTroublesomePeers]\
-    \n                :local ArrgPosition [:find \$globalTroublesomePeers \$Dstadd -1]\
-    \n                :set globalTroublesomePeers ([:pick \$globalTroublesomePeers 0 \$ArrgPosition],[:pick \$globalTroublesomePeers (\$ArrgPosition + 1) \$LenOfList]) \
-    \n\
-    \n                :set state \"Bad peer \$Peer : \$L2TPPeer : \$Dstadd is UP! > And deleted from <Bad Peer List>!\"\
-    \n                \$globalNoteMe value=\$state;   \
-    \n            }\
-    \n        }\
     \n    }\
+    \n\
+    \n\
     \n}\
     \n\
-    \n# test if we fix it\
-    \n:local PoliciesOnline [/ip ipsec policy find active ph2-state=established ]\
-    \n:local PoliciesOffline [/ip ipsec policy find active ph2-state!=established ]\
+    \n# === POST-CHECK VALIDATION ===\
     \n\
-    \nif ([:len \$PoliciesOffline] != 0 and !\$itsOk) do={\
+    \n\$Log \"Waiting for system to come up after autorecovery\"\
     \n\
-    \n    :set itsOk false;\
-    \n    :set state \"Active but non-established IPSEC policy found after punch\"\
+    \n:delay 5s\
+    \n:local PoliciesOnlineAfter [/ip/ipsec/policy find active ph2-state=established]\
+    \n:local PoliciesOfflineAfter [/ip/ipsec/policy find ( !template !disabled ph2-state!=established) ]\
     \n\
+    \n# === FINAL SUMMARY ===\
     \n\
+    \n\$Log \"=== TEST SUMMARY ===\"\
+    \n\
+    \n:local sumMsg1 (\"Total policies: \" . (\$Stats->\"totalPolicies\"))\
+    \n\$Log \$sumMsg1\
+    \n\
+    \n:local sumMsg2 (\"Tested: \" . (\$Stats->\"testedPeers\") . \" | Passed: \" . (\$Stats->\"passedPeers\") . \" | Failed: \" . (\$Stats->\"failedPeers\"))\
+    \n\$Log \$sumMsg2\
+    \n\
+    \n:local sumMsg3 (\"Recovered: \" . (\$Stats->\"recoveredPeers\") . \" | Skipped: \" . (\$Stats->\"skippedPeers\"))\
+    \n\$Log \$sumMsg3\
+    \n\
+    \n:local sumMsg4 (\"Policies after check: Online=\" . [:len \$PoliciesOnlineAfter] . \" | Offline=\" . [:len \$PoliciesOfflineAfter])\
+    \n\$Log \$sumMsg4\
+    \n\
+    \n# === RESULT ===\
+    \n\
+    \n:local testPassed true\
+    \n:local errorMessage \"\"\
+    \n\
+    \n:if ((\$Stats->\"failedPeers\") > 0) do={\
+    \n    :set testPassed false\
+    \n    :set errorMessage ((\$Stats->\"failedPeers\") . \" peer(s) failed connectivity test\")\
+    \n}\
+    \n\
+    \n:if ([:len \$PoliciesOfflineAfter] != 0) do={\
+    \n    :set testPassed false\
+    \n    :set errorMessage (\$errorMessage . \"; \" . [:len \$PoliciesOfflineAfter] . \" policies offline after recovery\")\
+    \n}\
+    \n\
+    \n:if (\$testPassed) do={\
+    \n    \$Log \"=== IPSec/L2TP Monitor: ALL CHECKS PASSED ===\" \"info\"\
     \n} else={\
+    \n    \$Log \"=== IPSec/L2TP Monitor: FAILURES DETECTED ===\" \"error\"\
+    \n    :local errLog (\"Error: \" . \$errorMessage)\
+    \n    \$Log \$errLog \"error\"\
     \n\
-    \n    if ([:len \$PoliciesOnline] = 0 and !\$itsOk) do={\
+    \n    :local tgMsg (\"IPSec Monitor ALERT: \" . \$errorMessage)\
+    \n    \$globalTgMessage value=\$tgMsg\
     \n\
-    \n        :set itsOk false;\
-    \n        :set state \"No active (established) policies found\"\
-    \n\
-    \n    }         \
-    \n }\
-    \n\
-    \n:local inf \"\"\
-    \n:if (\$itsOk) do={\
-    \n  :set inf \"IPSEC Test completed Successfully\"\
-    \n}\
-    \n\
-    \n:if (!\$itsOk) do={\
-    \n  :set inf \"Error When testing IPSEC: \$state\"  \
-    \n}\
-    \n\
-    \n\$globalNoteMe value=\$inf\
-    \n\
-    \n:if (!\$itsOk) do={\
-    \n\
-    \n  :global globalTgMessage;\
-    \n  \$globalTgMessage value=\$inf;\
-    \n  :error \$inf; \
-    \n  \
+    \n    :error \$errorMessage\
     \n}\
     \n"
 /system script add comment="A template to track hotspot users" dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
@@ -5156,6 +5289,550 @@
     \n  }\
     \n\
     \n\
+    \n"
+/system script add dont-require-permissions=yes name=script1 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# ============================================================\
+    \n# IPSec/L2TP Connection Monitor & Auto-Recovery Script\
+    \n# Version: 2.1\
+    \n# ============================================================\
+    \n\
+    \n# === INITIALIZATION ===\
+    \n:global globalScriptBeforeRun\
+    \n:global globalNoteMe\
+    \n:global globalTgMessage\
+    \n\
+    \n# Prevent concurrent execution\
+    \n\$globalScriptBeforeRun \"doIPSECTest\"\
+    \n\
+    \n# === CONFIGURATION ===\
+    \n:local Config {\
+    \n    \"pingCount\"=10;\
+    \n    \"pingSuccessRate\"=80;\
+    \n    \"pingInterval\"=1000ms;\
+    \n    \"pingRetryDelay\"=20s;\
+    \n    \"maxRetryAttempts\"=3;\
+    \n    \"flushHour\"=23;\
+    \n    \"enableAutoRecovery\"=true\
+    \n}\
+    \n\
+    \n:local PingTrigger ((\$Config->\"pingCount\") * (\$Config->\"pingSuccessRate\") / 100)\
+    \n\
+    \n\
+    \n# Log with timestamp\
+    \n:local Log do={\
+    \n    :global globalNoteMe\
+    \n    :local message [:tostr \$1]\
+    \n    :local level [:tostr \$2]\
+    \n    :if ([:len \$level] = 0) do={ :set level \"info\" }\
+    \n    :local timestamp [/system clock get time]\
+    \n    :local fullMessage (\"[\" . \$timestamp . \"][\" . \$level . \"] \" . \$message)\
+    \n    \$globalNoteMe value=\$fullMessage\
+    \n  \
+    \n}\
+    \n\
+    \n# Calculate IP details from CIDR\
+    \n:local IPCalc do={\
+    \n    :local cidr [:tostr \$1]\
+    \n    :local address [:toip [:pick \$cidr 0 [:find \$cidr \"/\"]]]\
+    \n    :local bits [:tonum [:pick \$cidr ([:find \$cidr \"/\"] + 1) [:len \$cidr]]]\
+    \n    :local mask ((255.255.255.255 << (32 - \$bits)) & 255.255.255.255)\
+    \n    :return {\
+    \n        \"network\"=(\$address & \$mask);\
+    \n        \"hostmin\"=((\$address & \$mask) | 0.0.0.1);\
+    \n        \"broadcast\"=(\$address | ~\$mask)\
+    \n    }\
+    \n}\
+    \n\
+    \n# Extract first IP from CIDR or return as-is\
+    \n:local ExtractIP do={\
+    \n    :local input [:tostr \$1]\
+    \n    :if ([:find \$input \"/\"] >= 0) do={\
+    \n        :return [:pick \$input 0 [:find \$input \"/\"]]\
+    \n    }\
+    \n    :return \$input\
+    \n}\
+    \n\
+    \n# Find L2TP session info\
+    \n:local FindL2TPSession do={\
+    \n    :local dstIP [:tostr \$1]\
+    \n    :local result {\"found\"=false; \"type\"=\"none\"}\
+    \n\
+    \n    # Incoming L2TP (server)\
+    \n    :local incoming [/ppp/active find caller-id=\$dstIP]\
+    \n    :if ([:len \$incoming] != 0) do={\
+    \n        :set (\$result->\"found\") true\
+    \n        :set (\$result->\"type\") \"incoming\"\
+    \n        :set (\$result->\"session\") \$incoming\
+    \n        :set (\$result->\"peer\") [/ppp/active get \$incoming name]\
+    \n        :set (\$result->\"remoteIP\") [/ppp/active get \$incoming address]\
+    \n        :local network [/ip/address get [find network=(\$result->\"remoteIP\")] address]\
+    \n        :set (\$result->\"localIP\") [:pick \$network 0 [:find \$network \"/\"]]\
+    \n        :return \$result\
+    \n    }\
+    \n\
+    \n    # Outgoing L2TP (client)\
+    \n    :local outgoing [/interface/l2tp-client find where running connect-to=\$dstIP]\
+    \n    :if ([:len \$outgoing] != 0) do={\
+    \n        :local monitor [/interface l2tp-client monitor \$outgoing once as-value]\
+    \n        :set (\$result->\"found\") true\
+    \n        :set (\$result->\"type\") \"outgoing\"\
+    \n        :set (\$result->\"session\") \$outgoing\
+    \n        :set (\$result->\"peer\") [/interface/l2tp-client get \$outgoing name]\
+    \n        :set (\$result->\"remoteIP\") (\$monitor->\"remote-address\")\
+    \n        :local network [/ip/address get [find network=(\$result->\"remoteIP\")] address]\
+    \n        :set (\$result->\"localIP\") [:pick \$network 0 [:find \$network \"/\"]]\
+    \n        :return \$result\
+    \n    }\
+    \n\
+    \n    :return \$result\
+    \n}\
+    \n\
+    \n# Test connectivity with retry\
+    \n:local TestConnectivity do={\
+    \n    :local targetIP [:toip \$1]\
+    \n    :local sourceIP [:toip \$2]\
+    \n    :local count [:tonum \$3]\
+    \n    :local threshold [:tonum \$4]\
+    \n    :local retryDelay \$5\
+    \n\
+    \n    :local result1 [/ping address=\$targetIP src-address=\$sourceIP count=\$count interval=1000ms]\
+    \n    :if (\$result1 >= \$threshold) do={\
+    \n        :return {\"success\"=true; \"attempts\"=1; \"received\"=\$result1; \"required\"=\$threshold}\
+    \n    }\
+    \n\
+    \n    :delay \$retryDelay\
+    \n    :local result2 [/ping address=\$targetIP src-address=\$sourceIP count=\$count interval=1000ms]\
+    \n    :if (\$result2 >= \$threshold) do={\
+    \n        :return {\"success\"=true; \"attempts\"=2; \"received\"=\$result2; \"required\"=\$threshold}\
+    \n    }\
+    \n\
+    \n    :return {\"success\"=false; \"attempts\"=2; \"received\"=\$result2; \"required\"=\$threshold}\
+    \n}\
+    \n\
+    \n# Check route availability\
+    \n:local CheckRoute do={\
+    \n    :local dstIP [:toip \$1]\
+    \n    :local srcIP [:toip \$2]\
+    \n    :local check [/ip/route/check dst-ip=\$dstIP src-ip=\$srcIP once as-value]\
+    \n    :local status (\$check->\"status\")\
+    \n    :if (\$status = \"ok\") do={\
+    \n        :return {\
+    \n            \"reachable\"=true;\
+    \n            \"interface\"=(\$check->\"interface\");\
+    \n            \"gateway\"=(\$check->\"gateway\");\
+    \n            \"nexthop\"=(\$check->\"nexthop\")\
+    \n        }\
+    \n    }\
+    \n    :return {\"reachable\"=false; \"status\"=\$status}\
+    \n}\
+    \n\
+    \n# Kill L2TP session\
+    \n:local KillL2TPSession do={\
+    \n    :local sessionInfo \$1\
+    \n    :local Log \$2\
+    \n    :if (!(\$sessionInfo->\"found\")) do={ :return false }\
+    \n\
+    \n    :do {\
+    \n        :if ((\$sessionInfo->\"type\") = \"incoming\") do={\
+    \n            /ppp/active remove (\$sessionInfo->\"session\")\
+    \n            :local msg (\"Killed incoming L2TP session: \" . (\$sessionInfo->\"peer\"))\
+    \n            \$Log \$msg\
+    \n        } else={\
+    \n            /interface/l2tp-client disable (\$sessionInfo->\"session\")\
+    \n            :delay 2s\
+    \n            /interface/l2tp-client enable (\$sessionInfo->\"session\")\
+    \n            :local msg (\"Restarted outgoing L2TP client: \" . (\$sessionInfo->\"peer\"))\
+    \n            \$Log \$msg\
+    \n        }\
+    \n        :return true\
+    \n    } on-error={ :local err\
+    \n        :local msg (\"FAILED to kill L2TP session: \" . \$err)\
+    \n        \$Log \$msg \"error\"\
+    \n        :return false\
+    \n    }\
+    \n}\
+    \n\
+    \n# Kill IPSec active peers\
+    \n:local KillIPSecPeers do={\
+    \n    :local peerIP [:tostr \$1]\
+    \n    :local Log \$2\
+    \n    :local activePeers [/ip/ipsec/active-peers find remote-address=\$peerIP]\
+    \n\
+    \n    :if ([:len \$activePeers] = 0) do={\
+    \n        :local msg (\"No active IPSec peers found for \" . \$peerIP)\
+    \n        \$Log \$msg \"warning\"\
+    \n        :return false\
+    \n    }\
+    \n\
+    \n    :local killCount 0\
+    \n    :foreach peer in=\$activePeers do={\
+    \n        :do {\
+    \n            /ip/ipsec/active-peers remove \$peer\
+    \n            :set killCount (\$killCount + 1)\
+    \n        } on-error={ :local err\
+    \n            :local msg (\"FAILED to kill IPSec peer: \" . \$err)\
+    \n            \$Log \$msg \"error\"\
+    \n        }\
+    \n    }\
+    \n\
+    \n    :if (\$killCount > 0) do={\
+    \n        :local msg (\"Killed \" . \$killCount . \" IPSec active peer(s) for \" . \$peerIP)\
+    \n        \$Log \$msg\
+    \n        :return true\
+    \n    }\
+    \n\
+    \n    :return false\
+    \n}\
+    \n\
+    \n# Perform recovery actions\
+    \n:local RecoverPeer do={\
+    \n\
+    \n    :global globalPeerRetryCount\
+    \n    :local peerIP [:tostr \$1]\
+    \n    :local peerName [:tostr \$2]\
+    \n    :local l2tpSession \$3\
+    \n    :local Config \$4\
+    \n    :local Log \$5\
+    \n    :local KillL2TP \$6\
+    \n    :local KillIPSec \$7\
+    \n\
+    \n    :local retryCount (\$globalPeerRetryCount->\$peerIP)\
+    \n\
+    \n    :if ([:typeof \$retryCount] != \"num\") do={ :set retryCount 0 }\
+    \n   \
+    \n    :set retryCount (\$retryCount + 1)\
+    \n    :set (\$globalPeerRetryCount->\$peerIP) \$retryCount\
+    \n\
+    \n    :if (\$retryCount > (\$Config->\"maxRetryAttempts\")) do={\
+    \n        :local msg (\"Peer \" . \$peerName . \" (\" . \$peerIP . \") exceeded max retry attempts (\" . \$retryCount . \") - MANUAL INTERVENTION REQUIRED\")\
+    \n        \$Log \$msg \"error\"\
+    \n        :return false\
+    \n    }\
+    \n\
+    \n    :local startMsg (\"=== RECOVERY START: \" . \$peerName . \" (\" . \$peerIP . \") - Attempt \" . \$retryCount . \" ===\")\
+    \n    \$Log \$startMsg\
+    \n\
+    \n    :if ((\$l2tpSession->\"found\")) do={\
+    \n        :local killed [\$KillL2TP \$l2tpSession \$Log]\
+    \n        :if (\$killed) do={ :delay 2s }\
+    \n    }\
+    \n\
+    \n    :local ipsecKilled [\$KillIPSec \$peerIP \$Log]\
+    \n    :if (\$ipsecKilled) do={ :delay 2s }\
+    \n\
+    \n    :local endMsg (\"=== RECOVERY COMPLETE: \" . \$peerName . \" (\" . \$peerIP . \") ===\")\
+    \n    \$Log \$endMsg\
+    \n    :return true\
+    \n}\
+    \n\
+    \n# === MAIN EXECUTION ===\
+    \n\
+    \n\$Log \"=== IPSec/L2TP Connection Monitor Started ===\"\
+    \n\
+    \n:local PoliciesOnline [/ip/ipsec/policy find ( !template !disabled) ]\
+    \n\
+    \n:local msgPolicies (\"Found \" . [:len \$PoliciesOnline] . \" IPSec policies to investigate\")\
+    \n\$Log \$msgPolicies\
+    \n\
+    \n# === STATISTICS ===\
+    \n:local Stats {\
+    \n    \"totalPolicies\"=[:len \$PoliciesOnline];\
+    \n    \"testedPeers\"=0;\
+    \n    \"passedPeers\"=0;\
+    \n    \"failedPeers\"=0;\
+    \n    \"recoveredPeers\"=0;\
+    \n    \"skippedPeers\"=0\
+    \n}\
+    \n\
+    \n# === MAIN POLICY CHECK LOOP ===\
+    \n\
+    \n:foreach policy in=\$PoliciesOnline do={\
+    \n\
+    \n    :do {\
+    \n        :local peerName [/ip/ipsec/policy get \$policy peer]\
+    \n        :local isTunnel [/ip/ipsec/policy get \$policy tunnel]\
+    \n\
+    \n        :local isActive [/ip/ipsec/policy get \$policy active]\
+    \n        :local polState [/ip/ipsec/policy get \$policy ph2-state]\
+    \n\
+    \n\
+    \n        :local srcAddr\
+    \n        :local dstAddr\
+    \n\
+    \n        :if (\$isTunnel) do={\
+    \n            :local dstSubnet [/ip/ipsec/policy get \$policy dst-address]\
+    \n            :local srcSubnet [/ip/ipsec/policy get \$policy src-address]\
+    \n            :local dstCalc [\$IPCalc \$dstSubnet]\
+    \n            :local srcCalc [\$IPCalc \$srcSubnet]\
+    \n            :set dstAddr (\$dstCalc->\"hostmin\")\
+    \n            :set srcAddr (\$srcCalc->\"hostmin\")\
+    \n        } else={\
+    \n            :set dstAddr [\$ExtractIP [/ip/ipsec/policy get \$policy dst-address]]\
+    \n            :set srcAddr [\$ExtractIP [/ip/ipsec/policy get \$policy src-address]]\
+    \n        }\
+    \n\
+    \n        :set (\$Stats->\"testedPeers\") ((\$Stats->\"testedPeers\") + 1)\
+    \n\
+    \n        :local testMsg (\"Examine Peer \" . \$peerName . \" (\" . \$dstAddr . \")\")\
+    \n        \$Log \$testMsg\
+    \n\
+    \n        :if (!\$isActive) do={\
+    \n\
+    \n            :local errL2tp (\"Non-active policy investigated for \" . \$peerName . \"\")\
+    \n            \$Log \$errL2tp \"error\"\
+    \n            :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n            :error \"skip-continue\"\
+    \n\
+    \n        }\
+    \n\
+    \n        :if (!(\$polState=established)) do={\
+    \n\
+    \n            :local errL2tp (\"Non-established policy investigated for \" . \$peerName . \"\")\
+    \n            \$Log \$errL2tp \"error\"\
+    \n            :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n            :error \"skip-continue\"\
+    \n\
+    \n        }\
+    \n\
+    \n        # 1) Looking for host L2TP session\
+    \n        :local l2tpInfo [\$FindL2TPSession \$dstAddr]\
+    \n\
+    \n        :local policyDstIP \$dstAddr\
+    \n        :local policySrcIP \$srcAddr\
+    \n\
+    \n        :local mustUseL2TP false\
+    \n        \
+    \n        :local l2tpIf \"\"\
+    \n        :local l2tpRouteIf \"\"\
+    \n        :local policyRouteIf \"\"\
+    \n\
+    \n        :if ((\$l2tpInfo->\"found\")) do={\
+    \n            :local l2tpMsg (\"Active \". (\$l2tpInfo->\"type\") . \" L2TP host-tunnel found for IPSEC: \" . (\$l2tpInfo->\"peer\"))\
+    \n            \$Log \$l2tpMsg\
+    \n\
+    \n            :local L2TPDstadd (\$l2tpInfo->\"remoteIP\")\
+    \n            :local L2TPSrcadd (\$l2tpInfo->\"localIP\")\
+    \n            :set mustUseL2TP true\
+    \n            :set l2tpIf (\$l2tpInfo->\"peer\")\
+    \n\
+    \n            :set l2tpMsg \"Looking for specific (l2tp) routes to \$L2TPDstadd from \$L2TPSrcadd\"\
+    \n            \$Log \$l2tpMsg\
+    \n\
+    \n            # we need specific route in the main table to that subnet\
+    \n            :local l2tpRouteCheck [\$CheckRoute \$L2TPDstadd \$L2TPSrcadd]\
+    \n            :if (!(\$l2tpRouteCheck->\"reachable\")) do={\
+    \n\
+    \n                :local errL2tp (\"Cannot find specific route (l2tp) to \" . \$L2TPDstadd . \" from \" . \$L2TPSrcadd . \" - status: \" . (\$l2tpRouteCheck->\"status\"))\
+    \n                \$Log \$errL2tp \"error\"\
+    \n                :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n                :error \"skip-continue\"\
+    \n\
+    \n            } else={\
+    \n\
+    \n                :set l2tpRouteIf (\$l2tpRouteCheck->\"interface\")\
+    \n                :local okL2tp (\"Found specific route (l2tp) to \" . \$L2TPDstadd .  \" from \" . \$L2TPSrcadd . \" via \" . (\$l2tpRouteCheck->\"gateway\") . \" (\" . \$l2tpRouteIf . \")\")\
+    \n                \$Log \$okL2tp\
+    \n\
+    \n            }\
+    \n\
+    \n            :set policyDstIP \$L2TPDstadd\
+    \n            :set policySrcIP \$L2TPSrcadd\
+    \n        \
+    \n        } else={\
+    \n\
+    \n            :if (!\$isTunnel) do={\
+    \n                # on transtort mode l2tp session have to exist (just a local convinience)\
+    \n                :local errL2tp (\"No active L2TP host-tunnel found for IPSEC peer - \" . \$peerName . \" (on transport policy l2tp session have to exist)\")\
+    \n                \$Log \$errL2tp \"error\"\
+    \n                :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n                :error \"skip-continue\"\
+    \n\
+    \n            } else={\
+    \n                :local l2tpMsg (\"No active L2TP host-tunnel found for IPSEC peer - \" . \$peerName . \" (pure IPSEC, tunneled=\$isTunnel)\")\
+    \n                \$Log \$l2tpMsg\
+    \n            }\
+    \n\
+    \n        }\
+    \n\
+    \n\
+    \n        :local polMsg \"Looking for specific (policy) routes to \$policyDstIP from \$policySrcIP\"\
+    \n        \$Log \$polMsg\
+    \n\
+    \n        # 2) Policy route check\
+    \n\
+    \n        # we need specific route in the main table to that subnet\
+    \n        :local policyRouteCheck [\$CheckRoute \$policyDstIP \$policySrcIP]\
+    \n        :if (!(\$policyRouteCheck->\"reachable\")) do={\
+    \n\
+    \n            :local errPol (\"Cannot find specific route (policy) to \" . \$policyDstIP . \" from \" . \$policySrcIP . \" - status: \" . (\$policyRouteCheck->\"status\"))\
+    \n            \$Log \$errPol \"error\"\
+    \n            :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n            :error \"skip-continue\"\
+    \n\
+    \n        } else={\
+    \n\
+    \n            :set policyRouteIf (\$policyRouteCheck->\"interface\")\
+    \n            :local okPol (\"Found specific route (policy) to \" . \$policyDstIP .  \" from \" . \$policySrcIP . \" via \" . (\$policyRouteCheck->\"gateway\") . \" (\" . \$policyRouteIf . \")\")\
+    \n            \$Log \$okPol\
+    \n\
+    \n                # 3) both routes have to be via the same catched L2TP interface\\gw\
+    \n            :if (\$mustUseL2TP) do={\
+    \n\
+    \n                :local pingMsg \"Checking policy-l2tp routes' interfaces match\"\
+    \n                \$Log \$pingMsg\
+    \n\
+    \n                # \D0\9E\D0\B1\D0\B0 \D0\BC\D0\B0\D1\80\D1\88\D1\80\D1\83\D1\82\D0\B0 (policy \D0\B8 test) \D0\B4\D0\BE\D0\BB\D0\B6\D0\BD\D1\8B \D0\B1\D1\8B\D1\82\D1\8C \D1\87\D0\B5\D1\80\D0\B5\D0\B7 L2TP\E2\80\91\D0\B8\D0\BD\D1\82\D0\B5\D1\80\D1\84\D0\B5\D0\B9\D1\81\
+    \n                :if ((\$policyRouteIf != \$l2tpIf) or (\$l2tpRouteIf != \$l2tpIf)) do={\
+    \n                    :local errIf (\"Found routes mismatch (policy via \" . \$policyRouteIf . \", l2tp via \" . \$l2tpRouteIf . \", expected \" . \$l2tpIf . \")\")\
+    \n                    \$Log \$errIf \"error\"\
+    \n                    :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n                    :error \"skip-continue\"\
+    \n\
+    \n                } else={\
+    \n\
+    \n                    :local rL2tp (\"Found routes' interfaces are the same on L2TP \" . \$l2tpIf . \" and Policy \" . \$peerName )\
+    \n                    \$Log \$rL2tp\
+    \n\
+    \n                    :set rL2tp (\"Pinging remote IP \" . \$policyDstIP )\
+    \n                    \$Log \$rL2tp\
+    \n\
+    \n                    :local pingResult [\$TestConnectivity \$policyDstIP \$policySrcIP (\$Config->\"pingCount\") \$PingTrigger (\$Config->\"pingRetryDelay\")]\
+    \n                    :if ((\$pingResult->\"success\")) do={\
+    \n                        \
+    \n                        :local pMsg (\"PASS: Ping test successful \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" (\" . (\$pingResult->\"attempts\") . \" attempt(s))\")\
+    \n                        \$Log \$pMsg\
+    \n\
+    \n                        :set (\$Stats->\"passedPeers\") ((\$Stats->\"passedPeers\") + 1)\
+    \n\
+    \n                        # :set (\$globalPeerRetryCount->\$dstAddr) 0\
+    \n                    } else={\
+    \n\
+    \n                        :local fMsg (\"FAIL: Ping test failed \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" after \" . (\$pingResult->\"attempts\") . \" attempts\")\
+    \n\
+    \n                        :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n\
+    \n                        :if ((\$Config->\"enableAutoRecovery\")) do={\
+    \n                            :local recovered [\$RecoverPeer \$dstAddr \$peerName \$l2tpInfo \$Config \$Log \$KillL2TPSession \$KillIPSecPeers]\
+    \n                            :if (\$recovered) do={\
+    \n\
+    \n                                :set (\$Stats->\"recoveredPeers\") ((\$Stats->\"recoveredPeers\") + 1)\
+    \n\
+    \n                            }\
+    \n                        } else={\
+    \n                            \$Log \"Auto-recovery disabled - manual intervention required\" \"warning\"\
+    \n                        }\
+    \n\
+    \n                        \$Log \$fMsg \"error\"\
+    \n                        :error \"skip-continue\"\
+    \n\
+    \n                    }\
+    \n                }\
+    \n            \
+    \n            } else={\
+    \n\
+    \n                :local pingMsg \"Skip policy-l2tp routes' interfaces match - no active L2TP host-tunnel available\"\
+    \n                \$Log \$pingMsg\
+    \n\
+    \n                :local rL2tp (\"Pinging remote IP \" . \$policyDstIP )\
+    \n                \$Log \$rL2tp\
+    \n\
+    \n                :local pingResult [\$TestConnectivity \$policyDstIP \$policySrcIP (\$Config->\"pingCount\") \$PingTrigger (\$Config->\"pingRetryDelay\")]\
+    \n                :if ((\$pingResult->\"success\")) do={\
+    \n                    \
+    \n                    :local pMsg (\"PASS: Ping test successful \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" (\" . (\$pingResult->\"attempts\") . \" attempt(s))\")\
+    \n                    \$Log \$pMsg\
+    \n\
+    \n                    :set (\$Stats->\"passedPeers\") ((\$Stats->\"passedPeers\") + 1)\
+    \n\
+    \n                    # :set (\$globalPeerRetryCount->\$dstAddr) 0\
+    \n                } else={\
+    \n\
+    \n                    :local fMsg (\"FAIL: Ping test failed \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" after \" . (\$pingResult->\"attempts\") . \" attempts\")\
+    \n \
+    \n                    :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n\
+    \n                    :if ((\$Config->\"enableAutoRecovery\")) do={\
+    \n                        :local recovered [\$RecoverPeer \$dstAddr \$peerName \$l2tpInfo \$Config \$Log \$KillL2TPSession \$KillIPSecPeers]\
+    \n                        :if (\$recovered) do={\
+    \n\
+    \n                            :set (\$Stats->\"recoveredPeers\") ((\$Stats->\"recoveredPeers\") + 1)\
+    \n\
+    \n                        }\
+    \n                    } else={\
+    \n                        \$Log \"Auto-recovery disabled - manual intervention required\" \"warning\"\
+    \n                    }\
+    \n                   \
+    \n                    \$Log \$fMsg \"error\"\
+    \n                    :error \"skip-continue\"\
+    \n\
+    \n                }\
+    \n\
+    \n            }\
+    \n\
+    \n        } \
+    \n\
+    \n        \$Log \"Continue next\"\
+    \n\
+    \n    } on-error={ \
+    \n\
+    \n        # just go next policy\
+    \n        \$Log \"Continue next (in case of skip or erros)\" \"warning\"\
+    \n\
+    \n    }\
+    \n\
+    \n\
+    \n}\
+    \n\
+    \n# === POST-CHECK VALIDATION ===\
+    \n\
+    \n\$Log \"Waiting for system to come up after autorecovery\"\
+    \n\
+    \n:delay 5s\
+    \n:local PoliciesOnlineAfter [/ip/ipsec/policy find active ph2-state=established]\
+    \n:local PoliciesOfflineAfter [/ip/ipsec/policy find ( !template !disabled ph2-state!=established) ]\
+    \n\
+    \n# === FINAL SUMMARY ===\
+    \n\
+    \n\$Log \"=== TEST SUMMARY ===\"\
+    \n\
+    \n:local sumMsg1 (\"Total policies: \" . (\$Stats->\"totalPolicies\"))\
+    \n\$Log \$sumMsg1\
+    \n\
+    \n:local sumMsg2 (\"Tested: \" . (\$Stats->\"testedPeers\") . \" | Passed: \" . (\$Stats->\"passedPeers\") . \" | Failed: \" . (\$Stats->\"failedPeers\"))\
+    \n\$Log \$sumMsg2\
+    \n\
+    \n:local sumMsg3 (\"Recovered: \" . (\$Stats->\"recoveredPeers\") . \" | Skipped: \" . (\$Stats->\"skippedPeers\"))\
+    \n\$Log \$sumMsg3\
+    \n\
+    \n:local sumMsg4 (\"Policies after check: Online=\" . [:len \$PoliciesOnlineAfter] . \" | Offline=\" . [:len \$PoliciesOfflineAfter])\
+    \n\$Log \$sumMsg4\
+    \n\
+    \n# === RESULT ===\
+    \n\
+    \n:local testPassed true\
+    \n:local errorMessage \"\"\
+    \n\
+    \n:if ((\$Stats->\"failedPeers\") > 0) do={\
+    \n    :set testPassed false\
+    \n    :set errorMessage ((\$Stats->\"failedPeers\") . \" peer(s) failed connectivity test\")\
+    \n}\
+    \n\
+    \n:if ([:len \$PoliciesOfflineAfter] != 0) do={\
+    \n    :set testPassed false\
+    \n    :set errorMessage (\$errorMessage . \"; \" . [:len \$PoliciesOfflineAfter] . \" policies offline after recovery\")\
+    \n}\
+    \n\
+    \n:if (\$testPassed) do={\
+    \n    \$Log \"=== IPSec/L2TP Monitor: ALL CHECKS PASSED ===\" \"info\"\
+    \n} else={\
+    \n    \$Log \"=== IPSec/L2TP Monitor: FAILURES DETECTED ===\" \"error\"\
+    \n    :local errLog (\"Error: \" . \$errorMessage)\
+    \n    \$Log \$errLog \"error\"\
+    \n\
+    \n    :local tgMsg (\"IPSec Monitor ALERT: \" . \$errorMessage)\
+    \n    \$globalTgMessage value=\$tgMsg\
+    \n\
+    \n    :error \$errorMessage\
+    \n}\
     \n"
 /tool bandwidth-server set enabled=no
 /tool e-mail set from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
