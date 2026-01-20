@@ -17,7 +17,7 @@ $globalScriptBeforeRun $scriptname;
 
     # ssh server attr
     :local dst "185.13.148.14";
-    :local port 2222;
+    :local port 2223;
     :local user "automation";
 
     :local errorDef "";

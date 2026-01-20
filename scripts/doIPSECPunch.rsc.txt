@@ -1,341 +1,581 @@
-# protect from starting twice:
-:global globalScriptBeforeRun;
-$globalScriptBeforeRun "doIPSECTest";
+# ============================================================
+# IPSec/L2TP Connection Monitor & Auto-Recovery Script
+# Version: 2.1
+# ============================================================
 
-:global globalNoteMe;
+# === INITIALIZATION ===
+:global globalScriptBeforeRun
+:global globalNoteMe
+:global globalTgMessage
 
-:local itsOk true;
-:local state "";
+# Prevent concurrent execution
+$globalScriptBeforeRun "doIPSECTest"
 
-
-# ping trigger settings
-:local Pingcount 10
-:local PingSucRate 80
-:local Pingint 1000ms
-:local PingTrigger ($Pingcount*$PingSucRate/100)
-:local Pingresult
-# :log info "PingTrigger is $PingTrigger"
-
-# ping test 2 delay
-:local PingTest2Delay 20s
-
-# local Script variables
-:local Time [/system clock get time]
-:local Hour [:pick $Time 0 2]
-:local phase2counter 0
-:local CheckIPsec 0
-:local PoliciesOnline [/ip ipsec policy find active ph2-state=established ]
-:local PoliciesOffline [/ip ipsec policy find active ph2-state!=established ]
-
-# local Peer variables
-:local L2TPSession
-:local L2TPPeer
-:local L2TPDstadd
-:local L2TPSrcadd
-:local BadPeer
-:local BadPeerDst
-:local BadPeerSrc
-
-# global variables
-:global globalTroublesomePeers
-:global globalForceTroublesomePeersFlush
-
-# clear <Check IPsec Bad Peer List>
-if ($Hour > 23) do={
-    :global globalTroublesomePeers [:toarray ""]
-
-    :set state "Flush troublesome peers list (daily)"
-    $globalNoteMe value=$state;
+# === CONFIGURATION ===
+:local Config {
+    "pingCount"=10;
+    "pingSuccessRate"=80;
+    "pingInterval"=1000ms;
+    "pingRetryDelay"=20s;
+    "maxRetryAttempts"=3;
+    "flushHour"=23;
+    "enableAutoRecovery"=true
 }
 
-# manual clear <Check IPsec Bad Peer List>  >>  just set <globalForceTroublesomePeersFlush> to any value
-if ([:len $globalForceTroublesomePeersFlush] > 0) do={
-    :global globalTroublesomePeers [:toarray ""]
-    :global globalForceTroublesomePeersFlush ""
+:local PingTrigger (($Config->"pingCount") * ($Config->"pingSuccessRate") / 100)
 
-    :set state "Flush troublesome peers list (manually)"
-    $globalNoteMe value=$state;    
+
+# Log with timestamp
+:local Log do={
+    :global globalNoteMe
+    :local message [:tostr $1]
+    :local level [:tostr $2]
+    :if ([:len $level] = 0) do={ :set level "info" }
+    :local timestamp [/system clock get time]
+    :local fullMessage ("[" . $timestamp . "][" . $level . "] " . $message)
+    $globalNoteMe value=$fullMessage
+  
 }
 
-# Show Check IPsec Bad Peer List
-if ([:len $globalTroublesomePeers] = 0) do={
-    :global globalTroublesomePeers [:toarray ""]
-} else={
-    foreach i in=$globalTroublesomePeers do={
-
-        :set state "Last check got troublesome peer: $i (will skip it's session that time)"
-        $globalNoteMe value=$state;       
+# Calculate IP details from CIDR
+:local IPCalc do={
+    :local cidr [:tostr $1]
+    :local address [:toip [:pick $cidr 0 [:find $cidr "/"]]]
+    :local bits [:tonum [:pick $cidr ([:find $cidr "/"] + 1) [:len $cidr]]]
+    :local mask ((255.255.255.255 << (32 - $bits)) & 255.255.255.255)
+    :return {
+        "network"=($address & $mask);
+        "hostmin"=(($address & $mask) | 0.0.0.1);
+        "broadcast"=($address | ~$mask)
     }
 }
 
-# if can't find IPSec Tunnel Peers
-if ([:len $PoliciesOffline] != 0) do={
+# Extract first IP from CIDR or return as-is
+:local ExtractIP do={
+    :local input [:tostr $1]
+    :if ([:find $input "/"] >= 0) do={
+        :return [:pick $input 0 [:find $input "/"]]
+    }
+    :return $input
+}
 
-    :set itsOk false;
-    :set state "Active but non-established IPSEC policy found"
-    $globalNoteMe value=$state;    
+# Find L2TP session info
+:local FindL2TPSession do={
+    :local dstIP [:tostr $1]
+    :local result {"found"=false; "type"="none"}
 
+    # Incoming L2TP (server)
+    :local incoming [/ppp/active find caller-id=$dstIP]
+    :if ([:len $incoming] != 0) do={
+        :set ($result->"running") true
+        :set ($result->"found") true
+        :set ($result->"type") "incoming"
+        :set ($result->"session") $incoming
+        :set ($result->"peer") [/ppp/active get $incoming name]
+        :set ($result->"remoteIP") [/ppp/active get $incoming address]
+        :local network [/ip/address get [find network=($result->"remoteIP")] address]
+        :set ($result->"localIP") [:pick $network 0 [:find $network "/"]]
+        :return $result
+    }
 
-} else={
+    # Outgoing L2TP (client)
+    :local outgoing [/interface/l2tp-client find where !disabled connect-to=$dstIP]
+    :if ([:len $outgoing] != 0) do={
 
-    if ([:len $PoliciesOnline] = 0) do={
+        :local online [/interface/l2tp-client get $outgoing running]
+        :set ($result->"running") $online
+        :set ($result->"found") true
+        :set ($result->"type") "outgoing"
+        :set ($result->"session") $outgoing
+        :set ($result->"peer") [/interface/l2tp-client get $outgoing name]
 
-        :set itsOk false;
-        :set state "No active (established) policies found"
-        $globalNoteMe value=$state;    
+        :if ( $online ) do={
+            :local monitor [/interface l2tp-client monitor $outgoing once as-value]
+            :set ($result->"remoteIP") ($monitor->"remote-address")
+            :local network [/ip/address get [find network=($result->"remoteIP")] address]
+            :set ($result->"localIP") [:pick $network 0 [:find $network "/"]]
 
-    }         
- }
+        }  else={
 
-
-# start detect bad IPSec peers
-if ([:len $PoliciesOnline] > 0  and $itsOk) do={
-    :foreach i in=$PoliciesOnline do={
-        :local Dstadd ""
-        :local Srcadd ""        
-        :local L2TPSession ""
-        :local L2TPPeer ""
-        :local L2TPDstadd ""
-        :local L2TPSrcadd ""
-        :local L2TPNetwork ""
-        :local Pingresult ""
-        :local BadPeer ""
-        :local BadPeerDst ""
-        :local BadPeerSrc ""
-        :local ActivePeersForKill ""
-
-        :local Peer [/ip ipsec policy get $i peer]
-
-        :local Dstadd
-        :local Srcadd
-   
-        :local isTunnel [/ip ipsec policy get value-name=tunnel $i]
-        :if ($isTunnel) do={
-            :set Dstadd [/ip ipsec policy get value-name=sa-dst-address $i]
-        } else {
-            :set Dstadd [/ip ipsec policy get value-name=dst-address $i]
-            :set Dstadd  [:pick $Dstadd 0 [:find $Dstadd "/"]] 
-        }      
-
-        :if ($isTunnel) do={
-            :set Srcadd [/ip ipsec policy get value-name=sa-src-address $i]
-        } else {
-            :set Srcadd [/ip ipsec policy get value-name=src-address $i]
-            :set Srcadd  [:pick $Srcadd 0 [:find $Srcadd "/"]] 
-        }      
-
-       :local L2TPSession [/ppp/active find caller-id=$Dstadd]
-        
-        :delay 1s
-
-        if ([:len $L2TPSession] != 0) do={
- 
-            :set state "Found active L2TP Incoming Active Connection fo peer $Peer (dst IP $Dstadd)"
-            $globalNoteMe value=$state;   
-
-            :set L2TPPeer [/ppp/active get $L2TPSession name]
-            :set L2TPDstadd [/ppp/active get $L2TPSession address]
-            :set L2TPNetwork [/ip/address/ get [find network=$L2TPDstadd] address]
-            :set L2TPSrcadd [:pick $L2TPNetwork 0 [:find $L2TPNetwork "/"]]
-            :delay 1s
+            :set ($result->"remoteIP") 0.0.0.1
+            :set ($result->"localIP") 0.0.0.1
             
-            :set state "Incoming L2TP: Trying for ping L2TP > $L2TPPeer : $L2TPDstadd : $L2TPSrcadd"
-            $globalNoteMe value=$state;   
+        }
+
+        :return $result
+    }
+
+    :return $result
+}
+
+# Test connectivity with retry
+:local TestConnectivity do={
+    :local targetIP [:toip $1]
+    :local sourceIP [:toip $2]
+    :local count [:tonum $3]
+    :local threshold [:tonum $4]
+    :local retryDelay $5
+
+    :local result1 [/ping address=$targetIP src-address=$sourceIP count=$count interval=1000ms]
+    :if ($result1 >= $threshold) do={
+        :return {"success"=true; "attempts"=1; "received"=$result1; "required"=$threshold}
+    }
+
+    :delay $retryDelay
+    :local result2 [/ping address=$targetIP src-address=$sourceIP count=$count interval=1000ms]
+    :if ($result2 >= $threshold) do={
+        :return {"success"=true; "attempts"=2; "received"=$result2; "required"=$threshold}
+    }
+
+    :return {"success"=false; "attempts"=2; "received"=$result2; "required"=$threshold}
+}
+
+# Check route availability
+:local CheckRoute do={
+    :local dstIP [:toip $1]
+    :local srcIP [:toip $2]
+    :local check [/ip/route/check dst-ip=$dstIP src-ip=$srcIP once as-value]
+    :local status ($check->"status")
+    :if ($status = "ok") do={
+        :return {
+            "reachable"=true;
+            "interface"=($check->"interface");
+            "gateway"=($check->"gateway");
+            "nexthop"=($check->"nexthop")
+        }
+    }
+    :return {"reachable"=false; "status"=$status}
+}
+
+# Kill L2TP session
+:local KillL2TPSession do={
+    :local sessionInfo $1
+    :local Log $2
+    :if (!($sessionInfo->"found")) do={ :return false }
+
+    :do {
+        :if (($sessionInfo->"type") = "incoming") do={
+            /ppp/active remove ($sessionInfo->"session")
+            :local msg ("Killed incoming L2TP session: " . ($sessionInfo->"peer"))
+            $Log $msg
+        } else={
+            /interface/l2tp-client disable ($sessionInfo->"session")
+            :delay 4s
+            /interface/l2tp-client enable ($sessionInfo->"session")
+            :local msg ("Restarted outgoing L2TP client: " . ($sessionInfo->"peer"))
+            $Log $msg
+        }
+        :return true
+    } on-error={
+        :local msg ("FAILED to kill L2TP session for peer: " . . ($sessionInfo->"peer"))
+        $Log $msg "error"
+        :return false
+    }
+}
+
+# Kill IPSec active peers
+:local KillIPSecPeers do={
+    :local peerIP [:tostr $1]
+    :local Log $2
+    :local activePeers [/ip/ipsec/active-peers find remote-address=$peerIP]
+
+    :if ([:len $activePeers] = 0) do={
+        :local msg ("No active IPSec peers found for " . $peerIP)
+        $Log $msg "warning"
+        :return false
+    }
+
+    :local killCount 0
+    :foreach peer in=$activePeers do={
+        :do {
+            /ip/ipsec/active-peers remove $peer
+            :set killCount ($killCount + 1)
+        } on-error={ 
+            :local err
+            :local msg ("FAILED to kill IPSec peer: " . $peerIP)
+            $Log $msg "error"
+        }
+    }
+
+    :if ($killCount > 0) do={
+        :local msg ("Killed " . $killCount . " IPSec active peer(s) for " . $peerIP)
+        $Log $msg
+        :return true
+    }
+
+    :return false
+}
+
+# Perform recovery actions
+:local RecoverPeer do={
+
+    :global globalPeerRetryCount
+    :local peerIP [:tostr $1]
+    :local peerName [:tostr $2]
+    :local l2tpSession $3
+    :local Config $4
+    :local Log $5
+    :local KillL2TP $6
+    :local KillIPSec $7
+
+    :local retryCount ($globalPeerRetryCount->$peerIP)
+
+    :if ([:typeof $retryCount] != "num") do={ :set retryCount 0 }
+   
+    :set retryCount ($retryCount + 1)
+    :set ($globalPeerRetryCount->$peerIP) $retryCount
+
+    :if ($retryCount > ($Config->"maxRetryAttempts")) do={
+        :local msg ("Peer " . $peerName . " (" . $peerIP . ") exceeded max retry attempts (" . $retryCount . ") - MANUAL INTERVENTION REQUIRED")
+        $Log $msg "error"
+        :return false
+    }
+
+    :local startMsg ("=== RECOVERY START: " . $peerName . " (" . $peerIP . ") - Attempt " . $retryCount . " ===")
+    $Log $startMsg
+
+    :if (($l2tpSession->"found")) do={
+        :local killed [$KillL2TP $l2tpSession $Log]
+        :if ($killed) do={ :delay 2s }
+    }
+
+    :local ipsecKilled [$KillIPSec $peerIP $Log]
+    :if ($ipsecKilled) do={ :delay 2s }
+
+    :local endMsg ("=== RECOVERY COMPLETE: " . $peerName . " (" . $peerIP . ") ===")
+    $Log $endMsg
+    :return true
+}
+
+# === MAIN EXECUTION ===
+
+$Log "=== IPSec/L2TP Connection Monitor Started ==="
+
+:local PoliciesOnline [/ip/ipsec/policy find ( !template !disabled) ]
+
+:local msgPolicies ("Found " . [:len $PoliciesOnline] . " IPSec policies to investigate")
+$Log $msgPolicies
+
+# === STATISTICS ===
+:local Stats {
+    "totalPolicies"=[:len $PoliciesOnline];
+    "testedPeers"=0;
+    "passedPeers"=0;
+    "failedPeers"=0;
+    "recoveredPeers"=0;
+    "skippedPeers"=0
+}
+
+# === MAIN POLICY CHECK LOOP ===
+
+:foreach policy in=$PoliciesOnline do={
+
+        :local peerName 
+        :local srcAddr
+        :local dstAddr
+        :local l2tpInfo
+
+    :do {
+        :set peerName [/ip/ipsec/policy get $policy peer]
+        :local isTunnel [/ip/ipsec/policy get $policy tunnel]
+
+        :local isActive [/ip/ipsec/policy get $policy active]
+        :local polState [/ip/ipsec/policy get $policy ph2-state]
+
+
+        :set srcAddr
+        :set dstAddr
+
+        :if ($isTunnel) do={
+            :local dstSubnet [/ip/ipsec/policy get $policy dst-address]
+            :local srcSubnet [/ip/ipsec/policy get $policy src-address]
+            :local dstCalc [$IPCalc $dstSubnet]
+            :local srcCalc [$IPCalc $srcSubnet]
+            :set dstAddr ($dstCalc->"hostmin")
+            :set srcAddr ($srcCalc->"hostmin")
+        } else={
+            :set dstAddr [$ExtractIP [/ip/ipsec/policy get $policy dst-address]]
+            :set srcAddr [$ExtractIP [/ip/ipsec/policy get $policy src-address]]
+        }
+
+        :set ($Stats->"testedPeers") (($Stats->"testedPeers") + 1)
+
+        :local testMsg ("Examine Peer " . $peerName . " (" . $dstAddr . ")")
+        $Log $testMsg
+
+        # 1) Looking for host L2TP session
+        :set l2tpInfo [$FindL2TPSession $dstAddr]
+
+        :if (!$isActive) do={
+
+            :local errL2tp ("Non-active policy investigated for " . $peerName . "")
+            $Log $errL2tp "error"
+            :set ($Stats->"failedPeers") (($Stats->"failedPeers") + 1)
+            :error "skip-continue"
+
+        }
+
+        :if ( $polState!="established" ) do={
+
+            :local errL2tp ("Non-established policy investigated for " . $peerName . "")
+            $Log $errL2tp "error"
+            
+            # some more diagnostic
+           :if (($l2tpInfo->"found")) do={
+   
+                :if (!($l2tpInfo->"running")) do={
+
+                     :local errL2tp ("Disconnected (Rx-Tx 0-0) ". ($l2tpInfo->"type") . " L2TP host-tunnel found for IPSEC: " . ($l2tpInfo->"peer"))             
+                     $Log $errL2tp "error"
+
+                 }
+
+             }
+
+            :set ($Stats->"failedPeers") (($Stats->"failedPeers") + 1)
+            :error "skip-continue"
+
+        }
+
+
+        :local policyDstIP $dstAddr
+        :local policySrcIP $srcAddr
+
+        :local mustUseL2TP false
+        
+        :local l2tpIf ""
+        :local l2tpRouteIf ""
+        :local policyRouteIf ""
+
+        :if (($l2tpInfo->"found")) do={
+   
+           :if (!($l2tpInfo->"running")) do={
+
+                :local errL2tp ("Disconnected (Rx-Tx 0-0) ". ($l2tpInfo->"type") . " L2TP host-tunnel found for IPSEC: " . ($l2tpInfo->"peer"))                  
+                $Log $errL2tp "error"
+                :set ($Stats->"failedPeers") (($Stats->"failedPeers") + 1)
+                :error "skip-continue"
+
+            }
+
+           :local l2tpMsg ("Active ". ($l2tpInfo->"type") . " L2TP host-tunnel found for IPSEC: " . ($l2tpInfo->"peer"))
+            $Log $l2tpMsg
+
+            :local L2TPDstadd ($l2tpInfo->"remoteIP")
+            :local L2TPSrcadd ($l2tpInfo->"localIP")
+            :set mustUseL2TP true
+            :set l2tpIf ($l2tpInfo->"peer")
+
+            :set l2tpMsg "Looking for specific (l2tp) routes to $L2TPDstadd from $L2TPSrcadd"
+            $Log $l2tpMsg
+
+            # we need specific route in the main table to that subnet
+            :local l2tpRouteCheck [$CheckRoute $L2TPDstadd $L2TPSrcadd]
+            :if (!($l2tpRouteCheck->"reachable")) do={
+
+                :local errL2tp ("Cannot find specific route (l2tp) to " . $L2TPDstadd . " from " . $L2TPSrcadd . " - status: " . ($l2tpRouteCheck->"status"))
+                $Log $errL2tp "error"
+                :set ($Stats->"failedPeers") (($Stats->"failedPeers") + 1)
+                :error "skip-continue"
+
+            } else={
+
+                :set l2tpRouteIf ($l2tpRouteCheck->"interface")
+                :local okL2tp ("Found specific route (l2tp) to " . $L2TPDstadd .  " from " . $L2TPSrcadd . " via " . ($l2tpRouteCheck->"nexthop") . " (" . $l2tpRouteIf . ")")
+                $Log $okL2tp
+
+            }
+
+            :set policyDstIP $L2TPDstadd
+            :set policySrcIP $L2TPSrcadd
+        
+        } else={
+
+            :if (!$isTunnel) do={
+                # on transtort mode l2tp session have to exist (just a local convinience)
+                :local errL2tp ("No active L2TP host-tunnel found for IPSEC peer - " . $peerName . " (on transport policy l2tp session have to exist)")
+                $Log $errL2tp "error"
+                :set ($Stats->"failedPeers") (($Stats->"failedPeers") + 1)
+                :error "skip-continue"
+
+            } else={
+                :local l2tpMsg ("No active L2TP host-tunnel found for IPSEC peer - " . $peerName . " (pure IPSEC, tunneled=$isTunnel)")
+                $Log $l2tpMsg
+            }
+
+        }
+
+
+        :local polMsg "Looking for specific (policy) routes to $policyDstIP from $policySrcIP"
+        $Log $polMsg
+
+        # 2) Policy route check
+
+        # we need specific route in the main table to that subnet
+        :local policyRouteCheck [$CheckRoute $policyDstIP $policySrcIP]
+        :if (!($policyRouteCheck->"reachable")) do={
+
+            :local errPol ("Cannot find specific route (policy) to " . $policyDstIP . " from " . $policySrcIP . " - status: " . ($policyRouteCheck->"status"))
+            $Log $errPol "error"
+            :set ($Stats->"failedPeers") (($Stats->"failedPeers") + 1)
+            :error "skip-continue"
 
         } else={
 
-            :set L2TPSession [/interface/l2tp-client find where running and connect-to=$Dstadd]
+            :set policyRouteIf ($policyRouteCheck->"interface")
+            :local okPol ("Found specific route (policy) to " . $policyDstIP .  " from " . $policySrcIP . " via " . ($policyRouteCheck->"nexthop") . " (" . $policyRouteIf . ")")
+            $Log $okPol
 
-            if ([:len $L2TPSession] != 0) do={
-        
-                    :set state "Found active Outgoing L2TP Active Connection fo peer $Peer (dst IP $Dstadd)"
-                    $globalNoteMe value=$state;   
+                # 3) both routes have to be via the same catched L2TP interface\gw
+            :if ($mustUseL2TP) do={
 
-                    :set L2TPPeer [/interface/l2tp-client get $L2TPSession name]
-                    :local monitorData ([/interface l2tp-client monitor $L2TPSession once as-value])
+                :local pingMsg "Checking policy-l2tp routes' interfaces match"
+                $Log $pingMsg
 
-                    :set L2TPDstadd ($monitorData->"remote-address")
-                    :set L2TPNetwork [/ip/address/ get [find network=$L2TPDstadd] address]
-                    :set L2TPSrcadd [:pick $L2TPNetwork 0 [:find $L2TPNetwork "/"]]
-                    :delay 1s
-
-                    :set state "Outgoing L2TP: Trying for ping L2TP > $L2TPPeer : $L2TPDstadd : $L2TPSrcadd"
-                    $globalNoteMe value=$state;   
+                # Оба маршрута (policy и test) должны быть через L2TP‑интерфейс
+                :if (($policyRouteIf != $l2tpIf) or ($l2tpRouteIf != $l2tpIf)) do={
+                    :local errIf ("Found routes mismatch (policy via " . $policyRouteIf . ", l2tp via " . $l2tpRouteIf . ", expected " . $l2tpIf . ")")
+                    $Log $errIf "error"
+                    :set ($Stats->"failedPeers") (($Stats->"failedPeers") + 1)
+                    :error "skip-continue"
 
                 } else={
 
+                    :local rL2tp ("Found routes' interfaces are the same on L2TP " . $l2tpIf . " and Policy " . $peerName )
+                    $Log $rL2tp
+
+                    :set rL2tp ("Pinging remote IP " . $policyDstIP )
+                    $Log $rL2tp
+
+                    :local pingResult [$TestConnectivity $policyDstIP $policySrcIP ($Config->"pingCount") $PingTrigger ($Config->"pingRetryDelay")]
+                    :if (($pingResult->"success")) do={
+                        
+                        :local pMsg ("PASS: Ping test successful " . ($pingResult->"received") . "/" . ($pingResult->"required") . " (" . ($pingResult->"attempts") . " attempt(s))")
+                        $Log $pMsg
+
+                        :set ($Stats->"passedPeers") (($Stats->"passedPeers") + 1)
+
+                        # :set ($globalPeerRetryCount->$dstAddr) 0
+                    } else={
+
+                        :local fMsg ("FAIL: Ping test failed " . ($pingResult->"received") . "/" . ($pingResult->"required") . " after " . ($pingResult->"attempts") . " attempts")
+
+                        :set ($Stats->"failedPeers") (($Stats->"failedPeers") + 1)
+
+                        $Log $fMsg "error"
+                       #going to recover
+                       :error "skip-continue"
+
+                    }
+                }
+            
+            } else={
+
+                :local pingMsg "Skip policy-l2tp routes' interfaces match - no active L2TP host-tunnel available"
+                $Log $pingMsg
+
+                :local rL2tp ("Pinging remote IP " . $policyDstIP )
+                $Log $rL2tp
+
+                :local pingResult [$TestConnectivity $policyDstIP $policySrcIP ($Config->"pingCount") $PingTrigger ($Config->"pingRetryDelay")]
+                :if (($pingResult->"success")) do={
+                    
+                    :local pMsg ("PASS: Ping test successful " . ($pingResult->"received") . "/" . ($pingResult->"required") . " (" . ($pingResult->"attempts") . " attempt(s))")
+                    $Log $pMsg
+
+                    :set ($Stats->"passedPeers") (($Stats->"passedPeers") + 1)
+
+                    # :set ($globalPeerRetryCount->$dstAddr) 0
+                } else={
+
+                    :local fMsg ("FAIL: Ping test failed " . ($pingResult->"received") . "/" . ($pingResult->"required") . " after " . ($pingResult->"attempts") . " attempts")
+ 
+                    :set ($Stats->"failedPeers") (($Stats->"failedPeers") + 1)
+                  
+                    $Log $fMsg "error"
+                    # going to recover
+                    :error "skip-continue"
 
                 }
 
-        }
+            }
 
-         # ping phase 1
-        if ([:len $L2TPSession] != 0) do={
+        } 
 
-            :set state "Testing L2TP IPs connectivity: Start ping $L2TPDstadd from $L2TPSrcadd ($Dstadd from $Srcadd)"
-            $globalNoteMe value=$state;   
+        $Log "Continue next"
 
-            :set Pingresult [/ping address=$L2TPDstadd src-address=$L2TPSrcadd count=$Pingcount interval=$Pingint]
+    } on-error={ 
 
-            :set state "Ping result is: $Pingresult Ping trigger is: $PingTrigger"
-            $globalNoteMe value=$state;   
+        # just go next policy
 
+                        :if (($Config->"enableAutoRecovery")) do={
+                            :local recovered [$RecoverPeer $dstAddr $peerName $l2tpInfo $Config $Log $KillL2TPSession $KillIPSecPeers]
+                            :if ($recovered) do={
 
-        } else={
-
-            :set state "Testing IPSEC IPs connectivity: Start ping $Dstadd from $Srcadd"
-            $globalNoteMe value=$state;   
-
-            :set Pingresult [/ping address=$Dstadd src-address=$Srcadd count=$Pingcount interval=$Pingint]
-
-            :set state "Ping result is: $Pingresult Ping trigger is: $PingTrigger"
-            $globalNoteMe value=$state;   
-
-        }
-
-         
-         # reset phase
-        if ($Pingresult < $PingTrigger or [:len $Pingresult] = 0) do={
-                       
-            :set BadPeer $Peer
-            :set BadPeerDst $Dstadd
-            :set BadPeerSrc $Srcadd
-            
-            :set state "Candidate > $BadPeer : $L2TPPeer  > Ping result is: $Pingresult Ping trigger is: $PingTrigger"
-            $globalNoteMe value=$state;   
-           
-            # find Bad Peer in Bad Peer List if yes > skip reset phase           
-            :local BadPeerFindResult [:find $globalTroublesomePeers $BadPeerDst]
-            if ([:typeof $BadPeerFindResult] = "num") do={
-                
-                :set CheckIPsec 1
-                
-                :set state "SKIP RESET FOR > $BadPeer : $L2TPPeer > Find in <Bad Peer List> with index=$BadPeerFindResult > Reset is disabled for this Peer"
-                $globalNoteMe value=$state;   
-
-
-            } else={
-                # start reset
-                if ([:len $BadPeer] !=0) do={
-
-
-                    :set CheckIPsec 1
-
-                    :delay 1s
-                    # kill L2TP Sesson
-                    if ([:len $L2TPSession] != 0 ) do={
-                        :do {
-
-                            :set state "STEP: Killing L2TP active connection > $BadPeer : $L2TPPeer ($BadPeerDst)"
-                            $globalNoteMe value=$state;   
-
-                            /ppp/active remove $L2TPSession
-
-                            :set state "Done"
-                            $globalNoteMe value=$state;   
-
-                        } on-error={
-
-                            :set state "Fail"
-                            $globalNoteMe value=$state;   
-
-                        } 
-                    }
-
-                    :delay 1s
-
-                    # find and kill all Active Peers with peer dst
-                    :set ActivePeersForKill [/ip ipsec active-peers find remote-address=$BadPeerDst]
-                    if ([:len $ActivePeersForKill] != 0) do={
-                        :do {
-
-                            :set state "STEP: Killing IPSEC active peers > $BadPeer : $L2TPPeer ($BadPeerDst, $ActivePeersForKill)"
-                            $globalNoteMe value=$state;   
-
-                            :foreach i in=$ActivePeersForKill do={
-                                /ip/ipsec/active-peers remove $i
-                                :set state "Done"
-                                $globalNoteMe value=$state;   
+                                :set ($Stats->"recoveredPeers") (($Stats->"recoveredPeers") + 1)
 
                             }
+                        } else={
+                            $Log "Auto-recovery disabled - manual intervention required" "warning"
+                        }
 
-                        } on-error={
-                            
-                            :set state "Fail"
-                            $globalNoteMe value=$state;   
 
-                        }   
-                    }
-                    :delay 1s
-                    :set $globalTroublesomePeers ($globalTroublesomePeers, $BadPeerDst)
- 
-                    :set state "Dst-Address: $BadPeerDst added to bad peer list."
-                    $globalNoteMe value=$state;   
+        $Log "Continue next (in case of skip or erros)" "warning"
 
-                    :delay 1s
- 
-                    :set state "RESET PHASE 1 FOR $BadPeer : $L2TPPeer : $BadPeerDst : $L2TPDstadd > Complete!"
-                    $globalNoteMe value=$state;   
-
-                } 
-            }
-        } else={
-
-            :local FindResult [:find $globalTroublesomePeers $Dstadd]
-
-            if ([:typeof $FindResult] = "num") do={
-
-                :set state "$Dstadd in <Bad Peer List> with nuber: $FindResult"
-                $globalNoteMe value=$state;   
-
-                :delay 1s
-                :local LenOfList [:len $globalTroublesomePeers]
-                :local ArrgPosition [:find $globalTroublesomePeers $Dstadd -1]
-                :set globalTroublesomePeers ([:pick $globalTroublesomePeers 0 $ArrgPosition],[:pick $globalTroublesomePeers ($ArrgPosition + 1) $LenOfList]) 
-
-                :set state "Bad peer $Peer : $L2TPPeer : $Dstadd is UP! > And deleted from <Bad Peer List>!"
-                $globalNoteMe value=$state;   
-            }
-        }
     }
+
+
 }
 
-# test if we fix it
-:local PoliciesOnline [/ip ipsec policy find active ph2-state=established ]
-:local PoliciesOffline [/ip ipsec policy find active ph2-state!=established ]
+# === POST-CHECK VALIDATION ===
 
-if ([:len $PoliciesOffline] != 0 and !$itsOk) do={
+$Log "Waiting for system to come up after autorecovery"
 
-    :set itsOk false;
-    :set state "Active but non-established IPSEC policy found after punch"
+:delay 5s
+:local PoliciesOnlineAfter [/ip/ipsec/policy find active ph2-state=established]
+:local PoliciesOfflineAfter [/ip/ipsec/policy find ( !template !disabled ph2-state!=established) ]
 
+# === FINAL SUMMARY ===
 
+$Log "=== TEST SUMMARY ==="
+
+:local sumMsg1 ("Total policies: " . ($Stats->"totalPolicies"))
+$Log $sumMsg1
+
+:local sumMsg2 ("Tested: " . ($Stats->"testedPeers") . " | Passed: " . ($Stats->"passedPeers") . " | Failed: " . ($Stats->"failedPeers"))
+$Log $sumMsg2
+
+:local sumMsg3 ("Recovered: " . ($Stats->"recoveredPeers") . " | Skipped: " . ($Stats->"skippedPeers"))
+$Log $sumMsg3
+
+:local sumMsg4 ("Policies after check: Online=" . [:len $PoliciesOnlineAfter] . " | Offline=" . [:len $PoliciesOfflineAfter])
+$Log $sumMsg4
+
+# === RESULT ===
+
+:local testPassed true
+:local errorMessage ""
+
+:if (($Stats->"failedPeers") > 0) do={
+    :set testPassed false
+    :set errorMessage (($Stats->"failedPeers") . " peer(s) failed connectivity test")
+}
+
+:if ([:len $PoliciesOfflineAfter] != 0) do={
+    :set testPassed false
+    :set errorMessage ($errorMessage . "; " . [:len $PoliciesOfflineAfter] . " policies offline after recovery")
+}
+
+:if ($testPassed) do={
+    $Log "=== IPSec/L2TP Monitor: ALL CHECKS PASSED ===" "info"
 } else={
+    $Log "=== IPSec/L2TP Monitor: FAILURES DETECTED ===" "error"
+    :local errLog ("Error: " . $errorMessage)
+    $Log $errLog "error"
 
-    if ([:len $PoliciesOnline] = 0 and !$itsOk) do={
+    :local tgMsg ("IPSec Monitor ALERT: " . $errorMessage)
+    $globalTgMessage value=$tgMsg
 
-        :set itsOk false;
-        :set state "No active (established) policies found"
-
-    }         
- }
-
-:local inf ""
-:if ($itsOk) do={
-  :set inf "IPSEC Test completed Successfully"
-}
-
-:if (!$itsOk) do={
-  :set inf "Error When testing IPSEC: $state"  
-}
-
-$globalNoteMe value=$inf
-
-:if (!$itsOk) do={
-
-  :global globalTgMessage;
-  $globalTgMessage value=$inf;
-  :error $inf; 
-  
+    :error $errorMessage
 }
 
