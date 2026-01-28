@@ -1,0 +1,115 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doStaleTSLConnectionsTrack";
+
+:global globalNoteMe;
+:local state;
+
+# address list name
+:local ListName "alist-TLS-rejected-autodetect";
+
+#Test freq 5s, 10s, 1m и т.д.
+:local Interval 1s;
+:local heartbeatEvery 15;
+
+# Address list timeout - "permanent", "reboot" or "30m", "1h", "1d", "1w" и т.д.
+:local ListTimeout "reboot"
+
+:local detectSilentTLSBlock do={
+
+    :foreach conn in=[/ip firewall connection find where (protocol="udp" or protocol="tcp") and orig-packets>6 and repl-packets<3] do={
+
+        :if ([:len [/ip firewall connection get $conn]] > 0) do={
+
+            :onerror err in={
+
+                :local dstIP [/ip firewall connection get $conn dst-address]
+
+                :local retr ([/ip firewall connection get $conn orig-packets] - 3)
+
+                :local ipOnly [:pick $dstIP 0 [:find $dstIP ":"]]
+                :local portOnly [:pick $dstIP ([:find $dstIP ":"] + 1) [:len $dstIP]]
+                :local protoOnly [/ip firewall connection get $conn protocol]
+                
+                :if ($portOnly != "443" or ([:len $ipOnly] = 0) or [/ip address find where address~"$ipOnly"]) do={:return ""}
+
+                :set $state "$protoOnly timeout: $ipOnly"
+                $globalNoteMe value=$state;
+
+                # Looking for existing entry
+                :if ([:len [/ip firewall address-list find list=$ListName address=$ipOnly]] = 0) do={
+
+                    # Add
+                    :set $state "TLS: $dstIP (Retransmissions: $retr) added to address list \"$ListName\""
+                    $globalNoteMe value=$state;
+                    
+                    # Timeout logic
+                    :if ($ListTimeout = "permanent") do={
+                        # permanent
+                        /ip firewall address-list add list=$ListName address=$ipOnly comment="Added by TLS Block Detection Script"
+                    } else={
+                        :if ($ListTimeout = "reboot") do={
+                            # reboot
+                            /ip firewall address-list add list=$ListName address=$ipOnly dynamic=yes comment="Added by TLS Block Detection Script"
+                        } else={
+                            # dynamic
+                            /ip firewall address-list add list=$ListName address=$ipOnly dynamic=yes timeout=$ListTimeout comment="Added by TLS Block Detection Script"
+                        }
+                    }
+                }
+
+                :if ($protoOnly = "tcp") do={
+                    /ip firewall connection remove $conn;
+
+                    :set $state "drop TCP session to $dstIP"
+                    $globalNoteMe value=$state;
+
+                }
+                
+                # Ip already in address list - skip
+            } do={
+                
+                :set $state "connection loop error: $err"
+                $globalNoteMe value=$state;
+                
+            }
+
+        } else={
+            
+            # no connection available
+        }
+    }
+}
+
+:set $state "tracking.."
+$globalNoteMe value=$state;
+:local beats 0; 
+
+:do {
+
+    :onerror err in={
+ 
+        [$detectSilentTLSBlock ListName=$ListName ListTimeout=$ListTimeout]
+
+    } do={
+        
+        :set $state "main loop error: $err"
+        $globalNoteMe value=$state;
+        
+    }
+
+    :delay $Interval
+
+    :set $beats ($beats + 1);
+    :if ($beats = $heartbeatEvery) do={
+
+        :set $state "tracking.."
+        $globalNoteMe value=$state;
+        :set $beats 0; 
+
+    }
+
+
+} while=(true)
+
+

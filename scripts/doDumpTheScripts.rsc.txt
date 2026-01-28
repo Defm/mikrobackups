@@ -34,6 +34,17 @@ $globalScriptBeforeRun $scriptname;
   :set itsOk false;    
 }
 
+:global globalOnPrimaryPartition;
+:if ( ![$globalOnPrimaryPartition] ) do {
+    
+    :set state "WARNING: the system booted up from fallback partition - skipping dump!"
+    :log error $state
+    $globalNoteMe value=$state;
+    :set itsOk false;
+    :error $state;
+
+}
+
 :foreach backupFile in=[/file find where name~"^$SubDir"] do={
     /file remove $backupFile;
 }
