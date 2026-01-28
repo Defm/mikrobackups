@@ -1,5 +1,3 @@
-
-
 :global globalNoteMe;
 :if (!any $globalNoteMe) do={
 
@@ -545,4 +543,47 @@
 
 }
 
+#Example call
+#:put [$globalOnPrimaryPartition]
+#test if we are boot up from a primary partition(not fallback or recovery)
+:global globalOnPrimaryPartition;
+:if (!any $globalOnPrimaryPartition) do={
+    :global globalOnPrimaryPartition do={
+        
+        :global globalNoteMe;
+        # 
+        :local partitionName "primary";
+        :local OnPrimaryPartition false;
+        
+        :onerror errorName in={ 
+            
+            # test if it exist in /partitions
+            :local partition [/partitions find name=$partitionName];
+            :if ([:len $partition] > 0) do={
+                :local running [/partition get $partition running];
+                :if ($running) do={
+                    :set OnPrimaryPartition true;
+                    :error "primary active";
+                } else={
+                    :set OnPrimaryPartition false;
+                    :error "primary inactive";
+                }
+            } else={
+                :set OnPrimaryPartition true;
+                :error "disabled";
+            }
+
+        } do={ 
+
+            :local state ("Investigation result - $errorName");
+            $globalNoteMe value=$state;
+
+            :return $OnPrimaryPartition;
+        }
+       
+        :put $OnPrimaryPartition 
+        :return $OnPrimaryPartition;
+    }
+
+}
 

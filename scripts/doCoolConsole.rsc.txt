@@ -14,6 +14,8 @@ $globalScriptBeforeRun "doCoolConsole";
 $globalNoteMe value=$state;
 /system note set note="Pending";
 
+
+
 :local sysver "NA";
 :if ( [ :len [ /system package find where name="system" and disabled=no ] ] > 0 and $rosVer = 6 ) do={
   :set sysver [/system package get system version];
@@ -44,6 +46,18 @@ $globalNoteMe value=$state;
         :local ipsecState "issues found";
     }
   }
+}
+
+:global globalOnPrimaryPartition;
+:if ( ![$globalOnPrimaryPartition] ) do {
+    
+    :set state "WARNING: the system booted up from fallback partition!"
+    :log error $state
+    $globalNoteMe value=$state;
+
+    :set logcontenttemp "$state"
+    :set logcontent ("$logcontent" ."$logcontenttemp" ." \n") 
+
 }
 
 :set logcontenttemp "Ipsec:         $ipsecState"
@@ -154,5 +168,6 @@ $globalNoteMe value=$state;
 $globalNoteMe value=$state;
 
 /system note set note="$logcontent"  
+
 
 

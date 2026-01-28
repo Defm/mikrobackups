@@ -34,6 +34,11 @@ $globalNoteMe value=$state;
 :local pfx [:pick [/system clock get date] 0 3 ];
 :local newPassword "";
 
+:local date [/system clock get date]; 
+:local monthNum [:tonum [:pick $date 5 7]];
+:local months {"jan";"feb";"mar";"apr";"may";"jun";"jul";"aug";"sep";"oct";"nov";"dec"};
+:local pfx  ([:pick $months ($monthNum-1)]); 
+
 :set newPassword [:rndstr length=6 from="0123456789dglpqwBHNTQV"];
 
 :set state "Randomized: '$newPassword'";
@@ -97,3 +102,4 @@ $globalNoteMe value=$inf
   :error $inf; 
   
 }
+

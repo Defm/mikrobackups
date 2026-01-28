@@ -1,0 +1,39 @@
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doCloudBackup";
+
+:global globalNoteMe;
+:local state
+:local itsOk true;
+
+:local BackupPassword "1234567890" ;
+
+# we are not interested in output, but print without count-only is
+# required to fetch information from cloud
+
+:global globalOnPrimaryPartition;
+:if ( ![$globalOnPrimaryPartition] ) do {
+    
+    :set state "WARNING: the system booted up from fallback partition - skipping backup!"
+    :log error $state
+    $globalNoteMe value=$state;
+    :error $state;
+
+}
+
+/system backup cloud print as-value
+
+:local Backup ([ /system/backup/cloud/find ]->0);
+:if ([ :typeof $Backup ] = "id") do={
+    /system/backup/cloud/upload-file action=create-and-upload password=$BackupPassword replace=$Backup;
+} else={
+    /system/backup/cloud/upload-file action=create-and-upload password=$BackupPassword;
+}
+
+:local Backup ([ /system/backup/cloud/find ]->0);
+:local BackupName [/system/backup/cloud/get $Backup name];
+:set state "Creating and uploading backup file... $BackupName"
+$globalNoteMe value=$state;
+
+
+
+
