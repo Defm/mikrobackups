@@ -5021,4 +5021,386 @@
     \n                            \\n /system scheduler;\\r\\ \
     \n                            \\n :foreach schEndpoint in=[find  where owner!=\\\"\$mgmtUsername\\\"] do={\\r\\\
     \n                            \\n  :local name [get value-name=name \\\$schEndpoint];\\r\\\
-    \n                            \\n      :local startTime [get value-name=start-time \\\$
+    \n                            \\n      :local startTime [get value-name=start-time \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local onEvent [get value-name=on-event \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local interval [get value-name=interval \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local startDate [get value-name=start-date \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local comment [get value-name=comment \\\$schEndpoint];\\r\\\
+    \n                            \\n      remove \\\$schEndpoint;\\r\\\
+    \n                            \\n      add name=\\\"\\\$name\\\" start-time=\\\"\\\$startTime\\\"  on-event=\\\"\\\$onEvent\\\" interval=\\\"\\\$interval\\\" start-date=\\\"\\\$startDate\\\" comment=\\\"\\\$comment\\\";\\r\\\
+    \n                            \\n      }\\r\\\
+    \n                            \\n;\";\
+    \n\
+    \n            # delete all previous files\
+    \n            :local rsc \"ownage.rsc.txt\";\
+    \n            /file remove [/file find where name=\"\$rsc\"];\
+    \n            # create the file as it doesn't exist yet\
+    \n            /file print file=\"\$rsc\";\
+    \n            # wait for filesystem to create file\
+    \n            :delay 6;\
+    \n            # write the buffer into it\
+    \n            :set state \"Creating script file '\$rsc' with commands '\$buffer'\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n            # i will not remove this file later to got a chance to manually reproduce fetch if it fail via this script\
+    \n            /file set [/file find where name=\"\$rsc\"] contents=\"\$buffer\";    \
+    \n            :local filecontent [/file get [/file find where name=\"\$rsc\"] contents];\
+    \n            :set state \"Created command file '\$rsc' with content '\$filecontent'\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n            # push it and and autorun under mgmtUsername account\
+    \n            :set state \"Pushing autorun command file as user '\$mgmtUsername' via FTP\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :local fetchCmd  \"/tool fetch address=127.0.0.1 mode=ftp src-path=\$rsc dst-path=ownage.auto.rsc user=\\\"\$mgmtUsername\\\" password=\\\"\$thePass\\\" host=\\\"\\\" upload=\\\"yes\\\"\";\
+    \n\
+    \n            \$globalCallFetch \$fetchCmd;\
+    \n\
+    \n            /file remove [/file find where name=\"\$rsc\"];\
+    \n\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n        } else={\
+    \n\
+    \n            /system script set owner=\"\$mgmtUsername\" [find where owner!=\"\$mgmtUsername\"];\
+    \n            # the only way to change schedule owner is to recreate entry\\r\\\
+    \n            /system scheduler;\
+    \n            :foreach schEndpoint in=[find  where owner!=\"\$mgmtUsername\"] do={\
+    \n              :local name [get value-name=name \$schEndpoint];\
+    \n                  :local startTime [get value-name=start-time \$schEndpoint];\
+    \n                  :local onEvent [get value-name=on-event \$schEndpoint];\
+    \n                  :local interval [get value-name=interval \$schEndpoint];\
+    \n                  :local startDate [get value-name=start-date \$schEndpoint];\
+    \n                  :local comment [get value-name=comment \$schEndpoint];\
+    \n                  remove \$schEndpoint;\
+    \n                  add name=\"\$name\" start-time=\"\$startTime\"  on-event=\"\$onEvent\" interval=\"\$interval\" start-date=\"\$startDate\" comment=\"\$comment\";\
+    \n                  };\
+    \n\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n        }  \
+    \n\
+    \n\
+    \n    } else={\
+    \n        :set state \"Cant find user '\$mgmtUsername' for impersonation call\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n    }\
+    \n\
+    \n} on-error={ \
+    \n    :set state \"Changing scripts and schedules ownage - ERROR\";\
+    \n    \$globalNoteMe value=\$state;\
+    \n}"
+/system script add comment="periodically Wipes memory-configered logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doFlushLogs\";\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local state \"\"\
+    \n\
+    \n:set state \"FLUSHING logs..\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n/system/logging/action {\
+    \n  :foreach memAction in=[find target=memory] do={\
+    \n    :local actName [get value-name=name \$memAction]\
+    \n\
+    \n    clear action=\$actName;\
+    \n\
+    \n    }\
+    \n  }\
+    \n\
+    \n\
+    \n\r\
+    \n"
+/system script add comment="Fast cloud backup" dont-require-permissions=yes name=doCloudBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doCloudBackup\";\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local state\
+    \n:local itsOk true;\
+    \n\
+    \n:local BackupPassword \"1234567890\" ;\
+    \n\
+    \n# we are not interested in output, but print without count-only is\
+    \n# required to fetch information from cloud\
+    \n\
+    \n:global globalOnPrimaryPartition;\
+    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
+    \n    \
+    \n    :set state \"WARNING: the system booted up from fallback partition - skipping backup!\"\
+    \n    :log error \$state\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :error \$state;\
+    \n\
+    \n}\
+    \n\
+    \n/system backup cloud print as-value\
+    \n\
+    \n:local Backup ([ /system/backup/cloud/find ]->0);\
+    \n:if ([ :typeof \$Backup ] = \"id\") do={\
+    \n    /system/backup/cloud/upload-file action=create-and-upload password=\$BackupPassword replace=\$Backup;\
+    \n} else={\
+    \n    /system/backup/cloud/upload-file action=create-and-upload password=\$BackupPassword;\
+    \n}\
+    \n\
+    \n:local Backup ([ /system/backup/cloud/find ]->0);\
+    \n:local BackupName [/system/backup/cloud/get \$Backup name];\
+    \n:set state \"Creating and uploading backup file... \$BackupName\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n\
+    \n\
+    \n"
+/system script add comment="Track stale TLS connections and add dst to address list" dont-require-permissions=yes name=doStaleTSLConnectionsTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doStaleTSLConnectionsTrack\";\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local state;\
+    \n\
+    \n# address list name\
+    \n:local ListName \"alist-TLS-rejected-autodetect\";\
+    \n\
+    \n#Test freq 5s, 10s, 1m \D0\B8 \D1\82.\D0\B4.\
+    \n:local Interval 1s;\
+    \n:local heartbeatEvery 15;\
+    \n\
+    \n# Address list timeout - \"permanent\", \"reboot\" or \"30m\", \"1h\", \"1d\", \"1w\" \D0\B8 \D1\82.\D0\B4.\
+    \n:local ListTimeout \"reboot\"\
+    \n\
+    \n:local detectSilentTLSBlock do={\
+    \n\
+    \n    :foreach conn in=[/ip firewall connection find where (protocol=\"udp\" or protocol=\"tcp\") and orig-packets>6 and repl-packets<3] do={\
+    \n\
+    \n        :if ([:len [/ip firewall connection get \$conn]] > 0) do={\
+    \n\
+    \n            :onerror err in={\
+    \n\
+    \n                :local dstIP [/ip firewall connection get \$conn dst-address]\
+    \n\
+    \n                :local retr ([/ip firewall connection get \$conn orig-packets] - 3)\
+    \n\
+    \n                :local ipOnly [:pick \$dstIP 0 [:find \$dstIP \":\"]]\
+    \n                :local portOnly [:pick \$dstIP ([:find \$dstIP \":\"] + 1) [:len \$dstIP]]\
+    \n                :local protoOnly [/ip firewall connection get \$conn protocol]\
+    \n                \
+    \n                :if (\$portOnly != \"443\" or ([:len \$ipOnly] = 0) or [/ip address find where address~\"\$ipOnly\"]) do={:return \"\"}\
+    \n\
+    \n                :set \$state \"\$protoOnly timeout: \$ipOnly\"\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n                # Looking for existing entry\
+    \n                :if ([:len [/ip firewall address-list find list=\$ListName address=\$ipOnly]] = 0) do={\
+    \n\
+    \n                    # Add\
+    \n                    :set \$state \"TLS: \$dstIP (Retransmissions: \$retr) added to address list \\\"\$ListName\\\"\"\
+    \n                    \$globalNoteMe value=\$state;\
+    \n                    \
+    \n                    # Timeout logic\
+    \n                    :if (\$ListTimeout = \"permanent\") do={\
+    \n                        # permanent\
+    \n                        /ip firewall address-list add list=\$ListName address=\$ipOnly comment=\"Added by TLS Block Detection Script\"\
+    \n                    } else={\
+    \n                        :if (\$ListTimeout = \"reboot\") do={\
+    \n                            # reboot\
+    \n                            /ip firewall address-list add list=\$ListName address=\$ipOnly dynamic=yes comment=\"Added by TLS Block Detection Script\"\
+    \n                        } else={\
+    \n                            # dynamic\
+    \n                            /ip firewall address-list add list=\$ListName address=\$ipOnly dynamic=yes timeout=\$ListTimeout comment=\"Added by TLS Block Detection Script\"\
+    \n                        }\
+    \n                    }\
+    \n                }\
+    \n\
+    \n                :if (\$protoOnly = \"tcp\") do={\
+    \n                    /ip firewall connection remove \$conn;\
+    \n\
+    \n                    :set \$state \"drop TCP session to \$dstIP\"\
+    \n                    \$globalNoteMe value=\$state;\
+    \n\
+    \n                }\
+    \n                \
+    \n                # Ip already in address list - skip\
+    \n            } do={\
+    \n                \
+    \n                :set \$state \"connection loop error: \$err\"\
+    \n                \$globalNoteMe value=\$state;\
+    \n                \
+    \n            }\
+    \n\
+    \n        } else={\
+    \n            \
+    \n            # no connection available\
+    \n        }\
+    \n    }\
+    \n}\
+    \n\
+    \n:set \$state \"tracking..\"\
+    \n\$globalNoteMe value=\$state;\
+    \n:local beats 0; \
+    \n\
+    \n:do {\
+    \n\
+    \n    :onerror err in={\
+    \n \
+    \n        [\$detectSilentTLSBlock ListName=\$ListName ListTimeout=\$ListTimeout]\
+    \n\
+    \n    } do={\
+    \n        \
+    \n        :set \$state \"main loop error: \$err\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n        \
+    \n    }\
+    \n\
+    \n    :delay \$Interval\
+    \n\
+    \n    :set \$beats (\$beats + 1);\
+    \n    :if (\$beats = \$heartbeatEvery) do={\
+    \n\
+    \n        :set \$state \"tracking..\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :set \$beats 0; \
+    \n\
+    \n    }\
+    \n\
+    \n\
+    \n} while=(true)\
+    \n\
+    \n"
+/system script add comment="Loads domains DNS static entries using iplist.opencck.org" dont-require-permissions=yes name=doFreshDNSAddressLists owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doFreshDNSAddressLists\";\
+    \n\
+    \n:global globalCallFetch;\
+    \n:global globalNoteMe;\
+    \n:local state;\
+    \n\
+    \n:global simplercurrdatetimestr;\
+    \n\
+    \n:local WaitForFile do={\
+    \n  :local FileName [ :tostr \$1 ];\
+    \n  :local WaitTime  \$2;\
+    \n\
+    \n  :global globalNoteMe;\
+    \n  :local fileFound false;\
+    \n\
+    \n  :onerror errorName {\
+    \n    :retry command={\
+    \n\
+    \n      :local state (\"Looking for file.. \$FileName  (\$WaitTime delay)\");\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n      # rise error if no such file\
+    \n      :set fileFound false;\
+    \n      /file/get \$FileName;\
+    \n\
+    \n      :local state (\"Got it\");\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n      # reach there if no error \
+    \n      :set fileFound true;\
+    \n      :return \$fileFound;\
+    \n\
+    \n    } delay=\$WaitTime max=4\
+    \n  } do={\
+    \n    \
+    \n    :local state (\"Investigation result - \$errorName\");\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :log warning \$state;\
+    \n\
+    \n    :return \$fileFound;\
+    \n\
+    \n  }\
+    \n  \
+    \n  :while ([ :len [ /file/find where name=\$FileName ] ] > 0) do={\
+    \n    \
+    \n    :do {\
+    \n      /file/get \$FileName;\
+    \n      # found, get over here\
+    \n      :return true;\
+    \n    } on-error={ }\
+    \n    \
+    \n    :delay \$WaitTime;\
+    \n    \
+    \n  }\
+    \n  :return false;\
+    \n}  \
+    \n\
+    \n\
+    \n\
+    \n# see available groups at https://iplist.opencck.org/ru\
+    \n:local options {\"youtube\"={\"alist\"=\"alist-mangle-byedpi-YTB\"; \"forwarderName\"=\"DOH-Google\"};\"torrent\"={\"alist\"=\"alist-mangle-byedpi-TORR\"; \"forwarderName\"=\"DOH-Google\"}}; \
+    \n\
+    \n:local stamp [\$simplercurrdatetimestr];\
+    \n\
+    \n:foreach G,S in=\$options do={\
+    \n\
+    \n    :local group \$G;\
+    \n    :local alist (\$S->\"alist\");\
+    \n    :local forwarderName  (\$S->\"forwarderName\");\
+    \n    :local template \":if ([:len [/ip dns static find name={data}]] = 0) do={/ip/dns/static/add address-list=\$alist comment=\$alist-\$stamp forward-to=\$forwarderName match-subdomain=yes type=FWD name={data} ;}\";\
+    \n\
+    \n    :set state (\"Freshing \$alist DNS static entries using iplist.opencck.org at \$stamp\");\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n    :set template [:convert to=url \$template];\
+    \n\
+    \n    :local url (\"\\\"https://iplist.opencck.org/\?format=custom&data=domains&wildcard=1&group=\$group&template=\" . (\$template) . \"\\\"\");\
+    \n\
+    \n    :local outputFile \"\$alist.rsc\";\
+    \n    :local fetchCmd \"/tool/fetch mode=https url=\$url dst-path=\$outputFile\";\
+    \n\
+    \n    # remove old files\
+    \n    /file remove [find where name=\"\$outputFile\"]\
+    \n\
+    \n    :local I 2;\
+    \n    :do {\
+    \n\
+    \n        :set state \"Trying fetch of \$outputFile\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n\
+    \n        # no timeout for fetch, so it will still batch after 20sec of polling, thats why we need to WaitForFile polling for additional amount of time\
+    \n        \$globalCallFetch \$fetchCmd;\
+    \n\
+    \n        :set I (\$I - 1);\
+    \n\
+    \n    } while=([ \$WaitForFile \$outputFile 300ms ] = false && \$I > 0);\
+    \n\
+    \n    :if ([ \$WaitForFile \$outputFile 20ms ] = true) do={\
+    \n\
+    \n      :set state \"Import started of \$outputFile\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n      :local importCmd \":import file-name=\$outputFile verbose=yes\";\
+    \n      \$globalCallFetch \$importCmd;\
+    \n\
+    \n      #/file remove [find where name=\"\$outputFile\"]\
+    \n\
+    \n    } else={\
+    \n\
+    \n      :set state \"Import failed of \$outputFile\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :log error \$state;\
+    \n\
+    \n    }\
+    \n    \
+    \n}\
+    \n"
+/tool bandwidth-server set enabled=no
+/tool e-mail set certificate-verification=no from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
+/tool graphing set page-refresh=50
+/tool graphing interface add
+/tool graphing resource add
+/tool mac-server set allowed-interface-list=none
+/tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
+/tool netwatch add comment="miniAlx status check" disabled=no down-script="\
+    \n:put \"info: Netwatch UP\"\
+    \n:log info \"Netwatch UP\"\
+    \n\
+    \n:global NetwatchHostName \"miniAlx\";\
+    \n/system script run doNetwatchHost;" host=192.168.90.70 name=miniAlx test-script="" type=simple up-script="\
+    \n:put \"info: Netwatch UP\"\
+    \n:log info \"Netwatch UP\"\
+    \n\
+    \n:global NetwatchHostName \"miniAlx\";\
+    \n/system script run doNetwatchHost;"
+/tool sniffer set filter-ip-protocol=icmp filter-src-ip-address=185.85.121.15/32 streaming-server=192.168.90.170
