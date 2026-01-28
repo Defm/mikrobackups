@@ -1,4 +1,4 @@
-# 2026-01-28 17:39:07 by RouterOS 7.21
+# 2026-01-28 23:25:21 by RouterOS 7.21
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -103,6 +103,7 @@
     \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server use-reconfigure=yes
 /ip dhcp-server add add-arp=yes address-pool=pool-containers authoritative=after-2sec-delay interface=docker-infrastructure-br lease-time=1d name=docker-dhcp-server use-reconfigure=yes
 /ip smb users set [ find default=yes ] disabled=yes
+/ip socksify add disabled=no name=byedpi socks5-server=192.168.80.2
 /ppp profile add address-list=alist-l2tp-active-clients comment=to-CHR interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1 use-encryption=yes use-ipv6=no
 /ppp profile add bridge-learning=no change-tcp-mss=no comment="used by \$SECRET" local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1360 max-mtu=1360 name=chr-tunnel password=123 profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
@@ -308,7 +309,7 @@
 /ip arp add address=192.168.90.170 comment=Twinkle interface=main-infrastructure-br mac-address=FC:F5:C4:79:ED:D8
 /ip arp add address=192.168.90.88 comment="ASUS(wireless)" interface=main-infrastructure-br mac-address=54:35:30:05:9B:BD
 /ip arp add address=192.168.90.75 comment="MbpAlxm (wireless)" interface=main-infrastructure-br mac-address=BC:D0:74:0A:B2:6A
-/ip arp add address=192.168.90.85 comment="MbpAlxm (wire)" interface=main-infrastructure-br mac-address=48:65:EE:19:3C:0D
+/ip arp add address=192.168.90.85 comment="MbpAlxm (wire)" interface=main-infrastructure-br mac-address=6C:1F:F7:60:69:71
 /ip arp add address=192.168.90.2 comment="WB (wire)" interface=main-infrastructure-br mac-address=00:85:01:01:50:0E
 /ip arp add address=192.168.90.3 comment="WB (wireless)" interface=main-infrastructure-br mac-address=CA:FE:0F:0B:19:3A
 /ip arp add address=10.20.225.166 comment="wan via ACADO edge router" interface="wan A" mac-address=20:CF:30:DE:7B:2A
@@ -348,8 +349,8 @@
 /ip dhcp-server lease add address=192.168.98.88 block-access=yes comment="ASUS(wireless)(blocked)" mac-address=54:35:30:05:9B:BD server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.75 comment="MbpAlxm (wireless)" mac-address=BC:D0:74:0A:B2:6A server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.75 comment="MbpAlxm(wireless)(blocked)" mac-address=BC:D0:74:0A:B2:6A server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.85 comment="MbpAlxm (wire)" mac-address=48:65:EE:19:3C:0D server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.85 block-access=yes comment="MbpAlxm(wire)(blocked)" mac-address=48:65:EE:19:3C:0D server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.85 comment="MbpAlxm (wire)" mac-address=6C:1F:F7:60:69:71 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.85 block-access=yes comment="MbpAlxm(wire)(blocked)" mac-address=6C:1F:F7:60:69:71 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.2 comment="WB (wire)" mac-address=00:85:01:01:50:0E server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.2 block-access=yes comment="WB (wire)(blocked)" mac-address=00:85:01:01:50:0E server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.3 comment="WB (wireless)" mac-address=CA:FE:0F:0B:19:3A server=main-dhcp-server
@@ -450,8 +451,8 @@
 /ip dns static add address=192.168.90.100 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-QMUE5PH.home ttl=5m type=A
 /ip dns static add address=192.168.90.140 comment=<AUTO:DHCP:main-dhcp-server> name=HONOR9X-dbcb7b0850fde5c5.home ttl=5m type=A
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=cloudflare-ech.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=rutracker.org type=FWD
-/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=rutracker.cc type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=DOH-Google match-subdomain=yes name=rutracker.org type=FWD
+/ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=DOH-Google match-subdomain=yes name=rutracker.cc type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=fb.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=facebook.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=fbcdn.net type=FWD
@@ -477,7 +478,8 @@
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=deviantart.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=parastorage.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi comment="DPI Hack" forward-to=localhost match-subdomain=yes name=wixstatic.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=youtube.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google name=youtube.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" disabled=yes forward-to=DOH-Google match-subdomain=yes name=www.youtube.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN Hack" disabled=yes forward-to=DOH-Comss match-subdomain=yes name=chatgpt.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN Hack" disabled=yes forward-to=DOH-Comss match-subdomain=yes name=openai.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss regexp=instagram type=FWD
@@ -527,11 +529,12 @@
 /ip dns static add address=149.112.112.112 comment="Forwarder bind - DNS Quad9" name=dns.quad9.net type=A
 /ip dns static add address=195.133.25.16 comment="Forwarder bind - DNS Comss" name=router.comss.one type=A
 /ip dns static add address-list=alist-dns-roblox comment="Roblox gather" regexp=".*(ro)\?blo(x|ks).*|.*r(bl|b)x.*|.*humancoexperience.*|.*d1unuk07s6td74.*|.*lu(au|obu).*" type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=wide-youtube.l.google.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YT-TV comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=wide-youtube.l.google.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YT-TV comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=www.youtube.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=withyoutube.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=youtube type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google name=youtube type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=youtube-nocookie.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=youtube-ui.l.google.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YT-TV comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=youtube-ui.l.google.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=youtube.be type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=youtube.cat type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=youtube.co type=FWD
@@ -562,20 +565,180 @@
 /ip dns static add address-list=alist-mangle-byedpi-YT comment="DPI Hack YT" forward-to=DOH-Google match-subdomain=yes name=ytimg.com type=FWD
 /ip dns static add comment="-syslog.listenAddr.udp=:514 -syslog.useRemoteIP.udp=true -defaultMsgValue=\"CEF stub\" -syslog.extraFields.udp='{\"env\": \"home\"}' -syslog.ignoreFields.udp='[\"cef.device_event_class_id\"]' -syslog.streamFields.udp='[\"hostname\",\"env\"]'" name=CEF text="-syslog.listenAddr.udp=:514 -syslog.useRemoteIP.udp=true -defaultMsgValue=\"CEF stub\" -syslog.extraFields.udp='{\"env\": \"home\"}' -syslog.ignoreFields.udp='[\"cef.device_event_class_id\"]' -syslog.streamFields.udp='[\"hostname\",\"env\"]'" type=TXT
 /ip dns static add address-list=alist-mangle-byedpi comment="Chrome web ext" forward-to=localhost name=whitelines.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=1337x.to type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=booktracker.org type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=booktracker.work type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=filmitorrent.net type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=freetp.org type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=kinozal.me type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=wstracker.online type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=newstudio.tv type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=nnmclub.to type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=nnmstatic.win type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=eu.org type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=rustorka.com type=FWD
-/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR forward-to=DOH-Google match-subdomain=yes name=stealth.si type=FWD
 /ip dns static add address=46.39.51.221 name=ftpserver.org type=A
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=ggpht.cn type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=google.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=googleapis.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=googleusercontent.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=gstatic.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=gvt1.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=returnyoutubedislikeapi.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ae type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.al type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.am type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.at type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.az type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ba type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.bg type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.bh type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.bo type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.by type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ca type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ch type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.cl type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.ae type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.at type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.cr type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.hu type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.id type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.il type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.in type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.ke type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.kr type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.ma type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.nz type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.th type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.tz type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.ug type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.uk type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.ve type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.za type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.co.zw type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.ar type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.au type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.az type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.bd type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.bh type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.bo type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.br type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.by type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.do type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.ec type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.ee type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.eg type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.es type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.gh type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.gr type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.gt type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.hk type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.hn type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.hr type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.jm type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.jo type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.kw type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.lb type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.lv type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.ly type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.mk type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.mt type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.mx type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.my type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.ng type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.ni type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.om type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.pa type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.pe type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.ph type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.pk type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.pt type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.py type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.qa type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.ro type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.sa type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.sg type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.sv type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.tn type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.tr type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.ua type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.uy type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.com.ve type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.cr type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.cz type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.de type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.dk type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ee type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.es type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.fi type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.fr type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ge type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.gr type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.gt type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.hk type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.hr type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.hu type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ie type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.in type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.iq type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.is type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.it type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.jo type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.kr type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.kz type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.la type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.lk type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.lt type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.lu type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.lv type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ly type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ma type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.md type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.mk type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.mn type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.mx type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.my type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ng type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ni type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.no type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.pa type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.pe type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ph type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.pk type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.pl type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.pr type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.pt type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.qa type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ro type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.rs type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.sa type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.sg type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.si type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.sk type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.sn type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.sv type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.tn type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ua type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.ug type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.uy type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtube.vn type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtubego.co.id type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtubego.co.in type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtubego.com.br type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtubego.id type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260128-214251 forward-to=DOH-Google match-subdomain=yes name=youtubego.in type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=1337x.to type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=booktracker.org type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=booktracker.work type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=filmitorrent.net type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=freetp.org type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=kinozal.me type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=wstracker.online type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=newstudio.tv type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=nnmstatic.win type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=eu.org type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=rustorka.com type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=stealth.si type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=ysagin.top type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=rutor.info type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=rutor.is type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=rutor.org type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=rutracker.net type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=rutracker.ru type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=rutracker.wiki type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=rutrk.org type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=t-ru.org type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=thepiratebay.org type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=torrindex.net type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=torrent.by type=FWD
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
@@ -632,6 +795,8 @@
 /ip firewall address-list add address=192.168.80.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.90.1 comment="this router" list=alist-nat-192.168.90.1
 /ip firewall address-list add address=46.39.51.221 list=alist-nat-external-ip
+/ip firewall address-list add address=192.168.90.85 list=alist-mangle-MSS-fix-needed
+/ip firewall address-list add address=192.168.80.2 list=alist-mangle-byedpi-container
 /ip firewall filter add action=drop chain=input comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(input)" protocol=udp
 /ip firewall filter add action=drop chain=forward comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(forward)" protocol=udp
 /ip firewall filter add action=drop chain=output comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(output)" protocol=udp
@@ -870,11 +1035,12 @@
 /ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new in-interface="wan A" log=yes log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
 /ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log=yes log-prefix="#DROP UNKNOWN (FWD)"
 /ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log=yes log-prefix="#DROP UNKNOWN (INPUT)"
-/ip firewall mangle add action=change-mss chain=forward comment="DPI Hack: specific  for TVs to fix mss" disabled=yes dst-address-list=alist-mangle-byedpi-YT dst-port=80,433 new-mss=88 protocol=tcp src-address-list=alist-mangle-MSS-fix-needed tcp-flags=syn
+/ip firewall mangle add action=change-mss chain=forward comment="DPI Hack: specific  for TVs to fix mss" dst-address-list=alist-mangle-byedpi-YT-TV new-mss=88 protocol=tcp src-address-list=alist-mangle-byedpi-container tcp-flags=syn
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" in-interface=all-ppp new-mss=1360 protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=forward comment="fix MSS for l2tp/ipsec" new-mss=1360 out-interface=all-ppp protocol=tcp tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=change-mss chain=output comment="fix MSS for l2tp/ipsec (self)" new-mss=1360 protocol=tcp src-address-list=alist-fw-vpn-subnets tcp-flags=syn tcp-mss=1361-65535
 /ip firewall mangle add action=jump chain=prerouting comment=dpi-hack-chain-set-cmark connection-mark=no-mark in-interface-list=list-mangle-byedpi jump-target=dpi-hack-chain-set-cmark
+/ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-YT-TV dst-address-list=alist-mangle-byedpi-YT-TV new-connection-mark=cmark-docker-connection-YT-TV
 /ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-YT dst-address-list=alist-mangle-byedpi-YT new-connection-mark=cmark-docker-connection-YT
 /ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-IG dst-address-list=alist-mangle-byedpi-IG new-connection-mark=cmark-docker-connection-IG
 /ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-ANY dst-address-list=alist-mangle-byedpi new-connection-mark=cmark-docker-connection-ANY
@@ -884,6 +1050,7 @@
 /ip firewall mangle add action=mark-connection chain=prerouting comment="Mark l2tp (telegram)" connection-mark=no-mark connection-state=new disabled=yes dst-address-list=alist-fw-telegram-servers new-connection-mark=cmark-tunnel-connection
 /ip firewall mangle add action=jump chain=prerouting comment=dpi-hack-chain-set-rmark in-interface-list=list-mangle-byedpi jump-target=dpi-hack-chain-set-rmark routing-mark=!rmark-docker-redirect
 /ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-YT connection-mark=cmark-docker-connection-YT new-routing-mark=rmark-docker-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-YT-TV connection-mark=cmark-docker-connection-YT-TV new-routing-mark=rmark-docker-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-IG connection-mark=cmark-docker-connection-IG new-routing-mark=rmark-docker-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-ANY connection-mark=cmark-docker-connection-ANY new-routing-mark=rmark-docker-redirect passthrough=no
 /ip firewall mangle add action=return chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark
@@ -899,6 +1066,7 @@
 /ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-address-list=!alist-nat-192.168.90.1 dst-port=53 protocol=udp
 /ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-address-list=!alist-nat-192.168.90.1 dst-port=53 protocol=tcp
 /ip firewall nat add action=jump chain=srcnat comment=masq-docker-chain jump-target=masq-docker-chain
+/ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-YT-TV dst-address-list=alist-mangle-byedpi-YT-TV
 /ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-YT dst-address-list=alist-mangle-byedpi-YT
 /ip firewall nat add action=return chain=masq-docker-chain comment=masq-docker-chain
 /ip firewall nat add action=jump chain=dstnat comment=port-rdr-docker-chain dst-address-list=alist-nat-192.168.90.1 jump-target=port-rdr-docker-chain
@@ -1011,8 +1179,8 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.21 \
-    \nUptime:        2d06:57:12  \
-    \nTime:        2026-01-28 17:30:13  \
+    \nUptime:        2d12:37:12  \
+    \nTime:        2026-01-28 23:10:13  \
     \nPing:    4 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
@@ -1046,6 +1214,7 @@
 /system scheduler add interval=10m name=doStaleTSLConnectionsTrack on-event="/system script run doStaleTSLConnectionsTrack" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=08:00:00
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript;" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
 /system scheduler add interval=30m name=doCloudBackup on-event="/system script run doCloudBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
+/system scheduler add interval=10h name=doFreshDNSAddressLists on-event="/system script run doFreshDNSAddressLists" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-03-21 start-time=19:19:59
 /system script add comment="Creates static DNS entres for DHCP clients in the named DHCP server. Hostnames passed to DHCP are appended with the zone" dont-require-permissions=yes name=doUpdateStaticDNSviaDHCP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doUpdateStaticDNSviaDHCP\";\r\
@@ -4852,383 +5021,4 @@
     \n                            \\n /system scheduler;\\r\\ \
     \n                            \\n :foreach schEndpoint in=[find  where owner!=\\\"\$mgmtUsername\\\"] do={\\r\\\
     \n                            \\n  :local name [get value-name=name \\\$schEndpoint];\\r\\\
-    \n                            \\n      :local startTime [get value-name=start-time \\\$schEndpoint];\\r\\\
-    \n                            \\n      :local onEvent [get value-name=on-event \\\$schEndpoint];\\r\\\
-    \n                            \\n      :local interval [get value-name=interval \\\$schEndpoint];\\r\\\
-    \n                            \\n      :local startDate [get value-name=start-date \\\$schEndpoint];\\r\\\
-    \n                            \\n      :local comment [get value-name=comment \\\$schEndpoint];\\r\\\
-    \n                            \\n      remove \\\$schEndpoint;\\r\\\
-    \n                            \\n      add name=\\\"\\\$name\\\" start-time=\\\"\\\$startTime\\\"  on-event=\\\"\\\$onEvent\\\" interval=\\\"\\\$interval\\\" start-date=\\\"\\\$startDate\\\" comment=\\\"\\\$comment\\\";\\r\\\
-    \n                            \\n      }\\r\\\
-    \n                            \\n;\";\
-    \n\
-    \n            # delete all previous files\
-    \n            :local rsc \"ownage.rsc.txt\";\
-    \n            /file remove [/file find where name=\"\$rsc\"];\
-    \n            # create the file as it doesn't exist yet\
-    \n            /file print file=\"\$rsc\";\
-    \n            # wait for filesystem to create file\
-    \n            :delay 6;\
-    \n            # write the buffer into it\
-    \n            :set state \"Creating script file '\$rsc' with commands '\$buffer'\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n            # i will not remove this file later to got a chance to manually reproduce fetch if it fail via this script\
-    \n            /file set [/file find where name=\"\$rsc\"] contents=\"\$buffer\";    \
-    \n            :local filecontent [/file get [/file find where name=\"\$rsc\"] contents];\
-    \n            :set state \"Created command file '\$rsc' with content '\$filecontent'\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n            # push it and and autorun under mgmtUsername account\
-    \n            :set state \"Pushing autorun command file as user '\$mgmtUsername' via FTP\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n            :local fetchCmd  \"/tool fetch address=127.0.0.1 mode=ftp src-path=\$rsc dst-path=ownage.auto.rsc user=\\\"\$mgmtUsername\\\" password=\\\"\$thePass\\\" host=\\\"\\\" upload=\\\"yes\\\"\";\
-    \n\
-    \n            \$globalCallFetch \$fetchCmd;\
-    \n\
-    \n            /file remove [/file find where name=\"\$rsc\"];\
-    \n\
-    \n            :set state \"Changing scripts and schedules ownage - OK\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n        } else={\
-    \n\
-    \n            /system script set owner=\"\$mgmtUsername\" [find where owner!=\"\$mgmtUsername\"];\
-    \n            # the only way to change schedule owner is to recreate entry\\r\\\
-    \n            /system scheduler;\
-    \n            :foreach schEndpoint in=[find  where owner!=\"\$mgmtUsername\"] do={\
-    \n              :local name [get value-name=name \$schEndpoint];\
-    \n                  :local startTime [get value-name=start-time \$schEndpoint];\
-    \n                  :local onEvent [get value-name=on-event \$schEndpoint];\
-    \n                  :local interval [get value-name=interval \$schEndpoint];\
-    \n                  :local startDate [get value-name=start-date \$schEndpoint];\
-    \n                  :local comment [get value-name=comment \$schEndpoint];\
-    \n                  remove \$schEndpoint;\
-    \n                  add name=\"\$name\" start-time=\"\$startTime\"  on-event=\"\$onEvent\" interval=\"\$interval\" start-date=\"\$startDate\" comment=\"\$comment\";\
-    \n                  };\
-    \n\
-    \n            :set state \"Changing scripts and schedules ownage - OK\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n        }  \
-    \n\
-    \n\
-    \n    } else={\
-    \n        :set state \"Cant find user '\$mgmtUsername' for impersonation call\";\
-    \n        \$globalNoteMe value=\$state;\
-    \n    }\
-    \n\
-    \n} on-error={ \
-    \n    :set state \"Changing scripts and schedules ownage - ERROR\";\
-    \n    \$globalNoteMe value=\$state;\
-    \n}"
-/system script add comment="periodically Wipes memory-configered logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \"doFlushLogs\";\
-    \n\
-    \n:global globalNoteMe;\
-    \n:local state \"\"\
-    \n\
-    \n:set state \"FLUSHING logs..\"\
-    \n\$globalNoteMe value=\$state;\
-    \n\
-    \n/system/logging/action {\
-    \n  :foreach memAction in=[find target=memory] do={\
-    \n    :local actName [get value-name=name \$memAction]\
-    \n\
-    \n    clear action=\$actName;\
-    \n\
-    \n    }\
-    \n  }\
-    \n\
-    \n\
-    \n\r\
-    \n"
-/system script add comment="Fast cloud backup" dont-require-permissions=yes name=doCloudBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \"doCloudBackup\";\
-    \n\
-    \n:global globalNoteMe;\
-    \n:local state\
-    \n:local itsOk true;\
-    \n\
-    \n:local BackupPassword \"1234567890\" ;\
-    \n\
-    \n# we are not interested in output, but print without count-only is\
-    \n# required to fetch information from cloud\
-    \n\
-    \n:global globalOnPrimaryPartition;\
-    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
-    \n    \
-    \n    :set state \"WARNING: the system booted up from fallback partition - skipping backup!\"\
-    \n    :log error \$state\
-    \n    \$globalNoteMe value=\$state;\
-    \n    :error \$state;\
-    \n\
-    \n}\
-    \n\
-    \n/system backup cloud print as-value\
-    \n\
-    \n:local Backup ([ /system/backup/cloud/find ]->0);\
-    \n:if ([ :typeof \$Backup ] = \"id\") do={\
-    \n    /system/backup/cloud/upload-file action=create-and-upload password=\$BackupPassword replace=\$Backup;\
-    \n} else={\
-    \n    /system/backup/cloud/upload-file action=create-and-upload password=\$BackupPassword;\
-    \n}\
-    \n\
-    \n:local Backup ([ /system/backup/cloud/find ]->0);\
-    \n:local BackupName [/system/backup/cloud/get \$Backup name];\
-    \n:set state \"Creating and uploading backup file... \$BackupName\"\
-    \n\$globalNoteMe value=\$state;\
-    \n\
-    \n\
-    \n\
-    \n"
-/system script add comment="Track stale TLS connections and add dst to address list" dont-require-permissions=yes name=doStaleTSLConnectionsTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \"doStaleTSLConnectionsTrack\";\
-    \n\
-    \n:global globalNoteMe;\
-    \n:local state;\
-    \n\
-    \n# address list name\
-    \n:local ListName \"alist-TLS-rejected-autodetect\";\
-    \n\
-    \n#Test freq 5s, 10s, 1m \D0\B8 \D1\82.\D0\B4.\
-    \n:local Interval 1s;\
-    \n:local heartbeatEvery 15;\
-    \n\
-    \n# Address list timeout - \"permanent\", \"reboot\" or \"30m\", \"1h\", \"1d\", \"1w\" \D0\B8 \D1\82.\D0\B4.\
-    \n:local ListTimeout \"reboot\"\
-    \n\
-    \n:local detectSilentTLSBlock do={\
-    \n\
-    \n    :foreach conn in=[/ip firewall connection find where (protocol=\"udp\" or protocol=\"tcp\") and orig-packets>6 and repl-packets<3] do={\
-    \n\
-    \n        :if ([:len [/ip firewall connection get \$conn]] > 0) do={\
-    \n\
-    \n            :onerror err in={\
-    \n\
-    \n                :local dstIP [/ip firewall connection get \$conn dst-address]\
-    \n\
-    \n                :local retr ([/ip firewall connection get \$conn orig-packets] - 3)\
-    \n\
-    \n                :local ipOnly [:pick \$dstIP 0 [:find \$dstIP \":\"]]\
-    \n                :local portOnly [:pick \$dstIP ([:find \$dstIP \":\"] + 1) [:len \$dstIP]]\
-    \n                :local protoOnly [/ip firewall connection get \$conn protocol]\
-    \n                \
-    \n                :if (\$portOnly != \"443\" or ([:len \$ipOnly] = 0) or [/ip address find where address~\"\$ipOnly\"]) do={:return \"\"}\
-    \n\
-    \n                :set \$state \"\$protoOnly timeout: \$ipOnly\"\
-    \n                \$globalNoteMe value=\$state;\
-    \n\
-    \n                # Looking for existing entry\
-    \n                :if ([:len [/ip firewall address-list find list=\$ListName address=\$ipOnly]] = 0) do={\
-    \n\
-    \n                    # Add\
-    \n                    :set \$state \"TLS: \$dstIP (Retransmissions: \$retr) added to address list \\\"\$ListName\\\"\"\
-    \n                    \$globalNoteMe value=\$state;\
-    \n                    \
-    \n                    # Timeout logic\
-    \n                    :if (\$ListTimeout = \"permanent\") do={\
-    \n                        # permanent\
-    \n                        /ip firewall address-list add list=\$ListName address=\$ipOnly comment=\"Added by TLS Block Detection Script\"\
-    \n                    } else={\
-    \n                        :if (\$ListTimeout = \"reboot\") do={\
-    \n                            # reboot\
-    \n                            /ip firewall address-list add list=\$ListName address=\$ipOnly dynamic=yes comment=\"Added by TLS Block Detection Script\"\
-    \n                        } else={\
-    \n                            # dynamic\
-    \n                            /ip firewall address-list add list=\$ListName address=\$ipOnly dynamic=yes timeout=\$ListTimeout comment=\"Added by TLS Block Detection Script\"\
-    \n                        }\
-    \n                    }\
-    \n                }\
-    \n\
-    \n                :if (\$protoOnly = \"tcp\") do={\
-    \n                    /ip firewall connection remove \$conn;\
-    \n\
-    \n                    :set \$state \"drop TCP session to \$dstIP\"\
-    \n                    \$globalNoteMe value=\$state;\
-    \n\
-    \n                }\
-    \n                \
-    \n                # Ip already in address list - skip\
-    \n            } do={\
-    \n                \
-    \n                :set \$state \"connection loop error: \$err\"\
-    \n                \$globalNoteMe value=\$state;\
-    \n                \
-    \n            }\
-    \n\
-    \n        } else={\
-    \n            \
-    \n            # no connection available\
-    \n        }\
-    \n    }\
-    \n}\
-    \n\
-    \n:set \$state \"tracking..\"\
-    \n\$globalNoteMe value=\$state;\
-    \n:local beats 0; \
-    \n\
-    \n:do {\
-    \n\
-    \n    :onerror err in={\
-    \n \
-    \n        [\$detectSilentTLSBlock ListName=\$ListName ListTimeout=\$ListTimeout]\
-    \n\
-    \n    } do={\
-    \n        \
-    \n        :set \$state \"main loop error: \$err\"\
-    \n        \$globalNoteMe value=\$state;\
-    \n        \
-    \n    }\
-    \n\
-    \n    :delay \$Interval\
-    \n\
-    \n    :set \$beats (\$beats + 1);\
-    \n    :if (\$beats = \$heartbeatEvery) do={\
-    \n\
-    \n        :set \$state \"tracking..\"\
-    \n        \$globalNoteMe value=\$state;\
-    \n        :set \$beats 0; \
-    \n\
-    \n    }\
-    \n\
-    \n\
-    \n} while=(true)\
-    \n\
-    \n"
-/system script add comment="Loads domains DNS static entries using iplist.opencck.org" dont-require-permissions=yes name=doFreshDNSAddressLists owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \"doFreshDNSAddressLists\";\
-    \n\
-    \n:global globalCallFetch;\
-    \n:global globalNoteMe;\
-    \n:local state;\
-    \n\
-    \n\
-    \n:local WaitForFile do={\
-    \n  :local FileName [ :tostr \$1 ];\
-    \n  :local WaitTime  \$2;\
-    \n\
-    \n  :global globalNoteMe;\
-    \n  :local fileFound false;\
-    \n\
-    \n  :onerror errorName {\
-    \n    :retry command={\
-    \n\
-    \n      :local state (\"Looking for file.. \$FileName every \$WaitTime\");\
-    \n      \$globalNoteMe value=\$state;\
-    \n\
-    \n      # rise error if no such file\
-    \n      :set fileFound false;\
-    \n      /file/get \$FileName;\
-    \n\
-    \n      :local state (\"Got it\");\
-    \n      \$globalNoteMe value=\$state;\
-    \n\
-    \n      # reach there if no error \
-    \n      :set fileFound true;\
-    \n      :return \$fileFound;\
-    \n\
-    \n    } delay=\$WaitTime max=4\
-    \n  } do={\
-    \n    \
-    \n    :local state (\"Investigation result - \$errorName\");\
-    \n    \$globalNoteMe value=\$state;\
-    \n    :log warning \$state;\
-    \n\
-    \n    :return \$fileFound;\
-    \n\
-    \n  }\
-    \n  \
-    \n  :while ([ :len [ /file/find where name=\$FileName ] ] > 0) do={\
-    \n    \
-    \n    :do {\
-    \n      /file/get \$FileName;\
-    \n      # found, get over here\
-    \n      :return true;\
-    \n    } on-error={ }\
-    \n    \
-    \n    :delay \$WaitTime;\
-    \n    \
-    \n  }\
-    \n  :return false;\
-    \n}  \
-    \n\
-    \n\
-    \n\
-    \n# see available groups at https://iplist.opencck.org/ru\
-    \n:local options {\"youtube\"={\"alist\"=\"alist-mangle-byedpi-YT\"; \"forwarderName\"=\"DOH-Google\"};\"torrent\"={\"alist\"=\"alist-mangle-byedpi-TORR\"; \"forwarderName\"=\"DOH-Google\"}}; \
-    \n\
-    \n:foreach G,S in=\$options do={\
-    \n\
-    \n    :local group \$G;\
-    \n    :local alist (\$S->\"alist\");\
-    \n    :local forwarderName  (\$S->\"forwarderName\");\
-    \n    :local template \"/ip/dns/static/add address-list=\$alist comment=\$alist forward-to=\$forwarderName match-subdomain=yes type=FWD name={data}\";\
-    \n\
-    \n    :set state (\"Freshing \$alist DNS static entries using iplist.opencck.org\");\
-    \n    \$globalNoteMe value=\$state;\
-    \n\
-    \n    :set template [:convert to=url \$template];\
-    \n\
-    \n    :local url (\"\\\"https://iplist.opencck.org/\?format=custom&data=domains&wildcard=1&group=\$group&template=\" . (\$template) . \"\\\"\");\
-    \n\
-    \n    :local outputFile \"\$alist.rsc\";\
-    \n    :local fetchCmd \"/tool/fetch mode=https url=\$url dst-path=\$outputFile\";\
-    \n\
-    \n    # remove old files\
-    \n    /file remove [find where name=\"\$outputFile\"]\
-    \n\
-    \n    :local I 5;\
-    \n    :do {\
-    \n\
-    \n        :set state \"Trying fetch of \$outputFile\"\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n\
-    \n        # no timeout for fetch, so it will still batch after 20sec of polling, thats why we need to WaitForFile polling for additional amount of time\
-    \n        \$globalCallFetch \$fetchCmd;\
-    \n\
-    \n        :set I (\$I - 1);\
-    \n\
-    \n    } while=([ \$WaitForFile \$outputFile 300ms ] = false && \$I > 0);\
-    \n\
-    \n    :if ([ \$WaitForFile \$outputFile 20ms ] = true) do={\
-    \n\
-    \n      :set state \"Import started of \$outputFile\"\
-    \n      \$globalNoteMe value=\$state;\
-    \n\
-    \n      :local importCmd \":import file-name=\$outputFile verbose=yes\";\
-    \n      \$globalCallFetch \$importCmd;\
-    \n\
-    \n      /file remove [find where name=\"\$outputFile\"]\
-    \n\
-    \n    } else={\
-    \n\
-    \n      :set state \"Import failed of \$outputFile\"\
-    \n      \$globalNoteMe value=\$state;\
-    \n      :log error \$state;\
-    \n\
-    \n    }\
-    \n    \
-    \n}\
-    \n"
-/tool bandwidth-server set enabled=no
-/tool e-mail set certificate-verification=no from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
-/tool graphing set page-refresh=50
-/tool graphing interface add
-/tool graphing resource add
-/tool mac-server set allowed-interface-list=none
-/tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
-/tool netwatch add comment="miniAlx status check" disabled=no down-script="\
-    \n:put \"info: Netwatch UP\"\
-    \n:log info \"Netwatch UP\"\
-    \n\
-    \n:global NetwatchHostName \"miniAlx\";\
-    \n/system script run doNetwatchHost;" host=192.168.90.70 name=miniAlx test-script="" type=simple up-script="\
-    \n:put \"info: Netwatch UP\"\
-    \n:log info \"Netwatch UP\"\
-    \n\
-    \n:global NetwatchHostName \"miniAlx\";\
-    \n/system script run doNetwatchHost;"
-/tool sniffer set filter-ip-protocol=icmp filter-src-ip-address=185.85.121.15/32 streaming-server=192.168.90.170
+    \n                            \\n      :local startTime [get value-name=start-time \\\$
