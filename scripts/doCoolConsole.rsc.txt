@@ -75,8 +75,6 @@ $globalNoteMe value=$state;
         :if ([:len $1]!=0) do={
             :do {
                 :local host [:resolve "$1"];
-                :log warning "Resolving: $1";
-                :put "Resolving: $1 - Ok"
                 :return $host;
             } on-error= {
                 :log error "FAIL resolving: $1";

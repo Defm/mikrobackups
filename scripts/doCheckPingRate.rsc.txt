@@ -1,18 +1,17 @@
 
-:local sysname [/system identity get name];
-:local scriptname "doCheckPingRate";
 :global globalScriptBeforeRun;
-$globalScriptBeforeRun $scriptname;
+$globalScriptBeforeRun "doCheckPingRate";
 
 :global globalNoteMe;
+:local state;
 
 #Mikrotik Ping more than 25ms to send mail
 
 :local host  [:resolve "ya.ru"];
 :local ms 20;
 
-:log info ("Checking ping rate $host");
-:put "Checking ping rate to $host";
+:set state ("Checking ping rate $host");
+$globalNoteMe value=$state;
 
 :local avgRttA value=0;
 :local avgRttB value=0;
@@ -30,20 +29,21 @@ $globalScriptBeforeRun $scriptname;
  /delay delay-time=1;
 }
 
-:log info ("Ping Average for 8.8.8.8: ".[:tostr ($avgRttA / $numPing )]."ms");
-:log info ("Ping Average for $host: ".[:tostr ($avgRttB / $numPing )]."ms");
+:set state ("Ping Average for 8.8.8.8: ".[:tostr ($avgRttA / $numPing )]."ms");
+$globalNoteMe value=$state;
+
+:set state ("Ping Average for $host: ".[:tostr ($avgRttB / $numPing )]."ms");
+$globalNoteMe value=$state;
 
 :local rate ($avgRttB / $numPing );
 
 :if ($rate >= $ms) do={
 
-:local inf "$scriptname on $sysname: Yandex latency is too high ($rate ms, over $ms ms)";
+    :set state "Yandex latency is too high ($rate ms, over $ms ms)";
+    $globalNoteMe value=$state;
+    :log warning $state;
 
-$globalNoteMe value=$inf;
-
-:global globalTgMessage;
-$globalTgMessage value=$inf;
-
-#some sound
+    :global globalTgMessage;
+    $globalTgMessage value=$state;
 
 }
