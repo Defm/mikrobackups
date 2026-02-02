@@ -10,7 +10,7 @@ $globalScriptBeforeRun "doStaleTSLConnectionsTrack";
 
 #Test freq 5s, 10s, 1m и т.д.
 :local Interval 1s;
-:local heartbeatEvery 15;
+:local heartbeatEvery 300; # every N's Interval
 
 # Address list timeout - "permanent", "reboot" or "30m", "1h", "1d", "1w" и т.д.
 :local ListTimeout "reboot"

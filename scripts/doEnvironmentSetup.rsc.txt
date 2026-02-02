@@ -555,6 +555,16 @@
         :local partitionName "primary";
         :local OnPrimaryPartition false;
         
+        :local partitionsActivated [system/device-mode/get partitions];
+
+        :if (!$partitionsActivated) do={
+
+            :local state ("Investigation result - partitions disabled");
+            $globalNoteMe value=$state;
+            :local OnPrimaryPartition true;
+            :return $OnPrimaryPartition;
+        }
+
         :onerror errorName in={ 
             
             # test if it exist in /partitions
@@ -570,7 +580,7 @@
                 }
             } else={
                 :set OnPrimaryPartition true;
-                :error "disabled";
+                :error "partitions not set";
             }
 
         } do={ 
@@ -586,4 +596,5 @@
     }
 
 }
+
 

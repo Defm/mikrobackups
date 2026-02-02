@@ -1,0 +1,120 @@
+
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "doFreshDNSAddressLists";
+
+:global globalCallFetch;
+:global globalNoteMe;
+:local state;
+
+:global simplercurrdatetimestr;
+
+:local WaitForFile do={
+  :local FileName [ :tostr $1 ];
+  :local WaitTime  $2;
+
+  :global globalNoteMe;
+  :local fileFound false;
+
+  :onerror errorName {
+    :retry command={
+
+      :local state ("Looking for file.. $FileName  ($WaitTime delay)");
+      $globalNoteMe value=$state;
+
+      # rise error if no such file
+      :set fileFound false;
+      /file/get $FileName;
+
+      :local state ("Got it");
+      $globalNoteMe value=$state;
+
+      # reach there if no error 
+      :set fileFound true;
+      :return $fileFound;
+
+    } delay=$WaitTime max=4
+  } do={
+    
+    :local state ("Investigation result - $errorName");
+    $globalNoteMe value=$state;
+    :log warning $state;
+
+    :return $fileFound;
+
+  }
+  
+  :while ([ :len [ /file/find where name=$FileName ] ] > 0) do={
+    
+    :do {
+      /file/get $FileName;
+      # found, get over here
+      :return true;
+    } on-error={ }
+    
+    :delay $WaitTime;
+    
+  }
+  :return false;
+}  
+
+
+
+# see available groups at https://iplist.opencck.org/ru
+:local options {"youtube"={"alist"="alist-mangle-byedpi-YTB"; "forwarderName"="DOH-Google"};"torrent"={"alist"="alist-mangle-byedpi-TORR"; "forwarderName"="DOH-Google"}}; 
+
+:local stamp [$simplercurrdatetimestr];
+
+:foreach G,S in=$options do={
+
+    :local group $G;
+    :local alist ($S->"alist");
+    :local forwarderName  ($S->"forwarderName");
+    :local template ":if ([:len [/ip dns static find name={data}]] = 0) do={/ip/dns/static/add address-list=$alist comment=$alist-$stamp forward-to=$forwarderName match-subdomain=yes type=FWD name={data} ;}";
+
+    :set state ("Freshing $alist DNS static entries using iplist.opencck.org at $stamp");
+    $globalNoteMe value=$state;
+
+    :set template [:convert to=url $template];
+
+    :local url ("\"https://iplist.opencck.org/?format=custom&data=domains&wildcard=1&group=$group&template=" . ($template) . "\"");
+
+    :local outputFile "$alist.rsc";
+    :local fetchCmd "/tool/fetch mode=https url=$url dst-path=$outputFile";
+
+    # remove old files
+    /file remove [find where name="$outputFile"]
+
+    :local I 2;
+    :do {
+
+        :set state "Trying fetch of $outputFile"
+        $globalNoteMe value=$state;
+
+
+        # no timeout for fetch, so it will still batch after 20sec of polling, thats why we need to WaitForFile polling for additional amount of time
+        $globalCallFetch $fetchCmd;
+
+        :set I ($I - 1);
+
+    } while=([ $WaitForFile $outputFile 300ms ] = false && $I > 0);
+
+    :if ([ $WaitForFile $outputFile 20ms ] = true) do={
+
+      :set state "Import started of $outputFile"
+      $globalNoteMe value=$state;
+
+      :local importCmd ":import file-name=$outputFile verbose=yes";
+      $globalCallFetch $importCmd;
+
+      #/file remove [find where name="$outputFile"]
+
+    } else={
+
+      :set state "Import failed of $outputFile"
+      $globalNoteMe value=$state;
+      :log error $state;
+
+    }
+    
+}
+
