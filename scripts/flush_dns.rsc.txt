@@ -1,0 +1,4 @@
+:global globalScriptBeforeRun;
+$globalScriptBeforeRun "flush_dns";
+
+/ip/dns/cache/flush
