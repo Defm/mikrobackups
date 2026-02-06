@@ -1,9 +1,11 @@
-# 2026-01-20 21:13:02 by RouterOS 7.20.1
+# 2026-02-04 21:13:02 by RouterOS 7.21.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
 # serial number = HD208EFDKQY
 /interface bridge add admin-mac=18:FD:74:94:FD:70 auto-mac=no igmp-snooping=yes name="main infrastructure" port-cost-mode=short
+/interface ethernet set [ find default-name=ether1 ] arp=disabled name="lan A"
+/interface ethernet set [ find default-name=ether2 ] name="lan B"
 /interface wireless
 # managed by CAPsMAN
 # channel: 2412/20/gn(17dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
@@ -12,8 +14,6 @@ set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-
 # managed by CAPsMAN
 # channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
-/interface ethernet set [ find default-name=ether1 ] arp=disabled name="lan A"
-/interface ethernet set [ find default-name=ether2 ] name="lan B"
 /interface lte apn set [ find default=yes ] ip-type=ipv4 use-network-apn=no
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
 /ip dhcp-client option add code=60 name=classid value="'mikrotik-cap'"
@@ -21,9 +21,10 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
+/system logging action set 1 disk-file-name=journal
 /system logging action add name=IpsecOnScreenLog target=memory
-/system logging action add disk-file-count=1 disk-file-name=flash/ScriptsDiskLog disk-lines-per-file=10000 name=ScriptsDiskLog target=disk
-/system logging action add disk-file-count=1 disk-file-name=flash/ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
+/system logging action add disk-file-count=5 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
+/system logging action add disk-file-count=20 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
 /system logging action add name=OnScreenLog target=memory
 /system logging action add name=DHCPOnScreenLog target=memory
@@ -31,12 +32,19 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /system logging action add name=RouterControlLog target=memory
 /system logging action add name=OSPFOnscreenLog target=memory
 /system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-name=flash/AuthDiskLog name=AuthDiskLog target=disk
+/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
 /system logging action add name=ParseMemoryLog target=memory
 /system logging action add name=CAPSOnScreenLog target=memory
 /system logging action add name=FirewallOnScreenLog target=memory
-/system logging action add name=FTPMemoryLog target=memory
+/system logging action add name=SSHOnScreenLog target=memory
+/system logging action add name=PoEOnscreenLog target=memory
+/system logging action add name=EmailOnScreenLog target=memory
+/system logging action add cef-event-delimiter="" name=VictoriaRemoteLog remote=victoria.home remote-log-format=cef target=remote
+/system logging action add name=TransfersOnscreenLog target=memory
+/system logging action add disk-file-count=1 disk-file-name=PKGInstallationLog disk-lines-per-file=100 name=PKGInstallationLog target=disk
+/system logging action add disk-file-count=1 disk-file-name=REBOOTLog disk-lines-per-file=100 name=REBOOTDoskLog target=disk
+/system logging action add name=DockerOnscreenLog target=memory
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
 /user group add name=mktxp policy=read,api,!local,!telnet,!ssh,!ftp,!reboot,!write,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!romon,!rest-api
@@ -56,9 +64,9 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.204 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.221 name=ftpserver.org type=A
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.204 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.221 list=alist-nat-external-ip
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
 /ip firewall service-port set sip disabled=yes
@@ -74,6 +82,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /ip tftp add real-filename=NAS/ req-filename=.*
 /ip upnp set enabled=yes
 /ip upnp interfaces add interface="main infrastructure" type=internal
+/ipv6 nd set [ find default=yes ] advertise-dns=yes
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
 /routing bfd configuration add disabled=no
@@ -92,20 +101,32 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system logging add action=OnScreenLog topics=smb
 /system logging add action=OnScreenLog topics=critical
 /system logging add action=DHCPOnScreenLog topics=dhcp
-/system logging add action=DNSOnScreenLog topics=dns
+/system logging add action=DNSOnScreenLog topics=dns,!packet
 /system logging add action=OSPFOnscreenLog topics=ospf,!raw
 /system logging add action=OnScreenLog topics=event
 /system logging add action=L2TPOnScreenLog topics=l2tp
 /system logging add action=AuthDiskLog topics=account
 /system logging add action=CertificatesOnScreenLog topics=certificate
 /system logging add action=AuthDiskLog topics=manager
-/system logging add action=ParseMemoryLog topics=account
-/system logging add action=ParseMemoryLog topics=wireless
+/system logging add action=ParseMemoryLog topics=warning
 /system logging add action=CAPSOnScreenLog topics=caps
 /system logging add action=FirewallOnScreenLog topics=firewall
 /system logging add action=CAPSOnScreenLog topics=wireless
-/system logging add action=ParseMemoryLog topics=info,system,!script
-/system logging add action=FTPMemoryLog topics=tftp
+/system logging add action=ParseMemoryLog topics=system
+/system logging add action=SSHOnScreenLog topics=ssh,!packet
+/system logging add action=PoEOnscreenLog topics=poe-out
+/system logging add action=EmailOnScreenLog topics=e-mail
+/system logging add action=ParseMemoryLog topics=error
+/system logging add action=ParseMemoryLog topics=account
+/system logging add action=ParseMemoryLog topics=critical
+/system logging add action=TransfersOnscreenLog topics=fetch
+/system logging add action=PKGInstallationLog regex="^.*install.*\$"
+/system logging add action=REBOOTDoskLog regex="^.*reboot.*\$" topics=!dhcp
+/system logging add action=PKGInstallationLog regex="^.*package.*\$"
+/system logging add action=DockerOnscreenLog topics=container
+/system logging add action=VictoriaRemoteLog disabled=yes topics=firewall
+/system logging add action=VictoriaRemoteLog topics=!packet,!debug,!raw,!dns,!firewall,!ssh
+/system logging add action=REBOOTDoskLog regex="^.*supout.*\$"
 /system note set note=Pending show-at-cli-login=yes
 /system ntp client set enabled=yes
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=2018-03-01 start-time=15:55:00
@@ -260,6 +281,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
     \n\$globalScriptBeforeRun \"doCoolConsole\";\
@@ -276,6 +298,8 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n:set state \"Flush global note\"\
     \n\$globalNoteMe value=\$state;\
     \n/system note set note=\"Pending\";\
+    \n\
+    \n\
     \n\
     \n:local sysver \"NA\";\
     \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\
@@ -309,6 +333,18 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n  }\
     \n}\
     \n\
+    \n:global globalOnPrimaryPartition;\
+    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
+    \n    \
+    \n    :set state \"WARNING: the system booted up from fallback partition!\"\
+    \n    :log error \$state\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n    :set logcontenttemp \"\$state\"\
+    \n    :set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\") \
+    \n\
+    \n}\
+    \n\
     \n:set logcontenttemp \"Ipsec:         \$ipsecState\"\
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\" \\n\") \
     \n:set logcontenttemp \"Route:     \$defaultRoute\"\
@@ -324,8 +360,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n        :if ([:len \$1]!=0) do={\
     \n            :do {\
     \n                :local host [:resolve \"\$1\"];\
-    \n                :log warning \"Resolving: \$1\";\
-    \n                :put \"Resolving: \$1 - Ok\"\
     \n                :return \$host;\
     \n            } on-error= {\
     \n                :log error \"FAIL resolving: \$1\";\
@@ -418,6 +452,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n/system note set note=\"\$logcontent\"  \
     \n\
+    \n\
     \n\r\
     \n"
 /system script add comment="Runs at midnight to have less flashes at living room (swith off all LEDs)" dont-require-permissions=yes name=doLEDoff owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
@@ -429,12 +464,14 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\r\
     \n\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Runs at morning to get flashes back (swith on all LEDs)" dont-require-permissions=yes name=doLEDon owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doLEDon\";\r\
     \n\r\
     \n/system leds settings set all-leds-off=never;\r\
+    \n\r\
     \n\r\
     \n\r\
     \n\r\
@@ -464,6 +501,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n#clear all global variables\
     \n/system script environment remove [find];\
+    \n\r\
     \n\r\
     \n\r\
     \n"
@@ -564,6 +602,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="Mikrotik system log dump, collects new entries once per minute. You should have 'ParseMemoryLog' buffer at your 'system-logging'. Calls 'doPeriodicLogParse' when new logs available" dont-require-permissions=yes name=doPeriodicLogDump owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
     \n:local scriptname \"doPeriodicLogDump\";\
@@ -579,9 +618,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\r\
     \n\r\
     \n"
-/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n\
-    \n:global globalNoteMe;\
+/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalNoteMe;\
     \n:if (!any \$globalNoteMe) do={\
     \n\
     \n  :global globalNoteMe do={\
@@ -1126,6 +1163,60 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n}\
     \n\
+    \n#Example call\
+    \n#:put [\$globalOnPrimaryPartition]\
+    \n#test if we are boot up from a primary partition(not fallback or recovery)\
+    \n:global globalOnPrimaryPartition;\
+    \n:if (!any \$globalOnPrimaryPartition) do={\
+    \n    :global globalOnPrimaryPartition do={\
+    \n        \
+    \n        :global globalNoteMe;\
+    \n        # \
+    \n        :local partitionName \"primary\";\
+    \n        :local OnPrimaryPartition false;\
+    \n        \
+    \n        :local partitionsActivated [system/device-mode/get partitions];\
+    \n\
+    \n        :if (!\$partitionsActivated) do={\
+    \n\
+    \n            :local state (\"Investigation result - partitions disabled\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :local OnPrimaryPartition true;\
+    \n            :return \$OnPrimaryPartition;\
+    \n        }\
+    \n\
+    \n        :onerror errorName in={ \
+    \n            \
+    \n            # test if it exist in /partitions\
+    \n            :local partition [/partitions find name=\$partitionName];\
+    \n            :if ([:len \$partition] > 0) do={\
+    \n                :local running [/partition get \$partition running];\
+    \n                :if (\$running) do={\
+    \n                    :set OnPrimaryPartition true;\
+    \n                    :error \"primary active\";\
+    \n                } else={\
+    \n                    :set OnPrimaryPartition false;\
+    \n                    :error \"primary inactive\";\
+    \n                }\
+    \n            } else={\
+    \n                :set OnPrimaryPartition true;\
+    \n                :error \"partitions not set\";\
+    \n            }\
+    \n\
+    \n        } do={ \
+    \n\
+    \n            :local state (\"Investigation result - \$errorName\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :return \$OnPrimaryPartition;\
+    \n        }\
+    \n       \
+    \n        :put \$OnPrimaryPartition \
+    \n        :return \$OnPrimaryPartition;\
+    \n    }\
+    \n\
+    \n}\
+    \n\
     \n\r\
     \n"
 /system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
@@ -1182,6 +1273,17 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n  :set itsOk false;\
     \n}\
     \n\
+    \n\
+    \n:global globalOnPrimaryPartition;\
+    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
+    \n    \
+    \n    :set state \"WARNING: the system booted up from fallback partition - skipping backup!\"\
+    \n    :log error \$state\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :set itsOk false;\
+    \n    :error \$state;\
+    \n\
+    \n}\
     \n\
     \n:local fname (\"BACKUP-\$sysname-\$stamp\")\
     \n\
@@ -1285,7 +1387,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n    }\
     \n\
     \n    :delay 2s;\
-    \n    #/file remove \$backupFile;\
+    \n    /file remove \$backupFile;\
     \n\
     \n  }\
     \n}\
@@ -1308,6 +1410,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n  :error \$inf; \
     \n \
     \n}\
+    \n\
     \n\
     \n\
     \n\r\
@@ -1347,6 +1450,11 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n# special password appendix - current month 3chars\
     \n:local pfx [:pick [/system clock get date] 0 3 ];\
     \n:local newPassword \"\";\
+    \n\
+    \n:local date [/system clock get date]; \
+    \n:local monthNum [:tonum [:pick \$date 5 7]];\
+    \n:local months {\"jan\";\"feb\";\"mar\";\"apr\";\"may\";\"jun\";\"jul\";\"aug\";\"sep\";\"oct\";\"nov\";\"dec\"};\
+    \n:local pfx  ([:pick \$months (\$monthNum-1)]); \
     \n\
     \n:set newPassword [:rndstr length=6 from=\"0123456789dglpqwBHNTQV\"];\
     \n\
@@ -1410,7 +1518,8 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n  \$globalTgMessage value=\$inf;\
     \n  :error \$inf; \
     \n  \
-    \n}\r\
+    \n}\
+    \n\r\
     \n"
 /system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n:local sysname [/system identity get name];\
@@ -1513,6 +1622,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n}\
     \n\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="This will check for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time. Will reboot the router when overload" dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:local sysname [/system identity get name];\r\
@@ -1614,6 +1724,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\r\
     \n\r\
     \n\r\
+    \n\r\
     \n"
 /system script add comment="A very special script for CFG restore from *.rsc files (not from backup). This one should be placed at flash/perfectrestore.rsc, your config should be at flash/backup.rsc. Run 'Reset confuguration' with 'no default config', choose 'flash/perfectrestore.rsc' as 'run after reset. Pretty logs will be at flash/import.log and flash/perfectrestore.log" dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n\r\
@@ -1711,6 +1822,8 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n\
     \n\
     \n\r\
+    \n\r\
     \n"
 /tool bandwidth-server set authenticate=no
-/tool e-mail set from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
+/tool e-mail set certificate-verification=no from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
+/tool graphing resource add

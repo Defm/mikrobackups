@@ -113,9 +113,6 @@
     :global globalNoteMe;
     :global SECRET;
 
-    $SECRET set TELEGRAM_TOKEN password="798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M";
-    $SECRET set TELEGRAM_CHAT_ID password="-1001798127067";
-
     :local tToken "$[$SECRET get TELEGRAM_TOKEN]";
     :local tGroupID "$[$SECRET get TELEGRAM_CHAT_ID]";
     :local tURL "https://api.telegram.org/bot$tToken/sendMessage\?chat_id=$tGroupID";
@@ -471,52 +468,6 @@
   }
 }
 
-
-
-:if (!any $globalCallFetch) do={
-  :global globalCallFetch do={
-
-    # this one calls Fetch and catches its errors
-    :global globalNoteMe;
-    :if ([:len $1] > 0) do={
-
-        # something like "/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes"
-        :local fetchCmd "$1";
-
-        :local state "I'm now putting: $fetchCmd";
-        $globalNoteMe value=$state;
-
-        /file remove [find where name="fetch.log.txt"]
-        {
-            :local jobid [:execute file=fetch.log.txt script=$fetchCmd]
-
-            :local state "Waiting the end of process for file fetch.log to be ready, max 20 seconds...";
-            $globalNoteMe value=$state;
-
-            :global Gltesec 0
-            :while (([:len [/sys script job find where .id=$jobid]] = 1) && ($Gltesec < 20)) do={
-                :set Gltesec ($Gltesec + 1)
-                :delay 1s
-
-                :local state "waiting... $Gltesec";
-                $globalNoteMe value=$state;
-
-            }
-
-            :local state "Done. Elapsed Seconds: $Gltesec\r\n";
-            $globalNoteMe value=$state;
-
-            :if ([:len [/file find where name="fetch.log.txt"]] = 1) do={
-                :local filecontent [/file get [/file find where name="fetch.log.txt"] contents]
-                :put "Result of Fetch:\r\n****************************\r\n$filecontent\r\n****************************"
-            } else={
-                :put "File not created."
-            }
-        }
-    }
-  }
-}
-
 #:put [$simplercurrdatetimestr]
 :if (!any $simplercurrdatetimestr) do={
 :global simplercurrdatetimestr do={
@@ -542,6 +493,66 @@
 }
 
 }
+
+:if (!any $globalCallFetch) do={
+  :global globalCallFetch do={
+
+    # this one calls Fetch and catches its errors
+    :global globalNoteMe;
+    :if ([:len $1] > 0) do={
+
+        # something like "/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes"
+        :local fetchCmd "$1";
+
+        :local state "I'm now putting: $fetchCmd";
+        $globalNoteMe value=$state;
+
+        :global simplercurrdatetimestr;
+        :local stamp [$simplercurrdatetimestr];
+
+        :local salt [:rndstr length=6 from="HtsP2n8qZ"];        
+        :local logName "RAM/$stamp-$salt.log.txt";
+
+        /file remove [find where name="$logName"]
+        {
+            :local jobid [:execute file=$logName script=$fetchCmd]
+
+            :set state "Waiting the end of process for prototol $logName to be ready, max 20 seconds...";
+            $globalNoteMe value=$state;
+
+            :global Gltesec 0
+            :while (([:len [/sys script job find where .id=$jobid]] = 1) && ($Gltesec < 20)) do={
+                :set Gltesec ($Gltesec + 1)
+                :delay 1s
+
+                :set state "waiting fetch result... $Gltesec";
+                $globalNoteMe value=$state;
+
+            }
+
+            :set state "Done. Elapsed Seconds: $Gltesec\r\n";
+            $globalNoteMe value=$state;
+
+            :if ([:len [/file find where name="$logName"]] = 1) do={
+ 
+                :local filecontent [/file get [/file find where name="$logName"] contents]
+                :set state "Result of Fetch:\r\n****************************\r\n$filecontent\r\n****************************";
+                $globalNoteMe value=$state;
+
+                /file remove [find where name="$logName"];
+
+            } else={
+
+                :set state "Result of Fetch:\r\n****************************\r\n 20Sec Timeout exceeded - still no log file \r\n****************************";
+                $globalNoteMe value=$state;
+
+            }
+        }
+    }
+  }
+}
+
+
 
 #Example call
 #:put [$globalOnPrimaryPartition]

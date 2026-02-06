@@ -1,4 +1,4 @@
-# 2026-01-30 21:13:03 by RouterOS 7.21
+# 2026-02-04 21:13:03 by RouterOS 7.21
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -11,13 +11,13 @@
 /interface bridge add arp=proxy-arp fast-forward=no name=ip-mapping-br port-cost-mode=short
 /interface bridge add admin-mac=48:8F:5A:D4:5F:69 arp=reply-only auto-mac=no dhcp-snooping=yes igmp-snooping=yes name=main-infrastructure-br port-cost-mode=short
 /interface bridge add arp=proxy-arp fast-forward=no name=ospf-loopback-br
-/interface ethernet set [ find default-name=ether2 ] arp=disabled comment="to WB(wire)" l2mtu=1514 loop-protect=on name="lan A" poe-out=forced-on
-/interface ethernet set [ find default-name=ether3 ] arp=disabled comment="to miniAlx(wire)" l2mtu=1514 loop-protect=on name="lan B"
-/interface ethernet set [ find default-name=ether4 ] advertise=10M-baseT-half,10M-baseT-full,100M-baseT-half,100M-baseT-full,1G-baseT-half,1G-baseT-full,2.5G-baseT,2.5G-baseX arp=disabled comment="to MbpAlxm(wire)" l2mtu=1514 loop-protect=on name="lan C"
-/interface ethernet set [ find default-name=ether5 ] arp=disabled comment="to capxl(wire)" l2mtu=1514 name="lan D"
+/interface ethernet set [ find default-name=ether2 ] arp=disabled l2mtu=1514 loop-protect=on name="lan A" poe-out=forced-on
+/interface ethernet set [ find default-name=ether3 ] arp=disabled l2mtu=1514 loop-protect=on name="lan B"
+/interface ethernet set [ find default-name=ether4 ] advertise=10M-baseT-half,10M-baseT-full,100M-baseT-half,100M-baseT-full,1G-baseT-half,1G-baseT-full,2.5G-baseT,2.5G-baseX arp=disabled l2mtu=1514 loop-protect=on name="lan C"
+/interface ethernet set [ find default-name=ether5 ] arp=disabled l2mtu=1514 name="lan D"
 /interface ethernet set [ find default-name=ether6 ] arp=disabled l2mtu=1514 loop-protect=on name="lan E"
-/interface ethernet set [ find default-name=ether7 ] arp=disabled comment="to Bedroom(wire)" l2mtu=1514 loop-protect=on name="lan F"
-/interface ethernet set [ find default-name=ether8 ] comment="to ATV(wire)" l2mtu=1514 loop-protect=on name="lan G"
+/interface ethernet set [ find default-name=ether7 ] arp=disabled l2mtu=1514 loop-protect=on name="lan F"
+/interface ethernet set [ find default-name=ether8 ] l2mtu=1514 loop-protect=on name="lan G"
 /interface ethernet set [ find default-name=sfp-sfpplus1 ] disabled=yes l2mtu=1514 name=optic
 /interface ethernet set [ find default-name=ether1 ] arp=proxy-arp l2mtu=1514 mac-address=20:CF:30:DE:7B:2A name="wan A" poe-out=off
 /interface veth add address=192.168.80.2/24 container-mac-address=48:01:92:49:E4:C5 dhcp=no gateway=192.168.80.1 gateway6="" mac-address=48:01:92:49:E4:C4 name=byedpi-tunnel
@@ -106,10 +106,10 @@
 /ip dhcp-server add add-arp=yes address-pool=pool-containers authoritative=after-2sec-delay interface=docker-infrastructure-br lease-time=1d name=docker-dhcp-server use-reconfigure=yes
 /ip smb users set [ find default=yes ] disabled=yes
 /ip socksify add disabled=no name=byedpi socks5-server=192.168.80.2
-/ppp profile add address-list=alist-l2tp-active-clients comment=to-CHR interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1 use-ipv6=no
+/ppp profile add address-list=alist-l2tp-active-clients change-tcp-mss=no comment=to-CHR interface-list=list-l2tp-tunnels local-address=10.0.0.3 name=l2tp-no-encrypt-site2site only-one=no remote-address=10.0.0.1 use-ipv6=no
 /ppp profile add bridge-learning=no change-tcp-mss=no comment="used by \$SECRET" local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1360 max-mtu=1360 name=chr-tunnel password=123 profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
-/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPadProAlx name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
+/queue simple add comment=dtq,50:DE:06:25:C2:FC,iPad name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV (wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
@@ -167,6 +167,11 @@
 /queue simple add comment=dtq,44:D9:9B:83:FB:91,anna-veth-app-victoria-logs name="victoria(docker)@docker-dhcp-server (44:D9:9B:83:FB:91)" queue=default/default target=192.168.80.160/32 total-queue=default
 /queue simple add comment=dtq,6C:1F:F7:60:69:71,MbpAlxm name="MbpAlxm (wire)@main-dhcp-server (6C:1F:F7:60:69:71)" queue=default/default target=192.168.90.85/32 total-queue=default
 /queue simple add comment=dtq,6C:1F:F7:60:69:71, name="MbpAlxm(wire)(blocked)@guest-dhcp-server (6C:1F:F7:60:69:71)" queue=default/default target=192.168.98.85/32 total-queue=default
+/queue simple add comment=dtq,22:46:AB:91:A7:32, name="netq(docker)@docker-dhcp-server (22:46:AB:91:A7:32)" queue=default/default target=192.168.80.161/32 total-queue=default
+/queue simple add comment=dtq,DC:10:57:2D:39:7B, name="iPhoneAlxr(wireless)(blocked)@guest-dhcp-server (DC:10:57:2D:39:7B)" queue=default/default target=192.168.98.150/32 total-queue=default
+/queue simple add comment=dtq,B8:2D:28:0A:39:0E,ClicBot name="clicbot(wireless)@main-dhcp-server (B8:2D:28:0A:39:0E)" queue=default/default target=192.168.90.222/32 total-queue=default
+/queue simple add comment=dtq,B8:2D:28:0A:39:0E,ClicBot name="clicbot(wireless)(blocked)@guest-dhcp-server (B8:2D:28:0A:39:0E)" queue=default/default target=192.168.98.222/32 total-queue=default
+/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.229/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -174,7 +179,7 @@
 /queue tree add name=ZIP packet-mark=zip-mark parent="Total Bandwidth" queue=default
 /routing id add comment="OSPF Common for specific routing table" disabled=no id=10.255.255.3 name=anna-vpn-10.255.255.3 select-dynamic-id=""
 /routing id add comment="OSPF Common for main routing table" disabled=no id=10.255.0.3 name=anna-main-10.255.0.3 select-dynamic-id=""
-/routing ospf instance add comment="OSPF Common - inject into \"specific\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-vpn originate-default=never redistribute="" router-id=anna-vpn-10.255.255.3 routing-table=main
+/routing ospf instance add comment="OSPF Common - inject into \"specific\" table" disabled=no in-filter-chain=ospf-in name=routes-inject-into-vpn originate-default=never out-filter-chain=ospf-out-filter-reject-all redistribute="" router-id=anna-vpn-10.255.255.3 routing-table=main
 /routing ospf instance add comment="OSPF Common - inject into \"main\" table" disabled=yes in-filter-chain=ospf-in name=routes-inject-into-main originate-default=never out-filter-chain=ospf-out-filter-reject-all router-id=anna-main-10.255.0.3 routing-table=main
 /routing ospf area add disabled=no instance=routes-inject-into-vpn name=backbone-vpn
 /routing ospf area add area-id=0.0.0.3 default-cost=10 disabled=no instance=routes-inject-into-vpn name=anna-space-vpn no-summaries type=stub
@@ -225,10 +230,12 @@
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="SamsungS23(wereless)" disabled=no mac-address=F4:2B:8C:AF:34:20 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AST(wire)" disabled=no mac-address=00:0E:2D:1A:73:36 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="nSwitch(wereless)" disabled=no mac-address=BC:74:4B:E8:9B:61 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=iPadAlxPro disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPadAlxPro(wireless) 5Ghz" disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPadAlxPro(wireless) 2Ghz" disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 2"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="miniAlx(wireless)" disabled=no mac-address=88:53:95:30:68:9F ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=W11Parallels disabled=yes mac-address=00:1C:42:FE:E3:AB ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless)" disabled=no mac-address=DC:10:57:2D:39:7B ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless) 5Ghz" disabled=no mac-address=DC:10:57:2D:39:7B ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless) 2Ghz" disabled=no mac-address=DC:10:57:2D:39:7B ssid-regexp="WiFi 2"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="NSPanel(wireless)" disabled=no mac-address=40:80:E1:5B:41:B8 ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=HareDell disabled=no mac-address=D4:3B:04:87:C7:47 ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Tuya(wireless)" disabled=no mac-address=D4:A6:51:C9:54:A7 ssid-regexp="WiFi 2Ghz PRIV"
@@ -241,8 +248,7 @@
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="ASUS(wireless)" disabled=no mac-address=54:35:30:05:9B:BD ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Twinkle(wireless)" disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AudioATV(wireless)" disabled=no mac-address=B0:34:95:50:A1:6A ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AlxATV(wireless)" disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless)" disabled=no mac-address=54:2B:8D:77:38:A0 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="clicbot(wireless)" disabled=no mac-address=B8:2D:28:0A:39:0E ssid-regexp="WiFi 2"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
 /caps-man manager set certificate=C.anna.capsman@CHR enabled=yes require-peer-certificate=yes
@@ -338,6 +344,7 @@
 /ip arp add address=192.168.80.2 comment="byeDpi(wire)" interface=docker-infrastructure-br mac-address=48:01:92:49:E4:C5
 /ip arp add address=192.168.80.160 comment="victoria(docker)" interface=docker-infrastructure-br mac-address=44:D9:9B:83:FB:91
 /ip arp add address=192.168.80.161 comment="netq(docker)" interface=docker-infrastructure-br mac-address=22:46:AB:91:A7:32
+/ip arp add address=192.168.90.222 comment="clicbot(wireless)" interface=main-infrastructure-br mac-address=B8:2D:28:0A:39:0E
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname disabled=yes interface="wan A" use-peer-dns=no use-peer-ntp=no
 /ip dhcp-server lease add address=192.168.90.200 address-lists=alist-mangle-MSS-fix-needed comment="AlxATV (wireless)" mac-address=90:DD:5D:C8:46:AB server=main-dhcp-server
@@ -374,7 +381,7 @@
 /ip dhcp-server lease add address=192.168.98.77 block-access=yes comment="HareDell(blocked)" mac-address=D4:3B:04:87:C7:47 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.165 comment="NSPanel(wireless)" mac-address=40:80:E1:5B:41:B8 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.165 block-access=yes comment="NSPanel(wireless)(blocked)" mac-address=40:80:E1:5B:41:B8 server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.150 comment="iPhoneAlxr(wireless)" mac-address=DC:10:57:2D:39:7B server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.150 comment="iPhoneAlxr(wireless)(blocked)" mac-address=DC:10:57:2D:39:7B server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.35 comment=W11Parallels mac-address=00:1C:42:FE:E3:AB server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.35 block-access=yes comment="W11Parallels(blocked)" mac-address=00:1C:42:FE:E3:AB server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.80 comment="miniAlx(wireless)" mac-address=88:53:95:30:68:9F server=main-dhcp-server
@@ -399,6 +406,9 @@
 /ip dhcp-server lease add address=192.168.98.142 block-access=yes comment="Froloff(wireless)(blocked)" mac-address=C8:90:8A:9A:50:A1 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.80.160 client-id=44:D9:9B:83:FB:91 comment="victoria(docker)" mac-address=44:D9:9B:83:FB:91 server=docker-dhcp-server
 /ip dhcp-server lease add address=192.168.80.161 client-id=22:46:AB:91:A7:32 comment="netq(docker)" mac-address=22:46:AB:91:A7:32 server=docker-dhcp-server
+/ip dhcp-server lease add address=192.168.90.150 comment="iPhoneAlxr(wireless)" mac-address=DC:10:57:2D:39:7B server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.90.222 comment="clicbot(wireless)" mac-address=B8:2D:28:0A:39:0E server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.222 block-access=yes comment="clicbot(wireless)(blocked)" mac-address=B8:2D:28:0A:39:0E server=guest-dhcp-server
 /ip dhcp-server matcher add address-pool=pool-vendor code=60 matching-type=exact name=vendor-mikrotik-caps server=main-dhcp-server value=mikrotik-cap
 /ip dhcp-server network add address=192.168.80.160/28 caps-manager=192.168.80.1 comment=Containers dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.80.1 gateway=192.168.80.1 netmask=24 ntp-server=192.168.80.1
 /ip dhcp-server network add address=192.168.90.0/27 caps-manager=192.168.90.1 comment="Network devices, CCTV" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
@@ -412,7 +422,6 @@
 /ip dns set address-list-extra-time=30s allow-remote-requests=yes cache-max-ttl=1d cache-size=40000KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 use-doh-server=https://1.1.1.1/dns-query verify-doh-cert=yes
 /ip dns adlist add url=https://schakal.hopto.org/alive_hosts.txt
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
-/ip dns static add address=46.39.51.221 name=ftpserver.org type=A
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 name=anna.home type=A
 /ip dns static add cname=wb.home name=wb type=CNAME
@@ -476,7 +485,7 @@
 /ip dns static add address-list=alist-mangle-vpn comment="VPN Hack" forward-to=DOH-Comss match-subdomain=yes name=notebooklm.google.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn comment="VPN Hack" forward-to=DOH-Comss match-subdomain=yes name=gemini.google.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn comment="VPN Hack" forward-to=DOH-Comss match-subdomain=yes name=aistudio.google.com type=FWD
-/ip dns static add address-list=alist-mangle-vpn comment="VPN Hack" disabled=yes forward-to=DOH-Google match-subdomain=yes name=anydesk.com type=FWD
+/ip dns static add address-list=alist-mangle-vpn comment="VPN Hack" forward-to=DOH-Google match-subdomain=yes name=vsassets.io type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" disabled=yes forward-to=localhost match-subdomain=yes name=www.canva.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" disabled=yes forward-to=localhost match-subdomain=yes name=www.tinkercad.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" disabled=yes forward-to=DOH-Comss match-subdomain=yes name=xvideos.com type=FWD
@@ -732,7 +741,6 @@
 /ip dns static add address-list=alist-mangle-byedpi-TORR comment=alist-mangle-byedpi-TORR-20260128-214538 forward-to=DOH-Google match-subdomain=yes name=torrent.by type=FWD
 /ip dns static add address=192.168.90.85 comment=<AUTO:DHCP:main-dhcp-server> name=MbpAlxm.home ttl=5m type=A
 /ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m type=A
-/ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPadProAlx.home ttl=5m type=A
 /ip dns static add address=192.168.90.35 comment=<AUTO:DHCP:main-dhcp-server> name=W11.home ttl=5m type=A
 /ip dns static add address=192.168.90.220 comment=<AUTO:DHCP:main-dhcp-server> name=yandex-mini2-ZGNK.home ttl=5m type=A
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m type=A
@@ -746,6 +754,11 @@
 /ip dns static add address=192.168.90.77 comment=<AUTO:DHCP:main-dhcp-server> name=DESKTOP-G3RE47G.home ttl=5m type=A
 /ip dns static add address=192.168.90.66 comment=<AUTO:DHCP:main-dhcp-server> name=NWS-116.home ttl=5m type=A
 /ip dns static add address=192.168.90.142 comment=<AUTO:DHCP:main-dhcp-server> name=A54-pol-zovatela-Natalya.home ttl=5m type=A
+/ip dns static add address=192.168.90.222 comment=<AUTO:DHCP:main-dhcp-server> name=ClicBot.home ttl=5m type=A
+/ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPad.home ttl=5m type=A
+/ip dns static add address=46.39.51.221 name=ftpserver.org type=A
+/ip dns static add address-list=alist-mangle-byedpi comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=softblade.de type=FWD
+/ip dns static add address-list=alist-mangle-vpn comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=emqx.com type=FWD
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
@@ -795,9 +808,10 @@
 /ip firewall address-list add address=192.168.80.0/24 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=192.168.80.0/24 list=alist-fw-vpn-subnets
 /ip firewall address-list add address=192.168.90.1 comment="this router" list=alist-nat-192.168.90.1
-/ip firewall address-list add address=46.39.51.221 list=alist-nat-external-ip
 /ip firewall address-list add address=192.168.90.85 list=alist-mangle-MSS-fix-needed
 /ip firewall address-list add address=192.168.80.2 list=alist-mangle-byedpi-container
+/ip firewall address-list add address=46.39.51.221 list=alist-nat-external-ip
+/ip firewall filter add action=accept chain=input port=514 protocol=udp
 /ip firewall filter add action=drop chain=input comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(input)" protocol=udp
 /ip firewall filter add action=drop chain=forward comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(forward)" protocol=udp
 /ip firewall filter add action=drop chain=output comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(output)" protocol=udp
@@ -1051,7 +1065,7 @@
 /ip firewall mangle add action=mark-connection chain=vpn-hack-chain-set-cmark comment=vpn-hack-chain-set-cmark-ANY dst-address-list=alist-mangle-vpn new-connection-mark=cmark-tunnel-connection-ANY
 /ip firewall mangle add action=return chain=vpn-hack-chain-set-cmark comment=vpn-hack-chain-set-cmark
 /ip firewall mangle add action=jump chain=prerouting comment=dpi-hack-chain-set-rmark in-interface-list=list-mangle-redirect-byedpi jump-target=dpi-hack-chain-set-rmark routing-mark=!rmark-docker-redirect
-/ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-YT-TV connection-mark=cmark-docker-connection-YT-TV in-interface-list=all new-routing-mark=rmark-docker-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-YT-TV connection-mark=cmark-docker-connection-YT-TV new-routing-mark=rmark-docker-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-YT connection-mark=cmark-docker-connection-YT new-routing-mark=rmark-docker-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-IG connection-mark=cmark-docker-connection-IG new-routing-mark=rmark-docker-redirect passthrough=no
 /ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-ANY connection-mark=cmark-docker-connection-ANY new-routing-mark=rmark-docker-redirect passthrough=no
@@ -1067,6 +1081,8 @@
 /ip firewall nat add action=jump chain=srcnat comment=masq-docker-chain jump-target=masq-docker-chain
 /ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-YT-TV dst-address-list=alist-mangle-byedpi-YT-TV
 /ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-YT dst-address-list=alist-mangle-byedpi-YT
+/ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-IG dst-address-list=alist-mangle-byedpi-IG
+/ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-ANY dst-address-list=alist-mangle-byedpi
 /ip firewall nat add action=return chain=masq-docker-chain comment=masq-docker-chain
 /ip firewall nat add action=jump chain=dstnat comment=port-rdr-docker-chain dst-address-list=alist-nat-192.168.90.1 jump-target=port-rdr-docker-chain
 /ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment=port-rdr-docker-chain-victoria-web dst-port=9428 protocol=tcp to-addresses=192.168.80.160 to-ports=9428
@@ -1098,7 +1114,7 @@
 /ip ipsec identity add auth-method=digital-signature certificate=C.anna.ipsec@CHR comment=to-CHR-outer-tunnel-encryption-RSA mode-config=request-only peer=CHR-external policy-template-group=outside-ipsec-encryption
 /ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK mode-config=request-only peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
 /ip ipsec policy set 0 disabled=yes proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
-/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-address=0.0.0.0/0 dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-address=10.20.225.166/32 src-port=1701
 /ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
 /ip kid-control device add mac-address=10:DD:B1:9E:19:5E name=miniAlx user=totals
 /ip proxy set cache-administrator=defm.kopcap@gmail.com max-client-connections=10 max-fresh-time=20m max-server-connections=10 parent-proxy=0.0.0.0 port=8888 serialize-connections=yes
@@ -1107,7 +1123,7 @@
 /ip route add check-gateway=ping comment="GLOBAL AKADO" disabled=no distance=50 dst-address=0.0.0.0/0 gateway=10.20.225.1 routing-table=main scope=30 target-scope=10
 /ip route add comment=GLOBAL-BYE-DPI disabled=no distance=1 dst-address=0.0.0.0/0 gateway=192.168.80.2%docker-infrastructure-br routing-table=rmark-docker-redirect scope=30 target-scope=10
 /ip route add comment=GLOBAL-VPN disabled=no distance=1 dst-address=0.0.0.0/0 gateway=chr-tunnel pref-src=10.0.0.3 routing-table=rmark-vpn-redirect scope=20 target-scope=20
-/ip route add blackhole comment=OSPF-LOCAL-AREA-blackhole disabled=no distance=200 dst-address=192.168.97.0/29 gateway=chr-tunnel routing-table=main scope=30
+/ip route add blackhole comment=OSPF-LOCAL-AREA-blackhole disabled=no distance=200 dst-address=192.168.97.0/29 gateway=chr-tunnel routing-table=main scope=30 target-scope=10
 /ip service set telnet disabled=yes
 /ip service set www-ssl address=192.168.90.0/24 certificate="Lets encrypt1769197111"
 /ip service set api disabled=yes
@@ -1122,12 +1138,12 @@
 /ipv6 nd set [ find default=yes ] advertise-dns=yes
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
-/routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf) { set comment PENDING; }"
-/routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf && ospf-type intra) { set comment DISCARDED-INTRA-AREA ; reject; }"
-/routing filter rule add chain=ospf-in comment="accept DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0 ) { set comment DISCARDED-GLOBAL ; set pref-src 10.0.0.3 ; reject; }"
+/routing filter rule add chain=ospf-in comment="drop DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0 ) { set comment DISCARDED-GLOBAL ; set pref-src 10.0.0.3 ; reject; }"
 /routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter ) { set comment OSPF-LOCAL-AREA ;  accept; }"
-/routing filter rule add chain=ospf-in comment="drop others" disabled=no rule="set comment UNKNOWN; reject;"
-/routing filter rule add chain=ospf-out-filter-reject-all comment="drop outgoing" disabled=no rule="set comment UNKNOWN; reject;"
+/routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf && ospf-type intra) { set comment DISCARDED-INTRA-AREA ; reject; }"
+/routing filter rule add chain=ospf-in comment="mark other OSPF" disabled=no rule="if ( protocol ospf) { set comment PENDING; }"
+/routing filter rule add chain=ospf-in comment="drop others PROTO" disabled=no rule="set comment UNKNOWN; reject;"
+/routing filter rule add chain=ospf-out-filter-reject-all comment="drop ANY outgoing" disabled=yes rule="set comment UNKNOWN; reject;"
 /routing ospf interface-template add area=backbone-main disabled=no interfaces=chr-tunnel type=ptp
 /routing ospf interface-template add area=backbone-vpn disabled=no interfaces=chr-tunnel type=ptp
 /routing ospf interface-template add area=anna-space-vpn disabled=no networks=192.168.90.0/24,192.168.98.0/24 passive
@@ -1178,9 +1194,9 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.21 \
-    \nUptime:        4d10:37:12  \
-    \nTime:        2026-01-30 21:10:13  \
-    \nPing:    9 ms  \
+    \nUptime:        1w2d10:37:11  \
+    \nTime:        2026-02-04 21:10:12  \
+    \nPing:    8 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
     \nAnna:        46.39.51.221  \
@@ -3574,6 +3590,16 @@
     \n        :local partitionName \"primary\";\
     \n        :local OnPrimaryPartition false;\
     \n        \
+    \n        :local partitionsActivated [system/device-mode/get partitions];\
+    \n\
+    \n        :if (!\$partitionsActivated) do={\
+    \n\
+    \n            :local state (\"Investigation result - partitions disabled\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :local OnPrimaryPartition true;\
+    \n            :return \$OnPrimaryPartition;\
+    \n        }\
+    \n\
     \n        :onerror errorName in={ \
     \n            \
     \n            # test if it exist in /partitions\
@@ -3589,7 +3615,7 @@
     \n                }\
     \n            } else={\
     \n                :set OnPrimaryPartition true;\
-    \n                :error \"disabled\";\
+    \n                :error \"partitions not set\";\
     \n            }\
     \n\
     \n        } do={ \
@@ -3605,6 +3631,7 @@
     \n    }\
     \n\
     \n}\
+    \n\
     \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
     \n:local scriptname \"doCreateTrafficAccountingQueues\";\
@@ -4217,7 +4244,7 @@
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\
     \n\
     \n:local UseUpdateList true;\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs\"];\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs,doCloudBackup\"];\
     \n\
     \n:global globalNoteMe;\
     \n:local itsOk true;\
@@ -4302,7 +4329,7 @@
     \n  \
     \n}\
     \n\
-    \n\r\
+    \n\
     \n"
 /system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n:local sysname [/system identity get name];\
@@ -5354,6 +5381,10 @@
     \n    \
     \n}\
     \n"
+/system script add dont-require-permissions=no name=flush_dns owner=owner policy=read,write source=":global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"flush_dns\";\
+    \n\
+    \n/ip/dns/cache/flush"
 /tool bandwidth-server set enabled=no
 /tool e-mail set certificate-verification=no from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
 /tool graphing set page-refresh=50
@@ -5367,6 +5398,18 @@
     \n\
     \n:global NetwatchHostName \"miniAlx\";\
     \n/system script run doNetwatchHost;" host=192.168.90.70 name=miniAlx test-script="" type=simple up-script="\
+    \n:put \"info: Netwatch UP\"\
+    \n:log info \"Netwatch UP\"\
+    \n\
+    \n:global NetwatchHostName \"miniAlx\";\
+    \n/system script run doNetwatchHost;"
+/tool netwatch add comment="docker status check" disabled=no down-script="" host=192.168.80.160 http-codes="" ignore-initial-down=yes ignore-initial-up=yes interval=1m name=victoria-logs-container port=9428 src-address=192.168.90.1 startup-delay=1m test-script="" type=http-get up-script=""
+/tool netwatch add comment="CHR status check" disabled=no down-script="\
+    \n:put \"info: Netwatch UP\"\
+    \n:log info \"Netwatch UP\"\
+    \n\
+    \n:global NetwatchHostName \"miniAlx\";\
+    \n/system script run doNetwatchHost;" host=192.168.97.1 name=CHR test-script="" type=icmp up-script="\
     \n:put \"info: Netwatch UP\"\
     \n:log info \"Netwatch UP\"\
     \n\

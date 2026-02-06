@@ -4,6 +4,8 @@ $globalScriptBeforeRun "doFreshDNSAddressLists";
 
 :global globalCallFetch;
 :global globalNoteMe;
+:global globalTgMessage;
+
 :local state;
 
 :global simplercurrdatetimestr;
@@ -87,9 +89,8 @@ $globalScriptBeforeRun "doFreshDNSAddressLists";
     :local I 2;
     :do {
 
-        :set state "Trying fetch of $outputFile"
+        :set state "*************** Trying fetch of $outputFile ***************"
         $globalNoteMe value=$state;
-
 
         # no timeout for fetch, so it will still batch after 20sec of polling, thats why we need to WaitForFile polling for additional amount of time
         $globalCallFetch $fetchCmd;
@@ -98,7 +99,7 @@ $globalScriptBeforeRun "doFreshDNSAddressLists";
 
     } while=([ $WaitForFile $outputFile 300ms ] = false && $I > 0);
 
-    :if ([ $WaitForFile $outputFile 20ms ] = true) do={
+    :if ([ $WaitForFile $outputFile 1000ms ] = true) do={
 
       :set state "Import started of $outputFile"
       $globalNoteMe value=$state;
@@ -106,12 +107,13 @@ $globalScriptBeforeRun "doFreshDNSAddressLists";
       :local importCmd ":import file-name=$outputFile verbose=yes";
       $globalCallFetch $importCmd;
 
-      #/file remove [find where name="$outputFile"]
+      /file remove [find where name="$outputFile"]
 
     } else={
 
       :set state "Import failed of $outputFile"
       $globalNoteMe value=$state;
+      $globalTgMessage value=$state;
       :log error $state;
 
     }
