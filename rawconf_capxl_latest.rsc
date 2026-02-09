@@ -1,4 +1,4 @@
-# 2026-02-04 21:13:02 by RouterOS 7.21.1
+# 2026-02-09 21:13:02 by RouterOS 7.21.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -733,9 +733,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n    :global globalNoteMe;\
     \n    :global SECRET;\
     \n\
-    \n    \$SECRET set TELEGRAM_TOKEN password=\"798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M\";\
-    \n    \$SECRET set TELEGRAM_CHAT_ID password=\"-1001798127067\";\
-    \n\
     \n    :local tToken \"\$[\$SECRET get TELEGRAM_TOKEN]\";\
     \n    :local tGroupID \"\$[\$SECRET get TELEGRAM_CHAT_ID]\";\
     \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
@@ -1091,52 +1088,6 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n  }\
     \n}\
     \n\
-    \n\
-    \n\
-    \n:if (!any \$globalCallFetch) do={\
-    \n  :global globalCallFetch do={\
-    \n\
-    \n    # this one calls Fetch and catches its errors\
-    \n    :global globalNoteMe;\
-    \n    :if ([:len \$1] > 0) do={\
-    \n\
-    \n        # something like \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\
-    \n        :local fetchCmd \"\$1\";\
-    \n\
-    \n        :local state \"I'm now putting: \$fetchCmd\";\
-    \n        \$globalNoteMe value=\$state;\
-    \n\
-    \n        /file remove [find where name=\"fetch.log.txt\"]\
-    \n        {\
-    \n            :local jobid [:execute file=fetch.log.txt script=\$fetchCmd]\
-    \n\
-    \n            :local state \"Waiting the end of process for file fetch.log to be ready, max 20 seconds...\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n            :global Gltesec 0\
-    \n            :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 20)) do={\
-    \n                :set Gltesec (\$Gltesec + 1)\
-    \n                :delay 1s\
-    \n\
-    \n                :local state \"waiting... \$Gltesec\";\
-    \n                \$globalNoteMe value=\$state;\
-    \n\
-    \n            }\
-    \n\
-    \n            :local state \"Done. Elapsed Seconds: \$Gltesec\\r\\n\";\
-    \n            \$globalNoteMe value=\$state;\
-    \n\
-    \n            :if ([:len [/file find where name=\"fetch.log.txt\"]] = 1) do={\
-    \n                :local filecontent [/file get [/file find where name=\"fetch.log.txt\"] contents]\
-    \n                :put \"Result of Fetch:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\"\
-    \n            } else={\
-    \n                :put \"File not created.\"\
-    \n            }\
-    \n        }\
-    \n    }\
-    \n  }\
-    \n}\
-    \n\
     \n#:put [\$simplercurrdatetimestr]\
     \n:if (!any \$simplercurrdatetimestr) do={\
     \n:global simplercurrdatetimestr do={\
@@ -1162,6 +1113,66 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n}\
     \n\
     \n}\
+    \n\
+    \n:if (!any \$globalCallFetch) do={\
+    \n  :global globalCallFetch do={\
+    \n\
+    \n    # this one calls Fetch and catches its errors\
+    \n    :global globalNoteMe;\
+    \n    :if ([:len \$1] > 0) do={\
+    \n\
+    \n        # something like \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\
+    \n        :local fetchCmd \"\$1\";\
+    \n\
+    \n        :local state \"I'm now putting: \$fetchCmd\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n        :global simplercurrdatetimestr;\
+    \n        :local stamp [\$simplercurrdatetimestr];\
+    \n\
+    \n        :local salt [:rndstr length=6 from=\"HtsP2n8qZ\"];        \
+    \n        :local logName \"RAM/\$stamp-\$salt.log.txt\";\
+    \n\
+    \n        /file remove [find where name=\"\$logName\"]\
+    \n        {\
+    \n            :local jobid [:execute file=\$logName script=\$fetchCmd]\
+    \n\
+    \n            :set state \"Waiting the end of process for prototol \$logName to be ready, max 20 seconds...\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :global Gltesec 0\
+    \n            :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 20)) do={\
+    \n                :set Gltesec (\$Gltesec + 1)\
+    \n                :delay 1s\
+    \n\
+    \n                :set state \"waiting fetch result... \$Gltesec\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n            }\
+    \n\
+    \n            :set state \"Done. Elapsed Seconds: \$Gltesec\\r\\n\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :if ([:len [/file find where name=\"\$logName\"]] = 1) do={\
+    \n \
+    \n                :local filecontent [/file get [/file find where name=\"\$logName\"] contents]\
+    \n                :set state \"Result of Fetch:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n                /file remove [find where name=\"\$logName\"];\
+    \n\
+    \n            } else={\
+    \n\
+    \n                :set state \"Result of Fetch:\\r\\n****************************\\r\\n 20Sec Timeout exceeded - still no log file \\r\\n****************************\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n            }\
+    \n        }\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n\
     \n\
     \n#Example call\
     \n#:put [\$globalOnPrimaryPartition]\
@@ -1536,7 +1547,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\
     \n\
     \n:local UseUpdateList true;\
-    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs\"];\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs,doCloudBackup\"];\
     \n\
     \n:global globalNoteMe;\
     \n:local itsOk true;\
@@ -1621,7 +1632,7 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
     \n  \
     \n}\
     \n\
-    \n\r\
+    \n\
     \n\r\
     \n"
 /system script add comment="This will check for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time. Will reboot the router when overload" dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
