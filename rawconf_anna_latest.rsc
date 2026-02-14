@@ -16602,4 +16602,2851 @@
     \n   \
     \n                :if (!(\$l2tpInfo->\"running\")) do={\
     \n\
-    \n                     :local errL2tp (\"Disconnected (Rx-Tx 0-0) \". (\$l2tpInfo->\"type\") . \" L2TP host-tunnel foun
+    \n                     :local errL2tp (\"Disconnected (Rx-Tx 0-0) \". (\$l2tpInfo->\"type\") . \" L2TP host-tunnel found for IPSEC: \" . (\$l2tpInfo->\"peer\"))             \
+    \n                     \$Log \$errL2tp \"error\"\
+    \n\
+    \n                 }\
+    \n\
+    \n             }\
+    \n\
+    \n            :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n            :error \"skip-continue\"\
+    \n\
+    \n        }\
+    \n\
+    \n\
+    \n        :local policyDstIP \$dstAddr\
+    \n        :local policySrcIP \$srcAddr\
+    \n\
+    \n        :local mustUseL2TP false\
+    \n        \
+    \n        :local l2tpIf \"\"\
+    \n        :local l2tpRouteIf \"\"\
+    \n        :local policyRouteIf \"\"\
+    \n\
+    \n        :if ((\$l2tpInfo->\"found\")) do={\
+    \n   \
+    \n           :if (!(\$l2tpInfo->\"running\")) do={\
+    \n\
+    \n                :local errL2tp (\"Disconnected (Rx-Tx 0-0) \". (\$l2tpInfo->\"type\") . \" L2TP host-tunnel found for IPSEC: \" . (\$l2tpInfo->\"peer\"))                  \
+    \n                \$Log \$errL2tp \"error\"\
+    \n                :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n                :error \"skip-continue\"\
+    \n\
+    \n            }\
+    \n\
+    \n           :local l2tpMsg (\"Active \". (\$l2tpInfo->\"type\") . \" L2TP host-tunnel found for IPSEC: \" . (\$l2tpInfo->\"peer\"))\
+    \n            \$Log \$l2tpMsg\
+    \n\
+    \n            :local L2TPDstadd (\$l2tpInfo->\"remoteIP\")\
+    \n            :local L2TPSrcadd (\$l2tpInfo->\"localIP\")\
+    \n            :set mustUseL2TP true\
+    \n            :set l2tpIf (\$l2tpInfo->\"peer\")\
+    \n\
+    \n            :set l2tpMsg \"Looking for specific (l2tp) routes to \$L2TPDstadd from \$L2TPSrcadd\"\
+    \n            \$Log \$l2tpMsg\
+    \n\
+    \n            # we need specific route in the main table to that subnet\
+    \n            :local l2tpRouteCheck [\$CheckRoute \$L2TPDstadd \$L2TPSrcadd]\
+    \n            :if (!(\$l2tpRouteCheck->\"reachable\")) do={\
+    \n\
+    \n                :local errL2tp (\"Cannot find specific route (l2tp) to \" . \$L2TPDstadd . \" from \" . \$L2TPSrcadd . \" - status: \" . (\$l2tpRouteCheck->\"status\"))\
+    \n                \$Log \$errL2tp \"error\"\
+    \n                :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n                :error \"skip-continue\"\
+    \n\
+    \n            } else={\
+    \n\
+    \n                :set l2tpRouteIf (\$l2tpRouteCheck->\"interface\")\
+    \n                :local okL2tp (\"Found specific route (l2tp) to \" . \$L2TPDstadd .  \" from \" . \$L2TPSrcadd . \" via \" . (\$l2tpRouteCheck->\"nexthop\") . \" (\" . \$l2tpRouteIf . \")\")\
+    \n                \$Log \$okL2tp\
+    \n\
+    \n            }\
+    \n\
+    \n            :set policyDstIP \$L2TPDstadd\
+    \n            :set policySrcIP \$L2TPSrcadd\
+    \n        \
+    \n        } else={\
+    \n\
+    \n            :if (!\$isTunnel) do={\
+    \n                # on transtort mode l2tp session have to exist (just a local convinience)\
+    \n                :local errL2tp (\"No active L2TP host-tunnel found for IPSEC peer - \" . \$peerName . \" (on transport policy l2tp session have to exist)\")\
+    \n                \$Log \$errL2tp \"error\"\
+    \n                :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n                :error \"skip-continue\"\
+    \n\
+    \n            } else={\
+    \n                :local l2tpMsg (\"No active L2TP host-tunnel found for IPSEC peer - \" . \$peerName . \" (pure IPSEC, tunneled=\$isTunnel)\")\
+    \n                \$Log \$l2tpMsg\
+    \n            }\
+    \n\
+    \n        }\
+    \n\
+    \n\
+    \n        :local polMsg \"Looking for specific (policy) routes to \$policyDstIP from \$policySrcIP\"\
+    \n        \$Log \$polMsg\
+    \n\
+    \n        # 2) Policy route check\
+    \n\
+    \n        # we need specific route in the main table to that subnet\
+    \n        :local policyRouteCheck [\$CheckRoute \$policyDstIP \$policySrcIP]\
+    \n        :if (!(\$policyRouteCheck->\"reachable\")) do={\
+    \n\
+    \n            :local errPol (\"Cannot find specific route (policy) to \" . \$policyDstIP . \" from \" . \$policySrcIP . \" - status: \" . (\$policyRouteCheck->\"status\"))\
+    \n            \$Log \$errPol \"error\"\
+    \n            :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n            :error \"skip-continue\"\
+    \n\
+    \n        } else={\
+    \n\
+    \n            :set policyRouteIf (\$policyRouteCheck->\"interface\")\
+    \n            :local okPol (\"Found specific route (policy) to \" . \$policyDstIP .  \" from \" . \$policySrcIP . \" via \" . (\$policyRouteCheck->\"nexthop\") . \" (\" . \$policyRouteIf . \")\")\
+    \n            \$Log \$okPol\
+    \n\
+    \n                # 3) both routes have to be via the same catched L2TP interface\\gw\
+    \n            :if (\$mustUseL2TP) do={\
+    \n\
+    \n                :local pingMsg \"Checking policy-l2tp routes' interfaces match\"\
+    \n                \$Log \$pingMsg\
+    \n\
+    \n                # \D0\9E\D0\B1\D0\B0 \D0\BC\D0\B0\D1\80\D1\88\D1\80\D1\83\D1\82\D0\B0 (policy \D0\B8 test) \D0\B4\D0\BE\D0\BB\D0\B6\D0\BD\D1\8B \D0\B1\D1\8B\D1\82\D1\8C \D1\87\D0\B5\D1\80\D0\B5\D0\B7 L2TP\E2\80\91\D0\B8\D0\BD\D1\82\D0\B5\D1\80\D1\84\D0\B5\D0\B9\D1\81\
+    \n                :if ((\$policyRouteIf != \$l2tpIf) or (\$l2tpRouteIf != \$l2tpIf)) do={\
+    \n                    :local errIf (\"Found routes mismatch (policy via \" . \$policyRouteIf . \", l2tp via \" . \$l2tpRouteIf . \", expected \" . \$l2tpIf . \")\")\
+    \n                    \$Log \$errIf \"error\"\
+    \n                    :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n                    :error \"skip-continue\"\
+    \n\
+    \n                } else={\
+    \n\
+    \n                    :local rL2tp (\"Found routes' interfaces are the same on L2TP \" . \$l2tpIf . \" and Policy \" . \$peerName )\
+    \n                    \$Log \$rL2tp\
+    \n\
+    \n                    :set rL2tp (\"Pinging remote IP \" . \$policyDstIP )\
+    \n                    \$Log \$rL2tp\
+    \n\
+    \n                    :local pingResult [\$TestConnectivity \$policyDstIP \$policySrcIP (\$Config->\"pingCount\") \$PingTrigger (\$Config->\"pingRetryDelay\")]\
+    \n                    :if ((\$pingResult->\"success\")) do={\
+    \n                        \
+    \n                        :local pMsg (\"PASS: Ping test successful \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" (\" . (\$pingResult->\"attempts\") . \" attempt(s))\")\
+    \n                        \$Log \$pMsg\
+    \n\
+    \n                        :set (\$Stats->\"passedPeers\") ((\$Stats->\"passedPeers\") + 1)\
+    \n\
+    \n                        # :set (\$globalPeerRetryCount->\$dstAddr) 0\
+    \n                    } else={\
+    \n\
+    \n                        :local fMsg (\"FAIL: Ping test failed \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" after \" . (\$pingResult->\"attempts\") . \" attempts\")\
+    \n\
+    \n                        :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n\
+    \n                        \$Log \$fMsg \"error\"\
+    \n                       #going to recover\
+    \n                       :error \"skip-continue\"\
+    \n\
+    \n                    }\
+    \n                }\
+    \n            \
+    \n            } else={\
+    \n\
+    \n                :local pingMsg \"Skip policy-l2tp routes' interfaces match - no active L2TP host-tunnel available\"\
+    \n                \$Log \$pingMsg\
+    \n\
+    \n                :local rL2tp (\"Pinging remote IP \" . \$policyDstIP )\
+    \n                \$Log \$rL2tp\
+    \n\
+    \n                :local pingResult [\$TestConnectivity \$policyDstIP \$policySrcIP (\$Config->\"pingCount\") \$PingTrigger (\$Config->\"pingRetryDelay\")]\
+    \n                :if ((\$pingResult->\"success\")) do={\
+    \n                    \
+    \n                    :local pMsg (\"PASS: Ping test successful \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" (\" . (\$pingResult->\"attempts\") . \" attempt(s))\")\
+    \n                    \$Log \$pMsg\
+    \n\
+    \n                    :set (\$Stats->\"passedPeers\") ((\$Stats->\"passedPeers\") + 1)\
+    \n\
+    \n                    # :set (\$globalPeerRetryCount->\$dstAddr) 0\
+    \n                } else={\
+    \n\
+    \n                    :local fMsg (\"FAIL: Ping test failed \" . (\$pingResult->\"received\") . \"/\" . (\$pingResult->\"required\") . \" after \" . (\$pingResult->\"attempts\") . \" attempts\")\
+    \n \
+    \n                    :set (\$Stats->\"failedPeers\") ((\$Stats->\"failedPeers\") + 1)\
+    \n                  \
+    \n                    \$Log \$fMsg \"error\"\
+    \n                    # going to recover\
+    \n                    :error \"skip-continue\"\
+    \n\
+    \n                }\
+    \n\
+    \n            }\
+    \n\
+    \n        } \
+    \n\
+    \n        \$Log \"Continue next\"\
+    \n\
+    \n    } on-error={ \
+    \n\
+    \n        # just go next policy\
+    \n\
+    \n                        :if ((\$Config->\"enableAutoRecovery\")) do={\
+    \n                            :local recovered [\$RecoverPeer \$dstAddr \$peerName \$l2tpInfo \$Config \$Log \$KillL2TPSession \$KillIPSecPeers]\
+    \n                            :if (\$recovered) do={\
+    \n\
+    \n                                :set (\$Stats->\"recoveredPeers\") ((\$Stats->\"recoveredPeers\") + 1)\
+    \n\
+    \n                            }\
+    \n                        } else={\
+    \n                            \$Log \"Auto-recovery disabled - manual intervention required\" \"warning\"\
+    \n                        }\
+    \n\
+    \n\
+    \n        \$Log \"Continue next (in case of skip or erros)\" \"warning\"\
+    \n\
+    \n    }\
+    \n\
+    \n\
+    \n}\
+    \n\
+    \n# === POST-CHECK VALIDATION ===\
+    \n\
+    \n\$Log \"Waiting for system to come up after autorecovery\"\
+    \n\
+    \n:delay 5s\
+    \n:local PoliciesOnlineAfter [/ip/ipsec/policy find active ph2-state=established]\
+    \n:local PoliciesOfflineAfter [/ip/ipsec/policy find ( !template !disabled ph2-state!=established) ]\
+    \n\
+    \n# === FINAL SUMMARY ===\
+    \n\
+    \n\$Log \"=== TEST SUMMARY ===\"\
+    \n\
+    \n:local sumMsg1 (\"Total policies: \" . (\$Stats->\"totalPolicies\"))\
+    \n\$Log \$sumMsg1\
+    \n\
+    \n:local sumMsg2 (\"Tested: \" . (\$Stats->\"testedPeers\") . \" | Passed: \" . (\$Stats->\"passedPeers\") . \" | Failed: \" . (\$Stats->\"failedPeers\"))\
+    \n\$Log \$sumMsg2\
+    \n\
+    \n:local sumMsg3 (\"Recovered: \" . (\$Stats->\"recoveredPeers\") . \" | Skipped: \" . (\$Stats->\"skippedPeers\"))\
+    \n\$Log \$sumMsg3\
+    \n\
+    \n:local sumMsg4 (\"Policies after check: Online=\" . [:len \$PoliciesOnlineAfter] . \" | Offline=\" . [:len \$PoliciesOfflineAfter])\
+    \n\$Log \$sumMsg4\
+    \n\
+    \n# === RESULT ===\
+    \n\
+    \n:local testPassed true\
+    \n:local errorMessage \"\"\
+    \n\
+    \n:if ((\$Stats->\"failedPeers\") > 0) do={\
+    \n    :set testPassed false\
+    \n    :set errorMessage ((\$Stats->\"failedPeers\") . \" peer(s) failed connectivity test\")\
+    \n}\
+    \n\
+    \n:if ([:len \$PoliciesOfflineAfter] != 0) do={\
+    \n    :set testPassed false\
+    \n    :set errorMessage (\$errorMessage . \"; \" . [:len \$PoliciesOfflineAfter] . \" policies offline after recovery\")\
+    \n}\
+    \n\
+    \n:if (\$testPassed) do={\
+    \n    \$Log \"=== IPSec/L2TP Monitor: ALL CHECKS PASSED ===\" \"info\"\
+    \n} else={\
+    \n    \$Log \"=== IPSec/L2TP Monitor: FAILURES DETECTED ===\" \"error\"\
+    \n    :local errLog (\"Error: \" . \$errorMessage)\
+    \n    \$Log \$errLog \"error\"\
+    \n\
+    \n    :local tgMsg (\"IPSec Monitor ALERT: \" . \$errorMessage)\
+    \n    \$globalTgMessage value=\$tgMsg\
+    \n\
+    \n    :error \$errorMessage\
+    \n}\
+    \n\r\
+    \n"
+/system script add comment="A template to track hotspot users" dont-require-permissions=yes name=doHotspotLoginTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \"doHotspotLoginTrack\";\r\
+    \n\r\
+    \n# Globals\r\
+    \n#\r\
+    \n:global Guser;\r\
+    \n\r\
+    \n:local nas [/system identity get name];\r\
+    \n:local today [/system clock get date];\r\
+    \n:local time1 [/system clock get time ];\r\
+    \n\r\
+    \n:local ipuser [/ip hotspot active get [find user=\$Guser] address];\r\
+    \n:local usermac [/ip hotspot active get [find user=\$Guser] mac-address]\r\
+    \n\r\
+    \n:put \$today\r\
+    \n:put \$time1\r\
+    \n\r\
+    \n:local hour [:pick \$time1 0 2]; \r\
+    \n:local min [:pick \$time1 3 5]; \r\
+    \n:local sec [:pick \$time1 6 8];\r\
+    \n\r\
+    \n:set \$time1 [:put ({hour} . {min} . {sec})] \r\
+    \n\r\
+    \n:local mac1 [:pick \$usermac 0 2];\r\
+    \n:local mac2 [:pick \$usermac 3 5];\r\
+    \n:local mac3 [:pick \$usermac 6 8];\r\
+    \n:local mac4 [:pick \$usermac 9 11];\r\
+    \n:local mac5 [:pick \$usermac 12 14];\r\
+    \n:local mac6 [:pick \$usermac 15 17];\r\
+    \n\r\
+    \n:set \$usermac [:put ({mac1} . {mac2} . {mac3} . {mac4} . {mac5} . {mac6})]\r\
+    \n\r\
+    \n:put \$time1\r\
+    \n\r\
+    \n/ip firewall address-list add list=\$today address=\"log-in.\$time1.\$user.\$usermac.\$ipuser\"\r\
+    \n"
+/system script add comment="Setups global functions, called by the other scripts (runs once on startup)" dont-require-permissions=yes name=doEnvironmentSetup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalNoteMe;\
+    \n:if (!any \$globalNoteMe) do={\
+    \n\
+    \n  :global globalNoteMe do={\
+    \n\
+    \n  :local scriptname [:jobname] ;\
+    \n  ## outputs \$value using both :put and :log info\
+    \n  ## example \$outputInfo value=\"12345\"\
+    \n\
+    \n  :local state \"\$scriptname: \$value\";\
+    \n  :put \"\$state\"\
+    \n  :log info \"\$state\"\
+    \n\
+    \n  }\
+    \n}\
+    \n\
+    \n\
+    \n:global globalScriptBeforeRun;\
+    \n:if (!any \$globalScriptBeforeRun) do={\
+    \n  :global globalScriptBeforeRun do={\
+    \n\
+    \n    :global globalNoteMe;\
+    \n    :if ([:len \$1] > 0) do={\
+    \n\
+    \n           :local scriptname [:jobname] ;\
+    \n           :local state \"\$scriptname instance already running - prevent new instance\";\
+    \n\
+    \n           :if ([/system script job print count-only as-value where script=\$scriptname] > 1) do={\
+    \n              :log error \$state\
+    \n               \$globalNoteMe value=\$state;\
+    \n               :error \$state\
+    \n            }\
+    \n\
+    \n      :local state \"Starting script: \$scriptname\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n### \$SECRET\
+    \n#   get <name>\
+    \n#   set <name> password=<password>\
+    \n# . remove <name\
+    \n#   print\
+    \n:if (!any \$SECRET) do={\
+    \n:global SECRET do={\
+    \n\
+    \n    # helpers\
+    \n    :local fixprofile do={\
+    \n        :if ([/ppp profile find name=\"null\"]) do={:put \"nothing\"} else={\
+    \n            /ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=\"null\" only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no\
+    \n        }\
+    \n    }\
+    \n    :local lppp [:len [/ppp secret find where name=\$2]]\
+    \n    :local checkexist do={\
+    \n        :if (lppp=0) do={\
+    \n            :error \"\\\$SECRET: cannot find \$2 in secret store\"\
+    \n        }\
+    \n    }\
+    \n\
+    \n    # \$SECRET\
+    \n    :if ([:typeof \$1]!=\"str\") do={\
+    \n        :put \"\\\$SECRET\"\
+    \n        :put \"   uses /ppp/secrets to store stuff like REST apikeys, or other sensative data\"\
+    \n        :put \"\\t\\\$SECRET print - prints stored secret passwords\"\
+    \n        :put \"\\t\\\$SECRET get <name> - gets a stored secret\"\
+    \n        :put \"\\t\\\$SECRET set <name> password=\\\"YOUR_SECRET\\\" - sets a secret password\" \
+    \n        :put \"\\t\\\$SECRET remove <name> - removes a secret\" \
+    \n    }\
+    \n\
+    \n    # \$SECRET print\
+    \n    :if (\$1~\"^pr\") do={\
+    \n        /ppp secret print where comment~\"\\\\\\\$SECRET\"\
+    \n        :return [:nothing] \
+    \n    }\
+    \n\
+    \n    # \$SECRET get\
+    \n    :if (\$1~\"get\") do={\
+    \n        \$checkexist\
+    \n       :return [/ppp secret get \$2 password] \
+    \n    }\
+    \n\
+    \n    # \$SECRET set\
+    \n    :if (\$1~\"set|add\") do={\
+    \n        :if ([:typeof \$password]=\"str\") do={} else={:error \"\\\$SECRET: password= required\"}\
+    \n        :if (lppp=0) do={\
+    \n            /ppp secret add name=\$2 password=\$password \
+    \n        } else={\
+    \n            /ppp secret set \$2 password=\$password\
+    \n        }\
+    \n        \$fixprofile\
+    \n        /ppp secret set \$2 comment=\"used by \\\$SECRET\"\
+    \n        /ppp secret set \$2 profile=\"null\"\
+    \n        /ppp secret set \$2 service=\"async\"\
+    \n        :return [\$SECRET get \$2]\
+    \n    } \
+    \n\
+    \n    # \$SECRET remove\
+    \n    :if (\$1~\"rm|rem|del\") do={\
+    \n        \$checkexist\
+    \n        :return [/ppp secret remove \$2]\
+    \n    }\
+    \n    :error \"\\\$SECRET: bad command\"\
+    \n}\
+    \n}\
+    \n\
+    \n\
+    \n:global globalTgMessage;\
+    \n:if (!any \$globalTgMessage) do={\
+    \n  :global globalTgMessage do={\
+    \n\
+    \n    :global globalNoteMe;\
+    \n    :global SECRET;\
+    \n\
+    \n    :local tToken \"\$[\$SECRET get TELEGRAM_TOKEN]\";\
+    \n    :local tGroupID \"\$[\$SECRET get TELEGRAM_CHAT_ID]\";\
+    \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
+    \n\
+    \n    :local sysname (\"#\" . [/system identity get name]);\
+    \n    :local scriptname [:jobname] ;\
+    \n\
+    \n    :local tgmessage  (\"\$scriptname %C2%A9%EF%B8%8F \$sysname: \$value\");  \
+    \n\
+    \n    :local state (\"Sending telegram message... \$tgmessage\");\
+    \n    \$globalNoteMe value=\$tgmessage;\
+    \n\
+    \n    :do {\
+    \n      /tool fetch http-method=post mode=https url=\"\$tURL\" http-data=\"text=\$tgmessage\" keep-result=no;\
+    \n    } on-error= {\
+    \n      :local state (\"Telegram notify error\");\
+    \n      \$globalNoteMe value=\$state;\
+    \n    };\
+    \n  }\
+    \n}\
+    \n\
+    \n:global globalIPSECPolicyUpdateViaSSH;\
+    \n:if (!any \$globalIPSECPolicyUpdateViaSSH) do={\
+    \n  :global globalIPSECPolicyUpdateViaSSH do={\
+    \n\
+    \n    :global globalRemoteIp;\
+    \n    :global globalNoteMe;\
+    \n\
+    \n    :if ([:len \$1] > 0) do={\
+    \n      :global globalRemoteIp (\"\$1\" . \"/32\");\
+    \n    }\
+    \n\
+    \n    :if (!any \$globalRemoteIp) do={\
+    \n      :global globalRemoteIp \"0.0.0.0/32\"\
+    \n    } else={\
+    \n    }\
+    \n\
+    \n    :local state (\"RPC... \$value\");\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :local count [:len [/system script find name=\"doUpdatePoliciesRemotely\"]];\
+    \n    :if (\$count > 0) do={\
+    \n       :local state (\"Starting policies process... \$globalRemoteIp \");\
+    \n       \$globalNoteMe value=\$state;\
+    \n       /system script run doUpdatePoliciesRemotely;\
+    \n     }\
+    \n  }\
+    \n}\
+    \n\
+    \n#Example call\
+    \n#\$globalNewNetworkMember ip=192.168.90.130 mac=50:DE:06:25:C2:FC gip=192.168.98.130 comm=iPadAlxPro ssid=\"WiFi 5\"\
+    \n:global globalNewNetworkMember;\
+    \n:if (!any \$globalNewNetworkMember) do={\
+    \n  :global globalNewNetworkMember do={\
+    \n\
+    \n    :global globalNoteMe;\
+    \n\
+    \n    #to prevent connection\
+    \n    :local guestDHCP \"guest-dhcp-server\";\
+    \n\
+    \n    #to allow connection\
+    \n    :local mainDHCP \"main-dhcp-server\";\
+    \n\
+    \n    #when DHCP not using (add arp for leases)\
+    \n    :local arpInterface \"main-infrastructure-br\";\
+    \n    :local state (\"Adding new network member... \");\
+    \n\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n    # incoming named params\
+    \n    :local newIp [ :tostr \$ip ];\
+    \n    :local newBlockedIp [ :tostr \$gip ];\
+    \n    :local newMac [ :tostr \$mac ];\
+    \n    :local comment [ :tostr \$comm ];\
+    \n    :local newSsid [ :tostr \$ssid ];\
+    \n    :if ([:len \$newIp] > 0) do={\
+    \n        :if ([ :typeof [ :toip \$newIp ] ] != \"ip\" ) do={\
+    \n\
+    \n            :local state (\"Error: bad IP parameter passed - (\$newIp)\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :return false;\
+    \n\
+    \n        }\
+    \n    } else={\
+    \n\
+    \n        :local state (\"Error: bad IP parameter passed - (\$newIp)\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n\
+    \n        :local state (\"Removing existing DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\
+    \n        \$globalNoteMe value=\$state;       \
+    \n        /ip dhcp-server lease remove [find address=\$newIp];\
+    \n        /ip dhcp-server lease remove [find mac-address=\$newMac];\
+    \n\
+    \n        :local state (\"Adding DHCP configuration for (\$newIp/\$newMac) on \$mainDHCP\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        \
+    \n       :if ([ :len [ /ip dhcp-server find where name=\"\$mainDHCP\" ] ] > 0) do={\
+    \n            /ip dhcp-server lease add address=\$newIp mac-address=\$newMac server=\$mainDHCP comment=\$comment;\
+    \n            :local state (\"Done.\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n       } else={\
+    \n        :local state (\"Cant find DHCP server \$mainDHCP. SKIPPED.\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n       }\
+    \n\
+    \n    } on-error={\
+    \n\
+    \n        :local state (\"Error: something fail on DHCP configuration 'allow' step for (\$newIp/\$newMac) on \$mainDHCP\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n\
+    \n        /ip dhcp-server lease remove [find address=\$newBlockedIp];\
+    \n        :local state (\"Adding DHCP configuration for (\$newBlockedIp/\$newMac) on \$guestDHCP (preventing connections to guest network)\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n       :if ([ :len [ /ip dhcp-server find where name=\"\$guestDHCP\" ] ] > 0) do={\
+    \n          /ip dhcp-server lease add address=\$newBlockedIp block-access=yes mac-address=\$newMac server=\$guestDHCP comment=(\$comment . \"(blocked)\");\
+    \n          :local state (\"Done.\");\
+    \n          \$globalNoteMe value=\$state;\
+    \n       } else={\
+    \n        :local state (\"Cant find DHCP server \$guestDHCP. SKIPPED.\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n       }\
+    \n\
+    \n    } on-error={\
+    \n\
+    \n        :local state (\"Error: something fail on DHCP configuration 'block' step for (\$newBlockedIp/\$newMac) on \$guestDHCP\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n\
+    \n        :local state (\"Adding ARP static entries for (\$newBlockedIp/\$newMac) on \$mainDHCP\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        /ip arp remove [find address=\$newIp];\
+    \n        /ip arp remove [find address=\$newBlockedIp];\
+    \n        /ip arp remove [find mac-address=\$newMac];\
+    \n\
+    \n     :if ([ :len [ /interface find where name=\"\$arpInterface\" ] ] > 0) do={\
+    \n        /ip arp add address=\$newIp interface=\$arpInterface mac-address=\$newMac comment=\$comment\
+    \n        :local state (\"Done.\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n       } else={\
+    \n        :local state (\"Cant find interface \$arpInterface. SKIPPED.\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n       }\
+    \n\
+    \n    } on-error={\
+    \n\
+    \n        :local state (\"Error: something fail on ARP configuration step\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n\
+    \n        :local state (\"Adding CAPs ACL static entries for (\$newBlockedIp/\$newMac) on \$newSsid\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        \
+    \n         # avoid parce errors using Execute when no wireless package installed\
+    \n       :if ( [ :len [ /system package find where name=\"wireless\" and disabled=no ] ] > 0  ) do={\
+    \n          :local Cmd \"/caps-man access-list remove [find mac-address=\$newMac];\";\
+    \n          :local jobid [:execute script=\$Cmd];\
+    \n\
+    \n          :local Cmd \"/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp='\$newSsid' place-before=1;\";\
+    \n          :local jobid [:execute script=\$Cmd];\
+    \n\
+    \n          }\
+    \n\
+    \n    } on-error={\
+    \n\
+    \n        :local state (\"Error: something fail on CAPS configuration step\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :return true;\
+    \n\
+    \n  }\
+    \n}\
+    \n\
+    \n\
+    \n\
+    \n#Example call\
+    \n#\$globalNewClientCert argClients=\"anna.ipsec, mikrouter.ipsec\" argUsage=\"tls-client,digital-signature,key-encipherment\"\
+    \n#\$globalNewClientCert argClients=\"anna.capsman, mikrouter.capsman\" argUsage=\"digital-signature,key-encipherment\"\
+    \n#\$globalNewClientCert argClients=\"185.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\"\
+    \n:if (!any \$globalNewClientCert) do={\
+    \n  :global globalNewClientCert do={\
+    \n\
+    \n    # generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\
+    \n    # This script is a SCEP-client, it request the server to provide a new certificate\
+    \n    # it ONLY form the request via API to remote SCEP server\
+    \n\
+    \n    # incoming named params\
+    \n    :local clients [ :tostr \$argClients ];\
+    \n    :local prefs  [ :tostr \$argUsage ];\
+    \n    :local asIp  \$argBindAsIP ;\
+    \n\
+    \n    # scope global functions\
+    \n    :global globalNoteMe;\
+    \n    :global globalScriptBeforeRun;\
+    \n\
+    \n    :if ([:len \$clients] > 0) do={\
+    \n      :if ([ :typeof [ :tostr \$clients ] ] != \"str\" ) do={\
+    \n\
+    \n          :local state (\"Error: bad 'cients' parameter passed - (\$clients)\");\
+    \n          \$globalNoteMe value=\$state;\
+    \n          :return false;\
+    \n\
+    \n      }\
+    \n    } else={\
+    \n\
+    \n        :local state (\"Error: bad 'cients' parameter passed - (\$clients\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n\
+    \n      #clients\
+    \n      :local IDs [:toarray \"\$clients\"];\
+    \n      :local fakeDomain \"myvpn.fake.org\"\
+    \n      :local scepAlias \"CHR\"\
+    \n      :local state (\"Started requests generation\");\
+    \n\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n      ## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\
+    \n      :local COUNTRY \"RU\"\
+    \n      :local STATE \"MSC\"\
+    \n      :local LOC \"Moscow\"\
+    \n      :local ORG \"IKEv2 Home\"\
+    \n      :local OU \"IKEv2 Mikrotik\"\
+    \n\
+    \n      # :local COUNTRY \"\"\
+    \n      # :local STATE \"\"\
+    \n      # :local LOC \"\"\
+    \n      # :local ORG \"\"\
+    \n      # :local OU \"\"\
+    \n\
+    \n\
+    \n      :local KEYSIZE \"2048\"\
+    \n\
+    \n      :local scepUrl \"http://185.13.148.14/scep/grant\";\
+    \n      :local itsOk true;\
+    \n\
+    \n      :local tname \"\";\
+    \n      :foreach USERNAME in=\$IDs do={\
+    \n\
+    \n        ## create a client certificate (that will be just a template while not signed)\
+    \n        :if (  [:len \$asIp ] > 0 ) do={\
+    \n\
+    \n                :local state \"CLIENT TEMPLATE certificates generation as IP...  \$USERNAME\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n                :set tname \"S.\$USERNAME@\$scepAlias\";\
+    \n\
+    \n                :if ([ :len [ /certificate find where name=\"\$tname\" ] ] > 0) do={\
+    \n\
+    \n                  :local state (\"Error: found certificate named (\$tname) -  cannot create the same one\");\
+    \n                  \$globalNoteMe value=\$state;\
+    \n                  :return false;\
+    \n\
+    \n                } else={\
+    \n\
+    \n                  /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"IP:\$USERNAME,DNS:\$fakeDomain\" key-usage=\$prefs country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365;\
+    \n\
+    \n                };\
+    \n\
+    \n            } else={\
+    \n\
+    \n                :local state \"CLIENT TEMPLATE certificates generation as EMAIL...  \$USERNAME\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n                :set tname \"C.\$USERNAME@\$scepAlias\";\
+    \n\
+    \n                :if ([ :len [ /certificate find where name=\"\$tname\" ] ] > 0) do={\
+    \n\
+    \n                  :local state (\"Error: found certificate named (\$tname) -  cannot create the same one\");\
+    \n                  \$globalNoteMe value=\$state;\
+    \n                  :return false;\
+    \n\
+    \n                } else={\
+    \n\
+    \n                  /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\
+    \n\
+    \n                };\
+    \n\
+    \n            }\
+    \n\
+    \n        :local state \"Pushing sign request...\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n        /certificate add-scep template=\"\$tname\" scep-url=\"\$scepUrl\";\
+    \n\
+    \n        :delay 6s\
+    \n\
+    \n        ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate\
+    \n        :local state \"We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... \";\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n        :local state \"Proceed to remote SCEP please, find this request and appove it. I'll wait 30 seconds\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n        :delay 30s\
+    \n\
+    \n        :local baseLength 5;\
+    \n        :for j from=1 to=\$baseLength do={\
+    \n          :if ([ :len [ /certificate find where status=\"idle\" name=\"\$tname\" ] ] > 0) do={\
+    \n\
+    \n            :local state \"Got it at last. Exporting to file\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            /certificate set trusted=yes [find where name=\"\$tname\" and status=\"idle\"]\
+    \n\
+    \n            ## export the CA, client certificate, and private key\
+    \n            /certificate export-certificate [find where name=\"\$tname\" and status=\"idle\"] export-passphrase=\"1234567890\" type=pkcs12\
+    \n\
+    \n            :return true;\
+    \n\
+    \n          } else={\
+    \n\
+    \n            :local state \"Waiting for mikrotik to download the certificate...\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :delay 8s\
+    \n\
+    \n          };\
+    \n        }\
+    \n      };\
+    \n\
+    \n      :return false;\
+    \n\
+    \n    } on-error={\
+    \n\
+    \n        :local state (\"Error: something fail on SCEP certifcates issuing step\");\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :return false;\
+    \n\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n#:put [\$simplercurrdatetimestr]\
+    \n:if (!any \$simplercurrdatetimestr) do={\
+    \n:global simplercurrdatetimestr do={\
+    \n    /system clock\
+    \n    :local vdate [get date]\
+    \n    :local vtime [get time]\
+    \n    :local vdoff [:toarray \"0,4,5,7,8,10\"]\
+    \n    :local MM    [:pick \$vdate (\$vdoff->2) (\$vdoff->3)]\
+    \n    :local M     [:tonum \$MM]\
+    \n    :if (\$vdate ~ \".../../....\") do={\
+    \n        :set vdoff [:toarray \"7,11,1,3,4,6\"]\
+    \n        :set M     ([:find \"xxanebarprayunulugepctovecANEBARPRAYUNULUGEPCTOVEC\" [:pick \$vdate (\$vdoff->2) (\$vdoff->3)] -1] / 2)\
+    \n        :if (\$M>12) do={:set M (\$M - 12)}\
+    \n        :set MM    [:pick (100 + \$M) 1 3]\
+    \n    }\
+    \n    :local yyyy [:pick \$vdate (\$vdoff->0) (\$vdoff->1)]\
+    \n    :local dd   [:pick \$vdate (\$vdoff->4) (\$vdoff->5)]\
+    \n    :local HH   [:pick \$vtime 0  2]\
+    \n    :local mm   [:pick \$vtime 3  5]\
+    \n    :local ss   [:pick \$vtime 6  8]\
+    \n\
+    \n    :return \"\$yyyy\$MM\$dd-\$HH\$mm\$ss\"\
+    \n}\
+    \n\
+    \n}\
+    \n\
+    \n:if (!any \$globalCallFetch) do={\
+    \n  :global globalCallFetch do={\
+    \n\
+    \n    # this one calls Fetch and catches its errors\
+    \n    :global globalNoteMe;\
+    \n    :if ([:len \$1] > 0) do={\
+    \n\
+    \n        # something like \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\
+    \n        :local fetchCmd \"\$1\";\
+    \n\
+    \n        :local state \"I'm now putting: \$fetchCmd\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n        :global simplercurrdatetimestr;\
+    \n        :local stamp [\$simplercurrdatetimestr];\
+    \n\
+    \n        :local salt [:rndstr length=6 from=\"HtsP2n8qZ\"];        \
+    \n        :local logName \"RAM/\$stamp-\$salt.log.txt\";\
+    \n\
+    \n        /file remove [find where name=\"\$logName\"]\
+    \n        {\
+    \n            :local jobid [:execute file=\$logName script=\$fetchCmd]\
+    \n\
+    \n            :set state \"Waiting the end of process for prototol \$logName to be ready, max 20 seconds...\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :global Gltesec 0\
+    \n            :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 20)) do={\
+    \n                :set Gltesec (\$Gltesec + 1)\
+    \n                :delay 1s\
+    \n\
+    \n                :set state \"waiting fetch result... \$Gltesec\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n            }\
+    \n\
+    \n            :set state \"Done. Elapsed Seconds: \$Gltesec\\r\\n\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :if ([:len [/file find where name=\"\$logName\"]] = 1) do={\
+    \n \
+    \n                :local filecontent [/file get [/file find where name=\"\$logName\"] contents]\
+    \n                :set state \"Result of Fetch:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n                /file remove [find where name=\"\$logName\"];\
+    \n\
+    \n            } else={\
+    \n\
+    \n                :set state \"Result of Fetch:\\r\\n****************************\\r\\n 20Sec Timeout exceeded - still no log file \\r\\n****************************\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n            }\
+    \n        }\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n\
+    \n\
+    \n#Example call\
+    \n#:put [\$globalOnPrimaryPartition]\
+    \n#test if we are boot up from a primary partition(not fallback or recovery)\
+    \n:global globalOnPrimaryPartition;\
+    \n:if (!any \$globalOnPrimaryPartition) do={\
+    \n    :global globalOnPrimaryPartition do={\
+    \n        \
+    \n        :global globalNoteMe;\
+    \n        # \
+    \n        :local partitionName \"primary\";\
+    \n        :local OnPrimaryPartition false;\
+    \n        \
+    \n        :local partitionsActivated [system/device-mode/get partitions];\
+    \n\
+    \n        :if (!\$partitionsActivated) do={\
+    \n\
+    \n            :local state (\"Investigation result - partitions disabled\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :local OnPrimaryPartition true;\
+    \n            :return \$OnPrimaryPartition;\
+    \n        }\
+    \n\
+    \n        :onerror errorName in={ \
+    \n            \
+    \n            # test if it exist in /partitions\
+    \n            :local partition [/partitions find name=\$partitionName];\
+    \n            :if ([:len \$partition] > 0) do={\
+    \n                :local running [/partition get \$partition running];\
+    \n                :if (\$running) do={\
+    \n                    :set OnPrimaryPartition true;\
+    \n                    :error \"primary active\";\
+    \n                } else={\
+    \n                    :set OnPrimaryPartition false;\
+    \n                    :error \"primary inactive\";\
+    \n                }\
+    \n            } else={\
+    \n                :set OnPrimaryPartition true;\
+    \n                :error \"partitions not set\";\
+    \n            }\
+    \n\
+    \n        } do={ \
+    \n\
+    \n            :local state (\"Investigation result - \$errorName\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :return \$OnPrimaryPartition;\
+    \n        }\
+    \n       \
+    \n        :put \$OnPrimaryPartition \
+    \n        :return \$OnPrimaryPartition;\
+    \n    }\
+    \n\
+    \n}\
+    \n\
+    \n"
+/system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
+    \n:local scriptname \"doCreateTrafficAccountingQueues\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n#a part of queue comment to locate queues to be processed\
+    \n:local qCommentMark \"dtq\";\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n\
+    \n:local state \"\";\
+    \n \
+    \n/ip dhcp-server lease\
+    \n:foreach x in=[find] do={\
+    \n   \
+    \n  # grab variables for use below\
+    \n  :local dhcpIp ([get \$x address])\
+    \n  :local dhcpMac [get \$x mac-address]\
+    \n  :local dhcpHost [get \$x host-name]\
+    \n  :local dhcpComment [get \$x comment]\
+    \n  :local dhcpServer [get \$x server]\
+    \n  :local qComment \"\"\
+    \n   \
+    \n  :local leaseinqueue false\
+    \n\
+    \n  /queue simple\
+    \n  :foreach y in=[find where comment~\"\$qCommentMark\"] do={\
+    \n     \
+    \n    #grab variables for use below\
+    \n    :local qIp [get \$y target]\
+    \n    :set qComment [get \$y comment]\
+    \n\
+    \n    :local skip false;\
+    \n  \
+    \n    :if ( (\$qIp->0) != nil ) do={\
+    \n      :set qIp (\$qIp->0) \
+    \n      :set qIp ( [:pick \$qIp 0 [:find \$qIp \"/\" -1]] ) ;\
+    \n    } else {\
+    \n      :set skip true;\
+    \n    }\
+    \n         \
+    \n    # Isolate information  from the comment field (MAC, Hostname)\
+    \n    :local qMac [:pick \$qComment 4 21]\
+    \n    :local qHost [:pick \$qComment 22 [:len \$qComment]]\
+    \n\
+    \n    # If MAC from lease matches the queue MAC and IPs are the same - then refresh the queue item\
+    \n    :if (\$qMac = \$dhcpMac and \$qIp = \$dhcpIp and !\$skip) do={\
+    \n\
+    \n      # build a comment field\
+    \n      :set qComment (\$qCommentMark . \",\" . \$dhcpMac . \",\" . \$dhcpHost)\
+    \n\
+    \n      set \$y target=\$dhcpIp comment=\$qComment\
+    \n\
+    \n      :if (\$dhcpComment != \"\") do= {\
+    \n        set \$y name=(\$dhcpComment . \"@\" . \$dhcpServer . \" (\" . \$dhcpMac . \")\")\
+    \n      } else= {\
+    \n        :if (\$dhcpHost != \"\") do= {\
+    \n          set \$y name=(\$dhcpHost . \"@\" . \$dhcpServer . \" (\" . \$dhcpMac . \")\")\
+    \n        } else= {\
+    \n          set \$y name=(\$dhcpMac . \"@\" . \$dhcpServer)\
+    \n        }\
+    \n      }\
+    \n\
+    \n      :local queuename [get \$y name]\
+    \n\
+    \n      :set state \"Queue \$queuename updated\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n      :set leaseinqueue true\
+    \n    } \
+    \n  }\
+    \n\
+    \n  # There was not an existing entry so add one for this lease\
+    \n  :if (\$leaseinqueue = false) do={\
+    \n\
+    \n    # build a comment field\
+    \n    :set qComment (\$qCommentMark . \",\" . \$dhcpMac . \",\" . \$dhcpHost)\
+    \n\
+    \n    # build command (queue names should be unique)\
+    \n    :local cmd \"/queue simple add target=\$dhcpIp comment=\$qComment queue=default/default total-queue=default\"\
+    \n    :if (\$dhcpComment != \"\") do={ \
+    \n      :set cmd \"\$cmd name=\\\"\$dhcpComment@\$dhcpServer (\$dhcpMac)\\\"\" \
+    \n    } else= {\
+    \n      :if (\$dhcpHost != \"\") do={\
+    \n        :set cmd \"\$cmd name=\\\"\$dhcpHost@\$dhcpServer (\$dhcpMac)\\\"\"\
+    \n      } else= {\
+    \n        :set cmd \"\$cmd name=\\\"\$dhcpMac@\$dhcpServer\\\"\"\
+    \n      }\
+    \n    }\
+    \n\
+    \n    :execute \$cmd\
+    \n\
+    \n    :set state \"Queue \$qComment created\"\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n  }\
+    \n}\
+    \n\
+    \n# Cleanup Routine - remove dynamic entries that no longer exist in the lease table\
+    \n/queue simple\
+    \n:foreach z in=[find where comment~\"\$qCommentMark\"] do={\
+    \n\
+    \n  :local qComment [get \$z comment]\
+    \n  :local qMac [:pick \$qComment 4 21]\
+    \n\
+    \n  :local qIp [get \$z target]\
+    \n  :local skip false\
+    \n\
+    \n  :if ( (\$qIp->0) != nil ) do={\
+    \n    :set qIp (\$qIp->0) \
+    \n    :set qIp ( [:pick \$qIp 0 [:find \$qIp \"/\" -1]] ) ;\
+    \n  } else {\
+    \n    :set skip true;\
+    \n  }\
+    \n\
+    \n  :if (\$itsOk and !\$skip) do={\
+    \n    :if ( [/ip dhcp-server lease find address=\$qIp and mac-address=\$qMac] = \"\") do={\
+    \n      :set state \"Queue \$qComment dropped as stale\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n      remove \$z\
+    \n    }\
+    \n  }    \
+    \n}\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: refreshed traffic accounting queues Succesfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;  \
+    \n  :error \$inf; \
+    \n\
+    \n  \
+    \n}\
+    \n"
+/system script add comment="Common backup script to ftp/email using both raw/plain formats. Can also be used to collect Git config history" dont-require-permissions=yes name=doBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doBackup\";\
+    \n\
+    \n:local sysname [/system identity get name];\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\
+    \n\
+    \n:local sysver \"NA\"\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\
+    \n  :set sysver [/system package get system version]\
+    \n}\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\
+    \n  :set sysver [/system package get routeros version]\
+    \n}\
+    \n\
+    \n:global globalNoteMe;\
+    \n:global globalCallFetch;\
+    \n:global simplercurrdatetimestr;\
+    \n\
+    \n\
+    \n:local scriptname \"doBackup\"\
+    \n:local saveSysBackup true\
+    \n:local encryptSysBackup false\
+    \n:local saveRawExport true\
+    \n:local verboseRawExport false\
+    \n:local state \"\"\
+    \n\
+    \n#directories have to exist!\
+    \n:local FTPEnable true;\
+    \n:local FTPServer \"nas.home\";\
+    \n:local FTPPort 2022;\
+    \n:local FTPUser \"git\";\
+    \n:local FTPPass \"git\";\
+    \n:local FTPRoot \"REPO/backups/\";\
+    \n:local FTPGitEnable true;\
+    \n:local FTPRawGitName \"REPO/raw/rawconf_\$sysname_latest.rsc\";\
+    \n\
+    \n:local sysnote [/system note get note];\
+    \n\
+    \n:local stamp [\$simplercurrdatetimestr];\
+    \n\
+    \n:local SMTPEnable true;\
+    \n:local SMTPAddress \"defm.kopcap@gmail.com\";\
+    \n:local SMTPSubject (\"\$sysname Full Backup (\$stamp)\");\
+    \n:local SMTPBody (\"\$sysname full Backup file see in attachment.\\n \$sysnote\");\
+    \n:local itsOk true;\
+    \n\
+    \n:do {\
+    \n  :local smtpserv [:resolve \"\$FTPServer\"];\
+    \n} on-error={ \
+    \n  :set state \"FTP server looks like to be unreachable\"\
+    \n  \$globalNoteMe value=\$state;\
+    \n  :set itsOk false;\
+    \n}\
+    \n\
+    \n\
+    \n:global globalOnPrimaryPartition;\
+    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
+    \n    \
+    \n    :set state \"WARNING: the system booted up from fallback partition - skipping backup!\"\
+    \n    :log error \$state\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :set itsOk false;\
+    \n    :error \$state;\
+    \n\
+    \n}\
+    \n\
+    \n:local fname (\"BACKUP-\$sysname-\$stamp\")\
+    \n\
+    \n:if (\$saveSysBackup and \$itsOk) do={\
+    \n  :if (\$encryptSysBackup = true) do={ /system backup save name=(\$fname.\".backup\") }\
+    \n  :if (\$encryptSysBackup = false) do={ /system backup save dont-encrypt=yes name=(\$fname.\".backup\") }\
+    \n  :delay 2s;\
+    \n  \$globalNoteMe value=\"System Backup Finished\"\
+    \n}\
+    \n\
+    \n:if (\$saveRawExport and \$itsOk) do={\
+    \n  :if (\$FTPGitEnable ) do={\
+    \n     # show sensitive data\
+    \n     :if (\$verboseRawExport = true) do={ /export show-sensitive terse verbose file=(\$fname.\".safe.rsc\") }\
+    \n     :if (\$verboseRawExport = false) do={ /export show-sensitive terse file=(\$fname.\".safe.rsc\") }\
+    \n     :delay 2s;\
+    \n  }\
+    \n  \$globalNoteMe value=\"Raw configuration script export Finished\"\
+    \n}\
+    \n\
+    \n:delay 5s\
+    \n\
+    \n:local buFile \"\"\
+    \n\
+    \n:foreach backupFile in=[/file find] do={\
+    \n  \
+    \n  :set buFile ([/file get \$backupFile name])\
+    \n  \
+    \n  :if ([:typeof [:find \$buFile \$fname]] != \"nil\") do={\
+    \n    \
+    \n    :local itsSRC ( \$buFile ~\".safe.rsc\")\
+    \n    \
+    \n     if (\$FTPEnable) do={\
+    \n        :do {\
+    \n        :set state \"Uploading \$buFile to FTP (\$FTPRoot\$buFile)\"\
+    \n        \$globalNoteMe value=\$state\
+    \n \
+    \n        :local dst \"\$FTPRoot\$buFile\";\
+    \n        :local fetchCmd \"/tool fetch url=sftp://\$FTPServer:\$FTPPort/\$dst src-path=\$buFile user=\$FTPUser password=\$FTPPass upload=yes\"\
+    \n\
+    \n        \$globalCallFetch \$fetchCmd;\
+    \n\
+    \n        \$globalNoteMe value=\"Done\"\
+    \n\
+    \n        } on-error={ \
+    \n          :set state \"Error When \$state\"\
+    \n          \$globalNoteMe value=\$state;\
+    \n          :set itsOk false;\
+    \n       }\
+    \n\
+    \n        #special ftp upload for git purposes\
+    \n        if (\$itsSRC and \$FTPGitEnable) do={\
+    \n            :do {\
+    \n            :set state \"Uploading \$buFile to GIT-FTP (RAW, \$FTPRawGitName)\"\
+    \n            \$globalNoteMe value=\$state\
+    \n\
+    \n            :local dst \"\$FTPRawGitName\";\
+    \n            :local fetchCmd \"/tool fetch url=sftp://\$FTPServer:\$FTPPort/\$dst src-path=\$buFile user=\$FTPUser password=\$FTPPass upload=yes\"\
+    \n \
+    \n        \$globalCallFetch \$fetchCmd;\
+    \n\
+    \n            \$globalNoteMe value=\"Done\"\
+    \n            } on-error={ \
+    \n              :set state \"Error When \$state\"\
+    \n              \$globalNoteMe value=\$state;\
+    \n              :set itsOk false;\
+    \n           }\
+    \n        }\
+    \n\
+    \n    }\
+    \n    if (\$SMTPEnable and !\$itsSRC) do={\
+    \n        :do {\
+    \n        :set state \"Uploading \$buFile to SMTP\"\
+    \n        \$globalNoteMe value=\$state\
+    \n\
+    \n        #email works in background, delay needed\
+    \n        /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject file=\$buFile tls=starttls\
+    \n\
+    \n        #waiting for email to be delivered\
+    \n        :delay 15s;\
+    \n\
+    \n        :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\
+    \n\
+    \n        if (!\$emlResult) do={\
+    \n\
+    \n          :set state \"Error When \$state\"\
+    \n          \$globalNoteMe value=\$state;\
+    \n          :set itsOk false;\
+    \n\
+    \n        } else={\
+    \n\
+    \n          \$globalNoteMe value=\"Done\"\
+    \n       \
+    \n        }\
+    \n\
+    \n        } on-error={ \
+    \n          :set state \"Error When \$state\"\
+    \n          \$globalNoteMe value=\$state;\
+    \n          :set itsOk false;\
+    \n       }\
+    \n    }\
+    \n\
+    \n    :delay 2s;\
+    \n    /file remove \$backupFile;\
+    \n\
+    \n  }\
+    \n}\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: Automatic Backup Completed Successfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
+    \n \
+    \n}\
+    \n\
+    \n\
+    \n\
+    \n"
+/system script add comment="Periodically renews password for some user accounts and sends a email" dont-require-permissions=yes name=doRandomGen owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local scriptname \"doRandomGen\"\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local state \"\";\
+    \n\
+    \n:global simplercurrdatetimestr;\
+    \n\
+    \n:local stamp [\$simplercurrdatetimestr];\
+    \n\
+    \n:local sysname [/system identity get name];\
+    \n:local rosVer [:tonum [:pick [/system resource get version] 0 1]]\
+    \n\
+    \n:local sysver \"NA\"\
+    \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\
+    \n  :set sysver [/system package get system version]\
+    \n}\
+    \n:if ( [ :len [ /system package find where name=\"routeros\" and disabled=no ] ] > 0 and \$rosVer = 7 ) do={\
+    \n  :set sysver [/system package get routeros version]\
+    \n}\
+    \n\
+    \n:local SMTPAddress \"defm.kopcap@gmail.com\";\
+    \n:local SMTPSubject (\"\$sysname pwd restoration (\$stamp)\");\
+    \n:local SMTPBody;\
+    \n\
+    \n:local itsOk true;\
+    \n\
+    \n:set state \"Starting reserve password generator Script...\";\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n# special password appendix - current month 3chars\
+    \n:local pfx [:pick [/system clock get date] 0 3 ];\
+    \n:local newPassword \"\";\
+    \n\
+    \n:local date [/system clock get date]; \
+    \n:local monthNum [:tonum [:pick \$date 5 7]];\
+    \n:local months {\"jan\";\"feb\";\"mar\";\"apr\";\"may\";\"jun\";\"jul\";\"aug\";\"sep\";\"oct\";\"nov\";\"dec\"};\
+    \n:local pfx  ([:pick \$months (\$monthNum-1)]); \
+    \n\
+    \n:set newPassword [:rndstr length=6 from=\"0123456789dglpqwBHNTQV\"];\
+    \n\
+    \n:set state \"Randomized: '\$newPassword'\";\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n# doing simple salt\
+    \n:set newPassword (\$pfx . \$newPassword);\
+    \n\
+    \n/user set [find name=reserved] password=\$newPassword\
+    \n\
+    \n# crop appendix\
+    \n:local halfPass [:pick [\$newPassword] 3 11 ];\
+    \n\
+    \n:do {\
+    \n    :set state \"Sending backup password\"\
+    \n    \$globalNoteMe value=\$state\
+    \n\
+    \n    :set SMTPBody (\"Device additional password: '***\$halfPass'\")\
+    \n\
+    \n    #email works in background, delay needed\
+    \n    /tool e-mail send to=\$SMTPAddress body=\$SMTPBody subject=\$SMTPSubject tls=starttls\
+    \n\
+    \n    #waiting for email to be delivered\
+    \n    :delay 15s;\
+    \n\
+    \n    :local emlResult ([/tool e-mail get last-status] = \"succeeded\")\
+    \n\
+    \n    if (!\$emlResult) do={\
+    \n\
+    \n            :set state \"Error When \$state\"\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :set itsOk false;\
+    \n\
+    \n        } else={\
+    \n\
+    \n            \$globalNoteMe value=\"Done\"\
+    \n    \
+    \n        }\
+    \n\
+    \n    } on-error={ \
+    \n        :set state \"Error When \$state\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :set itsOk false;\
+    \n    }\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: pwd restoration Completed Successfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
+    \n  \
+    \n}\
+    \n"
+/system script add comment="Dumps all the scripts from you device to *.rsc.txt files, loads to FTP (all scripts in this Repo made with it)" dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local sysname [/system identity get name];\
+    \n:local scriptname \"doDumpTheScripts\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n:global globalCallFetch;\
+    \n\
+    \n#directories have to exist!\
+    \n:local FTPRoot \"REPO/raw/\"\
+    \n\
+    \n#This subdir will be created locally to put exported scripts in\
+    \n#and it must exist under \$FTPRoot to upload scripts to\
+    \n:local SubDir \"scripts/\"\
+    \n\
+    \n:local FTPEnable true\
+    \n:local FTPServer \"nas.home\"\
+    \n:local FTPPort 2022\
+    \n:local FTPUser \"git\"\
+    \n:local FTPPass \"git\"\
+    \n\
+    \n:global globalCallFetch;\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n:local state \"\";\
+    \n:global globalScriptId;\
+    \n:global createPath;\
+    \n\
+    \n:do {\
+    \n  :local smtpserv [:resolve \"\$FTPServer\"];\
+    \n} on-error={\
+    \n  :set state \"FTP server looks like to be unreachable\";\
+    \n   \$globalNoteMe value=\$state;\
+    \n  :set itsOk false;    \
+    \n}\
+    \n\
+    \n:global globalOnPrimaryPartition;\
+    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
+    \n    \
+    \n    :set state \"WARNING: the system booted up from fallback partition - skipping dump!\"\
+    \n    :log error \$state\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :set itsOk false;\
+    \n    :error \$state;\
+    \n\
+    \n}\
+    \n\
+    \n:foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\
+    \n    /file remove \$backupFile;\
+    \n}\
+    \n\
+    \n# Just to sure (or create) if \$SubDir exist\
+    \n  /file/add name=\"\$SubDir/foo.txt\" contents=\"Feel free to remove this\";\
+    \n\
+    \n \$globalNoteMe value=\"Scripts source export..\";\
+    \n\
+    \n:foreach scriptId in [/system script find] do={\
+    \n  :if (\$itsOk) do={\
+    \n\
+    \n    :local scriptSource [/system script get \$scriptId source];\
+    \n    :local theScript [/system script get \$scriptId name];\
+    \n    :local scriptSourceLength [:len \$scriptSource];\
+    \n    :local path \"\$SubDir\$theScript.rsc.txt\";\
+    \n\
+    \n    :set \$globalScriptId \$scriptId;\
+    \n\
+    \n    :if (\$scriptSourceLength >= 4096) do={\
+    \n      :set state \"Please keep care about '\$theScript' consistency - its size over 4096 bytes\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n    }\
+    \n\
+    \n    :do {\
+    \n      /file print file=\$path where 1=0;\
+    \n      #filesystem delay\
+    \n      :delay 1s;\
+    \n\
+    \n      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack\
+    \n      /execute script=\":global globalScriptId; :put [/system script get \$globalScriptId source];\" file=\$path;\
+    \n      :set state \"Exported '\$theScript' to '\$path'\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n    } on-error={ \
+    \n      :set state \"Error When Exporting '\$theScript' Script to '\$path'\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set itsOk false;\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n\
+    \n:delay 5s\
+    \n\
+    \n:local buFile \"\"\
+    \n\
+    \n \$globalNoteMe value=\"Scripts source pushing..\";\
+    \n\
+    \n:if (\$itsOk) do={\
+    \n  :foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\
+    \n    :set buFile ([/file get \$backupFile name]);\
+    \n    :if ([:typeof [:find \$buFile \".rsc.txt\"]] != \"nil\") do={\
+    \n      :local rawfile ( \$buFile ~\".rsc.txt\");\
+    \n      #special ftp upload for git purposes\
+    \n      if (\$FTPEnable) do={\
+    \n        :local dst \"\$FTPRoot\$buFile\";\
+    \n        :do {\
+    \n          :set state \"Uploading \$buFile' to '\$dst'\";\
+    \n          \$globalNoteMe value=\$state;\
+    \n          \
+    \n         :local fetchCmd \"/tool fetch url=sftp://\$FTPServer:\$FTPPort/\$dst src-path=\$buFile user=\$FTPUser password=\$FTPPass upload=yes\"\
+    \n       \
+    \n          \$globalCallFetch \$fetchCmd;\
+    \n\
+    \n          \$globalNoteMe value=\"Done\";\
+    \n        } on-error={ \
+    \n          :set state \"Error When Uploading '\$buFile' to '\$dst'\";\
+    \n          \$globalNoteMe value=\$state;\
+    \n          :set itsOk false;\
+    \n        }\
+    \n      }\
+    \n    }\
+    \n  }\
+    \n}\
+    \n\
+    \n:delay 5s\
+    \n\
+    \n \$globalNoteMe value=\"Housekeeping..\";\
+    \n\
+    \n:foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\
+    \n  :if ([:typeof [:find \$buFile \".rsc.txt\"]] != \"nil\") do={\
+    \n    /file remove \$backupFile;\
+    \n  }\
+    \n}\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: scripts dump done Successfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
+    \n  \
+    \n}\
+    \n"
+/system script add comment="Updates chosen scripts from Git/master (sheduler entry with the same name have to exist)" dont-require-permissions=yes name=doFreshTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local sysname [/system identity get name];\
+    \n:local scriptname \"doFreshTheScripts\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n:local GitHubUserName \"Defm\";\
+    \n:local GitHubRepoName \"mikrobackups\";\
+    \n\
+    \n#should be used for private repos\
+    \n:local GitHubAccessToken \"\";\
+    \n\
+    \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\
+    \n\
+    \n:local UseUpdateList true;\
+    \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs,doCloudBackup\"];\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n:local state \"\";\
+    \n\
+    \n:foreach scriptName in=\$UpdateList do={\
+    \n\
+    \n    :if ([:len [/system script find name=\$scriptName]] = 0) do={\
+    \n\
+    \n      :set state \"Script '\$scriptName' skipped due to absence\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n    }\
+    \n}\
+    \n  \
+    \n:foreach scriptId in [/system script find] do={\
+    \n\
+    \n  :local code \"\";\
+    \n  :local theScript [/system script get \$scriptId name];\
+    \n  :local skip false;\
+    \n\
+    \n  :if ( \$UseUpdateList ) do={\
+    \n    :if ( [:len [find key=\$theScript in=\$UpdateList ]] > 0 ) do={\
+    \n    } else={\
+    \n      :set state \"Script '\$theScript' skipped due to setup\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set skip true;\
+    \n    }\
+    \n  } else={\
+    \n  }\
+    \n\
+    \n  :if ( \$itsOk and !\$skip) do={\
+    \n    :do {\
+    \n\
+    \n      :set state \"/tool fetch url=\$RequestUrl\$\$theScript.rsc.txt output=user as-value\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n \
+    \n      #Please keep care about consistency if size over 4096 bytes\
+    \n      :local answer ([ /tool fetch url=\"\$RequestUrl\$\$theScript.rsc.txt\" output=user as-value]);\
+    \n      :set code ( \$answer->\"data\" );\
+    \n      \$globalNoteMe value=\"Done\";\
+    \n\
+    \n    } on-error= { \
+    \n      :set state \"Error When Downloading Script '\$theScript' From GitHub\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set itsOk false;\
+    \n    }\
+    \n  }\
+    \n\
+    \n  :if ( \$itsOk and !\$skip) do={\
+    \n    :do {\
+    \n      :set state \"Setting Up Script source for '\$theScript'\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n      /system script set \$theScript source=\"\$code\";\
+    \n      \$globalNoteMe value=\"Done\";\
+    \n    } on-error= { \
+    \n      :set state \"Error When Setting Up Script source for '\$theScript'\";\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set itsOk false;\
+    \n    }\
+    \n  }\
+    \n\
+    \n  :delay 1s\
+    \n}\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: scripts refreshed Successfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
+    \n  \
+    \n}\
+    \n\
+    \n\
+    \n"
+/system script add comment="Uses INFLUX DB http/rest api to push some stats to" dont-require-permissions=yes name=doPushStatsToInfluxDB owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local sysname [/system identity get name];\
+    \n:local scriptname \"doPushStatsToInfluxDB\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n#a part of queue comment to locate queues to be processed\
+    \n:local queueCommentMark \"dtq\";\
+    \n\
+    \n#influxDB service URL (beware about port when /fetch)\
+    \n:local tURL \"http://nas.home/api/v2/write\\\?bucket=httpapi&org=home\"\
+    \n:local tPingURL \"http://nas.home/ping\"\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n\
+    \n\
+    \n:local useBandwidthTest false;\
+    \n\
+    \n:local state \"\";\
+    \n\
+    \n:do {\
+    \n\
+    \n  :set state (\"Checking if INFLUXDB Service online\");\
+    \n  \$globalNoteMe value=\$state;\
+    \n\
+    \n  :local result [/tool fetch http-method=get port=8086 user=\"mikrotik\" password=\"mikrotik\" mode=http url=\"\$tPingURL\"  as-value output=user];\
+    \n \
+    \n} on-error={\
+    \n  \
+    \n  :set state (\"INFLUXDB: Service Failed!\");\
+    \n  \$globalNoteMe value=\$state;\
+    \n\
+    \n  :local inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n\
+    \n  :global globalTgMessage;\
+    \n  # do not spam via Tg on this error - just log error\
+    \n\
+    \n  :error \$inf;\
+    \n}\
+    \n\
+    \n:local state \"\";\
+    \n\
+    \n:local authHeader (\"Authorization: Token nh-mJylW1FCluBlUGXYZq_s5zne_QjzkHcc56y8v6AIlUOOiOm4bU2652r2Vkv3Vp6WzgQT7WPsi4yF0RvdElg==\"); \
+    \n\
+    \n\
+    \n:if ( \$useBandwidthTest  ) do={\
+    \n\
+    \n:local txAvg 0\
+    \n:local rxAvg 0\
+    \n\
+    \n:local btServer 192.168.97.1;\
+    \n\
+    \n:set state (\"Starting VPN bandwidth test\");\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \ntool bandwidth-test protocol=tcp direction=transmit user=btest password=btest address=\$btServer duration=15s do={\
+    \n:set txAvg (\$\"tx-total-average\" / 1048576 );\
+    \n}\
+    \n\
+    \ntool bandwidth-test protocol=tcp direction=receive user=btest password=btest address=\$btServer duration=15s do={\
+    \n:set rxAvg (\$\"rx-total-average\" / 1048576 );\
+    \n}\
+    \n\
+    \n:global globalCallFetch;\
+    \n:local fetchCmd  \"/tool fetch http-method=post port=8086 mode=http url=\\\"\$tURL\\\" http-header-field=\\\"\$authHeader, content-type: text/plain\\\" http-data=\\\"bandwidth,host=\$sysname,target=CHR transmit=\$txAvg,recieve=\$rxAvg\\\" keep-result=no\";\
+    \n\
+    \n\$globalCallFetch \$fetchCmd;\
+    \n\
+    \n}\
+    \n \
+    \n/queue simple\
+    \n\
+    \n:foreach z in=[find where comment~\"\$queueCommentMark\"] do={\
+    \n\
+    \n  :local skip false;\
+    \n\
+    \n  :local queuecomment [get \$z comment]\
+    \n  :local ip [get \$z target]\
+    \n\
+    \n  :if ( \$itsOk ) do={\
+    \n\
+    \n    :if ( (\$ip->0) != nil ) do={\
+    \n      :set state (\"Locating queue target IP for queue \$queuecomment\");\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set ip (\$ip->0) \
+    \n      :set ip ( [:pick \$ip 0 [:find \$ip \"/\" -1]] ) ;\
+    \n      \$globalNoteMe value=\"Done\";\
+    \n    } else {\
+    \n      :set state \"Cant locate queue target IP for queue \$queuecomment. Skip it.\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set skip true;\
+    \n    }\
+    \n\
+    \n  }\
+    \n\
+    \n  :local hostName \"\"\
+    \n  :local upload 0\
+    \n  :local download 0\
+    \n\
+    \n  :if ( \$itsOk and !\$skip) do={\
+    \n    :local bytes [get \$z bytes]\
+    \n    :set upload (\$upload + [:pick \$bytes 0 [:find \$bytes \"/\"]])\
+    \n    :set download (\$download + [:pick \$bytes ([:find \$bytes \"/\"]+1) [:len \$bytes]])\
+    \n  }\
+    \n\
+    \n  :if ( \$itsOk and !\$skip) do={\
+    \n    :do {\
+    \n      #dhcp server for IP->name translation\
+    \n      :set state (\"Picking host name for \$ip via DHCP\");\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set hostName [/ip dhcp-server lease get [find (address=\$ip)] host-name]\
+    \n\
+    \n      :local typeOfValue [:typeof \$hostName]\
+    \n\
+    \n      :if ((\$typeOfValue = \"nothing\") or (\$typeOfValue = \"nil\")) do={\
+    \n        :set state \"Got empty host name. Skip it.\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :set skip true;\
+    \n      } else={\
+    \n        :set state \"Got it \$hostName\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n      }\
+    \n\
+    \n    } on-error= {\
+    \n      :set state \"Error When \$state\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set skip true;\
+    \n    }\
+    \n  }\
+    \n\
+    \n  :if ( \$itsOk and !\$skip) do={\
+    \n    :do {\
+    \n      :set state (\"Pushing stats to influxDB about \$hostName: UP = \$upload, DOWN=\$download\");\
+    \n     \$globalNoteMe value=\$state;\
+    \n      /tool fetch http-method=post port=8086 mode=http url=\"\$tURL\" http-header-field=\"\$authHeader, content-type: text/plain\" http-data=\"traffic,host=\$sysname,target=\$hostName upload=\$upload,download=\$download\" keep-result=no;\
+    \n      \$globalNoteMe value=\"Done\";\
+    \n    } on-error= {\
+    \n      :set state \"Error When \$state\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n      :set itsOk false;\
+    \n    }\
+    \n  }\
+    \n  \
+    \n  :if (\$itsOk and !\$skip) do={\
+    \n    :set state \"Flushing stats..\"\
+    \n    \$globalNoteMe value=\$state;\
+    \n    reset-counters \$z\
+    \n  }  \
+    \n}\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: stats pushed Succesfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \
+    \n  \
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;\
+    \n  :error \$inf; \
+    \n\
+    \n\
+    \n}\
+    \n"
+/system script add comment="This will check for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time. Will reboot the router when overload" dont-require-permissions=yes name=doCPUHighLoadReboot owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n:local sysname [/system identity get name];\r\
+    \n:local scriptname \"doCPUHighLoadReboot\";\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n:local state \"\";\r\
+    \n  \r\
+    \n:local UsedCPU [/system resource get cpu-load]\r\
+    \n:local FreeCPU (100 - \$UsedCPU)\r\
+    \n:local FreeRam ((100 * [/system resource get free-memory]) / [/system resource get total-memory])\r\
+    \n:local UsedRam (100 - \$FreeRam)\r\
+    \n\r\
+    \n#available (free) resource (percent), set it to 90 for testing\r\
+    \n:local RamWarnLimit 15;\r\
+    \n:local CpuWarnLimit 15;\r\
+    \n\r\
+    \n:local ticks 7;\r\
+    \n:local delayTime 7;\r\
+    \n:local progressiveDelay true;\r\
+    \n\r\
+    \n:set state (\"Checking for free CPU/RAM resources over \$ticks times to be more than \$CpuWarnLimit%/\$RamWarnLimit% each time\");\r\
+    \n\$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n:set state (\"Step 0: free CPU/RAM \$FreeCPU%/\$FreeRam%, goind deeper..\");\r\
+    \n\$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n:if (\$FreeRam < \$RamWarnLimit or \$FreeCPU < \$CpuWarnLimit) do={\r\
+    \n\r\
+    \n  #this tick is high-HighLoad\r\
+    \n  :set itsOk false;  \r\
+    \n\r\
+    \n  :delay (\$delayTime);\r\
+    \n\r\
+    \n} \r\
+    \n\r\
+    \n:for i from=1 to=\$ticks do={\r\
+    \n\r\
+    \n  :if (!\$itsOk) do={\r\
+    \n\r\
+    \n    :set UsedCPU [/system resource get cpu-load]\r\
+    \n    :set FreeCPU (100 - \$UsedCPU)\r\
+    \n    :set FreeRam ((100 * [/system resource get free-memory]) / [/system resource get total-memory])\r\
+    \n    :set UsedRam (100 - \$FreeRam)\r\
+    \n\r\
+    \n    :set state (\"Recalc stats\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  }\r\
+    \n\r\
+    \n  :if (!\$itsOk and \$FreeRam < \$RamWarnLimit or \$FreeCPU < \$CpuWarnLimit) do={\r\
+    \n\r\
+    \n    #keep \$itsOk = false\r\
+    \n\r\
+    \n    :local delaySec 0;\r\
+    \n    :if (\$progressiveDelay) do={\r\
+    \n      :set delaySec (\$delayTime + \$i)\r\
+    \n    } else={\r\
+    \n      :set delaySec (\$delayTime)\r\
+    \n    }\r\
+    \n\r\
+    \n    :set state (\"Step \$i: free CPU/RAM \$FreeCPU%/\$FreeRam%, its too low, sleep \$delaySec and recheck..\");\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    :delay (\$delaySec);\r\
+    \n\r\
+    \n  } else={\r\
+    \n\r\
+    \n    #if one step is non-HighLoad, then the whole result is non-HighLoad\r\
+    \n    :set itsOk true;\r\
+    \n\r\
+    \n  }\r\
+    \n\r\
+    \n}\r\
+    \n\r\
+    \n:local inf \"\"\r\
+    \n:if (\$itsOk) do={\r\
+    \n  :set inf \"\$scriptname on \$sysname: cpu load ok\"\r\
+    \n}\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n  :set inf \"Warn When \$scriptname on \$sysname: CPU load too high, I'm going reboot\"  \r\
+    \n}\r\
+    \n\r\
+    \n\$globalNoteMe value=\$inf\r\
+    \n\r\
+    \n:if (!\$itsOk) do={\r\
+    \n\r\
+    \n  :global globalTgMessage;\r\
+    \n  \$globalTgMessage value=\$inf;\r\
+    \n\r\
+    \n  /system reboot\r\
+    \n  \r\
+    \n}\r\
+    \n\r\
+    \n\r\
+    \n\r\
+    \n\r\
+    \n"
+/system script add comment="A very special script for CFG restore from *.rsc files (not from backup). This one should be placed at flash/perfectrestore.rsc, your config should be at flash/backup.rsc. Run 'Reset confuguration' with 'no default config', choose 'flash/perfectrestore.rsc' as 'run after reset. Pretty logs will be at flash/import.log and flash/perfectrestore.log" dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="{\r\r\
+    \n:global targetfile \"backup.rsc\"\r\r\
+    \n:global importlog \"import.log\"\r\r\
+    \n:global debuglog \"perfectrestore.log\"\r\r\
+    \n:global rosVer [:tonum [:pick [/system resource get version] 0 1]]\r\r\
+    \n/file remove [find name ~\"\$importlog\"]\r\r\
+    \n/file remove [find name ~\"\$debuglog\"]\r\r\
+    \n# Wait for interfaces to initialize\r\r\
+    \n:delay 5s\r\r\
+    \n# Beep Functions\r\r\
+    \n :local doStartBeep [:parse \":beep frequency=1000 length=300ms;:delay 150ms;:beep frequency=1500 length=300ms;\"];\r\r\
+    \n :local doFinishBeep [:parse \":beep frequency=1000 length=.6;:delay .5s;:beep frequency=1600 length=.6;:delay .5s;:beep frequency=2100 length=.3;:delay .3s;:beep frequency=2500 length=.3;:delay .3s;:beep frequency=2400 length=1;\"];\r\r\
+    \n# Setup temporary logging to disk\r\r\
+    \n/system logging action remove [find where name~\"perfect\"]\r\r\
+    \n/system logging action add disk-file-count=1 disk-file-name=\$debuglog disk-lines-per-file=4096 name=perfectrestore target=disk\r\r\
+    \n/system logging remove [find where action~\"perfect\"]\r\r\
+    \n/system logging add action=perfectrestore topics=system,info\r\r\
+    \n/system logging add action=perfectrestore topics=script,info\r\r\
+    \n/system logging add action=perfectrestore topics=warning\r\r\
+    \n/system logging add action=perfectrestore topics=error\r\r\
+    \n/system logging add action=perfectrestore topics=critical\r\r\
+    \n/system logging add action=perfectrestore topics=debug,!packet\r\r\
+    \n# checks if specific packages exist\r\r\
+    \n:if ( [ :len [ /system package find where name=\"ntp\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
+    \n  :log error \"NTP package should be installed for NTP-server to work\";\r\r\
+    \n  :error \"NTP package should be installed for NTP-server to work\";\r\r\
+    \n}\r\r\
+    \n:if ( [ :len [ /system package find where name=\"iot\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
+    \n  :log error \"IOT package should be installed\";\r\r\
+    \n  :error \"IOT package should be installed\";\r\r\
+    \n}\r\r\
+    \n:if ( [ :len [ /system package find where name=\"lora\" and disabled=no ] ] = 0 and \$rosVer = 6 ) do={\r\r\
+    \n  :log error \"LORA package should be installed\";\r\r\
+    \n  :error \"LORA package should be installed\";\r\r\
+    \n}\r\r\
+    \n# Play Audible Start Sequence\r\r\
+    \n\$doStartBeep\r\r\
+    \n:log warning \"GO -----------------------------------------------------------------------------\";\r\r\
+    \n/user active print detail file=activeUsers.txt;\r\r\
+    \n:global currentUsers [/file get activeUsers.txt contents];\r\r\
+    \n:log warning \"ENVIRONMENT IS \$currentUsers\";\r\r\
+    \n# bug 6.49.6 - lora servers stay OK after /system reset-configuration no-defaults=yes\r\r\
+    \n#/lora servers remove [find]\r\r\
+    \n\r\r\
+    \n:log warning \"CREATING ASYNC WRAPPER -----------------------------------------------------------------------------\";\r\r\
+    \n:local AcyncAwait do={\r\r\
+    \n  # this one calls Fetch and catches its errors\r\r\
+    \n  :if (([:len \$1] > 0) and ([:len \$2] > 0)) do={\r\r\
+    \n      # something like \r\r\
+    \n      # \"/tool fetch address=nas.home port=21 src-path=scripts/doSwitchDoHOn.rsc.txt user=git password=git dst-path=/REPO/doSwitchDoHOn.rsc.txt mode=ftp upload=yes\"\r\r\
+    \n      # or\r\r\
+    \n      # \":import file-name=\$targetfile verbose=yes\"\r\r\
+    \n      :local Cmd \"\$1\";\r\r\
+    \n      :local outputFile \"\$2\";\r\r\
+    \n      :local state \"AS-AW--------------------------: I'm now calling and waiting result for: \$Cmd\";\r\r\
+    \n      :log info \$state;\r\r\
+    \n      /file remove [find where name=\"\$outputFile\"]\r\r\
+    \n      {\r\r\
+    \n          :local jobid [:execute file=\"\$outputFile\" script=\$Cmd]\r\r\
+    \n          :local state \"AS-AW----------------------: Waiting the end of process for file \$outputFile to be ready, max 40 seconds...\";\r\r\
+    \n          :log info \$state;\r\r\
+    \n          :global Gltesec 0\r\r\
+    \n          :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 40)) do={\r\r\
+    \n              :set Gltesec (\$Gltesec + 1)\r\r\
+    \n              :delay 1s\r\r\
+    \n              :local state \"AS-AW-------------------: waiting... \$Gltesec\";\r\r\
+    \n              :log info \$state;\r\r\
+    \n          }\r\r\
+    \n          :local state \"AS-AW------------------------: Done. Elapsed Seconds: \$Gltesec\\r\\n\";\r\r\
+    \n          :log info \$state;\r\r\
+    \n          :if ([:len [/file find where name=\"\$outputFile\"]] = 1) do={\r\r\
+    \n              :local filecontent [/file get [/file find where name=\"\$outputFile\"] contents]\r\r\
+    \n              :log warning \"AS-AW--------------------: Result of CALL:\\r\\n****************************\\r\\n\$filecontent\\r\\n****************************\"\r\r\
+    \n          } else={\r\r\
+    \n              :log info \"AS-AW-----------------------: File not created.\"\r\r\
+    \n          }\r\r\
+    \n      }\r\r\
+    \n  }\r\r\
+    \n}\r\r\
+    \n\r\r\
+    \n:do {\r\r\
+    \n  :log warning \"CERT  -----------------------------------------------------------------------------\";\r\r\
+    \n  # IPSEC\\CAPSMAN\\DoH\\Etc certs have to be imported before the other config is restored\r\r\
+    \n  # should be located in Files root\r\r\
+    \n  # look through your backup.rsc before \r\r\
+    \n  # certificates in '*.p12' format without password protection (without private keys)\r\r\
+    \n  :local certImportListPublicKeys [:toarray \"ca@CHR\"];\r\r\
+    \n  # certificates in '*.p12' format protected using password (containing private keys), set the password to '1234567890' or rewrite the script\r\r\
+    \n  :local certImportListPrivateKeys [:toarray \"anna.capsman@CHR,anna.ipsec@CHR\"];\r\r\
+    \n  :foreach certFile in=\$certImportListPublicKeys do={\r\r\
+    \n    :local certFileName \"\$certFile.p12\";\r\r\
+    \n    :if ([:len [/file find name=\$certFileName]] > 0) do={\r\r\
+    \n    :log info \"GOT PUB CERTIFICATE '\$certFile'\";\r\r\
+    \n    /certificate import file-name=\$certFileName name=\$certFile passphrase=\"\";\r\r\
+    \n    } else={\r\r\
+    \n      :log error \"CANT GET PUB CERTIFICATE FOR '\$certFile'\";\r\r\
+    \n    }\r\r\
+    \n  }\r\r\
+    \n  :foreach certFile in=\$certImportListPrivateKeys do={\r\r\
+    \n    :local certFileName \"\$certFile.p12\";\r\r\
+    \n    :if ([:len [/file find name=\$certFileName]] > 0) do={\r\r\
+    \n    :log info \"GOT PRIV CERTIFICATE '\$certFile'\";\r\r\
+    \n    /certificate import file-name=\$certFileName name=\$certFile passphrase=\"1234567890\";\r\r\
+    \n    } else={\r\r\
+    \n      :log error \"CANT GET PRIV CERTIFICATE FOR '\$certFile'\";\r\r\
+    \n    }\r\r\
+    \n  }\r\r\
+    \n  :local content [/file get [/file find name=\"\$targetfile\"] contents] ;\r\r\
+    \n  :local contentLen [ :len \$content ] ;\r\r\
+    \n  :if ([:len \$contentLen] = 0) do={\r\r\
+    \n     :log error (\"Could not retrieve \$targetfile contents (file size limitation)\")\r\r\
+    \n  }\r\r\
+    \n  :local certNameStart 0;\r\r\
+    \n  :local certName \"\";\r\r\
+    \n  :local certNameEnd 0;\r\r\
+    \n  :local lastEnd 0;\r\r\
+    \n  :local key \"certificate=\";\r\r\
+    \n  :do {\r\r\
+    \n    :put \"Lookup.. \$key starting at \$lastEnd out of \$contentLen\"\r\r\
+    \n    :set certNameStart [:find \$content \$key \$lastEnd ] ;\r\r\
+    \n    :if ( [:typeof \$certNameStart] != \"nil\") do={\r\r\
+    \n      :set certNameEnd [:find \$content \" \" \$certNameStart] ;\r\r\
+    \n      :if ( [:typeof \$certNameEnd ] != \"nil\" ) do={\r\r\
+    \n        :set certName [:pick \$content \$certNameStart \$certNameEnd ] ;\r\r\
+    \n        :set lastEnd ( \$certNameEnd + 2 ) ; \r\r\
+    \n        :log info \"Certificate needed \$certname\"; \r\r\
+    \n        :global entry [:pick \$line 0 \$lineEnd ]\r\r\
+    \n      } else={\r\r\
+    \n       # no more occurenses found\r\r\
+    \n       :set lastEnd \$contentLen ; \r\r\
+    \n      }\r\r\
+    \n    } else={\r\r\
+    \n        # no more occurenses found\r\r\
+    \n        :set lastEnd \$contentLen ; \r\r\
+    \n    }\r\r\
+    \n  } while (\$lastEnd < ( \$contentLen -2 ) )\r\r\
+    \n} on-error={\r\r\
+    \n:log error \"CERT ERROR  -----------------------------------------------------------------------------\"\r\r\
+    \n}\r\r\
+    \n:do {\r\r\
+    \n  # Import the rsc file\r\r\
+    \n  :log warning \" IMPORT -----------------------------------------------------------------------------\"\r\r\
+    \n  :local importCmd \":import file-name=\$targetfile verbose=yes\"\r\r\
+    \n  :log info \"RESTORE START\";\r\r\
+    \n  # DO IT ASYNC!! So we have to wait for it\r\r\
+    \n  \$AcyncAwait \$importCmd \"import.log.txt\";\r\r\
+    \n  # wait for confuguration beeng applied\r\r\
+    \n  :log info \"POST IMPORT DELAY FOR CONFIGURATION BEING APPLIED\";\r\r\
+    \n  :delay 10s;\r\r\
+    \n  :log info \"END IMPORT file=\$targetfile  -----------------------------------------------------------------------------\"\r\r\
+    \n} on-error={\r\r\
+    \n:log error \"ERROR IMPORT  -----------------------------------------------------------------------------\"\r\r\
+    \n}\r\r\
+    \n:do {\r\r\
+    \n  :log warning \"USERS -----------------------------------------------------------------------------\"\r\r\
+    \n  :local mgmtUsername \"owner\"; # main administrator\r\r\
+    \n  :log info \"CREATING MAIN ADMIN USER. new username W/O password (SET IT AFTER FIRST LOGON)- '\$mgmtUsername'\";\r\r\
+    \n  /user remove [/user find name=\$mgmtUsername];\r\r\
+    \n  /user add name=\$mgmtUsername group=full comment=\"management user\" password=\"\";\r\r\
+    \n  :local mgmtUsername \"reserved\"; # additional admin user, it has its own script to periodically regenerate password\r\r\
+    \n  :local thePass ([/certificate scep-server otp generate minutes-valid=0 as-value]->\"password\");\r\r\
+    \n  :log info \"CREATING ADDITIONAL ADMIN USER. new username - '\$mgmtUsername':'\$thePass'\";\r\r\
+    \n  /user remove [/user find name=\$mgmtUsername];\r\r\
+    \n  /user add name=\$mgmtUsername group=full comment=\"additional admin\" password=\"\$thePass\";\r\r\
+    \n  :local mgmtUsername \"automation\"; # user for /system ssh-exec\r\r\
+    \n  :local thePass ([/certificate scep-server otp generate minutes-valid=0 as-value]->\"password\");\r\r\
+    \n  :log info \"CREATING NEW USER AND CHANGING SCRIPTS AND SCHEDULES OWNAGE. new username - '\$mgmtUsername':'\$thePass'\";\r\r\
+    \n  /user remove [/user find name=\$mgmtUsername];\r\r\
+    \n  /user add name=\$mgmtUsername group=full comment=\"outgoing SSH user\" password=\"\$thePass\";\r\r\
+    \n  :log warning \"USERS - OK\"\r\r\
+    \n} on-error={ \r\r\
+    \n  :log error \"USERS - ERROR\"\r\r\
+    \n}\r\r\
+    \n:do {\r\r\
+    \n  :log warning \"SSH KEYS -----------------------------------------------------------------------------\"\r\r\
+    \n  # SSH KEYS\r\r\
+    \n  # HOWTO on linux host\r\r\
+    \n  # ssh-keygen -t rsa -b 4096 -C \"defm.ssh@mbpalxm\" -f ~/.ssh/defm.ssh@mbpalxm -m pem\r\r\
+    \n  # USERS must exist!!\r\r\
+    \n  # public, 1 file in '*.pub', for decryption when connecting TO router. Mapping is MikrotikUser=ImportFileName\r\r\
+    \n  :local PublicKeys [:toarray {\"owner\"=\"defm.ssh@mbpalxm\"}];\r\r\
+    \n  # privates + publics, 2 files, for encryption when connecting FROM router (via /system ssh-exec), set the password to '1234567890' or rewrite the script\r\r\
+    \n  :local PrivateKeys [:toarray {\"owner\"=\"automation.ssh@anna\"}];\r\r\
+    \n  :foreach username,filename in=\$PublicKeys do={\r\r\
+    \n    :local keyFileName \"\$filename.pub\";\r\r\
+    \n    :if ([:len [/file find name=\$keyFileName]] > 0 and [:len [/user find name=\$username]] > 0) do={\r\r\
+    \n      :log info \"GOT PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
+    \n      /user ssh-keys import user=\"\$username\" public-key-file=\"\$keyFileName\";    \r\r\
+    \n    } else={\r\r\
+    \n      :log error \"CANT GET PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
+    \n    }\r\r\
+    \n  }\r\r\
+    \n  :foreach username,filename in=\$PrivateKeys do={\r\r\
+    \n    :local keyFileName \"\$filename.pub\";\r\r\
+    \n    :if ([:len [/file find name=\$keyFileName]] > 0 and [:len [/file find name=\$filename]] > 0 and [:len [/user find name=\$username]] > 0) do={\r\r\
+    \n    :log info \"GOT PRIV KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
+    \n      /user ssh-keys private import user=\"\$username\" private-key-file=\"\$filename\"\r\r\
+    \n    } else={\r\r\
+    \n      :log error \"CANT GET PUB KEY FOR '\$username' AS '\$keyFileName'\";\r\r\
+    \n    }\r\r\
+    \n  }\r\r\
+    \n} on-error={\r\r\
+    \n:log error \"SSH KEYS ERROR  -----------------------------------------------------------------------------\"\r\r\
+    \n}\r\r\
+    \n# Play Audible Finish Sequence\r\r\
+    \n\$doFinishBeep\r\r\
+    \n# remove system Admin\r\r\
+    \n/user remove [/user find name=\"admin\"];\r\r\
+    \n# Teardown temporary logging to disk\r\r\
+    \n/system logging remove [/system logging find where action=perfectrestore]\r\r\
+    \n/system logging action remove [/system logging action find where name=perfectrestore]\r\r\
+    \n/system script environment remove [find name=\"targetfile\"]\r\r\
+    \n/system script environment remove [find name=\"importlog\"]\r\r\
+    \n/system script environment remove [find name=\"debuglog\"]\r\r\
+    \n# new startup scripts maybe restored so...\r\r\
+    \n/system reboot\r\r\
+    \n}"
+/system script add comment="A server-side script, that is called via global function using ssh-exec from another mikrotik-client to update it's IPSEC policy IP address" dont-require-permissions=yes name=doUpdatePoliciesRemotely owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:local sysname [/system identity get name];\
+    \n:local scriptname \"doUpdatePoliciesRemotely\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local itsOk true;\
+    \n:local state \"\";\
+    \n\
+    \n# variables should be set before via remote SSH call\
+    \n:global globalRemoteIp;\
+    \n:global globalPolicyComment;\
+    \n\
+    \n\
+    \n:do {\
+    \n    :if ([:len \$globalRemoteIp] > 0) do={\
+    \n\
+    \n    :local peerID \$globalPolicyComment;\
+    \n\
+    \n    /ip ipsec policy {\
+    \n        :foreach vpnEndpoint in=[find (!disabled and template and comment=\"\$peerID\")] do={\
+    \n        \
+    \n            :local dstIp;\
+    \n            :set dstIp [get value-name=dst-address \$vpnEndpoint];\
+    \n\
+    \n            :if ((\$itsOk) and (\$globalRemoteIp != \$dstIp )) do={\
+    \n\
+    \n                [set \$vpnEndpoint disabled=yes];\
+    \n\
+    \n                :set state \"IPSEC policy template found with wrong IP (\$dstIp). Going change it to (\$globalRemoteIp)\";\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n                /ip ipsec peer {\
+    \n                    :foreach thePeer in=[find name=\$peerID] do={\
+    \n\
+    \n                        :if (\$itsOk) do={\
+    \n\
+    \n                            :set state \"Setting up peer remote address..\"\
+    \n                            \$globalNoteMe value=\$state;\
+    \n\
+    \n                            [set \$thePeer disabled=yes];\
+    \n\
+    \n                            :delay 5;\
+    \n\
+    \n                            [set \$thePeer disabled=no address=\$globalRemoteIp];\
+    \n\
+    \n                          \
+    \n                        }\
+    \n\
+    \n                    }\
+    \n\
+    \n                }\
+    \n\
+    \n                :delay 5;\
+    \n                \
+    \n                [set \$vpnEndpoint dst-address=\$globalRemoteIp disabled=no];\
+    \n\
+    \n            }\
+    \n\
+    \n        }\
+    \n\
+    \n    }\
+    \n    \
+    \n    }\
+    \n} on-error= {\
+    \n    :local state (\"globalIPSECPolicyUpdateViaSSH error\");\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :set itsOk false;\
+    \n};\
+    \n\
+    \n\
+    \n:local inf \"\"\
+    \n:if (\$itsOk) do={\
+    \n  :set inf \"\$scriptname on \$sysname: policies refreshed Successfully\"\
+    \n}\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n}\
+    \n\
+    \n\$globalNoteMe value=\$inf\
+    \n\
+    \n:if (!\$itsOk) do={\
+    \n\
+    \n  :global globalTgMessage;\
+    \n  \$globalTgMessage value=\$inf;  \
+    \n  :error \$inf; \
+    \n\
+    \n  \
+    \n}\
+    \n\
+    \n\
+    \n\r\
+    \n"
+/system script add comment="This script is a SCEP-client, it request the server to ptovide a new certificate" dont-require-permissions=yes name=doSCEPClientCertificatesIssuing owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
+    \n# generates IPSEC certs CLIENT TEMPLATE, then requests SCEP to sign it\r\
+    \n\r\
+    \n#clients\r\
+    \n:local IDs [:toarray \"alx.iphone.rw.2021\"];\r\
+    \n:local fakeDomain \"myvpn.fake.org\"\r\
+    \n\r\
+    \n:local scepAlias \"CHR\"\r\
+    \n:local sysver [/system package get system version]\r\
+    \n:local scriptname \"doSCEPClientCertificatesIssuing\"\r\
+    \n:global globalScriptBeforeRun;\r\
+    \n\$globalScriptBeforeRun \$scriptname;\r\
+    \n\r\
+    \n## this fields should be empty IPSEC/ike2/RSA to work, i can't get it functional with filled fields\r\
+    \n#:local COUNTRY \"RU\"\r\
+    \n#:local STATE \"MSC\"\r\
+    \n#:local LOC \"Moscow\"\r\
+    \n#:local ORG \"IKEv2 Home\"\r\
+    \n#:local OU \"IKEv2 Mikrotik\"\r\
+    \n\r\
+    \n:local COUNTRY \"\"\r\
+    \n:local STATE \"\"\r\
+    \n:local LOC \"\"\r\
+    \n:local ORG \"\"\r\
+    \n:local OU \"\"\r\
+    \n\r\
+    \n:local KEYSIZE \"2048\"\r\
+    \n:local USERNAME \"anna\"\r\
+    \n\r\
+    \n:local scepUrl \"http://185.13.148.14/scep/grant\";\r\
+    \n\r\
+    \n:global globalNoteMe;\r\
+    \n:local itsOk true;\r\
+    \n  \r\
+    \n  :foreach USERNAME in=\$IDs do={\r\
+    \n\r\
+    \n    :local state \"CLIENT TEMPLATE certificates generation...  \$USERNAME\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    ## create a client certificate (that will be just a template while not signed)\r\
+    \n    /certificate add name=\"\$USERNAME@\$scepAlias\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=tls-client country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365 \r\
+    \n\r\
+    \n    :local state \"Pushing sign request...\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n    /certificate add-scep template=\"\$USERNAME@\$scepAlias\" scep-url=\"\$scepUrl\"; \r\
+    \n\r\
+    \n    :delay 6s\r\
+    \n\r\
+    \n   ## we now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate\r\
+    \n\r\
+    \n    :local state \"We now have to wait while on remote [mikrotik] this request will be granted and pushed back ready-to-use certificate... Proceed to remote SCEP please\";\r\
+    \n    \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n  };\r\
+    \n\r\
+    \n} on-error={\r\
+    \n\r\
+    \n  :local state \"Certificates generation script FAILED\";\r\
+    \n  \$globalNoteMe value=\$state;\r\
+    \n\r\
+    \n};"
+/system script add comment="keeps scripts and schedules owner constant" dont-require-permissions=yes name=doKeepScriptsOwner owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doKeepScriptsOwner\";\
+    \n\
+    \n:local state \"\";\
+    \n:local mgmtUsername \"owner\"; # main administrator \
+    \n:global globalCallFetch;\
+    \n:global globalNoteMe;\
+    \n\
+    \n:local impersonate false; # user password needed when true\
+    \n:local thePass \"\";\
+    \n\
+    \n:do {\
+    \n\
+    \n    # We now need to change script and schedules ownage from *sys user\
+    \n    # This can be done via ftp impersonation - here is the trick (the only way to change SCHEDULE owner is to recreate entry UNDER this user)\
+    \n    # In RouterOS it is possible to automatically execute scripts - your script file has to be named anything.auto.rsc \
+    \n    # once this file is uploaded using FTP to the router, it will automatically be executed, just like with the '/import' command. \
+    \n    # This method only works with FTP\
+    \n\
+    \n    :local scriptCount [:len [/system script find where owner!=\"\$mgmtUsername\"]];\
+    \n    :local schedCount  [:len [/system scheduler find where owner!=\"\$mgmtUsername\"]];\
+    \n\
+    \n    :if (\$scriptCount = 0 and \$schedCount = 0) do={\
+    \n        :set state \"No scripts and schedules owner change needed\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :error \$state;\
+    \n    };    \
+    \n\
+    \n    :if ([:len [/user find name=\"\$mgmtUsername\"]] > 0) do={\
+    \n \
+    \n        :if (\$impersonate) do={\
+    \n\
+    \n            :local buffer \"\\r\\ \
+    \n                            \\n # we can change script owner as usual\\r\\\
+    \n                            \\n /system script set owner=\\\"\$mgmtUsername\\\" [find where owner!=\\\"\$mgmtUsername\\\"];\\r\\\
+    \n                            \\n\\r\\ \
+    \n                            \\n # the only way to change schedule owner is to recreate entry\\r\\\
+    \n                            \\n /system scheduler;\\r\\ \
+    \n                            \\n :foreach schEndpoint in=[find  where owner!=\\\"\$mgmtUsername\\\"] do={\\r\\\
+    \n                            \\n  :local name [get value-name=name \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local startTime [get value-name=start-time \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local onEvent [get value-name=on-event \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local interval [get value-name=interval \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local startDate [get value-name=start-date \\\$schEndpoint];\\r\\\
+    \n                            \\n      :local comment [get value-name=comment \\\$schEndpoint];\\r\\\
+    \n                            \\n      remove \\\$schEndpoint;\\r\\\
+    \n                            \\n      add name=\\\"\\\$name\\\" start-time=\\\"\\\$startTime\\\"  on-event=\\\"\\\$onEvent\\\" interval=\\\"\\\$interval\\\" start-date=\\\"\\\$startDate\\\" comment=\\\"\\\$comment\\\";\\r\\\
+    \n                            \\n      }\\r\\\
+    \n                            \\n;\";\
+    \n\
+    \n            # delete all previous files\
+    \n            :local rsc \"ownage.rsc.txt\";\
+    \n            /file remove [/file find where name=\"\$rsc\"];\
+    \n            # create the file as it doesn't exist yet\
+    \n            /file print file=\"\$rsc\";\
+    \n            # wait for filesystem to create file\
+    \n            :delay 6;\
+    \n            # write the buffer into it\
+    \n            :set state \"Creating script file '\$rsc' with commands '\$buffer'\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n            # i will not remove this file later to got a chance to manually reproduce fetch if it fail via this script\
+    \n            /file set [/file find where name=\"\$rsc\"] contents=\"\$buffer\";    \
+    \n            :local filecontent [/file get [/file find where name=\"\$rsc\"] contents];\
+    \n            :set state \"Created command file '\$rsc' with content '\$filecontent'\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n            # push it and and autorun under mgmtUsername account\
+    \n            :set state \"Pushing autorun command file as user '\$mgmtUsername' via FTP\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :local fetchCmd  \"/tool fetch address=127.0.0.1 mode=ftp src-path=\$rsc dst-path=ownage.auto.rsc user=\\\"\$mgmtUsername\\\" password=\\\"\$thePass\\\" host=\\\"\\\" upload=\\\"yes\\\"\";\
+    \n\
+    \n            \$globalCallFetch \$fetchCmd;\
+    \n\
+    \n            /file remove [/file find where name=\"\$rsc\"];\
+    \n\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n        } else={\
+    \n\
+    \n            /system script set owner=\"\$mgmtUsername\" [find where owner!=\"\$mgmtUsername\"];\
+    \n            # the only way to change schedule owner is to recreate entry\\r\\\
+    \n            /system scheduler;\
+    \n            :foreach schEndpoint in=[find  where owner!=\"\$mgmtUsername\"] do={\
+    \n              :local name [get value-name=name \$schEndpoint];\
+    \n                  :local startTime [get value-name=start-time \$schEndpoint];\
+    \n                  :local onEvent [get value-name=on-event \$schEndpoint];\
+    \n                  :local interval [get value-name=interval \$schEndpoint];\
+    \n                  :local startDate [get value-name=start-date \$schEndpoint];\
+    \n                  :local comment [get value-name=comment \$schEndpoint];\
+    \n                  remove \$schEndpoint;\
+    \n                  add name=\"\$name\" start-time=\"\$startTime\"  on-event=\"\$onEvent\" interval=\"\$interval\" start-date=\"\$startDate\" comment=\"\$comment\";\
+    \n                  };\
+    \n\
+    \n            :set state \"Changing scripts and schedules ownage - OK\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n        }  \
+    \n\
+    \n\
+    \n    } else={\
+    \n        :set state \"Cant find user '\$mgmtUsername' for impersonation call\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n    }\
+    \n\
+    \n} on-error={ \
+    \n    :set state \"Changing scripts and schedules ownage - ERROR\";\
+    \n    \$globalNoteMe value=\$state;\
+    \n}"
+/system script add comment="periodically Wipes memory-configered logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doFlushLogs\";\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local state \"\"\
+    \n\
+    \n:set state \"FLUSHING logs..\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n/system/logging/action {\
+    \n  :foreach memAction in=[find target=memory] do={\
+    \n    :local actName [get value-name=name \$memAction]\
+    \n\
+    \n    clear action=\$actName;\
+    \n\
+    \n    }\
+    \n  }\
+    \n\
+    \n\
+    \n\r\
+    \n"
+/system script add comment="Fast cloud backup" dont-require-permissions=yes name=doCloudBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doCloudBackup\";\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local state\
+    \n:local itsOk true;\
+    \n\
+    \n:local BackupPassword \"1234567890\" ;\
+    \n\
+    \n# we are not interested in output, but print without count-only is\
+    \n# required to fetch information from cloud\
+    \n\
+    \n:global globalOnPrimaryPartition;\
+    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
+    \n    \
+    \n    :set state \"WARNING: the system booted up from fallback partition - skipping backup!\"\
+    \n    :log error \$state\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :error \$state;\
+    \n\
+    \n}\
+    \n\
+    \n/system backup cloud print as-value\
+    \n\
+    \n:local Backup ([ /system/backup/cloud/find ]->0);\
+    \n:if ([ :typeof \$Backup ] = \"id\") do={\
+    \n    /system/backup/cloud/upload-file action=create-and-upload password=\$BackupPassword replace=\$Backup;\
+    \n} else={\
+    \n    /system/backup/cloud/upload-file action=create-and-upload password=\$BackupPassword;\
+    \n}\
+    \n\
+    \n:local Backup ([ /system/backup/cloud/find ]->0);\
+    \n:local BackupName [/system/backup/cloud/get \$Backup name];\
+    \n:set state \"Creating and uploading backup file... \$BackupName\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n\
+    \n\
+    \n"
+/system script add comment="Track stale TLS connections and add dst to address list" dont-require-permissions=yes name=doStaleTSLConnectionsTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doStaleTSLConnectionsTrack\";\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local state;\
+    \n\
+    \n# address list name\
+    \n:local ListName \"alist-TLS-rejected-autodetect\";\
+    \n\
+    \n#Test freq 5s, 10s, 1m \D0\B8 \D1\82.\D0\B4.\
+    \n:local Interval 1s;\
+    \n:local heartbeatEvery 300; # every N's Interval\
+    \n\
+    \n# Address list timeout - \"permanent\", \"reboot\" or \"30m\", \"1h\", \"1d\", \"1w\" \D0\B8 \D1\82.\D0\B4.\
+    \n:local ListTimeout \"reboot\"\
+    \n\
+    \n:local detectSilentTLSBlock do={\
+    \n\
+    \n    :foreach conn in=[/ip firewall connection find where (protocol=\"udp\" or protocol=\"tcp\") and orig-packets>6 and repl-packets<3] do={\
+    \n\
+    \n        :if ([:len [/ip firewall connection get \$conn]] > 0) do={\
+    \n\
+    \n            :onerror err in={\
+    \n\
+    \n                :local dstIP [/ip firewall connection get \$conn dst-address]\
+    \n\
+    \n                :local retr ([/ip firewall connection get \$conn orig-packets] - 3)\
+    \n\
+    \n                :local ipOnly [:pick \$dstIP 0 [:find \$dstIP \":\"]]\
+    \n                :local portOnly [:pick \$dstIP ([:find \$dstIP \":\"] + 1) [:len \$dstIP]]\
+    \n                :local protoOnly [/ip firewall connection get \$conn protocol]\
+    \n                \
+    \n                :if (\$portOnly != \"443\" or ([:len \$ipOnly] = 0) or [/ip address find where address~\"\$ipOnly\"]) do={:return \"\"}\
+    \n\
+    \n                :set \$state \"\$protoOnly timeout: \$ipOnly\"\
+    \n                \$globalNoteMe value=\$state;\
+    \n\
+    \n                # Looking for existing entry\
+    \n                :if ([:len [/ip firewall address-list find list=\$ListName address=\$ipOnly]] = 0) do={\
+    \n\
+    \n                    # Add\
+    \n                    :set \$state \"TLS: \$dstIP (Retransmissions: \$retr) added to address list \\\"\$ListName\\\"\"\
+    \n                    \$globalNoteMe value=\$state;\
+    \n                    \
+    \n                    # Timeout logic\
+    \n                    :if (\$ListTimeout = \"permanent\") do={\
+    \n                        # permanent\
+    \n                        /ip firewall address-list add list=\$ListName address=\$ipOnly comment=\"Added by TLS Block Detection Script\"\
+    \n                    } else={\
+    \n                        :if (\$ListTimeout = \"reboot\") do={\
+    \n                            # reboot\
+    \n                            /ip firewall address-list add list=\$ListName address=\$ipOnly dynamic=yes comment=\"Added by TLS Block Detection Script\"\
+    \n                        } else={\
+    \n                            # dynamic\
+    \n                            /ip firewall address-list add list=\$ListName address=\$ipOnly dynamic=yes timeout=\$ListTimeout comment=\"Added by TLS Block Detection Script\"\
+    \n                        }\
+    \n                    }\
+    \n                }\
+    \n\
+    \n                :if (\$protoOnly = \"tcp\") do={\
+    \n                    /ip firewall connection remove \$conn;\
+    \n\
+    \n                    :set \$state \"drop TCP session to \$dstIP\"\
+    \n                    \$globalNoteMe value=\$state;\
+    \n\
+    \n                }\
+    \n                \
+    \n                # Ip already in address list - skip\
+    \n            } do={\
+    \n                \
+    \n                :set \$state \"connection loop error: \$err\"\
+    \n                \$globalNoteMe value=\$state;\
+    \n                \
+    \n            }\
+    \n\
+    \n        } else={\
+    \n            \
+    \n            # no connection available\
+    \n        }\
+    \n    }\
+    \n}\
+    \n\
+    \n:set \$state \"tracking..\"\
+    \n\$globalNoteMe value=\$state;\
+    \n:local beats 0; \
+    \n\
+    \n:do {\
+    \n\
+    \n    :onerror err in={\
+    \n \
+    \n        [\$detectSilentTLSBlock ListName=\$ListName ListTimeout=\$ListTimeout]\
+    \n\
+    \n    } do={\
+    \n        \
+    \n        :set \$state \"main loop error: \$err\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n        \
+    \n    }\
+    \n\
+    \n    :delay \$Interval\
+    \n\
+    \n    :set \$beats (\$beats + 1);\
+    \n    :if (\$beats = \$heartbeatEvery) do={\
+    \n\
+    \n        :set \$state \"tracking..\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n        :set \$beats 0; \
+    \n\
+    \n    }\
+    \n\
+    \n\
+    \n} while=(true)\
+    \n\
+    \n"
+/system script add comment="Loads domains DNS static entries using iplist.opencck.org" dont-require-permissions=yes name=doFreshDNSAddressLists owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doFreshDNSAddressLists\";\
+    \n\
+    \n:global globalCallFetch;\
+    \n:global globalNoteMe;\
+    \n:global globalTgMessage;\
+    \n\
+    \n:local state;\
+    \n\
+    \n:global simplercurrdatetimestr;\
+    \n\
+    \n:local WaitForFile do={\
+    \n  :local FileName [ :tostr \$1 ];\
+    \n  :local WaitTime  \$2;\
+    \n\
+    \n  :global globalNoteMe;\
+    \n  :local fileFound false;\
+    \n\
+    \n  :onerror errorName {\
+    \n    :retry command={\
+    \n\
+    \n      :local state (\"Looking for file.. \$FileName  (\$WaitTime delay)\");\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n      # rise error if no such file\
+    \n      :set fileFound false;\
+    \n      /file/get \$FileName;\
+    \n\
+    \n      :local state (\"Got it\");\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n      # reach there if no error \
+    \n      :set fileFound true;\
+    \n      :return \$fileFound;\
+    \n\
+    \n    } delay=\$WaitTime max=4\
+    \n  } do={\
+    \n    \
+    \n    :local state (\"Investigation result - \$errorName\");\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :log warning \$state;\
+    \n\
+    \n    :return \$fileFound;\
+    \n\
+    \n  }\
+    \n  \
+    \n  :while ([ :len [ /file/find where name=\$FileName ] ] > 0) do={\
+    \n    \
+    \n    :do {\
+    \n      /file/get \$FileName;\
+    \n      # found, get over here\
+    \n      :return true;\
+    \n    } on-error={ }\
+    \n    \
+    \n    :delay \$WaitTime;\
+    \n    \
+    \n  }\
+    \n  :return false;\
+    \n}  \
+    \n\
+    \n\
+    \n\
+    \n# see available groups at https://iplist.opencck.org/ru\
+    \n\
+    \n:local options [{}];\
+    \n\
+    \n:set (\$options->\"youtube\") {\"mode\"=\"group\"; \"data\"=\"domains\"; \"target\"=\"youtube\"; \"alist\"=\"alist-mangle-byedpi-YTB\"; \"forwarderName\"=\"DOH-Google\"}\
+    \n:set (\$options->\"torrent\") {\"mode\"=\"group\"; \"data\"=\"domains\"; \"target\"=\"torrent\"; \"alist\"=\"alist-mangle-byedpi-TORR\"; \"forwarderName\"=\"DOH-Google\"}\
+    \n:set (\$options->\"telegram\") {\"mode\"=\"site\"; \"data\"=\"cidr4\"; \"target\"=\"telegram.org\"; \"alist\"=\"alist-mangle-TG\"; \"forwarderName\"=\"DOH-Google\"}\
+    \n\
+    \n\
+    \n:local stamp [\$simplercurrdatetimestr];\
+    \n\
+    \n:foreach G,S in=\$options do={\
+    \n\
+    \n    :local group \$G;\
+    \n    :local alist (\$S->\"alist\");\
+    \n    :local forwarderName  (\$S->\"forwarderName\");\
+    \n    :local data  (\$S->\"data\");\
+    \n    :local mode  (\$S->\"mode\");\
+    \n    :local target  (\$S->\"target\");        \
+    \n    \
+    \n    :local template \":if ([:len [/ip/dns/static find name={data}]] = 0) do={/ip/dns/static/add address-list=\$alist comment=\$alist-\$stamp forward-to=\$forwarderName match-subdomain=yes type=FWD name={data} ;}\";\
+    \n    :if (\$data = \"domains\") do={\
+    \n      :set template \":if ([:len [/ip/dns/static find name={data}]] = 0) do={/ip/dns/static/add address-list=\$alist comment=\$alist-\$stamp forward-to=\$forwarderName match-subdomain=yes type=FWD name={data} ;}\";\
+    \n    } else={\
+    \n\
+    \n        :if (\$data = \"cidr4\") do={\
+    \n            :set template \"{/ip/firewall/address-list/remove [find where list=\$alist and address={data}]; /ip/firewall/address-list/add list=\$alist comment=\$alist-\$stamp address={data} ;}\";\
+    \n        }\
+    \n    }\
+    \n\
+    \n    :set state (\"Freshing \$alist DNS static entries using iplist.opencck.org at \$stamp\");\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n    :set template [:convert to=url \$template];\
+    \n\
+    \n    :local url (\"\\\"https://iplist.opencck.org/\?format=custom&data=\$data&wildcard=1&\$mode=\$target&template=\" . (\$template) . \"\\\"\");\
+    \n\
+    \n    :local outputFile \"\$alist.rsc\";\
+    \n    :local fetchCmd \"/tool/fetch idle-timeout=20s mode=https url=\$url dst-path=\$outputFile\";\
+    \n\
+    \n    # remove old files\
+    \n    /file remove [find where name=\"\$outputFile\"]\
+    \n\
+    \n    :local I 2;\
+    \n    :do {\
+    \n\
+    \n        :set state \"*************** Trying fetch of \$outputFile ***************\"\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n        # no timeout for fetch, so it will still batch after 20sec of polling, thats why we need to WaitForFile polling for additional amount of time\
+    \n        \$globalCallFetch \$fetchCmd;\
+    \n\
+    \n        :set I (\$I - 1);\
+    \n\
+    \n    } while=([ \$WaitForFile \$outputFile 300ms ] = false && \$I > 0);\
+    \n\
+    \n    :if ([ \$WaitForFile \$outputFile 1000ms ] = true) do={\
+    \n\
+    \n      :set state \"Import started of \$outputFile\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n\
+    \n      :local importCmd \":import file-name=\$outputFile verbose=yes\";\
+    \n      \$globalCallFetch \$importCmd;\
+    \n\
+    \n      /file remove [find where name=\"\$outputFile\"]\
+    \n\
+    \n    } else={\
+    \n\
+    \n      :set state \"Import failed of \$outputFile\"\
+    \n      \$globalNoteMe value=\$state;\
+    \n      \$globalTgMessage value=\$state;\
+    \n      :log error \$state;\
+    \n\
+    \n    }\
+    \n    \
+    \n}\
+    \n\
+    \n\
+    \n{\
+    \n/ip firewall address-list\
+    \n:local update do={\
+    \n :put \"Starting import of address-list: \$listname\"\
+    \n :if (\$nolog = null) do={:log warning \"Starting import of address-list: \$listname\"}\
+    \n \
+    \n :local displayed true\
+    \n :local maxretry 3\
+    \n :local retrywaitingtime 120s\
+    \n :local retryflag true\
+    \n :for retry from=1 to=\$maxretry step=1 do={\
+    \n  :if (retryflag) do={ :set \$retryflag false; :set \$sounter 0\
+    \n  :if (retry > 1) do={\
+    \n   :put \"Source file changed. Retring after a \$retrywaitingtime wait...\"\
+    \n   :if (\$nolog = null) do={:log warning \"Source file changed. Retring after a \$retrywaitingtime wait...\"}\
+    \n   :delay \$retrywaitingtime  }\
+    \n      \
+    \n  :local fetchResult [/tool fetch url=\$url keep-result=no as-value]\
+    \n  :local filesize (\$fetchResult->\"total\")\
+    \n  :local downsize (\$fetchResult->\"downloaded\") \
+    \n  :if (\$filesize = 0 && \$downsize > 0) do={ :set \$filesize \$downsize}\
+    \n\
+    \n  :local start 0\
+    \n  :local maxsize 64000;            # reqeusted chunk size\
+    \n  :local end (\$maxsize - 1);    # because start is zero the maxsize has to be reduced by one\
+    \n  :local partnumber     (\$filesize / (\$maxsize / 1024)); # how many chunk are maxsize\
+    \n  :local remainder     (\$filesize % (\$maxsize / 1024)); # the last partly chunk \
+    \n  :if (\$remainder > 0)    do={ :set \$partnumber (\$partnumber + 1) }; # total number of chunks\
+    \n  :if (\$heirule != null) do={:put \"Using as extra filtering: \$heirule\"} else={:set \$heirule \".\"}\
+    \n # remove the current list completely if \"erase\" is not present (default setting)\
+    \n  :if (\$noerase = null) do={  \
+    \n   :if (\$timeout = null) do={:set \$timeout 00:00:00; :do {:foreach i in=[/ip firewall address-list find list=\$listname] do={/ip firewall address-list set list=(\"backup\".\$listname) \$i }} on-error={} } else={\
+    \n   :do {:foreach i in=[/ip firewall address-list find list=\$listname dynamic] do={/ip firewall address-list set list=(\"backup\".\$listname) \$i }} on-error={} };                \
+    \n   :put (\"Conditional deleting all\".\$dynamic.\" entries in address-list: \$listname\")\
+    \n   :if (\$nolog = null) do={:log warning (\"Conditional deleting all\".\$dynamic.\" entries in address-list: \$listname\")}\
+    \n  } else={:put \"Entries not conditional deleted in address-list: \$listname\"}; # ENDIF ERASE\
+    \n :for x from=1 to=\$partnumber step=1 do={\
+    \n   # get filesize to be compared to the orignal one and if changed then retry\
+    \n   :local comparesize ([/tool fetch url=\$url keep-result=no as-value]->\"total\")\
+    \n   :if (\$comparesize = 0 && \$downsize > 0) do={ :set \$comparesize \$downsize}\
+    \n   \
+    \n   # fetching the chunks from the webserver when the size of the source file has not changed\
+    \n   # empty array when the source file changed. No processing is done till the next complete retry\
+    \n   :if (\$comparesize = \$filesize) do={:set \$data ([:tool fetch url=\$url http-header-field=\"Range: bytes=\$start-\$end\" output=user as-value]->\"data\")} else={:set \$data [:toarray \"\"]; :set \$retryflag true}\
+    \n     #:if (\$ownposix = null) do={\
+    \n  # determining the used delimiter in the list, when not provided in the config\
+    \n   # this only run once and so the impact on the import time is low\
+    \n    :local ipv4Posix      \"^[0-9]{1,3}\\\\.[0-9]{1,3}\\\\.[0-9]{1,3}\\\\.[0-9]{1,3}\"\
+    \n    :local ipv4rangePosix \"^[0-9]{1,3}\\\\.[0-9]{1,3}\\\\.[0-9]{1,3}\\\\.[0-9]{1,3}/[0-9]{1,2}\"\
+    \n    :local domainPosix      \"^.+\\\\.[a-z.]{2,7}\"\
+    \n    :local sdata \$data;\
+    \n   # removes any lines at the top of the file that could interfere with finding the correct posix. Setting remarksign is needed\
+    \n    :while ([:pick \$sdata 0 1] = \$remarksign) do={ :set \$sdata [:pick \$sdata ([:find \$sdata \"\\n\"]+1) [:len \$sdata]] }    \
+    \n    :while ([:len \$sdata]!=0 && \$delimiter = null) do={ # The check on length of \$sdata is for if no delimiter is found.   \
+    \n           :local sline [:pick \$sdata 0 [:find \$sdata \"\\n\"]]; :local slen [:len \$sline];\
+    \n           # set posix depending of type of data used in the list\
+    \n           :if (\$sline ~ \$ipv4Posix)        do={:set \$posix \$ipv4Posix;         :set \$iden \"List identified as a IPv4 list\"}\
+    \n           :if (\$sline ~ \$ipv4rangePosix)    do={:set \$posix \$ipv4rangePosix; :set \$iden \"List identified as a IPv4 with ranges list\"}\
+    \n           :if (\$sline ~ \$domainPosix)        do={:set \$posix \$domainPosix;     :set \$iden \"List identified as a domain list\"}\
+    \n           :if (\$sline ~ \$posix) do={:put \$iden}\
+    \n          :if (\$sline ~ \$posix) do={ # only explore the line if there is a match at the start of the line.\
+    \n          :do {:if ([:pick \$sline 0 (\$slen-\$send)] ~ (\$posix.\"\\\$\") || \$send > \$slen) do={\
+    \n            :set \$delimiter [:pick \$sline (\$slen-\$send) (\$slen-(\$send-1))]; :set \$result true} else={:set \$send (\$send+1)}  \
+    \n             :if (\$result) do={ :set  \$extra [:pick \$sline (\$slen-\$send) (\$slen-(\$send-1))]\
+    \n              :if ( \$extra = \" \" )   do={ :set \$delimiter [:pick \$sline (\$slen-\$send) (\$slen-(\$send-2))] }\
+    \n              :if ( \$extra = \"  \" )  do={ :set \$delimiter [:pick \$sline (\$slen-\$send) (\$slen-(\$send-3))] }\
+    \n              :if ( \$extra = \"   \" ) do={ :set \$delimiter [:pick \$sline (\$slen-\$send) (\$slen-(\$send-4))] }\
+    \n             }; # EndIf result\
+    \n          } while (!\$result); # EndDoWhile\
+    \n        }; #IF sline posix\
+    \n    :set \$sdata [:pick \$sdata ([:find \$sdata \"\\n\"]+1) [:len \$sdata]]; # cut off the already searched lines\
+    \n    :if (\$delimiter != null) do={:local sdata [:toarray \"\"]} ; #Clearing sdata array ending the WhileDo loop\
+    \n    }; #WHILE END \$sdata\
+    \n    :local sdata [:toarray \"\"]\
+    \n   :if ([:len \$delimiter] = 0) do={ :set \$delimiter \"\\n\"; :set \$delimiterShow \"New Line\" } else={ :set \$delimiterShow \$delimiter }; # when empty use NewLine 20220529    \
+    \n   #} else={:put \"User defind Posix: \$ownposix\"; :set \$posix \$ownposix } ; # ENDIF ownposix = null\
+    \n   :if (\$delimiter != null && \$displayed ) do={:set \$displayed false; :put \"Using config provided delimiter: \\\"\$delimiterShow\\\"\"}\
+    \n   :if (\$posix = null) do={:set \$posix \".\"}; # Use a match all posix if nothing is defined or found \
+    \n   :if (!retryflag) do={:put \"Reading Part: \$x \$start - \$end\"}   \
+    \n   :if (\$timeout = null) do={:local timeout 00:00:00}; # if no timeout is defined make it a static entry.    \
+    \n   # Only remove the first line only if you are not at the start of list\
+    \n   \
+    \n:while ( [:pick \$data 0 1] = \$remarksign) do={ :set \$data [:pick \$data ([:find \$data \"\\n\"]+1) [:len \$data]] }; # removes the invalid line (Spamhaus) \
+    \n   \
+    \n   :if (\$start > 0) do={:set \$data [:pick \$data ([:find \$data \"\\n\"]+1) [:len \$data]]}\
+    \n     :while ([:len \$data]!=0) do={\
+    \n       :local line [:pick \$data 0 [:find \$data \"\\n\"]]; # create only once and checked twice as local variable\
+    \n       :if ( \$line ~ \$posix && \$line~heirule) do={    \
+    \n        :do {add list=\$listname address=[:pick \$data 0 [:find \$data \$delimiter]] comment=\$comment timeout=\$timeout; :set \$counter (\$counter + 1)} on-error={}; # on error avoids any panics        \
+    \n       }; # if IP address && extra filter if present\
+    \n      :set \$data [:pick \$data ([:find \$data \"\\n\"]+1) [:len \$data]]; # removes the just added IP from the data array\
+    \n      # Cut of the end of the chunks by removing the last lines...very dirty but it works\
+    \n      :if ([:len \$data] < 256) do={:set \$data [:toarray \"\"]}    \
+    \n     }; # while\
+    \n\
+    \n  :set \$start ((\$start-512) + \$maxsize); # shifts the subquential start back by 512  \
+    \n  :set \$end ((\$end-512) + \$maxsize); # shift the subquential ends back by 512 to keep the \
+    \n  }; # if retryflag\
+    \n }; #do for x\
+    \n \
+    \n}; # for retry\
+    \n :if (\$counter < 1) do={:set \$resultline \"Import was NOT successfull! Check if the list \$listname is still being maintained.\"} else={:set \$resultline \"Completed reading \$counter items into address-list \$listname.\" } \
+    \n :put \$resultline\
+    \n :if (\$nolog = null) do={:log warning \$resultline }\
+    \n :if (\$counter > 0) do={:do {/ip firewall address-list remove [find where list=(\"backup\".\$listname)]} on-error={} } else={\
+    \n :do {:foreach i in=[/ip firewall address-list find list=(\"backup\".\$listname)] do={/ip firewall address-list set list=\$listname \$i }} on-error={}\
+    \n :put \"Restoring backup list: \$listname\" \
+    \n :if (\$nolog = null) do={:log warning \"Restoring backup list: \$listname\"}\
+    \n }; # if counter restore on failure and remove on success\
+    \n}; # do\
+    \n\
+    \n\
+    \n\$update url=https://antifilter.download/list/allyouneed.lst listname=alist-mangle-RKN delimiter=(\"\\n\") \
+    \n\
+    \n}\
+    \n\
+    \n#\$update url=https://raw.githubusercontent.com/ktsaou/blocklist-ipsets/master/firehol_webserver.netset listname=firehol_webserver delimiter=(\"\\n\") timeout=1d nolog=1\
+    \n#\$update url=https://check.torproject.org/torbulkexitlist listname=tor_exit_list delimiter=(\"\\n\") timeout=1d nolog=1\
+    \n#\$update urlhttps://iplists.firehol.org/files/dshield.netset listname=DShield delimiter=(\"\\n\") timeout=1d nolog=1\
+    \n# To be used configline settings:\
+    \n# url=            https://name.of.the.list\
+    \n# listname=    name of address-list\
+    \n\
+    \n# Optinal settings\
+    \n# timeout=    the time the entry should be active. If omited then static entries are created.\
+    \n# comment=    puts this comment on every line in the choosen address-list (default: no comment)\
+    \n# heirule=    this will select on a word on each line if to import or not (default: no heirule)\
+    \n# noerase=    any value, then the current list is not erased (default: erase)\
+    \n# ownPosix=    allow to enter a onw regEX posix to be used (not ative at this moment)\
+    \n# nolog=        any value, then don't write to the log (default: writing to log)\
+    \n"
+/system script add dont-require-permissions=no name=flush_dns owner=owner policy=read,write source=":global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"flush_dns\";\
+    \n\
+    \n/ip/dns/cache/flush"
+/system script add dont-require-permissions=yes name=script1 owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local options [{}];\
+    \n\
+    \n\
+    \n:set (\$options->\"youtube\") {\"alist\"=\"alist-mangle-byedpi-YTB\"; \"forwarderName\"=\"DOH-Google\"}\
+    \n:set (\$options->\"torrent\") {\"alist\"=\"alist-mangle-byedpi-TORR\"; \"forwarderName\"=\"DOH-Google\"}\
+    \n:set (\$options->\"messengers\") {\"alist\"=\"alist-mangle-MSG\"; \"forwarderName\"=\"DOH-Google\"}\
+    \n\
+    \n\
+    \n:put [:typeof \$options]\
+    \n:put (\$options->\"youtube\")"
+/tool bandwidth-server set enabled=no
+/tool e-mail set certificate-verification=no from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
+/tool graphing set page-refresh=50
+/tool graphing interface add
+/tool graphing resource add
+/tool mac-server set allowed-interface-list=none
+/tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
+/tool netwatch add comment="miniAlx status check" disabled=no down-script="\
+    \n:put \"info: Netwatch UP\"\
+    \n:log info \"Netwatch UP\"\
+    \n\
+    \n:global NetwatchHostName \"miniAlx\";\
+    \n/system script run doNetwatchHost;" host=192.168.90.70 name=miniAlx test-script="" type=simple up-script="\
+    \n:put \"info: Netwatch UP\"\
+    \n:log info \"Netwatch UP\"\
+    \n\
+    \n:global NetwatchHostName \"miniAlx\";\
+    \n/system script run doNetwatchHost;"
+/tool netwatch add comment="docker status check" disabled=no down-script="" host=192.168.80.160 http-codes="" ignore-initial-down=yes ignore-initial-up=yes interval=1m name=victoria-logs-container port=9428 src-address=192.168.90.1 startup-delay=1m test-script="" type=http-get up-script=""
+/tool netwatch add comment="CHR status check" disabled=no down-script="\
+    \n:put \"info: Netwatch UP\"\
+    \n:log info \"Netwatch UP\"\
+    \n\
+    \n:global NetwatchHostName \"miniAlx\";\
+    \n/system script run doNetwatchHost;" host=192.168.97.1 name=CHR test-script="" type=icmp up-script="\
+    \n:put \"info: Netwatch UP\"\
+    \n:log info \"Netwatch UP\"\
+    \n\
+    \n:global NetwatchHostName \"miniAlx\";\
+    \n/system script run doNetwatchHost;"
+/tool sniffer set filter-port=bgp memory-limit=1000KiB streaming-server=192.168.90.170
