@@ -1,4 +1,4 @@
-# 2026-02-14 21:13:02 by RouterOS 7.21.1
+# 2026-03-10 14:53:23 by RouterOS 7.21.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -60,13 +60,14 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /interface ovpn-server server add auth=sha1,md5 mac-address=FE:AA:B6:DE:38:D8 name=ovpn-server1
 /interface wireless cap
 # 
-set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
+set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.221 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.193 name=ftpserver.org type=A
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.221 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.193 list=alist-nat-external-ip
+/ip firewall filter add action=accept chain=input dst-port=123 in-interface="main infrastructure" protocol=udp
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
 /ip firewall service-port set sip disabled=yes
@@ -127,8 +128,20 @@ set caps-man-addresses=192.168.90.1 certificate=C.capxl.capsman@CHR discovery-in
 /system logging add action=VictoriaRemoteLog disabled=yes topics=firewall
 /system logging add action=VictoriaRemoteLog topics=!packet,!debug,!raw,!dns,!firewall,!ssh
 /system logging add action=REBOOTDoskLog regex="^.*supout.*\$"
-/system note set note=Pending show-at-cli-login=yes
-/system ntp client set enabled=yes
+/system note set note="Ipsec:         okay \
+    \nRoute:     192.168.90.1 \
+    \nVersion:         7.21.1 \
+    \nUptime:        5d01:12:39  \
+    \nTime:        2026-03-10 14:53:05  \
+    \nPing:    8 ms  \
+    \nChr:        185.13.148.14  \
+    \nMik:        178.65.91.156  \
+    \nAnna:        46.39.51.193  \
+    \nClock:        synchronized  \
+    \n * routeros  \
+    \n * wireless  \
+    \n" show-at-cli-login=yes
+/system ntp client set enabled=yes mode=multicast
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=2018-03-01 start-time=15:55:00
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
 /system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=23:30:00
