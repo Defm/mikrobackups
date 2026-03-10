@@ -1,0 +1,131 @@
+:local scriptname "doNetwatchHost";
+
+#NetWatch notifier OnUp/OnDown
+:local state "";
+  
+# Netwatch specific logging
+:local localNoteMe do={
+
+  :local scriptname [:jobname] ;
+ 
+  :local state "$scriptname: $value";
+  :put "$state"
+  :log info "$state"
+
+}
+
+:local localScriptBeforeRun do={
+
+    :local localNoteMe;
+    :if ([:len $1] > 0) do={
+
+      :local scriptname [:jobname] ;
+      :local state "$scriptname instance already running - prevent new instance";
+
+      :if ([/system script job print count-only as-value where script=$scriptname] > 1) do={
+        :log error $state
+        $localNoteMe value=$state;
+        :error $state
+      }
+
+      :local state "Starting script: $scriptname";
+      $localNoteMe value=$state;
+
+    }
+}
+
+$localScriptBeforeRun $scriptname;
+
+# In case when the host has two or more (eth+wlan+lte etc) interfaces connected to our network 
+# - we need to ensure we have the only one DNS entry points to IP that is online (and thack disconnections)
+:local priorities [{}];
+:set ($priorities->"wb.home") {"192.168.90.2"; "192.168.90.3"}
+
+
+:foreach dnsName,ipAddrs in=$priorities do={
+    
+    :local dummyIP "172.16.0.10" 
+    :local currentIP 
+    :local dnsEntry ([/ip/dns/static/find name=$dnsName]->0)
+
+    :set state "Netwatch for $dnsName started...";
+    $localNoteMe value=$state;
+
+    :local stamp ([/system clock get time])
+
+    :if ([ :typeof $dnsEntry ] = "id") do={
+    
+      :set currentIP [/ip/dns/static get $dnsEntry address]
+ 
+      # Flush entry address in any case
+      /ip dns static set $dnsEntry address=$dummyIP comment="Netwatch checkup is running...";
+
+    } else={
+
+      :set currentIP $dummyIP 
+      /ip dns static add name=$dnsName address=$currentIP comment="Netwatch checkup is running...";
+      :set dnsEntry ([/ip/dns/static/find name=$dnsName]->0)
+
+    }
+    :set state "Current DNS entry for $dnsName: $currentIP";
+    $localNoteMe value=$state;  
+
+    :local targetIp "0.0.0.1"
+
+    :onerror errorName in={ 
+            
+      :foreach ipAddr in=$ipAddrs do={
+
+          :local Addr [:toip $ipAddr] 
+
+          :set state "Testing if $ipAddr connected..";
+          $localNoteMe value=$state; 
+
+          :local received [/ping address="$Addr" count=5 interval=1000ms];
+
+          :if ($received > 3) do={
+            
+            :if ($ipAddr != $currentIP) do={
+
+              /ip dns static set $dnsEntry address=$ipAddr comment="Netwatch checkup at $stamp";
+
+              :set state "DNS updated to $ipAddr ($dnsName)";
+              $localNoteMe value=$state;  
+
+              /ip/dns/cache/flush
+
+            } else={
+
+              /ip dns static set $dnsEntry address=$ipAddr comment="Netwatch checkup at $stamp";
+
+              :set state "DNS $dnsName already points to $ipAddr";
+              $localNoteMe value=$state;  
+
+            }
+
+            :set targetIp $Addr;
+          
+            # no need to process less priority IPs
+            :error "break-loop"
+
+          } else={
+
+              :set state "It looks like $ipAddr is offline, skipping it";
+              $localNoteMe value=$state;  
+
+          }
+      }
+ 
+    } do={ 
+
+        :local state ("Loop result - $errorName");
+        $localNoteMe value=$state;
+
+    }
+
+    :local state ("Finished processing $dnsName with target ip $targetIp");
+    $localNoteMe value=$state;
+
+ 
+}
+
