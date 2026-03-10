@@ -1,4 +1,4 @@
-# 2026-03-10 14:53:23 by RouterOS 7.21.1
+# 2026-03-10 15:01:14 by RouterOS 7.21.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -14,6 +14,7 @@ set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-
 # managed by CAPsMAN
 # channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
+/disk add comment=Ramdisk slot=RAM tmpfs-max-size=10000000 type=tmpfs
 /interface lte apn set [ find default=yes ] ip-type=ipv4 use-network-apn=no
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
 /ip dhcp-client option add code=60 name=classid value="'mikrotik-cap'"
