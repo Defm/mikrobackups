@@ -62,7 +62,13 @@ $globalScriptBeforeRun "doFreshDNSAddressLists";
 
 
 # see available groups at https://iplist.opencck.org/ru
-:local options {"youtube"={"alist"="alist-mangle-byedpi-YTB"; "forwarderName"="DOH-Google"};"torrent"={"alist"="alist-mangle-byedpi-TORR"; "forwarderName"="DOH-Google"}}; 
+
+:local options [{}];
+
+:set ($options->"youtube") {"mode"="group"; "data"="domains"; "target"="youtube"; "alist"="alist-mangle-byedpi-YTB"; "forwarderName"="DOH-Google"}
+:set ($options->"torrent") {"mode"="group"; "data"="domains"; "target"="torrent"; "alist"="alist-mangle-byedpi-TORR"; "forwarderName"="DOH-Google"}
+:set ($options->"telegram") {"mode"="site"; "data"="cidr4"; "target"="telegram.org"; "alist"="alist-mangle-TG"; "forwarderName"="DOH-Google"}
+
 
 :local stamp [$simplercurrdatetimestr];
 
@@ -71,17 +77,29 @@ $globalScriptBeforeRun "doFreshDNSAddressLists";
     :local group $G;
     :local alist ($S->"alist");
     :local forwarderName  ($S->"forwarderName");
-    :local template ":if ([:len [/ip dns static find name={data}]] = 0) do={/ip/dns/static/add address-list=$alist comment=$alist-$stamp forward-to=$forwarderName match-subdomain=yes type=FWD name={data} ;}";
+    :local data  ($S->"data");
+    :local mode  ($S->"mode");
+    :local target  ($S->"target");        
+    
+    :local template ":if ([:len [/ip/dns/static find name={data}]] = 0) do={/ip/dns/static/add address-list=$alist comment=$alist-$stamp forward-to=$forwarderName match-subdomain=yes type=FWD name={data} ;}";
+    :if ($data = "domains") do={
+      :set template ":if ([:len [/ip/dns/static find name={data}]] = 0) do={/ip/dns/static/add address-list=$alist comment=$alist-$stamp forward-to=$forwarderName match-subdomain=yes type=FWD name={data} ;}";
+    } else={
+
+        :if ($data = "cidr4") do={
+            :set template "{/ip/firewall/address-list/remove [find where list=$alist and address={data}]; /ip/firewall/address-list/add list=$alist comment=$alist-$stamp address={data} ;}";
+        }
+    }
 
     :set state ("Freshing $alist DNS static entries using iplist.opencck.org at $stamp");
     $globalNoteMe value=$state;
 
     :set template [:convert to=url $template];
 
-    :local url ("\"https://iplist.opencck.org/?format=custom&data=domains&wildcard=1&group=$group&template=" . ($template) . "\"");
+    :local url ("\"https://iplist.opencck.org/?format=custom&data=$data&wildcard=1&$mode=$target&template=" . ($template) . "\"");
 
     :local outputFile "$alist.rsc";
-    :local fetchCmd "/tool/fetch mode=https url=$url dst-path=$outputFile";
+    :local fetchCmd "/tool/fetch idle-timeout=20s mode=https url=$url dst-path=$outputFile";
 
     # remove old files
     /file remove [find where name="$outputFile"]
@@ -119,4 +137,138 @@ $globalScriptBeforeRun "doFreshDNSAddressLists";
     }
     
 }
+
+
+{
+/ip firewall address-list
+:local update do={
+ :put "Starting import of address-list: $listname"
+ :if ($nolog = null) do={:log warning "Starting import of address-list: $listname"}
+ 
+ :local displayed true
+ :local maxretry 3
+ :local retrywaitingtime 120s
+ :local retryflag true
+ :for retry from=1 to=$maxretry step=1 do={
+  :if (retryflag) do={ :set $retryflag false; :set $sounter 0
+  :if (retry > 1) do={
+   :put "Source file changed. Retring after a $retrywaitingtime wait..."
+   :if ($nolog = null) do={:log warning "Source file changed. Retring after a $retrywaitingtime wait..."}
+   :delay $retrywaitingtime  }
+      
+  :local fetchResult [/tool fetch url=$url keep-result=no as-value]
+  :local filesize ($fetchResult->"total")
+  :local downsize ($fetchResult->"downloaded") 
+  :if ($filesize = 0 && $downsize > 0) do={ :set $filesize $downsize}
+
+  :local start 0
+  :local maxsize 64000;            # reqeusted chunk size
+  :local end ($maxsize - 1);    # because start is zero the maxsize has to be reduced by one
+  :local partnumber     ($filesize / ($maxsize / 1024)); # how many chunk are maxsize
+  :local remainder     ($filesize % ($maxsize / 1024)); # the last partly chunk 
+  :if ($remainder > 0)    do={ :set $partnumber ($partnumber + 1) }; # total number of chunks
+  :if ($heirule != null) do={:put "Using as extra filtering: $heirule"} else={:set $heirule "."}
+ # remove the current list completely if "erase" is not present (default setting)
+  :if ($noerase = null) do={  
+   :if ($timeout = null) do={:set $timeout 00:00:00; :do {:foreach i in=[/ip firewall address-list find list=$listname] do={/ip firewall address-list set list=("backup".$listname) $i }} on-error={} } else={
+   :do {:foreach i in=[/ip firewall address-list find list=$listname dynamic] do={/ip firewall address-list set list=("backup".$listname) $i }} on-error={} };                
+   :put ("Conditional deleting all".$dynamic." entries in address-list: $listname")
+   :if ($nolog = null) do={:log warning ("Conditional deleting all".$dynamic." entries in address-list: $listname")}
+  } else={:put "Entries not conditional deleted in address-list: $listname"}; # ENDIF ERASE
+ :for x from=1 to=$partnumber step=1 do={
+   # get filesize to be compared to the orignal one and if changed then retry
+   :local comparesize ([/tool fetch url=$url keep-result=no as-value]->"total")
+   :if ($comparesize = 0 && $downsize > 0) do={ :set $comparesize $downsize}
+   
+   # fetching the chunks from the webserver when the size of the source file has not changed
+   # empty array when the source file changed. No processing is done till the next complete retry
+   :if ($comparesize = $filesize) do={:set $data ([:tool fetch url=$url http-header-field="Range: bytes=$start-$end" output=user as-value]->"data")} else={:set $data [:toarray ""]; :set $retryflag true}
+     #:if ($ownposix = null) do={
+  # determining the used delimiter in the list, when not provided in the config
+   # this only run once and so the impact on the import time is low
+    :local ipv4Posix      "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}"
+    :local ipv4rangePosix "^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}/[0-9]{1,2}"
+    :local domainPosix      "^.+\\.[a-z.]{2,7}"
+    :local sdata $data;
+   # removes any lines at the top of the file that could interfere with finding the correct posix. Setting remarksign is needed
+    :while ([:pick $sdata 0 1] = $remarksign) do={ :set $sdata [:pick $sdata ([:find $sdata "\n"]+1) [:len $sdata]] }    
+    :while ([:len $sdata]!=0 && $delimiter = null) do={ # The check on length of $sdata is for if no delimiter is found.   
+           :local sline [:pick $sdata 0 [:find $sdata "\n"]]; :local slen [:len $sline];
+           # set posix depending of type of data used in the list
+           :if ($sline ~ $ipv4Posix)        do={:set $posix $ipv4Posix;         :set $iden "List identified as a IPv4 list"}
+           :if ($sline ~ $ipv4rangePosix)    do={:set $posix $ipv4rangePosix; :set $iden "List identified as a IPv4 with ranges list"}
+           :if ($sline ~ $domainPosix)        do={:set $posix $domainPosix;     :set $iden "List identified as a domain list"}
+           :if ($sline ~ $posix) do={:put $iden}
+          :if ($sline ~ $posix) do={ # only explore the line if there is a match at the start of the line.
+          :do {:if ([:pick $sline 0 ($slen-$send)] ~ ($posix."\$") || $send > $slen) do={
+            :set $delimiter [:pick $sline ($slen-$send) ($slen-($send-1))]; :set $result true} else={:set $send ($send+1)}  
+             :if ($result) do={ :set  $extra [:pick $sline ($slen-$send) ($slen-($send-1))]
+              :if ( $extra = " " )   do={ :set $delimiter [:pick $sline ($slen-$send) ($slen-($send-2))] }
+              :if ( $extra = "  " )  do={ :set $delimiter [:pick $sline ($slen-$send) ($slen-($send-3))] }
+              :if ( $extra = "   " ) do={ :set $delimiter [:pick $sline ($slen-$send) ($slen-($send-4))] }
+             }; # EndIf result
+          } while (!$result); # EndDoWhile
+        }; #IF sline posix
+    :set $sdata [:pick $sdata ([:find $sdata "\n"]+1) [:len $sdata]]; # cut off the already searched lines
+    :if ($delimiter != null) do={:local sdata [:toarray ""]} ; #Clearing sdata array ending the WhileDo loop
+    }; #WHILE END $sdata
+    :local sdata [:toarray ""]
+   :if ([:len $delimiter] = 0) do={ :set $delimiter "\n"; :set $delimiterShow "New Line" } else={ :set $delimiterShow $delimiter }; # when empty use NewLine 20220529    
+   #} else={:put "User defind Posix: $ownposix"; :set $posix $ownposix } ; # ENDIF ownposix = null
+   :if ($delimiter != null && $displayed ) do={:set $displayed false; :put "Using config provided delimiter: \"$delimiterShow\""}
+   :if ($posix = null) do={:set $posix "."}; # Use a match all posix if nothing is defined or found 
+   :if (!retryflag) do={:put "Reading Part: $x $start - $end"}   
+   :if ($timeout = null) do={:local timeout 00:00:00}; # if no timeout is defined make it a static entry.    
+   # Only remove the first line only if you are not at the start of list
+   
+:while ( [:pick $data 0 1] = $remarksign) do={ :set $data [:pick $data ([:find $data "\n"]+1) [:len $data]] }; # removes the invalid line (Spamhaus) 
+   
+   :if ($start > 0) do={:set $data [:pick $data ([:find $data "\n"]+1) [:len $data]]}
+     :while ([:len $data]!=0) do={
+       :local line [:pick $data 0 [:find $data "\n"]]; # create only once and checked twice as local variable
+       :if ( $line ~ $posix && $line~heirule) do={    
+        :do {add list=$listname address=[:pick $data 0 [:find $data $delimiter]] comment=$comment timeout=$timeout; :set $counter ($counter + 1)} on-error={}; # on error avoids any panics        
+       }; # if IP address && extra filter if present
+      :set $data [:pick $data ([:find $data "\n"]+1) [:len $data]]; # removes the just added IP from the data array
+      # Cut of the end of the chunks by removing the last lines...very dirty but it works
+      :if ([:len $data] < 256) do={:set $data [:toarray ""]}    
+     }; # while
+
+  :set $start (($start-512) + $maxsize); # shifts the subquential start back by 512  
+  :set $end (($end-512) + $maxsize); # shift the subquential ends back by 512 to keep the 
+  }; # if retryflag
+ }; #do for x
+ 
+}; # for retry
+ :if ($counter < 1) do={:set $resultline "Import was NOT successfull! Check if the list $listname is still being maintained."} else={:set $resultline "Completed reading $counter items into address-list $listname." } 
+ :put $resultline
+ :if ($nolog = null) do={:log warning $resultline }
+ :if ($counter > 0) do={:do {/ip firewall address-list remove [find where list=("backup".$listname)]} on-error={} } else={
+ :do {:foreach i in=[/ip firewall address-list find list=("backup".$listname)] do={/ip firewall address-list set list=$listname $i }} on-error={}
+ :put "Restoring backup list: $listname" 
+ :if ($nolog = null) do={:log warning "Restoring backup list: $listname"}
+ }; # if counter restore on failure and remove on success
+}; # do
+
+:global simplercurrdatetimestr;
+:local stamp [$simplercurrdatetimestr];
+:local comment ("alist-mangle-RKN-$stamp");
+$update url=https://antifilter.download/list/allyouneed.lst listname=alist-mangle-RKN delimiter=("\n") timeout=2d comment=$comment
+
+}
+
+#$update url=https://raw.githubusercontent.com/ktsaou/blocklist-ipsets/master/firehol_webserver.netset listname=firehol_webserver delimiter=("\n") timeout=1d nolog=1
+#$update url=https://check.torproject.org/torbulkexitlist listname=tor_exit_list delimiter=("\n") timeout=1d nolog=1
+#$update urlhttps://iplists.firehol.org/files/dshield.netset listname=DShield delimiter=("\n") timeout=1d nolog=1
+# To be used configline settings:
+# url=            https://name.of.the.list
+# listname=    name of address-list
+
+# Optinal settings
+# timeout=    the time the entry should be active. If omited then static entries are created.
+# comment=    puts this comment on every line in the choosen address-list (default: no comment)
+# heirule=    this will select on a word on each line if to import or not (default: no heirule)
+# noerase=    any value, then the current list is not erased (default: erase)
+# ownPosix=    allow to enter a onw regEX posix to be used (not ative at this moment)
+# nolog=        any value, then don't write to the log (default: writing to log)
 
