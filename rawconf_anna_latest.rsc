@@ -1,4 +1,4 @@
-# 2026-03-10 14:42:45 by RouterOS 7.22rc2
+# 2026-03-12 15:27:56 by RouterOS 7.22rc2
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -156,7 +156,7 @@
 /queue simple add comment=dtq,00:0E:2D:1A:73:36, name="AST(wire)(blocked)@guest-dhcp-server (00:0E:2D:1A:73:36)" queue=default/default target=192.168.98.203/32 total-queue=default
 /queue simple add comment=dtq,2C:0B:97:C1:A8:C8, name="Elvira(wireless)@main-dhcp-server (2C:0B:97:C1:A8:C8)" queue=default/default target=192.168.90.133/32 total-queue=default
 /queue simple add comment=dtq,2C:0B:97:C1:A8:C8, name="Elvira(wireless)(blocked)@guest-dhcp-server (2C:0B:97:C1:A8:C8)" queue=default/default target=192.168.98.133/32 total-queue=default
-/queue simple add comment=dtq,BC:B2:CC:5F:9D:C4, name="Serg(wireless)@main-dhcp-server (BC:B2:CC:5F:9D:C4)" queue=default/default target=192.168.90.134/32 total-queue=default
+/queue simple add comment=dtq,BC:B2:CC:5F:9D:C4,A55-pol-zovatela-Sergej name="Serg(wireless)@main-dhcp-server (BC:B2:CC:5F:9D:C4)" queue=default/default target=192.168.90.134/32 total-queue=default
 /queue simple add comment=dtq,BC:B2:CC:5F:9D:C4, name="Serg(wireless)(blocked)@guest-dhcp-server (BC:B2:CC:5F:9D:C4)" queue=default/default target=192.168.98.134/32 total-queue=default
 /queue simple add comment=dtq,34:5A:60:89:1C:E1, name="MSI(wire)@main-dhcp-server (34:5A:60:89:1C:E1)" queue=default/default target=192.168.90.66/32 total-queue=default
 /queue simple add comment=dtq,34:5A:60:89:1C:E1, name="MSI(wire)(blocked)@guest-dhcp-server (34:5A:60:89:1C:E1)" queue=default/default target=192.168.98.66/32 total-queue=default
@@ -174,6 +174,7 @@
 /queue simple add comment=dtq,C8:FE:0F:0B:19:3A,wb name="WB (wireless)@main-dhcp-server (C8:FE:0F:0B:19:3A)" queue=default/default target=192.168.90.3/32 total-queue=default
 /queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.224/32 total-queue=default
 /queue simple add comment=dtq,2C:D2:6B:42:D5:54, name="@guest-dhcp-server (2C:D2:6B:42:D5:54)" queue=default/default target=192.168.98.219/32 total-queue=default
+/queue simple add comment=dtq,50:8B:B9:45:A1:5A, name="@guest-dhcp-server (50:8B:B9:45:A1:5A)" queue=default/default target=192.168.98.217/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -4881,7 +4882,7 @@
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 name=anna.home type=A
 /ip dns static add cname=wb.home name=wb type=CNAME
-/ip dns static add address=192.168.90.3 comment="Netwatch checkup at 14:02:16" name=wb.home type=A
+/ip dns static add address=192.168.90.3 comment="Netwatch checkup at 11:48:55" name=wb.home type=A
 /ip dns static add cname=influxdb.home name=influxdb type=CNAME
 /ip dns static add address=172.16.0.17 name=influxdb.home type=A
 /ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
@@ -4942,14 +4943,6 @@
 /ip dns static add address-list=alist-mangle-vpn comment="VPN Hack" forward-to=DOH-Comss match-subdomain=yes name=gemini.google.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn comment="VPN Hack" forward-to=DOH-Comss match-subdomain=yes name=aistudio.google.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn comment="VPN Hack" forward-to=DOH-Google match-subdomain=yes name=vsassets.io type=FWD
-/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" disabled=yes forward-to=localhost match-subdomain=yes name=www.canva.com type=FWD
-/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" disabled=yes forward-to=localhost match-subdomain=yes name=www.tinkercad.com type=FWD
-/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" disabled=yes forward-to=DOH-Comss match-subdomain=yes name=xvideos.com type=FWD
-/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" disabled=yes forward-to=DOH-Comss match-subdomain=yes name=xhamster.com type=FWD
-/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" disabled=yes forward-to=localhost match-subdomain=yes name=www.parallels.com type=FWD
-/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN  Hack" disabled=yes forward-to=localhost match-subdomain=yes name=radarr.video type=FWD
-/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN Hack" disabled=yes forward-to=DOH-Comss match-subdomain=yes name=chatgpt.com type=FWD
-/ip dns static add address-list=alist-mangle-vpn-tunneled-sites comment="VPN Hack" disabled=yes forward-to=DOH-Comss match-subdomain=yes name=openai.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss regexp=instagram type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=bookstagram.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-IG comment="DPI hack Instagram" forward-to=DOH-Comss match-subdomain=yes name=carstagram.com type=FWD
@@ -5205,55 +5198,6 @@
 /ip dns static add address-list=alist-mangle-vpn comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=fastnetmon.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=j2sw.com type=FWD
 /ip dns static add address-list=alist-mangle-vpn comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=betanet.net type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=messenger.com type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whatsapp.net type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=signal.art type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=signal.group type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=signal.link type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=signal.me type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=signal.org type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=signal.tube type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whispersystems.org type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=cdn-telegram.org type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=comments.app type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=contest.com type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=fragment.com type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=graph.org type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=quiz.directory type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=t.me type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=tdesktop.com type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=telega.one type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=telegra.ph type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=telegram-cdn.org type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=telegram.com type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=telegram.dog type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=telegram.me type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=telegram.org type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=telegram.space type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=telesco.pe type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=tg.dev type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=tx.me type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=usercontent.dev type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=rakuten.com type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=vbcdn.com type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=vbcdn.net type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=viber.co type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=viber.com type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=viber.me type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=fbsbx.com type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=wa.me type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whatsapp-plus.info type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whatsapp-plus.me type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whatsapp-plus.net type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whatsapp.biz type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whatsapp.cc type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whatsapp.com type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whatsapp.info type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whatsapp.org type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whatsapp.tv type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=whatsappbrand.com type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=wl.co type=FWD
-/ip dns static add address-list=alist-mangle-MSG comment=alist-mangle-MSG-20260210-115520 forward-to=DOH-Google match-subdomain=yes name=zello.com type=FWD
 /ip dns static add address=192.168.90.201 comment=<AUTO:DHCP:main-dhcp-server> name=AlxATV.home ttl=5m type=A
 /ip dns static add address=192.168.90.130 comment=<AUTO:DHCP:main-dhcp-server> name=iPad.home ttl=5m type=A
 /ip dns static add address=192.168.90.150 comment=<AUTO:DHCP:main-dhcp-server> name=iPhoneAlxr.home ttl=5m type=A
@@ -5264,6 +5208,7 @@
 /ip dns static add address-list=alist-mangle-vpn comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=marta.sh type=FWD
 /ip dns static add address-list=alist-mangle-vpn comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=dev.to type=FWD
 /ip dns static add address=46.39.51.193 name=ftpserver.org type=A
+/ip dns static add address=192.168.90.134 comment=<AUTO:DHCP:main-dhcp-server> name=A55-pol-zovatela-Sergej.home ttl=5m type=A
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
@@ -5322,55 +5267,55 @@
 /ip firewall address-list add address=192.168.80.2 list=alist-mangle-docker-space
 /ip firewall address-list add address=192.168.80.0/24 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=46.39.51.193 list=alist-nat-external-ip
-/ip firewall address-list add address=100.24.0.0/13 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=104.16.0.0/12 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=108.177.0.0/17 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=132.245.0.0/16 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=142.250.0.0/15 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=146.75.0.0/16 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=149.154.160.0/20 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=151.101.0.0/16 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=170.149.0.0/16 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=172.217.0.0/16 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=172.253.0.0/16 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=172.64.0.0/13 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=173.194.0.0/16 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=174.143.0.0/16 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=178.128.240.0/20 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=18.128.0.0/9 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=185.76.151.0/24 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=188.166.0.0/17 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=192.178.0.0/15 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=199.232.0.0/16 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=204.212.0.0/14 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=209.85.128.0/17 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=209.97.0.0/18 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=213.180.193.0/24 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=216.58.192.0/19 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=34.192.0.0/10 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=34.64.0.0/10 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=35.184.0.0/13 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=35.224.0.0/12 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=35.240.0.0/13 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=40.96.0.0/12 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=44.192.0.0/10 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=50.128.0.0/9 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=52.96.0.0/12 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=64.233.160.0/19 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=66.102.0.0/20 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=66.151.176.0/20 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=74.125.0.0/16 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=8.0.0.0/13 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=8.32.0.0/11 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=91.105.192.0/23 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=91.108.12.0/22 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=91.108.16.0/22 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=91.108.20.0/22 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=91.108.4.0/22 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=91.108.56.0/22 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=91.108.8.0/22 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=92.204.208.0/20 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
-/ip firewall address-list add address=95.161.64.0/20 comment=alist-mangle-TG-20260310-134500 list=alist-mangle-TG
+/ip firewall address-list add address=100.24.0.0/13 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=104.16.0.0/12 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=108.177.0.0/17 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=132.245.0.0/16 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=142.250.0.0/15 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=146.75.0.0/16 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=149.154.160.0/20 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=151.101.0.0/16 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=170.149.0.0/16 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=172.217.0.0/16 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=172.253.0.0/16 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=172.64.0.0/13 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=173.194.0.0/16 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=174.143.0.0/16 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=178.128.240.0/20 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=18.128.0.0/9 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=185.76.151.0/24 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=188.166.0.0/17 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=192.178.0.0/15 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=199.232.0.0/16 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=204.212.0.0/14 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=209.85.128.0/17 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=209.97.0.0/18 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=213.180.193.0/24 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=216.58.192.0/19 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=34.192.0.0/10 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=34.64.0.0/10 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=35.184.0.0/13 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=35.224.0.0/12 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=35.240.0.0/13 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=40.96.0.0/12 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=44.192.0.0/10 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=50.128.0.0/9 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=52.96.0.0/12 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=64.233.160.0/19 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=66.102.0.0/20 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=66.151.176.0/20 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=74.125.0.0/16 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=8.0.0.0/13 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=8.32.0.0/11 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=91.105.192.0/23 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=91.108.12.0/22 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=91.108.16.0/22 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=91.108.20.0/22 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=91.108.4.0/22 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=91.108.56.0/22 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=91.108.8.0/22 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=92.204.208.0/20 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
+/ip firewall address-list add address=95.161.64.0/20 comment=alist-mangle-TG-20260312-144500 list=alist-mangle-TG
 /ip firewall filter add action=drop chain=input comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(input)" protocol=udp
 /ip firewall filter add action=drop chain=forward comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(forward)" protocol=udp
 /ip firewall filter add action=drop chain=output comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(output)" protocol=udp
@@ -5792,18 +5737,18 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.22rc2 \
-    \nUptime:        5d01:29:32  \
-    \nTime:        2026-03-10 14:40:12  \
-    \nPing:    4 ms  \
+    \nUptime:        1d03:36:50  \
+    \nTime:        2026-03-12 15:20:12  \
+    \nPing:    8 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
     \nAnna:        46.39.51.193  \
     \nClock:        synchronized  \
     \n * wireless  \
     \n * rose-storage  \
-    \n * iot  \
-    \n * container  \
     \n * routeros  \
+    \n * container  \
+    \n * iot  \
     \n" show-at-cli-login=yes
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
@@ -5860,6 +5805,6 @@
     \n\
     \n:global NetwatchHostName \"miniAlx\";\
     \n/system script run doNetwatchHost;"
-/tool netwatch add comment="WB(wire) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.2 interval=1m name="WB(wire)" test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
-/tool netwatch add comment="WB(wireless) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.3 interval=1m name="WB(wireless)" test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
+/tool netwatch add comment="WB(wire) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.2 interval=1m name="WB(wire)" startup-delay=20s test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
+/tool netwatch add comment="WB(wireless) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.3 interval=1m name="WB(wireless)" startup-delay=20s test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
 /tool sniffer set filter-port=bgp memory-limit=1000KiB streaming-server=192.168.90.170
