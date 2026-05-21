@@ -1,4 +1,4 @@
-# 2026-03-16 21:13:03 by RouterOS 7.22
+# 2026-05-20 21:13:02 by RouterOS 7.22
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -1772,9 +1772,9 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface="main infrastructure" name="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.193 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.213 name=ftpserver.org type=A
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.193 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.213 list=alist-nat-external-ip
 /ip firewall filter add action=accept chain=input dst-port=123 in-interface="main infrastructure" protocol=udp
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
@@ -1836,19 +1836,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
 /system logging add action=VictoriaRemoteLog disabled=yes topics=firewall
 /system logging add action=VictoriaRemoteLog topics=!packet,!debug,!raw,!dns,!firewall,!ssh
 /system logging add action=REBOOTDoskLog regex="^.*supout.*\$"
-/system note set note="Ipsec:         okay \
-    \nRoute:     192.168.90.1 \
-    \nVersion:         7.22 \
-    \nUptime:        08:08:35  \
-    \nTime:        2026-03-16 21:13:04  \
-    \nPing:    9 ms  \
-    \nChr:        185.13.148.14  \
-    \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.193  \
-    \nClock:        synchronized  \
-    \n * routeros  \
-    \n * wireless  \
-    \n" show-at-cli-login=yes
+/system note set note=Pending show-at-cli-login=yes
 /system ntp client set enabled=yes mode=multicast
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-04-15 start-time=17:52:52
 /system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=22:00:00

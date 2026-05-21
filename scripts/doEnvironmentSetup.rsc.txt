@@ -310,6 +310,7 @@
 
 #Example call
 #$globalNewClientCert argClients="anna.ipsec, mikrouter.ipsec" argUsage="tls-client,digital-signature,key-encipherment"
+#$globalNewClientCert argClients="anna.proxy" argUsage="tls-server,digital-signature,key-encipherment"
 #$globalNewClientCert argClients="anna.capsman, mikrouter.capsman" argUsage="digital-signature,key-encipherment"
 #$globalNewClientCert argClients="185.13.148.14" argUsage="tls-server" argBindAsIP="any"
 :if (!any $globalNewClientCert) do={

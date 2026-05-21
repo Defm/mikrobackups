@@ -57,13 +57,14 @@ $localScriptBeforeRun $scriptname;
     
       :set currentIP [/ip/dns/static get $dnsEntry address]
  
-      # Flush entry address in any case
-      /ip dns static set $dnsEntry address=$dummyIP comment="Netwatch checkup is running...";
+      # Flush entry address in any case and set Disabled (so we get Dns-NxDomain error wher resolve over Chrome etc)
+      /ip dns static set $dnsEntry address=$dummyIP disabled=yes comment="Netwatch checkup is running...";
 
     } else={
 
       :set currentIP $dummyIP 
-      /ip dns static add name=$dnsName address=$currentIP comment="Netwatch checkup is running...";
+      # set Disabled (so we get Dns-NxDomain error wher resolve over Chrome etc)
+      /ip dns static add name=$dnsName address=$currentIP disabled=yes comment="Netwatch checkup is running...";
       :set dnsEntry ([/ip/dns/static/find name=$dnsName]->0)
 
     }
@@ -87,7 +88,7 @@ $localScriptBeforeRun $scriptname;
             
             :if ($ipAddr != $currentIP) do={
 
-              /ip dns static set $dnsEntry address=$ipAddr comment="Netwatch checkup at $stamp";
+              /ip dns static set $dnsEntry disabled=no address=$ipAddr comment="Netwatch checkup at $stamp";
 
               :set state "DNS updated to $ipAddr ($dnsName)";
               $localNoteMe value=$state;  
@@ -96,7 +97,7 @@ $localScriptBeforeRun $scriptname;
 
             } else={
 
-              /ip dns static set $dnsEntry address=$ipAddr comment="Netwatch checkup at $stamp";
+              /ip dns static set $dnsEntry disabled=no address=$ipAddr comment="Netwatch checkup at $stamp";
 
               :set state "DNS $dnsName already points to $ipAddr";
               $localNoteMe value=$state;  
