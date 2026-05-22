@@ -3,7 +3,7 @@
 #
 # model = RBcAPGi-5acD2nD
 # serial number = HD208EFDKQY
-/interface bridge add admin-mac=18:FD:74:94:FD:70 auto-mac=no igmp-snooping=yes name="main infrastructure" port-cost-mode=short
+/interface bridge add auto-mac=yes igmp-snooping=yes name="main-infrastructure-br" port-cost-mode=short protocol-mode=rstp arp=reply-only igmp-snooping=yes fast-forward=yes
 /interface ethernet set [ find default-name=ether1 ] arp=disabled name="lan A"
 /interface ethernet set [ find default-name=ether2 ] name="lan B"
 /interface wireless
@@ -15,37 +15,11 @@ set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-
 # channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
 set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /disk add comment=Ramdisk slot=RAM tmpfs-max-size=10000000 type=tmpfs
+
 /interface lte apn set [ find default=yes ] ip-type=ipv4 use-network-apn=no
 /interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
-/ip dhcp-client option add code=60 name=classid value="'mikrotik-cap'"
-/ip smb users set [ find default=yes ] disabled=yes
-/ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
-/snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
-/snmp community add addresses=::/0 disabled=yes name=public
-/system logging action set 1 disk-file-name=journal
-/system logging action add name=IpsecOnScreenLog target=memory
-/system logging action add disk-file-count=5 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
-/system logging action add disk-file-count=20 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
-/system logging action add name=TerminalConsoleLog remember=no target=echo
-/system logging action add name=OnScreenLog target=memory
-/system logging action add name=DHCPOnScreenLog target=memory
-/system logging action add name=DNSOnScreenLog target=memory
-/system logging action add name=RouterControlLog target=memory
-/system logging action add name=OSPFOnscreenLog target=memory
-/system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
-/system logging action add name=CertificatesOnScreenLog target=memory
-/system logging action add name=ParseMemoryLog target=memory
-/system logging action add name=CAPSOnScreenLog target=memory
-/system logging action add name=FirewallOnScreenLog target=memory
-/system logging action add name=SSHOnScreenLog target=memory
-/system logging action add name=PoEOnscreenLog target=memory
-/system logging action add name=EmailOnScreenLog target=memory
-/system logging action add cef-event-delimiter="" name=VictoriaRemoteLog remote=victoria.home remote-log-format=cef target=remote
-/system logging action add name=TransfersOnscreenLog target=memory
-/system logging action add disk-file-count=1 disk-file-name=PKGInstallationLog disk-lines-per-file=100 name=PKGInstallationLog target=disk
-/system logging action add disk-file-count=1 disk-file-name=REBOOTLog disk-lines-per-file=100 name=REBOOTDoskLog target=disk
-/system logging action add name=DockerOnscreenLog target=memory
+
+
 /system script add comment="StarWars march to  alarm on startup" dont-require-permissions=yes name=doImperialMarch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doImperialMarch\";\r\
@@ -1756,23 +1730,31 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
 /user group add name=mktxp policy=read,api,!local,!telnet,!ssh,!ftp,!reboot,!write,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!romon,!rest-api
-/ip smb set domain=HNW interfaces="main infrastructure"
+
+
+
 /interface bridge port add bridge="main infrastructure" ingress-filtering=no interface="lan A" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge port add bridge="main infrastructure" ingress-filtering=no interface="lan B" internal-path-cost=10 path-cost=10 trusted=yes
+
 /interface bridge settings set use-ip-firewall=yes
+
 /ip firewall connection tracking set enabled=yes udp-timeout=10s
 /ip neighbor discovery-settings set discover-interface-list=!dynamic
 /ip settings set accept-source-route=yes max-neighbor-entries=8192
 /ipv6 settings set disable-ipv6=yes max-neighbor-entries=8192
+
 /interface detect-internet set detect-interface-list=all
 /interface ovpn-server server add auth=sha1,md5 mac-address=FE:AA:B6:DE:38:D8 name=ovpn-server1
 /interface wireless cap
 # 
 set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
+
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface="main infrastructure" name="main infrastructure"
+
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
 /ip dns static add address=46.39.51.213 name=ftpserver.org type=A
+
 /ip firewall address-list add address=109.252.162.10 list=external-ip
 /ip firewall address-list add address=46.39.51.213 list=alist-nat-external-ip
 /ip firewall filter add action=accept chain=input dst-port=123 in-interface="main infrastructure" protocol=udp
