@@ -115,7 +115,7 @@
 
     :local tToken "$[$SECRET get TELEGRAM_TOKEN]";
     :local tGroupID "$[$SECRET get TELEGRAM_CHAT_ID]";
-    :local tURL "https://api.telegram.org/bot$tToken/sendMessage\?chat_id=$tGroupID";
+    :local tURL "https://relay.usetheforce.io/bot$tToken/sendMessage\?chat_id=$tGroupID";
 
     :local sysname ("#" . [/system identity get name]);
     :local scriptname [:jobname] ;
@@ -310,7 +310,6 @@
 
 #Example call
 #$globalNewClientCert argClients="anna.ipsec, mikrouter.ipsec" argUsage="tls-client,digital-signature,key-encipherment"
-#$globalNewClientCert argClients="anna.proxy" argUsage="tls-server,digital-signature,key-encipherment"
 #$globalNewClientCert argClients="anna.capsman, mikrouter.capsman" argUsage="digital-signature,key-encipherment"
 #$globalNewClientCert argClients="185.13.148.14" argUsage="tls-server" argBindAsIP="any"
 :if (!any $globalNewClientCert) do={
@@ -576,11 +575,26 @@
             :local OnPrimaryPartition true;
             :return $OnPrimaryPartition;
         }
+       
+       
+      :local partition;
+      :onerror errorName in={ 
+            
+            # device may have no /partitions command if it is 16Mb
+            :set partition [/partitions find name=$partitionName];
+
+        } do={ 
+
+            :local state ("Investigation result - device has no /partitions submenu");
+            $globalNoteMe value=$state;
+            :local OnPrimaryPartition true;
+            :return $OnPrimaryPartition;
+        }
 
         :onerror errorName in={ 
             
             # test if it exist in /partitions
-            :local partition [/partitions find name=$partitionName];
+            
             :if ([:len $partition] > 0) do={
                 :local running [/partition get $partition running];
                 :if ($running) do={
@@ -608,5 +622,6 @@
     }
 
 }
+
 
 

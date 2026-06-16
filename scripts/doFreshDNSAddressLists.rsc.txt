@@ -67,7 +67,7 @@ $globalScriptBeforeRun "doFreshDNSAddressLists";
 
 :set ($options->"youtube") {"mode"="group"; "data"="domains"; "target"="youtube"; "alist"="alist-mangle-byedpi-YTB"; "forwarderName"="DOH-Google"}
 :set ($options->"torrent") {"mode"="group"; "data"="domains"; "target"="torrent"; "alist"="alist-mangle-byedpi-TORR"; "forwarderName"="DOH-Google"}
-:set ($options->"telegram") {"mode"="site"; "data"="cidr4"; "target"="telegram.org"; "alist"="alist-mangle-TG"; "forwarderName"="DOH-Google"}
+#:set ($options->"telegram") {"mode"="site"; "data"="cidr4"; "target"="telegram.org"; "alist"="alist-mangle-TG"; "forwarderName"="DOH-Google"}
 
 
 :local stamp [$simplercurrdatetimestr];
