@@ -115,7 +115,7 @@
 
     :local tToken "$[$SECRET get TELEGRAM_TOKEN]";
     :local tGroupID "$[$SECRET get TELEGRAM_CHAT_ID]";
-    :local tURL "https://api.telegram.org/bot$tToken/sendMessage\?chat_id=$tGroupID";
+    :local tURL "https://relay.usetheforce.io/bot$tToken/sendMessage\?chat_id=$tGroupID";
 
     :local sysname ("#" . [/system identity get name]);
     :local scriptname [:jobname] ;
@@ -283,12 +283,12 @@
         :local state ("Adding CAPs ACL static entries for ($newBlockedIp/$newMac) on $newSsid");
         $globalNoteMe value=$state;
         
-         # avoid parce errors using Execute when no wireless package installed
+         # avoid parse errors using Execute when no wireless package installed
        :if ( [ :len [ /system package find where name="wireless" and disabled=no ] ] > 0  ) do={
           :local Cmd "/caps-man access-list remove [find mac-address=$newMac];";
           :local jobid [:execute script=$Cmd];
 
-          :local Cmd "/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=$comment disabled=no mac-address=$newMac ssid-regexp='$newSsid' place-before=1;";
+          :local Cmd "/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\"$comment\" disabled=no mac-address=$newMac ssid-regexp=\"$newSsid\" place-before=1;";
           :local jobid [:execute script=$Cmd];
 
           }
@@ -311,6 +311,7 @@
 #Example call
 #$globalNewClientCert argClients="anna.ipsec, mikrouter.ipsec" argUsage="tls-client,digital-signature,key-encipherment"
 #$globalNewClientCert argClients="anna.capsman, mikrouter.capsman" argUsage="digital-signature,key-encipherment"
+#$globalNewClientCert argClients="anna.proxy" argUsage="tls-server,digital-signature,key-encipherment" addSAN="*.anna.home"
 #$globalNewClientCert argClients="185.13.148.14" argUsage="tls-server" argBindAsIP="any"
 :if (!any $globalNewClientCert) do={
   :global globalNewClientCert do={
@@ -322,7 +323,8 @@
     # incoming named params
     :local clients [ :tostr $argClients ];
     :local prefs  [ :tostr $argUsage ];
-    :local asIp  $argBindAsIP ;
+    :local asIp  $argBindAsIP;
+    :local san  $addSAN ;
 
     # scope global functions
     :global globalNoteMe;
@@ -376,6 +378,10 @@
       :local tname "";
       :foreach USERNAME in=$IDs do={
 
+        :if ([:typeof $san ] != "str" ) do={
+           :set san $USERNAME;
+        }
+
         ## create a client certificate (that will be just a template while not signed)
         :if (  [:len $asIp ] > 0 ) do={
 
@@ -411,7 +417,7 @@
 
                 } else={
 
-                  /certificate add name="$tname" common-name="$USERNAME@$scepAlias" subject-alt-name="email:$USERNAME@$fakeDomain" key-usage=$prefs  country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365
+                  /certificate add name="$tname" common-name="$USERNAME@$scepAlias" subject-alt-name="email:$USERNAME@$fakeDomain,DNS:$san" key-usage=$prefs  country="$COUNTRY" state="$STATE" locality="$LOC" organization="$ORG" unit="$OU"  key-size="$KEYSIZE" days-valid=365
 
                 };
 
@@ -575,11 +581,26 @@
             :local OnPrimaryPartition true;
             :return $OnPrimaryPartition;
         }
+       
+       
+      :local partition;
+      :onerror errorName in={ 
+            
+            # device may have no /partitions command if it is 16Mb
+            :set partition [/partitions find name=$partitionName];
+
+        } do={ 
+
+            :local state ("Investigation result - device has no /partitions submenu");
+            $globalNoteMe value=$state;
+            :local OnPrimaryPartition true;
+            :return $OnPrimaryPartition;
+        }
 
         :onerror errorName in={ 
             
             # test if it exist in /partitions
-            :local partition [/partitions find name=$partitionName];
+            
             :if ([:len $partition] > 0) do={
                 :local running [/partition get $partition running];
                 :if ($running) do={
@@ -607,5 +628,6 @@
     }
 
 }
+
 
 

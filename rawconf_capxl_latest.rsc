@@ -1,11 +1,11 @@
-# 2026-03-10 15:01:14 by RouterOS 7.21.1
+# 2026-06-09 21:13:02 by RouterOS 7.23.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
 # serial number = HD208EFDKQY
-/interface bridge add admin-mac=18:FD:74:94:FD:70 auto-mac=no igmp-snooping=yes name="main infrastructure" port-cost-mode=short
-/interface ethernet set [ find default-name=ether1 ] arp=disabled name="lan A"
-/interface ethernet set [ find default-name=ether2 ] name="lan B"
+/interface bridge add admin-mac=18:FD:74:94:FD:70 auto-mac=no igmp-snooping=yes name=main-infrastructure-br port-cost-mode=short
+/interface ethernet set [ find default-name=ether1 ] arp=disabled name=lan-poe-in
+/interface ethernet set [ find default-name=ether2 ] name=lan-poe-out
 /interface wireless
 # managed by CAPsMAN
 # channel: 2412/20/gn(17dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
@@ -46,114 +46,6 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
 /system logging action add disk-file-count=1 disk-file-name=PKGInstallationLog disk-lines-per-file=100 name=PKGInstallationLog target=disk
 /system logging action add disk-file-count=1 disk-file-name=REBOOTLog disk-lines-per-file=100 name=REBOOTDoskLog target=disk
 /system logging action add name=DockerOnscreenLog target=memory
-/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
-/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
-/user group add name=mktxp policy=read,api,!local,!telnet,!ssh,!ftp,!reboot,!write,!policy,!test,!winbox,!password,!web,!sniff,!sensitive,!romon,!rest-api
-/ip smb set domain=HNW interfaces="main infrastructure"
-/interface bridge port add bridge="main infrastructure" ingress-filtering=no interface="lan A" internal-path-cost=10 path-cost=10 trusted=yes
-/interface bridge port add bridge="main infrastructure" ingress-filtering=no interface="lan B" internal-path-cost=10 path-cost=10 trusted=yes
-/interface bridge settings set use-ip-firewall=yes
-/ip firewall connection tracking set enabled=yes udp-timeout=10s
-/ip neighbor discovery-settings set discover-interface-list=!dynamic
-/ip settings set accept-source-route=yes max-neighbor-entries=8192
-/ipv6 settings set disable-ipv6=yes max-neighbor-entries=8192
-/interface detect-internet set detect-interface-list=all
-/interface ovpn-server server add auth=sha1,md5 mac-address=FE:AA:B6:DE:38:D8 name=ovpn-server1
-/interface wireless cap
-# 
-set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
-/ip cloud set ddns-enabled=yes ddns-update-interval=10m
-/ip dhcp-client add dhcp-options=hostname,clientid,classid interface="main infrastructure"
-/ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.193 name=ftpserver.org type=A
-/ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.193 list=alist-nat-external-ip
-/ip firewall filter add action=accept chain=input dst-port=123 in-interface="main infrastructure" protocol=udp
-/ip firewall service-port set tftp disabled=yes
-/ip firewall service-port set h323 disabled=yes
-/ip firewall service-port set sip disabled=yes
-/ip firewall service-port set pptp disabled=yes
-/ip firewall service-port set udplite disabled=yes
-/ip firewall service-port set dccp disabled=yes
-/ip firewall service-port set sctp disabled=yes
-/ip ipsec profile set [ find default=yes ] dpd-interval=2m dpd-maximum-failures=5
-/ip service set telnet disabled=yes
-/ip service set api-ssl disabled=yes
-/ip smb shares set [ find default=yes ] directory=/pub
-/ip ssh set ciphers=aes-gcm,aes-ctr,aes-cbc,3des-cbc,null forwarding-enabled=remote
-/ip tftp add real-filename=NAS/ req-filename=.*
-/ip upnp set enabled=yes
-/ip upnp interfaces add interface="main infrastructure" type=internal
-/ipv6 nd set [ find default=yes ] advertise-dns=yes
-/ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M profile=null service=async
-/ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
-/routing bfd configuration add disabled=no
-/snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces="main infrastructure" trap-version=2
-/system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
-/system identity set name=capxl
-/system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
-/system logging set 1 action=OnScreenLog
-/system logging set 2 action=OnScreenLog
-/system logging set 3 action=TerminalConsoleLog
-/system logging add action=IpsecOnScreenLog topics=ipsec,!debug
-/system logging add action=ErrorDiskLog topics=critical
-/system logging add action=ErrorDiskLog topics=error
-/system logging add action=ScriptsDiskLog topics=script
-/system logging add action=OnScreenLog topics=firewall
-/system logging add action=OnScreenLog topics=smb
-/system logging add action=OnScreenLog topics=critical
-/system logging add action=DHCPOnScreenLog topics=dhcp
-/system logging add action=DNSOnScreenLog topics=dns,!packet
-/system logging add action=OSPFOnscreenLog topics=ospf,!raw
-/system logging add action=OnScreenLog topics=event
-/system logging add action=L2TPOnScreenLog topics=l2tp
-/system logging add action=AuthDiskLog topics=account
-/system logging add action=CertificatesOnScreenLog topics=certificate
-/system logging add action=AuthDiskLog topics=manager
-/system logging add action=ParseMemoryLog topics=warning
-/system logging add action=CAPSOnScreenLog topics=caps
-/system logging add action=FirewallOnScreenLog topics=firewall
-/system logging add action=CAPSOnScreenLog topics=wireless
-/system logging add action=ParseMemoryLog topics=system
-/system logging add action=SSHOnScreenLog topics=ssh,!packet
-/system logging add action=PoEOnscreenLog topics=poe-out
-/system logging add action=EmailOnScreenLog topics=e-mail
-/system logging add action=ParseMemoryLog topics=error
-/system logging add action=ParseMemoryLog topics=account
-/system logging add action=ParseMemoryLog topics=critical
-/system logging add action=TransfersOnscreenLog topics=fetch
-/system logging add action=PKGInstallationLog regex="^.*install.*\$"
-/system logging add action=REBOOTDoskLog regex="^.*reboot.*\$" topics=!dhcp
-/system logging add action=PKGInstallationLog regex="^.*package.*\$"
-/system logging add action=DockerOnscreenLog topics=container
-/system logging add action=VictoriaRemoteLog disabled=yes topics=firewall
-/system logging add action=VictoriaRemoteLog topics=!packet,!debug,!raw,!dns,!firewall,!ssh
-/system logging add action=REBOOTDoskLog regex="^.*supout.*\$"
-/system note set note="Ipsec:         okay \
-    \nRoute:     192.168.90.1 \
-    \nVersion:         7.21.1 \
-    \nUptime:        5d01:12:39  \
-    \nTime:        2026-03-10 14:53:05  \
-    \nPing:    8 ms  \
-    \nChr:        185.13.148.14  \
-    \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.193  \
-    \nClock:        synchronized  \
-    \n * routeros  \
-    \n * wireless  \
-    \n" show-at-cli-login=yes
-/system ntp client set enabled=yes mode=multicast
-/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sensitive start-date=2018-03-01 start-time=15:55:00
-/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
-/system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=23:30:00
-/system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
-/system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=11:31:24
-/system scheduler add name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
-/system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=06:05:00
-/system scheduler add interval=1h name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=read,write,policy,password start-date=2017-01-30 start-time=18:57:09
-/system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=08:00:00
-/system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-04-15 start-time=17:52:52
-/system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=22:00:00
 /system script add comment="StarWars march to  alarm on startup" dont-require-permissions=yes name=doImperialMarch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
     \n\$globalScriptBeforeRun \"doImperialMarch\";\r\
@@ -1849,6 +1741,145 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces="main infrastructure" e
     \n\r\
     \n\r\
     \n"
+/system script add comment="Fast cloud backup" dont-require-permissions=yes name=doCloudBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \"doCloudBackup\";\
+    \n\
+    \n:global globalNoteMe;\
+    \n:local state\
+    \n:local itsOk true;\
+    \n\
+    \n:local BackupPassword \"1234567890\" ;\
+    \n\
+    \n# we are not interested in output, but print without count-only is\
+    \n# required to fetch information from cloud\
+    \n\
+    \n:global globalOnPrimaryPartition;\
+    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
+    \n    \
+    \n    :set state \"WARNING: the system booted up from fallback partition - skipping backup!\"\
+    \n    :log error \$state\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :error \$state;\
+    \n\
+    \n}\
+    \n\
+    \n/system backup cloud print as-value\
+    \n\
+    \n:local Backup ([ /system/backup/cloud/find ]->0);\
+    \n:if ([ :typeof \$Backup ] = \"id\") do={\
+    \n    /system/backup/cloud/upload-file action=create-and-upload password=\$BackupPassword replace=\$Backup;\
+    \n} else={\
+    \n    /system/backup/cloud/upload-file action=create-and-upload password=\$BackupPassword;\
+    \n}\
+    \n\
+    \n:local Backup ([ /system/backup/cloud/find ]->0);\
+    \n:local BackupName [/system/backup/cloud/get \$Backup name];\
+    \n:set state \"Creating and uploading backup file... \$BackupName\"\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n\
+    \n\
+    \n\r\
+    \n"
+/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
+/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
+/user group add name=mikrodash policy=read,test,api,!local,!telnet,!ssh,!ftp,!reboot,!write,!policy,!winbox,!password,!web,!sniff,!sensitive,!romon,!rest-api
+/ip smb set domain=HNW interfaces=main-infrastructure-br
+/interface bridge port add bridge=main-infrastructure-br ingress-filtering=no interface=lan-poe-in internal-path-cost=10 path-cost=10 trusted=yes
+/interface bridge port add bridge=main-infrastructure-br ingress-filtering=no interface=lan-poe-out internal-path-cost=10 path-cost=10 trusted=yes
+/interface bridge settings set use-ip-firewall=yes
+/ip firewall connection tracking set enabled=yes udp-timeout=10s
+/ip neighbor discovery-settings set discover-interface-list=!dynamic
+/ip settings set accept-source-route=yes max-neighbor-entries=8192
+/ipv6 settings set disable-ipv6=yes max-neighbor-entries=8192
+/interface ovpn-server server add auth=sha1,md5 mac-address=FE:AA:B6:DE:38:D8 name=ovpn-server1
+/interface wireless cap
+# 
+set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
+/ip cloud set ddns-enabled=yes ddns-update-interval=10m
+/ip dhcp-client add dhcp-options=hostname,clientid,classid interface=main-infrastructure-br name="main infrastructure"
+/ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
+/ip dns static add address=46.39.51.213 name=ftpserver.org type=A
+/ip firewall address-list add address=109.252.162.10 list=external-ip
+/ip firewall address-list add address=46.39.51.213 list=alist-nat-external-ip
+/ip firewall filter add action=accept chain=input dst-port=123 in-interface=main-infrastructure-br protocol=udp
+/ip firewall service-port set tftp disabled=yes
+/ip firewall service-port set h323 disabled=yes
+/ip firewall service-port set sip disabled=yes
+/ip firewall service-port set pptp disabled=yes
+/ip firewall service-port set udplite disabled=yes
+/ip firewall service-port set dccp disabled=yes
+/ip firewall service-port set sctp disabled=yes
+/ip ipsec profile set [ find default=yes ] dpd-interval=2m dpd-maximum-failures=5
+/ip service set ftp disabled=yes
+/ip service set telnet disabled=yes
+/ip service set api-ssl disabled=yes
+/ip smb shares set [ find default=yes ] directory=/pub
+/ip ssh set ciphers=aes-gcm,aes-ctr,aes-cbc,3des-cbc,null forwarding-enabled=remote
+/ip tftp add real-filename=NAS/ req-filename=.*
+/ip upnp set show-dummy-rule=no
+/ip upnp interfaces add interface=main-infrastructure-br type=internal
+/ipv6 nd set [ find default=yes ] advertise-dns=yes
+/ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
+/routing bfd configuration add disabled=yes
+/snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
+/system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
+/system identity set name=capxl
+/system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
+/system logging set 1 action=OnScreenLog
+/system logging set 2 action=OnScreenLog
+/system logging set 3 action=TerminalConsoleLog
+/system logging add action=IpsecOnScreenLog topics=ipsec,!debug
+/system logging add action=ErrorDiskLog topics=critical
+/system logging add action=ErrorDiskLog topics=error
+/system logging add action=ScriptsDiskLog topics=script
+/system logging add action=OnScreenLog topics=firewall
+/system logging add action=OnScreenLog topics=smb
+/system logging add action=OnScreenLog topics=critical
+/system logging add action=DHCPOnScreenLog topics=dhcp
+/system logging add action=DNSOnScreenLog topics=dns,!packet
+/system logging add action=OSPFOnscreenLog topics=ospf,!raw
+/system logging add action=OnScreenLog topics=event
+/system logging add action=L2TPOnScreenLog topics=l2tp
+/system logging add action=AuthDiskLog topics=account
+/system logging add action=CertificatesOnScreenLog topics=certificate
+/system logging add action=AuthDiskLog topics=manager
+/system logging add action=ParseMemoryLog topics=warning
+/system logging add action=CAPSOnScreenLog topics=caps
+/system logging add action=FirewallOnScreenLog topics=firewall
+/system logging add action=CAPSOnScreenLog topics=wireless
+/system logging add action=ParseMemoryLog topics=system
+/system logging add action=SSHOnScreenLog topics=ssh,!packet
+/system logging add action=PoEOnscreenLog topics=poe-out
+/system logging add action=EmailOnScreenLog topics=e-mail
+/system logging add action=ParseMemoryLog topics=error
+/system logging add action=ParseMemoryLog topics=account
+/system logging add action=ParseMemoryLog topics=critical
+/system logging add action=TransfersOnscreenLog topics=fetch
+/system logging add action=PKGInstallationLog regex="^.*install.*\$"
+/system logging add action=REBOOTDoskLog regex="^.*reboot.*\$" topics=!dhcp
+/system logging add action=PKGInstallationLog regex="^.*package.*\$"
+/system logging add action=DockerOnscreenLog topics=container
+/system logging add action=VictoriaRemoteLog topics=!packet,!debug,!raw,!dns,!firewall,!ssh
+/system logging add action=REBOOTDoskLog regex="^.*supout.*\$"
+/system logging add action=VictoriaRemoteLog topics=error
+/system logging add action=VictoriaRemoteLog regex="^.*reboot.*\$" topics=!dhcp
+/system note set note=Pending show-at-cli-login=yes
+/system ntp client set enabled=yes mode=multicast
+/system routerboard settings set auto-upgrade=yes
+/system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-04-15 start-time=17:52:52
+/system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=22:00:00
+/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=15:55:00
+/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
+/system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=23:30:00
+/system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
+/system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=11:31:24
+/system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=06:05:00
+/system scheduler add interval=1h name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-01-30 start-time=18:57:09
+/system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=08:00:00
+/system scheduler add name=doStartupScript on-event="/system script run doStartupScript;" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add interval=30m name=doCloudBackup on-event="/system script run doCloudBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2026-06-04 start-time=21:13:00
 /tool bandwidth-server set authenticate=no
 /tool e-mail set certificate-verification=no from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
 /tool graphing resource add
