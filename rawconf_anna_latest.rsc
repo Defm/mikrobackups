@@ -1,4 +1,4 @@
-# 2026-06-09 21:13:02 by RouterOS 7.23
+# 2026-06-17 09:47:38 by RouterOS 7.23
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -80,7 +80,15 @@
 /ip dns forwarders add dns-servers=172.16.0.16 name=Blackhole
 /ip firewall layer7-protocol add name="resolve local" regexp=".home|[0-9]+.[0-9]+.168.192.in-addr.arpa"
 /ip firewall layer7-protocol add name=ECH regexp="A\\x01\$"
+/ip ipsec mode-config set [ find default=yes ] connection-mark=cmark-tunnel-connection src-address-list=alist-mangle-vpn-tunneled-sites
+/ip ipsec policy group add name=inside-ipsec-encryption
+/ip ipsec policy group add name=outside-ipsec-encryption
+/ip ipsec profile set [ find default=yes ] dh-group=modp1024 dpd-interval=2m dpd-maximum-failures=5
+/ip ipsec profile add dh-group=modp1024 dpd-interval=2m dpd-maximum-failures=5 enc-algorithm=aes-256 hash-algorithm=sha256 name=ROUTEROS
+/ip ipsec peer add address=185.13.148.14/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, outer-tunnel encryption, RSA)" disabled=yes exchange-mode=ike2 local-address=10.20.225.166 name=CHR-external profile=ROUTEROS
+/ip ipsec peer add address=10.0.0.1/32 comment="IPSEC IKEv2 VPN PHASE1 (MIS, traffic-only encryption)" disabled=yes local-address=10.0.0.3 name=CHR-internal profile=ROUTEROS
 /ip ipsec proposal set [ find default=yes ] auth-algorithms=sha256 enc-algorithms=aes-256-cbc,aes-192-cbc,aes-128-cbc,3des lifetime=1h
+/ip ipsec proposal add auth-algorithms=sha256 disabled=yes enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip kid-control add fri=0s-1d mon=0s-1d name=totals sat=0s-1d sun=0s-1d thu=0s-1d tue=0s-1d wed=0s-1d
 /ip pool add name=pool-main ranges=192.168.90.100-192.168.90.200
 /ip pool add name=pool-guest ranges=192.168.98.200-192.168.98.230
@@ -174,7 +182,8 @@
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB, name="AlxATV(wireless)(blocked)@guest-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.98.200/32 total-queue=default
 /queue simple add comment=dtq,AC:BA:C0:78:80:C6,Yandex-Station-Midi-PE0Y name="AliceMidi(wireless)@main-dhcp-server (AC:BA:C0:78:80:C6)" queue=default/default target=192.168.90.194/32 total-queue=default
 /queue simple add comment=dtq,AC:BA:C0:78:80:C6, name="AliceMidi(wireless)(blocked)@guest-dhcp-server (AC:BA:C0:78:80:C6)" queue=default/default target=192.168.98.194/32 total-queue=default
-/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.229/32 total-queue=default
+/queue simple add comment=dtq,6C:06:D6:88:95:4F,HUAWEI_MediaPad_M6-dd6a4d name="HUAWEI_MediaPad_M6-dd6a4d@guest-dhcp-server (6C:06:D6:88:95:4F)" queue=default/default target=192.168.98.227/32 total-queue=default
+/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.230/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -2142,7 +2151,7 @@
     \n\
     \n    :local tToken \"\$[\$SECRET get TELEGRAM_TOKEN]\";\
     \n    :local tGroupID \"\$[\$SECRET get TELEGRAM_CHAT_ID]\";\
-    \n    :local tURL \"https://api.telegram.org/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
+    \n    :local tURL \"https://relay.usetheforce.io/bot\$tToken/sendMessage\\\?chat_id=\$tGroupID\";\
     \n\
     \n    :local sysname (\"#\" . [/system identity get name]);\
     \n    :local scriptname [:jobname] ;\
@@ -2315,7 +2324,7 @@
     \n          :local Cmd \"/caps-man access-list remove [find mac-address=\$newMac];\";\
     \n          :local jobid [:execute script=\$Cmd];\
     \n\
-    \n          :local Cmd \"/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\\\"\$comment\\\" disabled=no mac-address=\$newMac ssid-regexp=\\\"\$newSsid\\\" place-before=1;\";\
+    \n          :local Cmd \"/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=\$comment disabled=no mac-address=\$newMac ssid-regexp='\$newSsid' place-before=1;\";\
     \n          :local jobid [:execute script=\$Cmd];\
     \n\
     \n          }\
@@ -2337,9 +2346,8 @@
     \n\
     \n#Example call\
     \n#\$globalNewClientCert argClients=\"anna.ipsec, mikrouter.ipsec\" argUsage=\"tls-client,digital-signature,key-encipherment\"\
-    \n#\$globalNewClientCert argClients=\"anna.proxy\" argUsage=\"tls-server,digital-signature,key-encipherment\" addSAN=\"*.anna.home\"\
     \n#\$globalNewClientCert argClients=\"anna.capsman, mikrouter.capsman\" argUsage=\"digital-signature,key-encipherment\"\
-    \n#\$globalNewClientCert argClients=\"185.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\" \
+    \n#\$globalNewClientCert argClients=\"185.13.148.14\" argUsage=\"tls-server\" argBindAsIP=\"any\"\
     \n:if (!any \$globalNewClientCert) do={\
     \n  :global globalNewClientCert do={\
     \n\
@@ -2351,7 +2359,6 @@
     \n    :local clients [ :tostr \$argClients ];\
     \n    :local prefs  [ :tostr \$argUsage ];\
     \n    :local asIp  \$argBindAsIP ;\
-    \n    :local san  \$addSAN ;\
     \n\
     \n    # scope global functions\
     \n    :global globalNoteMe;\
@@ -2372,8 +2379,7 @@
     \n        :return false;\
     \n\
     \n    }\
-    \n     \
-    \n \
+    \n\
     \n    :do {\
     \n\
     \n      #clients\
@@ -2405,13 +2411,6 @@
     \n\
     \n      :local tname \"\";\
     \n      :foreach USERNAME in=\$IDs do={\
-    \n\
-    \n       :if ([ :typeof \$san ] != \"str\" ) do={\
-    \n\
-    \n            :set san \$USERNAME;\
-    \n \
-    \n        }\
-    \n\
     \n\
     \n        ## create a client certificate (that will be just a template while not signed)\
     \n        :if (  [:len \$asIp ] > 0 ) do={\
@@ -2448,7 +2447,7 @@
     \n\
     \n                } else={\
     \n\
-    \n                  /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain,DNS:\$san\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\
+    \n                  /certificate add name=\"\$tname\" common-name=\"\$USERNAME@\$scepAlias\" subject-alt-name=\"email:\$USERNAME@\$fakeDomain\" key-usage=\$prefs  country=\"\$COUNTRY\" state=\"\$STATE\" locality=\"\$LOC\" organization=\"\$ORG\" unit=\"\$OU\"  key-size=\"\$KEYSIZE\" days-valid=365\
     \n\
     \n                };\
     \n\
@@ -2612,11 +2611,26 @@
     \n            :local OnPrimaryPartition true;\
     \n            :return \$OnPrimaryPartition;\
     \n        }\
+    \n       \
+    \n       \
+    \n      :local partition;\
+    \n      :onerror errorName in={ \
+    \n            \
+    \n            # device may have no /partitions command if it is 16Mb\
+    \n            :set partition [/partitions find name=\$partitionName];\
+    \n\
+    \n        } do={ \
+    \n\
+    \n            :local state (\"Investigation result - device has no /partitions submenu\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :local OnPrimaryPartition true;\
+    \n            :return \$OnPrimaryPartition;\
+    \n        }\
     \n\
     \n        :onerror errorName in={ \
     \n            \
     \n            # test if it exist in /partitions\
-    \n            :local partition [/partitions find name=\$partitionName];\
+    \n            \
     \n            :if ([:len \$partition] > 0) do={\
     \n                :local running [/partition get \$partition running];\
     \n                :if (\$running) do={\
@@ -2644,6 +2658,7 @@
     \n    }\
     \n\
     \n}\
+    \n\
     \n\
     \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
@@ -4691,7 +4706,7 @@
 /app set cinny firewall-redirects=8094:80:tcp:web
 /app set goaway container-command-lines=goaway:none:docker.io/pommee/goaway:latest
 /app set home-assistant container-command-lines=home-assistant:none:lscr.io/linuxserver/homeassistant
-/app set lorawan-stack secrets=lorawan-stack__admin_password:JiBVpxKZdjLlbfLzyaPHOjjDQQiXtMuT
+/app set lorawan-stack secrets=lorawan-stack__admin_password:jwPjlsDdhiekWGXkpyJnvoDQLYQQNzfQ
 /app set myip use-https=no
 /app set n8n firewall-redirects=5678:5678:tcp:web
 /app set nextcloud container-command-lines="db:none:docker.io/postgres:17,redis:none:docker.io/valkey/valkey:/bin/sh -c 'valkey-server --port 6379 --appendonly yes --requirepass \$VALKEY_PASSWORD',server:none:docker.io/nextcloud:apache"
@@ -4699,7 +4714,7 @@
 /app set redlib firewall-redirects=8087:8080:tcp:web
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
-/app set zulip secrets=zulip__postgres_password:hPYrHQIGyawiSVvbazdMEAvHsVosyXcI,zulip__memcached_password:CXwLLVLxFDWmeuHNkfUjWgbtRTJleTSW,zulip__rabbitmq_password:daXjvZDEoeYCmVpcEwiDaoPfzSaBHbFz,zulip__redis_password:ihWtNKPJUDzZyMHPDenPeDfujuapGQrt,zulip__secret_key:lyojhOpwkeomcCWgKmnpvryCwDwxkzAW,zulip__email_password:YxOTcTGOMWihAtcAtEUqANbHkTVhmLow
+/app set zulip secrets=zulip__postgres_password:odNzKGIvZamSbhTBPBvgNZppYpYHhvIR,zulip__memcached_password:TUqEfuEhDyrPSCYDtbMOxsuxUjLDerKL,zulip__rabbitmq_password:gITdAUDMinAMvXMnLvbmPzgJQPFyjate,zulip__redis_password:UiZDxVLNZBcKlxWQIlDHUMWUxwEcJqfR,zulip__secret_key:EqrmJpeQhAiATNjIAKwsiAZCQmftQBlb,zulip__email_password:laYATGpvNnKRVXBEqaCbiipRoYYcrMVX
 /app settings set disk=usb-docker lan-bridge=main-infrastructure-br registry-mirrors=https://dh-mirror.gitverse.ru:https://hub.docker.com router-ip=192.168.90.1
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AliceMidi(wireless)" disabled=no mac-address=4C:5F:70:97:DD:99 ssid-regexp="WiFi 2Ghz PRIV"
@@ -4760,7 +4775,6 @@
 /interface bridge port add bridge=main-infrastructure-br interface="lan G" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge port add bridge=docker-infrastructure-br interface=byedpi-tunnel trusted=yes
 /interface bridge port add bridge=docker-infrastructure-br interface=veth-victoria-logs trusted=yes
-/interface bridge port add bridge=docker-infrastructure-br interface=*11 trusted=yes
 /interface bridge settings set use-ip-firewall=yes
 /ip firewall connection tracking set enabled=yes tcp-established-timeout=1h udp-timeout=10s
 /ip neighbor discovery-settings set discover-interface-list=list-neighbors-lookup
@@ -4926,7 +4940,7 @@
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 match-subdomain=yes name=anna.home type=A
 /ip dns static add cname=wb.home name=wb type=CNAME
-/ip dns static add address=192.168.90.3 comment="Netwatch checkup at 11:30:34" name=wb.home type=A
+/ip dns static add address=192.168.90.3 comment="Netwatch checkup at 15:00:10" name=wb.home type=A
 /ip dns static add cname=influxdb.home name=influxdb type=CNAME
 /ip dns static add address=172.16.0.17 name=influxdb.home type=A
 /ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
@@ -5249,7 +5263,7 @@
 /ip dns static add address=192.168.90.194 comment=<AUTO:DHCP:main-dhcp-server> name=Yandex-Station-Midi-PE0Y.home ttl=5m type=A
 /ip dns static add address=192.168.90.203 comment=<AUTO:DHCP:main-dhcp-server> name=ast25b.home ttl=5m type=A
 /ip dns static add address-list=alist-mangle-vpn comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=keybr.com type=FWD
-/ip dns static add address=46.39.51.213 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.221 name=ftpserver.org type=A
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
@@ -5321,7 +5335,7 @@
 /ip firewall address-list add address=91.108.20.0/22 comment=alist-mangle-TG-20260416-180000 list=alist-mangle-TG
 /ip firewall address-list add address=185.76.151.0/24 comment=alist-mangle-TG-20260416-180000 list=alist-mangle-TG
 /ip firewall address-list add address=5.28.128.0/17 comment=alist-mangle-TG-20260416-180000 list=alist-mangle-TG
-/ip firewall address-list add address=46.39.51.213 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.221 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(input)" protocol=udp
 /ip firewall filter add action=accept chain=input comment=SYSL dst-port=514 layer7-protocol=ECH log=yes log-prefix="#CATCH SYSL(input)" protocol=udp
 /ip firewall filter add action=drop chain=forward comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(forward)" protocol=udp
@@ -5621,8 +5635,11 @@
 /ip firewall service-port set sip disabled=yes
 /ip firewall service-port set pptp disabled=yes
 /ip hotspot service-port set ftp disabled=yes
-/ip ipsec mode-config set [ find default=yes ] connection-mark=cmark-tunnel-connection src-address-list=alist-mangle-vpn-tunneled-sites
-/ip ipsec profile set [ find default=yes ] dh-group=modp1024 dpd-interval=2m dpd-maximum-failures=5
+/ip ipsec identity add auth-method=digital-signature certificate=C.anna.ipsec@CHR comment=to-CHR-outer-tunnel-encryption-RSA disabled=yes peer=CHR-external policy-template-group=outside-ipsec-encryption
+/ip ipsec identity add comment=to-CHR-traffic-only-encryption-PSK disabled=yes peer=CHR-internal policy-template-group=inside-ipsec-encryption remote-id=ignore secret=123
+/ip ipsec policy set 0 proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
+/ip ipsec policy add comment="Common IPSEC TRANSPORT (outer-tunnel encryption)" disabled=yes dst-port=1701 peer=CHR-external proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" protocol=udp src-port=1701
+/ip ipsec policy add comment="Common IPSEC TUNNEL (traffic-only encryption)" disabled=yes dst-address=192.168.97.0/29 peer=CHR-internal proposal="IPSEC IKEv2 VPN PHASE2 MIKROTIK" src-address=192.168.90.0/24 tunnel=yes
 /ip kid-control device add mac-address=10:DD:B1:9E:19:5E name=miniAlx user=totals
 /ip kid-control device add mac-address=6C:1F:F7:60:69:71 name=MbpAlxm user=totals
 /ip kid-control device add mac-address=DC:10:57:2D:39:7B name=iPhoneAlxr user=totals
@@ -5739,12 +5756,12 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.23 \
-    \nUptime:        6d07:34:15  \
-    \nTime:        2026-06-09 21:10:12  \
+    \nUptime:        1d18:42:34  \
+    \nTime:        2026-06-17 09:40:13  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.213  \
+    \nAnna:        46.39.51.221  \
     \nClock:        synchronized  \
     \n * wireless  \
     \n * routeros  \
