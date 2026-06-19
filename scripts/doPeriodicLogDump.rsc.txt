@@ -1,6 +1,0 @@
-:local sysname [/system identity get name];
-:local scriptname "doPeriodicLogDump";
-:global globalScriptBeforeRun;
-$globalScriptBeforeRun $scriptname;
-
-

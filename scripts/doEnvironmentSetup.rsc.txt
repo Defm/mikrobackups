@@ -523,11 +523,11 @@
         {
             :local jobid [:execute file=$logName script=$fetchCmd]
 
-            :set state "Waiting the end of process for prototol $logName to be ready, max 20 seconds...";
+            :set state "Waiting the end of process for prototol $logName to be ready, max 30 seconds...";
             $globalNoteMe value=$state;
 
             :global Gltesec 0
-            :while (([:len [/sys script job find where .id=$jobid]] = 1) && ($Gltesec < 20)) do={
+            :while (([:len [/sys script job find where .id=$jobid]] = 1) && ($Gltesec < 30)) do={
                 :set Gltesec ($Gltesec + 1)
                 :delay 1s
 
@@ -549,7 +549,7 @@
 
             } else={
 
-                :set state "Result of Fetch:\r\n****************************\r\n 20Sec Timeout exceeded - still no log file \r\n****************************";
+                :set state "Result of Fetch:\r\n****************************\r\n 30Sec Timeout exceeded - still no log file \r\n****************************";
                 $globalNoteMe value=$state;
 
             }

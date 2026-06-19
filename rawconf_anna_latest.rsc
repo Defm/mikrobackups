@@ -1,4 +1,4 @@
-# 2026-06-17 10:38:12 by RouterOS 7.23
+# 2026-06-20 00:38:44 by RouterOS 7.23
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -31,6 +31,7 @@
 /container add cmd="-debug -K u -a 5 --auto=none -Kt,h -d1 -s0+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -An -Ku -a1 -An" comment="YouTube freedom" dns=192.168.80.1 envlists=BYEDPI_QUIC_REJECT interface=byedpi-tunnel layer-dir="" logging=yes name=wiktorbgu/byedpi-hev-socks5-tunnel:redirect remote-image=wiktorbgu/byedpi-hev-socks5-tunnel:redirect root-dir=/usb-docker/docker/byedpi-hev-socks5-tunnel start-on-boot=yes workdir=/
 /container add check-certificate=no cmd="-syslog.listenAddr.udp=:514 -syslog.useRemoteIP.udp=true -defaultMsgValue=\"CEF stub\" -syslog.extraFields.udp='{\"env\": \"home\"}' -syslog.ignoreFields.udp='[\"cef.device_event_class_id\"]' -syslog.streamFields.udp='[\"hostname\",\"env\"]'" dns=192.168.80.1 hosts=victoria-logs:192.168.80.160 interface=veth-victoria-logs layer-dir=/usb-docker/layers logging=yes mount=/usb-docker/victoria-logs/data:/victoria-logs-data:rw name=victoria-logs remote-image=docker.io/victoriametrics/victoria-logs:latest root-dir=/usb-docker/victoria-logs/victoria-logs_root start-on-boot=yes stop-time=30s workdir=/
 /disk add comment=Ramdisk slot=RAM tmpfs-max-size=40000000 type=tmpfs
+/disk add slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
 /disk set usb slot=usb
 /disk add comment=container-disk parent=usb partition-number=1 partition-offset=65536 partition-size=5000000000 slot=usb-docker type=partition
 /disk add parent=usb partition-number=2 partition-offset=5000069120 partition-size=1000000000 slot=usb-swap swap=yes type=partition
@@ -1021,84 +1022,61 @@
     \n:delay 200ms;\r\
     \n:beep frequency=1950 length=700ms;\r\
     \n:delay 200ms;"
-/system script add comment="Netwatch handler both when OnUp and OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n\r\
-    \n:local sysname [/system identity get name];\r\
-    \n:local scriptname \"doNetwatchHost\";\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \$scriptname;\r\
-    \n\r\
-    \n#NetWatch notifier OnUp/OnDown\r\
-    \n\r\
-    \n:global globalNoteMe;\r\
-    \n:local itsOk true;\r\
-    \n:local state \"\";\r\
-    \n  \r\
-    \n:global NetwatchHostName;\r\
-    \n\r\
-    \n:set state \"Netwatch for \$NetwatchHostName started...\";\r\
-    \n\$globalNoteMe value=\$state;\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \n  if ([system resource get uptime] > 00:01:00) do={\r\
-    \n\r\
-    \n   #additional manual check via ping\r\
-    \n   :local checkip [/ping \$NetwatchHostName count=10];\r\
-    \n\r\
-    \n   :if (\$checkip = 10) do={\r\
-    \n\r\
-    \n     :set state \"\$NetwatchHostName is UP\";\r\
-    \n     \$globalNoteMe value=\$state;\r\
-    \n     #success when OnUp\r\
-    \n     :set itsOk true;\r\
-    \n\r\
-    \n   } else {\r\
-    \n\r\
-    \n    :set state \"\$NetwatchHostName is DOWN\";\r\
-    \n    \$globalNoteMe value=\$state;\r\
-    \n    #success when OnDown\r\
-    \n    :set itsOk true;\r\
-    \n    \r\
-    \n   }\r\
-    \n } else {\r\
-    \n\r\
-    \n  :set state \"The system is just started, wait some time before using netwatch\";\r\
-    \n  \$globalNoteMe value=\$state;\r\
-    \n  :set itsOk false;\r\
-    \n\r\
-    \n }\r\
-    \n} on-error= {\r\
-    \n\r\
-    \n  :set state \"Netwatch for \$NetwatchHostName FAILED...\";\r\
-    \n  \$globalNoteMe value=\$state;\r\
-    \n  :set itsOk false;\r\
-    \n\r\
-    \n};\r\
-    \n\r\
-    \n:local inf \"\"\r\
-    \n:if (\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: netwatch \$state\"\r\
-    \n}\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \r\
-    \n}\r\
-    \n\r\
-    \n\$globalNoteMe value=\$inf\r\
-    \n\r\
-    \n:if (!\$itsOk) do={\r\
-    \n  :set inf \"\$scriptname on \$sysname: \$state\"  \r\
-    \n  \r\
-    \n  :global globalTgMessage;\r\
-    \n  \$globalTgMessage value=\$inf;\r\
-    \n\r\
-    \n}\r\
-    \n\r\
-    \n\r\
-    \n\r\
-    \n\r\
-    \n\r\
+/system script add comment="Netwatch handler OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local SafeScriptCall do={\
+    \n\
+    \n    :if ([:len \$0]!=0) do={\
+    \n        :if ([:len \$1]!=0) do={\
+    \n            :if ([:len [/system script find name=\$1]]!=0) do={\
+    \n\
+    \n                :do {\
+    \n                    :log warning \"Starting script: \$1\";\
+    \n                    :put \"Starting script: \$1\"\
+    \n                    /system script run \$1;\
+    \n                } on-error= {\
+    \n                    :log error \"FAIL Starting script: \$1\";\
+    \n                    :put \"FAIL Starting script: \$1\"\
+    \n                };\
+    \n\
+    \n            }\
+    \n        }\
+    \n    } \
+    \n\
+    \n}\
+    \n\
+    \n# init globals as far as we are inside *sys user account\
+    \n\$SafeScriptCall \"doEnvironmentSetup\";\
+    \n\
+    \n# NetWatch notifier OnDown\
+    \n\
+    \n:local scriptname \"doNetwatchHost\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n# fill it inside netwatch script\
+    \n:global NetwatchHostName;\
+    \n\
+    \n:global globalTgMessage;\
+    \n:global globalNoteMe;\
+    \n\
+    \n:local state;\
+    \n\
+    \n:if (!any \$NetwatchHostName) do={\
+    \n\
+    \n  :set state \"No NetwatchHostName provided..\";\
+    \n  \$globalNoteMe value=\$state;\
+    \n  :error \$inf; \
+    \n}\
+    \n\
+    \n:set state \"Netwatch for \$NetwatchHostName started...\";\
+    \n\$globalNoteMe value=\$state;\
+    \n\
+    \n:set state \"\$NetwatchHostName is DOWN\";\
+    \n:log error \"\$state\";\
+    \n\
+    \n\$globalTgMessage value=\$state;\
+    \n\
+    \n\
+    \n\
     \n"
 /system script add comment="DHCP service OnLease handler, should be called from DHCP server script page (see mikrotik manual available variables \$leaseBound, \$leaseServerName etc..)" dont-require-permissions=yes name=doDHCPLeaseTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -2828,7 +2806,7 @@
     \n:global globalNoteMe;\
     \n:global globalCallFetch;\
     \n:global simplercurrdatetimestr;\
-    \n\
+    \n:global SECRET;\
     \n\
     \n:local scriptname \"doBackup\"\
     \n:local saveSysBackup true\
@@ -2839,10 +2817,10 @@
     \n\
     \n#directories have to exist!\
     \n:local FTPEnable true;\
-    \n:local FTPServer \"nas.home\";\
-    \n:local FTPPort 2022;\
-    \n:local FTPUser \"git\";\
-    \n:local FTPPass \"git\";\
+    \n:local FTPServer \"usetheforce.io\";\
+    \n:local FTPPort 2223;\
+    \n:local FTPUser \"automation\";\
+    \n:local FTPPass \"\$[\$SECRET get BACKUP_PASSWORD]\";\
     \n:local FTPRoot \"REPO/backups/\";\
     \n:local FTPGitEnable true;\
     \n:local FTPRawGitName \"REPO/raw/rawconf_\$sysname_latest.rsc\";\
@@ -3111,123 +3089,224 @@
     \n  \
     \n}\
     \n"
-/system script add comment="Dumps all the scripts from you device to *.rsc.txt files, loads to FTP (all scripts in this Repo made with it)" dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n:local sysname [/system identity get name];\
-    \n:local scriptname \"doDumpTheScripts\";\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
+/system script add comment="Dumps all the scripts from you device to *.rsc.txt files, loads to FTP (all scripts in this Repo made with it)" dont-require-permissions=yes name=doDumpTheScripts owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# CONFIG\
+    \n:local sysname [/system identity get name]\
+    \n:local scriptname \"doDumpTheScripts\"\
     \n\
-    \n:global globalCallFetch;\
+    \n:global globalScriptBeforeRun\
+    \n\$globalScriptBeforeRun \$scriptname\
     \n\
-    \n#directories have to exist!\
-    \n:local FTPRoot \"REPO/raw/\"\
+    \n:global globalCallFetch\
+    \n:global globalNoteMe\
+    \n:global globalScriptId\
+    \n:global globalOnPrimaryPartition\
+    \n:global globalTgMessage\
+    \n:global SECRET\
     \n\
-    \n#This subdir will be created locally to put exported scripts in\
-    \n#and it must exist under \$FTPRoot to upload scripts to\
-    \n:local SubDir \"scripts/\"\
+    \n:local state \"\"\
     \n\
-    \n:local FTPEnable true\
-    \n:local FTPServer \"nas.home\"\
-    \n:local FTPPort 2022\
-    \n:local FTPUser \"git\"\
-    \n:local FTPPass \"git\"\
+    \n:local RAMDiskName \"RAM\"\
+    \n:local RAMSubDir \"scripts/\"\
     \n\
-    \n:global globalCallFetch;\
-    \n:global globalNoteMe;\
-    \n:local itsOk true;\
-    \n:local state \"\";\
-    \n:global globalScriptId;\
-    \n:global createPath;\
+    \n# paths\
+    \n:local FTPRoot \"REPO\"\
+    \n:local FTPSubDir \"raw/scripts\"\
+    \n:local FTPEnable false\
+    \n:local FTPServer \"usetheforce.io\"\
+    \n:local FTPPort 2223\
+    \n:local FTPUser \"automation\"\
+    \n:local FTPPass \"\$[\$SECRET get BACKUP_PASSWORD]\"\
     \n\
-    \n:do {\
-    \n  :local smtpserv [:resolve \"\$FTPServer\"];\
-    \n} on-error={\
-    \n  :set state \"FTP server looks like to be unreachable\";\
-    \n   \$globalNoteMe value=\$state;\
-    \n  :set itsOk false;    \
-    \n}\
+    \n:local SSHFSEnable true\
+    \n:local SSHDiskName \"sshfs\"\
+    \n:local SSHSubDir \"raw/scripts/\"\
     \n\
-    \n:global globalOnPrimaryPartition;\
-    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
-    \n    \
-    \n    :set state \"WARNING: the system booted up from fallback partition - skipping dump!\"\
-    \n    :log error \$state\
-    \n    \$globalNoteMe value=\$state;\
-    \n    :set itsOk false;\
-    \n    :error \$state;\
+    \n:local checkDisk do={\
+    \n    :local targetName \$1\
+    \n    :local targetType \$2\
     \n\
-    \n}\
+    \n    # \D0\9F\D1\80\D0\BE\D0\B2\D0\B5\D1\80\D1\8F\D0\B5\D0\BC \D0\B7\D0\B0\D0\BF\D0\BE\D0\BB\D0\BD\D0\B5\D0\BD\D0\B8\D0\B5 \D0\BE\D0\B1\D0\BE\D0\B8\D1\85 \D0\BF\D0\B0\D1\80\D0\B0\D0\BC\D0\B5\D1\82\D1\80\D0\BE\D0\B2\
+    \n    :if ( ([:len \$targetName] = 0) or ([:len \$targetType] = 0) ) do={ :return 1 }\
     \n\
-    \n:foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\
-    \n    /file remove \$backupFile;\
-    \n}\
-    \n\
-    \n# Just to sure (or create) if \$SubDir exist\
-    \n  /file/add name=\"\$SubDir/foo.txt\" contents=\"Feel free to remove this\";\
-    \n\
-    \n \$globalNoteMe value=\"Scripts source export..\";\
-    \n\
-    \n:foreach scriptId in [/system script find] do={\
-    \n  :if (\$itsOk) do={\
-    \n\
-    \n    :local scriptSource [/system script get \$scriptId source];\
-    \n    :local theScript [/system script get \$scriptId name];\
-    \n    :local scriptSourceLength [:len \$scriptSource];\
-    \n    :local path \"\$SubDir\$theScript.rsc.txt\";\
-    \n\
-    \n    :set \$globalScriptId \$scriptId;\
-    \n\
-    \n    :if (\$scriptSourceLength >= 4096) do={\
-    \n      :set state \"Please keep care about '\$theScript' consistency - its size over 4096 bytes\";\
-    \n      \$globalNoteMe value=\$state;\
+    \n    :foreach i in=[/disk find] do={\
+    \n        :local dname [/disk get \$i slot]\
+    \n        :local dtype [/disk get \$i type]\
+    \n        :if ( (\$dtype = \$targetType) and (\$dname = \$targetName) ) do={ :return 0 }\
     \n    }\
+    \n    :return 1\
+    \n}\
+    \n\
+    \n:local searchReplace do={\
+    \n    :local input [:tostr \$1] ; \
+    \n    :local search  [:tostr \$2] ; \
+    \n    :local replace [:tostr \$3];\
+    \n\
+    \n    :local start -1 ; \
+    \n    :local tmppos 0 ; \
+    \n    :local sx \"\" ; \
+    \n    :local dx \"\";\
+    \n\
+    \n    :while ([:typeof [:find \$input \$search \$start]] = \"num\") do={\
+    \n        :set tmppos [:find \$input \$search \$start]\
+    \n        :set sx     [:pick \$input 0 \$tmppos]\
+    \n        :set dx     [:pick \$input (\$tmppos + [:len \$search]) [:len \$input]]\
+    \n        :set start  ([:len \"\$sx\$replace\"] - 1)\
+    \n        :set input  \"\$sx\$replace\$dx\"\
+    \n    }\
+    \n    :return \$input\
+    \n}\
+    \n\
+    \n\
+    \n:if ( ![\$globalOnPrimaryPartition] ) do={\
+    \n    :set state \"WARNING: the system booted up from fallback partition - skipping dump!\"\
+    \n    \$globalNoteMe value=\$state\
+    \n    :error \$state\
+    \n}\
+    \n\
+    \n:if ( [\$checkDisk \$RAMDiskName \"tmpfs\"] != 0) do={\
+    \n    :set state \"WARNING: tmpfs '\$RAMDiskName' not found - skipping dump!\"\
+    \n    \$globalNoteMe value=\$state\
+    \n    :error \$state\
+    \n}\
+    \n\
+    \n:if (\$SSHFSEnable and [\$checkDisk \$SSHDiskName \"sshfs\"] != 0 ) do={\
+    \n    :set state \"WARNING: sshfs '\$SSHDiskName' not found - skipping dump!\"\
+    \n    \$globalNoteMe value=\$state\
+    \n    :error \$state\
+    \n}\
+    \n\
+    \n:if (\$FTPEnable) do={\
     \n\
     \n    :do {\
-    \n      /file print file=\$path where 1=0;\
-    \n      #filesystem delay\
-    \n      :delay 1s;\
-    \n\
-    \n      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack\
-    \n      /execute script=\":global globalScriptId; :put [/system script get \$globalScriptId source];\" file=\$path;\
-    \n      :set state \"Exported '\$theScript' to '\$path'\";\
-    \n      \$globalNoteMe value=\$state;\
-    \n    } on-error={ \
-    \n      :set state \"Error When Exporting '\$theScript' Script to '\$path'\";\
-    \n      \$globalNoteMe value=\$state;\
-    \n      :set itsOk false;\
+    \n        :local ftpIP [:resolve \$FTPServer];\
+    \n    } on-error={\
+    \n        :set state \"WARNING: FTP server '\$FTPServer' unreachable - skipping dump!\"\
+    \n        \$globalNoteMe value=\$state\
+    \n        :error \$state\
     \n    }\
-    \n  }\
+    \n\
     \n}\
     \n\
+    \n:local dumpPath \"\$RAMDiskName/\$RAMSubDir\";\
     \n\
-    \n:delay 5s\
+    \n:local staleScripts [/file find where name~\"dumpPath\"]\
+    \n/file remove \$staleScripts\
     \n\
-    \n:local buFile \"\"\
     \n\
-    \n \$globalNoteMe value=\"Scripts source pushing..\";\
+    \n\$globalNoteMe value=\"Scripts source export..\"\
+    \n\
+    \n:local itsOk true\
+    \n:local state \"\"\
+    \n\
+    \n:local scriptsList [/system script find]\
+    \n:foreach scriptId in=\$scriptsList do={\
+    \n  \
+    \n  :if (\$itsOk) do={\
+    \n\
+    \n    :local scriptSource [/system script get \$scriptId source]\
+    \n    :local scriptName [/system script get \$scriptId name]\
+    \n    :local scriptSize [:len \$scriptSource]\
+    \n\
+    \n    :local scriptPath \"\$dumpPath/\$scriptName.rsc.txt\"\
+    \n\
+    \n    :set \$globalScriptId \$scriptId\
+    \n\
+    \n    :if (\$scriptSize >= 4096) do={\
+    \n      :set state \"Please keep care about '\$scriptName' consistency - its size over 4096 bytes\"\
+    \n      \$globalNoteMe value=\$state\
+    \n    }\
+    \n\
+    \n    # remove stale file\
+    \n    /file remove [find where name=\$scriptPath type!=directory]\
+    \n    # create empty file\
+    \n    /file add name=\$scriptPath contents=\"\"\
+    \n\
+    \n    :onerror errorName in={ \
+    \n        \
+    \n      :set state \"Exporting '\$scriptName' to '\$scriptPath'\"\
+    \n      \$globalNoteMe value=\$state\
+    \n\
+    \n      /execute script=\":global globalScriptId; :put [/system script get \$globalScriptId source];\" file=\$scriptPath\
+    \n\
+    \n      \$globalNoteMe value=\"Done\"\
+    \n\
+    \n    } do={ \
+    \n\
+    \n      :set state \"Error When \$state: \$errorName\"\
+    \n      \$globalNoteMe value=\$state\
+    \n      :set itsOk false\
+    \n\
+    \n    }\
+    \n\
+    \n  }\
+    \n\
+    \n}\
+    \n\
+    \n:delay 2s\
+    \n\
+    \n\$globalNoteMe value=\"Scripts source pushing..\"\
     \n\
     \n:if (\$itsOk) do={\
-    \n  :foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\
-    \n    :set buFile ([/file get \$backupFile name]);\
-    \n    :if ([:typeof [:find \$buFile \".rsc.txt\"]] != \"nil\") do={\
-    \n      :local rawfile ( \$buFile ~\".rsc.txt\");\
-    \n      #special ftp upload for git purposes\
-    \n      if (\$FTPEnable) do={\
-    \n        :local dst \"\$FTPRoot\$buFile\";\
-    \n        :do {\
-    \n          :set state \"Uploading \$buFile' to '\$dst'\";\
-    \n          \$globalNoteMe value=\$state;\
-    \n          \
-    \n         :local fetchCmd \"/tool fetch url=sftp://\$FTPServer:\$FTPPort/\$dst src-path=\$buFile user=\$FTPUser password=\$FTPPass upload=yes\"\
-    \n       \
-    \n          \$globalCallFetch \$fetchCmd;\
     \n\
-    \n          \$globalNoteMe value=\"Done\";\
-    \n        } on-error={ \
-    \n          :set state \"Error When Uploading '\$buFile' to '\$dst'\";\
-    \n          \$globalNoteMe value=\$state;\
-    \n          :set itsOk false;\
+    \n  :local ramFiles [/file find where name~\"\$dumpPath\"]\
+    \n\
+    \n  :foreach backupFile in=\$ramFiles do={\
+    \n\
+    \n    :local scriptPath [/file get \$backupFile name]\
+    \n\
+    \n    :if ([:typeof [:find \$scriptPath \".rsc.txt\"]] != \"nil\") do={\
+    \n\
+    \n      # FTP upload\
+    \n      :if (\$FTPEnable) do={\
+    \n\
+    \n        :local dst [\$searchReplace \$scriptPath \$RAMDiskName \$FTPRoot]\
+    \n        :set dst [\$searchReplace \$dst \$RAMSubDir \$FTPSubDir]\
+    \n\
+    \n        :onerror errorName in={ \
+    \n\
+    \n            :set state \"Uploading \$scriptPath to SFTP - \$dst\"\
+    \n            \$globalNoteMe value=\$state\
+    \n\
+    \n            :local fetchCmd \"/tool fetch url=sftp://\$FTPServer:\$FTPPort/\$dst src-path=\$scriptPath user=\$FTPUser password=\$FTPPass upload=yes\";\
+    \n            \$globalCallFetch \$fetchCmd\
+    \n\
+    \n            \$globalNoteMe value=\"Done\"\
+    \n\
+    \n        } do={ \
+    \n\
+    \n            :local state \"Error when \$state: \$errorName\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :set itsOk false\
     \n        }\
+    \n\
+    \n      }\
+    \n\
+    \n      # SSHFS copy\
+    \n      :if (\$SSHFSEnable) do={\
+    \n\
+    \n        :local dst [\$searchReplace \$scriptPath \$RAMDiskName \$SSHDiskName]\
+    \n        :set dst [\$searchReplace \$dst \$RAMSubDir \$SSHSubDir]\
+    \n\
+    \n        :onerror errorName in={ \
+    \n\
+    \n            :set state \"Clearing \$dst on SSH-disk\"\
+    \n            \$globalNoteMe value=\$state\
+    \n            :local staleFiles [/file find where name=\$dst type!=directory]\
+    \n            /file remove \$staleFiles\
+    \n\
+    \n            :set state \"Copying \$scriptPath to SSH-disk - \$dst\"\
+    \n            \$globalNoteMe value=\$state\
+    \n            /file copy \$scriptPath name=\$dst\
+    \n            \
+    \n            \$globalNoteMe value=\"Done\"\
+    \n\
+    \n        } do={ \
+    \n\
+    \n            :local state \"Error when \$state: \$errorName\";\
+    \n            \$globalNoteMe value=\$state;\
+    \n            :set itsOk false\
+    \n        }\
+    \n\
     \n      }\
     \n    }\
     \n  }\
@@ -3235,30 +3314,27 @@
     \n\
     \n:delay 5s\
     \n\
-    \n \$globalNoteMe value=\"Housekeeping..\";\
+    \n\$globalNoteMe value=\"Housekeeping..\"\
     \n\
-    \n:foreach backupFile in=[/file find where name~\"^\$SubDir\"] do={\
-    \n  :if ([:typeof [:find \$buFile \".rsc.txt\"]] != \"nil\") do={\
-    \n    /file remove \$backupFile;\
-    \n  }\
-    \n}\
+    \n:local staleScripts [/file find where name~\"dumpPath\"]\
+    \n/file remove \$staleScripts\
     \n\
-    \n:local inf \"\"\
+    \n:local summary \"\"\
     \n:if (\$itsOk) do={\
-    \n  :set inf \"\$scriptname on \$sysname: scripts dump done Successfully\"\
+    \n  :set summary \"\E2\9C\93 SUCCESS\"\
     \n}\
     \n\
     \n:if (!\$itsOk) do={\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
+    \n  :set summary \"\E2\9C\97 FAILED - \$state\"  \
     \n}\
     \n\
-    \n\$globalNoteMe value=\$inf\
+    \n\$globalNoteMe value=\$summary\
     \n\
     \n:if (!\$itsOk) do={\
     \n\
     \n  :global globalTgMessage;\
-    \n  \$globalTgMessage value=\$inf;\
-    \n  :error \$inf; \
+    \n  \$globalTgMessage value=\$summary;\
+    \n  :error \$summary; \
     \n  \
     \n}\
     \n"
@@ -3274,7 +3350,7 @@
     \n#should be used for private repos\
     \n:local GitHubAccessToken \"\";\
     \n\
-    \n:local RequestUrl \"https://\$GitHubAccessToken@raw.githubusercontent.com/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\
+    \n:local RequestUrl \"https://\$GitHubAccessToken@relay.usetheforce.io/\$GitHubUserName/\$GitHubRepoName/master/scripts/\";\
     \n\
     \n:local UseUpdateList true;\
     \n:local UpdateList [:toarray \"doBackup,doEnvironmentSetup,doEnvironmentClearance,doRandomGen,doFreshTheScripts,doCertificatesIssuing,doNetwatchHost, doIPSECPunch,doStartupScript,doHeatFlag,doPeriodicLogDump,doPeriodicLogParse,doTelegramNotify,doLEDoff,doLEDon,doCPUHighLoadReboot,doUpdatePoliciesRemotely,doUpdateExternalDNS,doSuperviseCHRviaSSH,doCoolConsole,doFlushLogs,doCloudBackup\"];\
@@ -4711,7 +4787,7 @@
 /app set cinny firewall-redirects=8094:80:tcp:web
 /app set goaway container-command-lines=goaway:none:docker.io/pommee/goaway:latest
 /app set home-assistant container-command-lines=home-assistant:none:lscr.io/linuxserver/homeassistant
-/app set lorawan-stack secrets=lorawan-stack__admin_password:WCbbvCyWHNAXkkKOaocFCQFWqOVxfhlE
+/app set lorawan-stack secrets=lorawan-stack__admin_password:iWtbaxZZQyALKvXOwbiFYsnIUVUahqnz
 /app set myip use-https=no
 /app set n8n firewall-redirects=5678:5678:tcp:web
 /app set nextcloud container-command-lines="db:none:docker.io/postgres:17,redis:none:docker.io/valkey/valkey:/bin/sh -c 'valkey-server --port 6379 --appendonly yes --requirepass \$VALKEY_PASSWORD',server:none:docker.io/nextcloud:apache"
@@ -4719,7 +4795,7 @@
 /app set redlib firewall-redirects=8087:8080:tcp:web
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
-/app set zulip secrets=zulip__postgres_password:vEixQbFLEsUeSoUNupnYnEMPIDuMgQWc,zulip__memcached_password:rIjnePESVsNWgsSEcZsrRkFXnEMIRCKY,zulip__rabbitmq_password:sjitkoWHvkuxsAECALENIvlCLxmUdmJn,zulip__redis_password:EMPMDjzEQfLxJoEUqWcvOlGbQOVsVqhc,zulip__secret_key:SvkoxSwjbSkhUYbOIRLKpqDQeUwqGLep,zulip__email_password:SQxNAgijmksqnqVhvUYStBzzBiTjszhs
+/app set zulip secrets=zulip__postgres_password:MkQebppYtGMtzyzSNCMkCZRlksJZBMWq,zulip__memcached_password:TdKGHFjpihcdOgosLFiePInBuumcCgYj,zulip__rabbitmq_password:GuPctHytLEIeffnUEaSiromJuWKaiHoc,zulip__redis_password:qcETTeYoRHwdOSQGhaUzufpbOCeKRhoM,zulip__secret_key:xcSXEozPqCPcqBSlEvyMKeQUBpGpDXFT,zulip__email_password:OxGfUygBArptNsmHjBfqjzhqinDtCPwQ
 /app settings set disk=usb-docker lan-bridge=main-infrastructure-br registry-mirrors=https://dh-mirror.gitverse.ru:https://hub.docker.com router-ip=192.168.90.1
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AliceMidi(wireless)" disabled=no mac-address=4C:5F:70:97:DD:99 ssid-regexp="WiFi 2Ghz PRIV"
@@ -4945,7 +5021,7 @@
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 match-subdomain=yes name=anna.home type=A
 /ip dns static add cname=wb.home name=wb type=CNAME
-/ip dns static add address=192.168.90.3 comment="Netwatch checkup at 15:00:10" name=wb.home type=A
+/ip dns static add address=192.168.90.3 comment="Netwatch checkup at 15:10:46" name=wb.home type=A
 /ip dns static add cname=influxdb.home name=influxdb type=CNAME
 /ip dns static add address=172.16.0.17 name=influxdb.home type=A
 /ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
@@ -5341,10 +5417,10 @@
 /ip firewall address-list add address=185.76.151.0/24 comment=alist-mangle-TG-20260416-180000 list=alist-mangle-TG
 /ip firewall address-list add address=5.28.128.0/17 comment=alist-mangle-TG-20260416-180000 list=alist-mangle-TG
 /ip firewall address-list add address=46.39.51.221 list=alist-nat-external-ip
-/ip firewall filter add action=drop chain=input comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(input)" protocol=udp
+/ip firewall filter add action=drop chain=input comment=ECH_block dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(input)" protocol=udp
 /ip firewall filter add action=accept chain=input comment=SYSL dst-port=514 layer7-protocol=ECH log=yes log-prefix="#CATCH SYSL(input)" protocol=udp
-/ip firewall filter add action=drop chain=forward comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(forward)" protocol=udp
-/ip firewall filter add action=drop chain=output comment=ECH_block dst-port=53 layer7-protocol=ECH log=yes log-prefix="#DROP ECH(output)" protocol=udp
+/ip firewall filter add action=drop chain=forward comment=ECH_block dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(forward)" protocol=udp
+/ip firewall filter add action=drop chain=output comment=ECH_block dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(output)" protocol=udp
 /ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections log=yes log-prefix="#DROP INVLD(input)"
 /ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets log=yes log-prefix="#DROP INVLD(forward)"
 /ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related
@@ -5673,6 +5749,7 @@
 /ipv6 nd set [ find default=yes ] advertise-dns=yes
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=BACKUP_PASSWORD password=RHWbJxAje profile=null service=async
 /routing bgp connection add afi=ip as=65001 comment=ds connect=yes disabled=yes hold-time=3m input.filter=bgp_in instance=inject-into-vpn keepalive-time=1m listen=yes local.address=46.39.51.221 .role=ebgp multihop=yes name=antifilter-peer output.filter-chain=bgp-out-filter-reject-all .network=alist-antifilter-bgp .no-client-to-client-reflection=yes remote.address=51.75.66.20/32 .as=65444 .port=179 routing-table=rmark-vpn-redirect templates=antifilter-template
 /routing bgp connection add as=64555 connect=yes disabled=yes hold-time=4m instance=bgp-instance-1 keepalive-time=1m listen=yes local.role=ebgp multihop=yes name=antifilter remote.address=45.154.73.71/32 .as=65432 routing-table=main
 /routing filter rule add chain=ospf-in comment="drop DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0 ) { set comment DISCARDED-GLOBAL ; set pref-src 10.0.0.3 ; reject; }"
@@ -5725,6 +5802,7 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
 /system clock set time-zone-name=Europe/Moscow
 /system identity set name=anna
+/system leds settings set all-leds-off=immediate
 /system logging add action=IpsecOnScreenLog topics=ipsec,!debug
 /system logging add action=ErrorDiskLog topics=critical
 /system logging add action=ErrorDiskLog topics=error
@@ -5741,7 +5819,7 @@
 /system logging add action=FirewallOnScreenLog topics=firewall
 /system logging add action=CAPSOnScreenLog topics=wireless
 /system logging add action=ParseMemoryLog topics=system
-/system logging add action=SSHOnScreenLog topics=ssh,!packet
+/system logging add action=SSHOnScreenLog topics=ssh,!packet,!debug
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
 /system logging add action=ParseMemoryLog topics=error
@@ -5758,11 +5836,12 @@
 /system logging add action=AuthDiskLog regex="^.*login.*\$"
 /system logging add action=VictoriaRemoteLog topics=error
 /system logging add action=VictoriaRemoteLog prefix=AUTH regex="^.*login.*\$"
+/system logging add topics=netwatch
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.23 \
-    \nUptime:        1d19:35:36  \
-    \nTime:        2026-06-17 10:33:15  \
+    \nUptime:        4d09:32:34  \
+    \nTime:        2026-06-20 00:30:13  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
@@ -5811,47 +5890,55 @@
 /tool mac-server set allowed-interface-list=none
 /tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
 /tool netwatch add comment="miniAlx(wire) status check" disabled=no down-script="\
-    \n:put \"info: Netwatch UP\"\
-    \n:log info \"Netwatch UP\"\
+    \n:put \"info: Netwatch DOWN\"\
+    \n:log info \"Netwatch DOWN\"\
     \n\
     \n:global NetwatchHostName \"miniAlx\";\
-    \n/system script run doNetwatchHost;" host=192.168.90.70 name=miniAlx test-script="" type=simple up-script="\
-    \n:put \"info: Netwatch UP\"\
-    \n:log info \"Netwatch UP\"\
-    \n\
-    \n:global NetwatchHostName \"miniAlx\";\
-    \n/system script run doNetwatchHost;"
-/tool netwatch add comment="victoria(docker) status check" disabled=no down-script="" host=192.168.80.160 http-codes="" ignore-initial-down=yes ignore-initial-up=yes interval=1m name=victoria port=9428 src-address=192.168.90.1 startup-delay=1m test-script="" type=http-get up-script=""
-/tool netwatch add comment="CHR(remote) status check" disabled=no down-script="\
-    \n:put \"info: Netwatch UP\"\
-    \n:log info \"Netwatch UP\"\
-    \n\
-    \n:global NetwatchHostName \"miniAlx\";\
-    \n/system script run doNetwatchHost;" host=192.168.97.1 name=CHR test-script="" type=icmp up-script="\
+    \n/system script run doNetwatchHost;" host=192.168.90.70 ignore-initial-down=yes ignore-initial-up=yes name=miniAlx startup-delay=20s test-script="" type=simple up-script="\
     \n:put \"info: Netwatch UP\"\
     \n:log info \"Netwatch UP\"\
     \n\
     \n:global NetwatchHostName \"miniAlx\";\
     \n/system script run doNetwatchHost;"
-/tool netwatch add comment="WB(wire) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.2 interval=1m name="WB(wire)" startup-delay=20s test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
-/tool netwatch add comment="WB(wireless) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.3 interval=1m name="WB(wireless)" startup-delay=20s test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
+/tool netwatch add comment="victoria(docker) status check" disabled=no down-script="\
+    \n:put \"info: Netwatch DOWN\"\
+    \n:log info \"Netwatch DOWN\"\
+    \n\
+    \n:global NetwatchHostName \"victoria\";\
+    \n/system script run doNetwatchHost;" host=192.168.80.160 http-codes="" ignore-initial-down=yes ignore-initial-up=yes interval=1m name=victoria port=9428 src-address=192.168.90.1 startup-delay=1m test-script="" type=http-get up-script=""
+/tool netwatch add comment="CHR(remote) status check" disabled=no down-script=":put \"info: Netwatch DOWN\"\
+    \n:log info \"Netwatch DOWN\"\
+    \n\
+    \n:global NetwatchHostName \"CHR-tunnel\";\
+    \n/system script run doNetwatchHost;" host=192.168.97.1 ignore-initial-down=yes ignore-initial-up=yes name=CHR startup-delay=20s test-script="" type=icmp up-script="\
+    \n:put \"info: Netwatch UP\"\
+    \n:log info \"Netwatch UP\"\
+    \n\
+    \n:global NetwatchHostName \"miniAlx\";\
+    \n/system script run doNetwatchHost;"
+/tool netwatch add comment="WB(wire) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.2 ignore-initial-down=yes ignore-initial-up=yes interval=1m name="WB(wire)" startup-delay=20s test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
+/tool netwatch add comment="WB(wireless) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.3 ignore-initial-down=yes ignore-initial-up=yes interval=1m name="WB(wireless)" startup-delay=20s test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
 /tool netwatch add comment="AliceMidi(wireless) status check" disabled=no down-script="\
-    \n:put \"info: Netwatch UP\"\
-    \n:log info \"Netwatch UP\"\
+    \n:put \"info: Netwatch DOWN\"\
+    \n:log info \"Netwatch DOWN\"\
     \n\
     \n:global NetwatchHostName \"AliceMidi\";\
-    \n/system script run doNetwatchHost;" host=192.168.90.194 name=AliceMidi test-script="" type=simple up-script=""
+    \n/system script run doNetwatchHost;" host=192.168.90.194 ignore-initial-down=yes ignore-initial-up=yes name=AliceMidi startup-delay=20s test-script="" type=simple up-script=""
 /tool netwatch add comment="NSPanel(wireless) status check" disabled=no down-script="\
-    \n:put \"info: Netwatch UP\"\
-    \n:log info \"Netwatch UP\"\
+    \n:put \"info: Netwatch DOWN\"\
+    \n:log info \"Netwatch DOWN\"\
     \n\
     \n:global NetwatchHostName \"NSPanel\";\
-    \n/system script run doNetwatchHost;" host=192.168.90.165 name=NSPanel test-script="" type=simple up-script=""
-/tool netwatch add comment="capxl(wire) status check" disabled=no down-script="" host=192.168.90.10 test-script="" type=simple up-script=""
-/tool netwatch add comment="Alice2(wireless) status check" disabled=no down-script="\
-    \n:put \"info: Netwatch UP\"\
-    \n:log info \"Netwatch UP\"\
+    \n/system script run doNetwatchHost;" host=192.168.90.165 ignore-initial-down=yes ignore-initial-up=yes name=NSPanel startup-delay=20s test-script="" type=simple up-script=""
+/tool netwatch add comment="capxl(wire) status check" disabled=no down-script="\
+    \n:put \"info: Netwatch DOWN\"\
+    \n:log info \"Netwatch DOWN\"\
+    \n\
+    \n:global NetwatchHostName \"capxl\";\
+    \n/system script run doNetwatchHost;" host=192.168.90.10 ignore-initial-down=yes ignore-initial-up=yes startup-delay=20s test-script="" type=simple up-script=""
+/tool netwatch add comment="Alice2(wireless) status check" disabled=no down-script=":put \"info: Netwatch DOWN\"\
+    \n:log info \"Netwatch DOWN\"\
     \n\
     \n:global NetwatchHostName \"Alice2\";\
-    \n/system script run doNetwatchHost;" host=192.168.90.220 name=Alice2 test-script="" type=simple up-script=""
+    \n/system script run doNetwatchHost;" host=192.168.90.220 ignore-initial-down=yes ignore-initial-up=yes name=Alice2 startup-delay=20s test-script="" type=simple up-script=""
 /tool sniffer set filter-port=bgp memory-limit=1000KiB streaming-server=192.168.90.170
