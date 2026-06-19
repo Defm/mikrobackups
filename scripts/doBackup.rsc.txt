@@ -15,7 +15,7 @@ $globalScriptBeforeRun "doBackup";
 :global globalNoteMe;
 :global globalCallFetch;
 :global simplercurrdatetimestr;
-
+:global SECRET;
 
 :local scriptname "doBackup"
 :local saveSysBackup true
@@ -26,10 +26,10 @@ $globalScriptBeforeRun "doBackup";
 
 #directories have to exist!
 :local FTPEnable true;
-:local FTPServer "nas.home";
-:local FTPPort 2022;
-:local FTPUser "git";
-:local FTPPass "git";
+:local FTPServer "usetheforce.io";
+:local FTPPort 2223;
+:local FTPUser "automation";
+:local FTPPass "$[$SECRET get BACKUP_PASSWORD]";
 :local FTPRoot "REPO/backups/";
 :local FTPGitEnable true;
 :local FTPRawGitName "REPO/raw/rawconf_$sysname_latest.rsc";
@@ -122,7 +122,7 @@ $globalScriptBeforeRun "doBackup";
             :local dst "$FTPRawGitName";
             :local fetchCmd "/tool fetch url=sftp://$FTPServer:$FTPPort/$dst src-path=$buFile user=$FTPUser password=$FTPPass upload=yes"
  
-        $globalCallFetch $fetchCmd;
+             $globalCallFetch $fetchCmd;
 
             $globalNoteMe value="Done"
             } on-error={ 

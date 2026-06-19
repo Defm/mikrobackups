@@ -1,120 +1,221 @@
+# CONFIG
+:local sysname [/system identity get name]
+:local scriptname "doDumpTheScripts"
 
-:local sysname [/system identity get name];
-:local scriptname "doDumpTheScripts";
-:global globalScriptBeforeRun;
-$globalScriptBeforeRun $scriptname;
+:global globalScriptBeforeRun
+$globalScriptBeforeRun $scriptname
 
-:global globalCallFetch;
+:global globalCallFetch
+:global globalNoteMe
+:global globalScriptId
+:global globalOnPrimaryPartition
+:global globalTgMessage
+:global SECRET
 
-#directories have to exist!
-:local FTPRoot "REPO/raw/"
+:local state ""
 
-#This subdir will be created locally to put exported scripts in
-#and it must exist under $FTPRoot to upload scripts to
-:local SubDir "scripts/"
+:local RAMDiskName "RAM"
+:local RAMSubDir "scripts/"
 
-:local FTPEnable true
-:local FTPServer "nas.home"
-:local FTPPort 2022
-:local FTPUser "git"
-:local FTPPass "git"
+# paths
+:local FTPRoot "REPO"
+:local FTPSubDir "raw/scripts"
+:local FTPEnable false
+:local FTPServer "usetheforce.io"
+:local FTPPort 2223
+:local FTPUser "automation"
+:local FTPPass "$[$SECRET get BACKUP_PASSWORD]"
 
-:global globalCallFetch;
-:global globalNoteMe;
-:local itsOk true;
-:local state "";
-:global globalScriptId;
-:global createPath;
+:local SSHFSEnable true
+:local SSHDiskName "sshfs"
+:local SSHSubDir "raw/scripts/"
 
-:do {
-  :local smtpserv [:resolve "$FTPServer"];
-} on-error={
-  :set state "FTP server looks like to be unreachable";
-   $globalNoteMe value=$state;
-  :set itsOk false;    
-}
+:local checkDisk do={
+    :local targetName $1
+    :local targetType $2
 
-:global globalOnPrimaryPartition;
-:if ( ![$globalOnPrimaryPartition] ) do {
-    
-    :set state "WARNING: the system booted up from fallback partition - skipping dump!"
-    :log error $state
-    $globalNoteMe value=$state;
-    :set itsOk false;
-    :error $state;
+    # Проверяем заполнение обоих параметров
+    :if ( ([:len $targetName] = 0) or ([:len $targetType] = 0) ) do={ :return 1 }
 
-}
-
-:foreach backupFile in=[/file find where name~"^$SubDir"] do={
-    /file remove $backupFile;
-}
-
-# Just to sure (or create) if $SubDir exist
-  /file/add name="$SubDir/foo.txt" contents="Feel free to remove this";
-
- $globalNoteMe value="Scripts source export..";
-
-:foreach scriptId in [/system script find] do={
-  :if ($itsOk) do={
-
-    :local scriptSource [/system script get $scriptId source];
-    :local theScript [/system script get $scriptId name];
-    :local scriptSourceLength [:len $scriptSource];
-    :local path "$SubDir$theScript.rsc.txt";
-
-    :set $globalScriptId $scriptId;
-
-    :if ($scriptSourceLength >= 4096) do={
-      :set state "Please keep care about '$theScript' consistency - its size over 4096 bytes";
-      $globalNoteMe value=$state;
+    :foreach i in=[/disk find] do={
+        :local dname [/disk get $i slot]
+        :local dtype [/disk get $i type]
+        :if ( ($dtype = $targetType) and ($dname = $targetName) ) do={ :return 0 }
     }
+    :return 1
+}
+
+:local searchReplace do={
+    :local input [:tostr $1] ; 
+    :local search  [:tostr $2] ; 
+    :local replace [:tostr $3];
+
+    :local start -1 ; 
+    :local tmppos 0 ; 
+    :local sx "" ; 
+    :local dx "";
+
+    :while ([:typeof [:find $input $search $start]] = "num") do={
+        :set tmppos [:find $input $search $start]
+        :set sx     [:pick $input 0 $tmppos]
+        :set dx     [:pick $input ($tmppos + [:len $search]) [:len $input]]
+        :set start  ([:len "$sx$replace"] - 1)
+        :set input  "$sx$replace$dx"
+    }
+    :return $input
+}
+
+
+:if ( ![$globalOnPrimaryPartition] ) do={
+    :set state "WARNING: the system booted up from fallback partition - skipping dump!"
+    $globalNoteMe value=$state
+    :error $state
+}
+
+:if ( [$checkDisk $RAMDiskName "tmpfs"] != 0) do={
+    :set state "WARNING: tmpfs '$RAMDiskName' not found - skipping dump!"
+    $globalNoteMe value=$state
+    :error $state
+}
+
+:if ($SSHFSEnable and [$checkDisk $SSHDiskName "sshfs"] != 0 ) do={
+    :set state "WARNING: sshfs '$SSHDiskName' not found - skipping dump!"
+    $globalNoteMe value=$state
+    :error $state
+}
+
+:if ($FTPEnable) do={
 
     :do {
-      /file print file=$path where 1=0;
-      #filesystem delay
-      :delay 1s;
-
-      # Due to max variable size 4096 bytes - this scripts should be reworked, but now using :put hack
-      /execute script=":global globalScriptId; :put [/system script get $globalScriptId source];" file=$path;
-      :set state "Exported '$theScript' to '$path'";
-      $globalNoteMe value=$state;
-    } on-error={ 
-      :set state "Error When Exporting '$theScript' Script to '$path'";
-      $globalNoteMe value=$state;
-      :set itsOk false;
+        :local ftpIP [:resolve $FTPServer];
+    } on-error={
+        :set state "WARNING: FTP server '$FTPServer' unreachable - skipping dump!"
+        $globalNoteMe value=$state
+        :error $state
     }
-  }
+
 }
 
+:local dumpPath "$RAMDiskName/$RAMSubDir";
 
-:delay 5s
+:local staleScripts [/file find where name~"dumpPath"]
+/file remove $staleScripts
 
-:local buFile ""
 
- $globalNoteMe value="Scripts source pushing..";
+$globalNoteMe value="Scripts source export.."
+
+:local itsOk true
+:local state ""
+
+:local scriptsList [/system script find]
+:foreach scriptId in=$scriptsList do={
+  
+  :if ($itsOk) do={
+
+    :local scriptSource [/system script get $scriptId source]
+    :local scriptName [/system script get $scriptId name]
+    :local scriptSize [:len $scriptSource]
+
+    :local scriptPath "$dumpPath/$scriptName.rsc.txt"
+
+    :set $globalScriptId $scriptId
+
+    :if ($scriptSize >= 4096) do={
+      :set state "Please keep care about '$scriptName' consistency - its size over 4096 bytes"
+      $globalNoteMe value=$state
+    }
+
+    # remove stale file
+    /file remove [find where name=$scriptPath type!=directory]
+    # create empty file
+    /file add name=$scriptPath contents=""
+
+    :onerror errorName in={ 
+        
+      :set state "Exporting '$scriptName' to '$scriptPath'"
+      $globalNoteMe value=$state
+
+      /execute script=":global globalScriptId; :put [/system script get $globalScriptId source];" file=$scriptPath
+
+      $globalNoteMe value="Done"
+
+    } do={ 
+
+      :set state "Error When $state: $errorName"
+      $globalNoteMe value=$state
+      :set itsOk false
+
+    }
+
+  }
+
+}
+
+:delay 2s
+
+$globalNoteMe value="Scripts source pushing.."
 
 :if ($itsOk) do={
-  :foreach backupFile in=[/file find where name~"^$SubDir"] do={
-    :set buFile ([/file get $backupFile name]);
-    :if ([:typeof [:find $buFile ".rsc.txt"]] != "nil") do={
-      :local rawfile ( $buFile ~".rsc.txt");
-      #special ftp upload for git purposes
-      if ($FTPEnable) do={
-        :local dst "$FTPRoot$buFile";
-        :do {
-          :set state "Uploading $buFile' to '$dst'";
-          $globalNoteMe value=$state;
-          
-         :local fetchCmd "/tool fetch url=sftp://$FTPServer:$FTPPort/$dst src-path=$buFile user=$FTPUser password=$FTPPass upload=yes"
-       
-          $globalCallFetch $fetchCmd;
 
-          $globalNoteMe value="Done";
-        } on-error={ 
-          :set state "Error When Uploading '$buFile' to '$dst'";
-          $globalNoteMe value=$state;
-          :set itsOk false;
+  :local ramFiles [/file find where name~"$dumpPath"]
+
+  :foreach backupFile in=$ramFiles do={
+
+    :local scriptPath [/file get $backupFile name]
+
+    :if ([:typeof [:find $scriptPath ".rsc.txt"]] != "nil") do={
+
+      # FTP upload
+      :if ($FTPEnable) do={
+
+        :local dst [$searchReplace $scriptPath $RAMDiskName $FTPRoot]
+        :set dst [$searchReplace $dst $RAMSubDir $FTPSubDir]
+
+        :onerror errorName in={ 
+
+            :set state "Uploading $scriptPath to SFTP - $dst"
+            $globalNoteMe value=$state
+
+            :local fetchCmd "/tool fetch url=sftp://$FTPServer:$FTPPort/$dst src-path=$scriptPath user=$FTPUser password=$FTPPass upload=yes";
+            $globalCallFetch $fetchCmd
+
+            $globalNoteMe value="Done"
+
+        } do={ 
+
+            :local state "Error when $state: $errorName";
+            $globalNoteMe value=$state;
+            :set itsOk false
         }
+
+      }
+
+      # SSHFS copy
+      :if ($SSHFSEnable) do={
+
+        :local dst [$searchReplace $scriptPath $RAMDiskName $SSHDiskName]
+        :set dst [$searchReplace $dst $RAMSubDir $SSHSubDir]
+
+        :onerror errorName in={ 
+
+            :set state "Clearing $dst on SSH-disk"
+            $globalNoteMe value=$state
+            :local staleFiles [/file find where name=$dst type!=directory]
+            /file remove $staleFiles
+
+            :set state "Copying $scriptPath to SSH-disk - $dst"
+            $globalNoteMe value=$state
+            /file copy $scriptPath name=$dst
+            
+            $globalNoteMe value="Done"
+
+        } do={ 
+
+            :local state "Error when $state: $errorName";
+            $globalNoteMe value=$state;
+            :set itsOk false
+        }
+
       }
     }
   }
@@ -122,30 +223,27 @@ $globalScriptBeforeRun $scriptname;
 
 :delay 5s
 
- $globalNoteMe value="Housekeeping..";
+$globalNoteMe value="Housekeeping.."
 
-:foreach backupFile in=[/file find where name~"^$SubDir"] do={
-  :if ([:typeof [:find $buFile ".rsc.txt"]] != "nil") do={
-    /file remove $backupFile;
-  }
-}
+:local staleScripts [/file find where name~"dumpPath"]
+/file remove $staleScripts
 
-:local inf ""
+:local summary ""
 :if ($itsOk) do={
-  :set inf "$scriptname on $sysname: scripts dump done Successfully"
+  :set summary "✓ SUCCESS"
 }
 
 :if (!$itsOk) do={
-  :set inf "Error When $scriptname on $sysname: $state"  
+  :set summary "✗ FAILED - $state"  
 }
 
-$globalNoteMe value=$inf
+$globalNoteMe value=$summary
 
 :if (!$itsOk) do={
 
   :global globalTgMessage;
-  $globalTgMessage value=$inf;
-  :error $inf; 
+  $globalTgMessage value=$summary;
+  :error $summary; 
   
 }
 
