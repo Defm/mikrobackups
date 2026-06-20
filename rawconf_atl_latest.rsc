@@ -1,40 +1,44 @@
-# 2026-06-21 01:56:18 by RouterOS 7.23.1
-# software id = 59DY-JI10
+# 2026-06-21 01:56:04 by RouterOS 7.23.1
+# software id = LT5V-L4NT
 #
-# model = RBcAPGi-5acD2nD
-# serial number = HD208EFDKQY
-/interface bridge add admin-mac=18:FD:74:94:FD:70 auto-mac=no igmp-snooping=yes name=main-infrastructure-br port-cost-mode=short
-/interface ethernet set [ find default-name=ether1 ] arp=disabled name=lan-poe-in
-/interface ethernet set [ find default-name=ether2 ] name=lan-poe-out
-/interface wireless
-# managed by CAPsMAN
-# channel: 2412/20/gn(17dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
-set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
-/interface wireless
-# managed by CAPsMAN
-# channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
-set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
+# model = ATLGM
+# serial number = HEA08WT4QVK
 /disk add comment=Ramdisk slot=RAM tmpfs-max-size=10000000 type=tmpfs
-/disk add disabled=yes slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
-/interface lte apn set [ find default=yes ] ip-type=ipv4 use-network-apn=no
-/interface wireless security-profiles set [ find default=yes ] supplicant-identity=MikroTik
-/ip dhcp-client option add code=60 name=classid value="'mikrotik-cap'"
+/interface ethernet set [ find default-name=ether1 ] loop-protect=on name=lan-poe-in
+/interface lte
+# A newer version of modem firmware is available!
+set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
+/disk add disabled=yes media-interface=lan-poe-in slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
+/interface list add comment=defconf name=WAN
+/interface list add comment=defconf name=LAN
+/interface list add name=list-lan
+/interface list add name=list-wan
+/interface list add comment="neighbors allowed interfaces" name=list-neighbors-lookup
+/interface list add comment="winbox allowed interfaces" name=list-winbox-allowed
+/interface lte apn set [ find default=yes ] apn=internet.beeline.ru default-route-distance=1 ip-type=ipv4 name=beeline-dhcp-client use-network-apn=no
+/ip dhcp-client option add code=60 name=classid value="'mikrotik-dish'"
+/ip kid-control add fri=0s-1d mon=0s-1d name=totals sat=0s-1d sun=0s-1d thu=0s-1d tue=0s-1d wed=0s-1d
 /ip smb users set [ find default=yes ] disabled=yes
-/ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
+/ppp profile add bridge-learning=no change-tcp-mss=no comment="used by \$SECRET" local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
+/queue type add kind=fq-codel name=fq-codel-ethernet-default
+/queue interface set lan-poe-in queue=fq-codel-ethernet-default
+/routing id add comment="Main RID" disabled=no name=atl-main-10.255.255.6 select-dynamic-id=only-loopback
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
+/system logging action set 0 memory-lines=3000
 /system logging action set 1 disk-file-name=journal
+/system logging action set 3 add-topics-string=yes remote=victoria.home remote-log-format=syslog
 /system logging action add name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=5 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
-/system logging action add disk-file-count=20 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
+/system logging action add disk-file-count=5 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
 /system logging action add name=TerminalConsoleLog remember=no target=echo
-/system logging action add name=OnScreenLog target=memory
+/system logging action add memory-lines=3000 name=OnScreenLog target=memory
 /system logging action add name=DHCPOnScreenLog target=memory
 /system logging action add name=DNSOnScreenLog target=memory
 /system logging action add name=RouterControlLog target=memory
 /system logging action add name=OSPFOnscreenLog target=memory
 /system logging action add name=L2TPOnScreenLog target=memory
-/system logging action add disk-file-count=20 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
+/system logging action add disk-file-count=5 disk-file-name=AuthDiskLog disk-lines-per-file=300 name=AuthDiskLog target=disk
 /system logging action add name=CertificatesOnScreenLog target=memory
 /system logging action add name=ParseMemoryLog target=memory
 /system logging action add name=CAPSOnScreenLog target=memory
@@ -45,151 +49,9 @@ set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-
 /system logging action add cef-event-delimiter="" name=VictoriaRemoteLog remote=victoria.home remote-log-format=cef target=remote
 /system logging action add name=TransfersOnscreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=PKGInstallationLog disk-lines-per-file=100 name=PKGInstallationLog target=disk
-/system logging action add disk-file-count=1 disk-file-name=REBOOTLog disk-lines-per-file=100 name=REBOOTDoskLog target=disk
+/system logging action add disk-file-count=1 disk-file-name=REBOOTLog disk-lines-per-file=100 name=REBOOTDiskLog target=disk
 /system logging action add name=DockerOnscreenLog target=memory
-/system script add comment="StarWars march to  alarm on startup" dont-require-permissions=yes name=doImperialMarch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doImperialMarch\";\r\
-    \n\r\
-    \n:delay 6\r\
-    \n\r\
-    \n:beep frequency=500 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n\r\
-    \n:beep frequency=500 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n\r\
-    \n:beep frequency=500 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n\r\
-    \n:beep frequency=400 length=500ms;\r\
-    \n:delay 400ms;\r\
-    \n\r\
-    \n:beep frequency=600 length=200ms;\r\
-    \n:delay 100ms;\r\
-    \n\r\
-    \n:beep frequency=500 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n\r\
-    \n:beep frequency=400 length=500ms;\r\
-    \n:delay 400ms;\r\
-    \n\r\
-    \n:beep frequency=600 length=200ms;\r\
-    \n:delay 100ms;\r\
-    \n\r\
-    \n:beep frequency=500 length=500ms;\r\
-    \n:delay 1000ms;\r\
-    \n\r\
-    \n\r\
-    \n\r\
-    \n:beep frequency=750 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n\r\
-    \n:beep frequency=750 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n\r\
-    \n:beep frequency=750 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n\r\
-    \n:beep frequency=810 length=500ms;\r\
-    \n:delay 400ms;\r\
-    \n\r\
-    \n:beep frequency=600 length=200ms;\r\
-    \n:delay 100ms;\r\
-    \n\r\
-    \n:beep frequency=470 length=500ms;\r\
-    \n:delay 500ms;\r\
-    \n\r\
-    \n:beep frequency=400 length=500ms;\r\
-    \n:delay 400ms;\r\
-    \n\r\
-    \n:beep frequency=600 length=200ms;\r\
-    \n:delay 100ms;\r\
-    \n\r\
-    \n:beep frequency=500 length=500ms;\r\
-    \n:delay 1000ms;"
-/system script add comment="Updates address-list that contains my external IP" dont-require-permissions=yes name=doUpdateExternalDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
-    \n:local sysname [/system identity get name];\
-    \n:local scriptname \"doUpdateExternalDNS\";\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
-    \n\
-    \n:global globalNoteMe;\
-    \n:local itsOk true;\
-    \n:local payLoad false;\
-    \n:local state \"\";\
-    \n\
-    \n:local content\
-    \n:local IPv4\
-    \n:global LastIPv4\
-    \n\
-    \n# parsing the current IPv4 result\
-    \n/ip cloud force-update;\
-    \n:delay 7s;\
-    \n:set IPv4 [/ip cloud get public-address];\
-    \n\
-    \n:if ([:len \$IPv4] > 0) do={\
-    \n        :if ([ :typeof [ :toip \$IPv4 ] ] != \"ip\" ) do={\
-    \n\
-    \n        :set state \"No cloud-DNS IP recieved\";\
-    \n         \$globalNoteMe value=\$state;\
-    \n        :set itsOk false;\
-    \n   \
-    \n        }\
-    \n    }\
-    \n\
-    \n:if ((\$LastIPv4 != \$IPv4) || (\$force = true)) do={\
-    \n\
-    \n    :set state \"External IP changed: current - (\$IPv4), last - (\$LastIPv4)\";\
-    \n    \$globalNoteMe value=\$state;\
-    \n\
-    \n    /ip firewall address-list remove [find list~\"alist-nat-external-ip\"];\
-    \n    /ip firewall address-list add list=\"alist-nat-external-ip\" address=\$IPv4;\
-    \n   \
-    \n    /ip dns static remove [/ip dns static find name=ftpserver.org];\
-    \n    /ip dns static add name=ftpserver.org address=\$IPv4;\
-    \n \
-    \n    :set LastIPv4 \$IPv4;\
-    \n    :set payLoad true; \
-    \n\
-    \n    :local count [:len [/system script find name=\"doSuperviseCHRviaSSH\"]];\
-    \n    :if (\$count > 0) do={\
-    \n       \
-    \n        :set state \"Refreshing VPN server (CHR) IPSEC policies\";\
-    \n        \$globalNoteMe value=\$state;\
-    \n        /system script run doSuperviseCHRviaSSH;\
-    \n    \
-    \n     }\
-    \n   }\
-    \n\
-    \n:local inf \"\"\
-    \n:if (\$itsOk and \$payLoad ) do={\
-    \n  :set inf \"\$scriptname on \$sysname: external IP address change detected, refreshed\"\
-    \n}\
-    \n\
-    \n:if (\$itsOk and !\$payLoad ) do={\
-    \n  :set inf \"\$scriptname on \$sysname: no external IP address update needed\"\
-    \n}\
-    \n\
-    \n:if (!\$itsOk) do={\
-    \n  :set inf \"Error When \$scriptname on \$sysname: \$state\"  \
-    \n}\
-    \n\
-    \n\$globalNoteMe value=\$inf\
-    \n\
-    \n:if (!\$itsOk) do={\
-    \n\
-    \n  :global globalTgMessage;\
-    \n  \$globalTgMessage value=\$inf;\
-    \n  :error \$inf; \
-    \n  \
-    \n}\
-    \n\
-    \n\
-    \n\
-    \n\r\
-    \n\r\
-    \n"
+/system logging action add name=ModemOnscreenLog target=memory
 /system script add comment="Runs once on startup and makes console welcome message pretty" dont-require-permissions=yes name=doCoolConsole owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
     \n\$globalScriptBeforeRun \"doCoolConsole\";\
     \n\
@@ -1630,82 +1492,7 @@ set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-
     \n\r\
     \n\r\
     \n"
-/system script add comment="A very special script for CFG restore from *.rsc files (not from backup). This one should be placed at flash/perfectrestore.rsc, your config should be at flash/backup.rsc. Run 'Reset confuguration' with 'no default config', choose 'flash/perfectrestore.rsc' as 'run after reset. Pretty logs will be at flash/import.log and flash/perfectrestore.log" dont-require-permissions=yes name=doPerfectRestore owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n\r\
-    \n{\r\
-    \n\r\
-    \n:global targetfile \"flash/backup.rsc\"\r\
-    \n:global importlog \"flash/import.log\"\r\
-    \n:global debuglog \"flash/perfectrestore.log\"\r\
-    \n\r\
-    \n/file remove [find name ~\"\$importlog\"]\r\
-    \n/file remove [find name ~\"\$debuglog\"]\r\
-    \n\r\
-    \n# Wait for interfaces to initialize\r\
-    \n:delay 15s\r\
-    \n\r\
-    \n# Beep Functions\r\
-    \n :local doStartBeep [:parse \":beep frequency=1000 length=300ms;:delay 150ms;:beep frequency=1500 length=300ms;\"];\r\
-    \n :local doFinishBeep [:parse \":beep frequency=1000 length=.6;:delay .5s;:beep frequency=1600 length=.6;:delay .5s;:beep frequency=2100 length=.3;:delay .3s;:beep frequency=2500 length=.3;:delay .3s;:beep frequency=2400 length=1;\r\
-    \n\"];\r\
-    \n\r\
-    \n# Setup temporary logging to disk\r\
-    \n/system logging action add disk-file-count=1 disk-file-name=\$debuglog disk-lines-per-file=4096 name=perfectrestore target=disk\r\
-    \n/system logging add action=perfectrestore topics=system,info\r\
-    \n/system logging add action=perfectrestore topics=script,info\r\
-    \n/system logging add action=perfectrestore topics=warning\r\
-    \n/system logging add action=perfectrestore topics=error\r\
-    \n/system logging add action=perfectrestore topics=critical\r\
-    \n/system logging add action=perfectrestore topics=debug,!packet\r\
-    \n\r\
-    \n# Play Audible Start Sequence\r\
-    \n\$doStartBeep\r\
-    \n\r\
-    \n# Import the rsc file\r\
-    \n:log info \"BEGIN IMPORT file=\$targetfile -----------------------------------------------------------------------------\"\r\
-    \n\r\
-    \n:do {\r\
-    \n\r\
-    \n  #IPSEC certs have to be imported before the other config is restored\r\
-    \n  #Its should be kept on flash memory to get alive after /system reset-configuration\r\
-    \n\r\
-    \n  /certificate import file-name=flash/ca@CHR.p12 passphrase=1234567890\r\
-    \n  /certificate set [find common-name=ca@CHR] name=ca@CHR\r\
-    \n  /certificate import file-name=flash/mikrouter@CHR.p12 passphrase=1234567890\r\
-    \n  /certificate set [find common-name=mikrouter@CHR] name=mikrouter@CHR\r\
-    \n\r\
-    \n  :local write2file \":import file-name=\$targetfile verbose=yes\"\r\
-    \n\r\
-    \n  :execute script=\$write2file file=\$importlog\r\
-    \n\r\
-    \n  :log info \"END IMPORT file=\$targetfile  -----------------------------------------------------------------------------\"\r\
-    \n\r\
-    \n} on-error={\r\
-    \n\r\
-    \n:log error \"ERROR IMPORT file=\$targetfile  -----------------------------------------------------------------------------\"\r\
-    \n\r\
-    \n}\r\
-    \n\r\
-    \n# Post import delay\r\
-    \n:delay 20s\r\
-    \n\r\
-    \n# Play Audible Finish Sequence\r\
-    \n\$doFinishBeep\r\
-    \n\r\
-    \n# Teardown temporary logging to disk\r\
-    \n/system logging remove [/system logging find where action=perfectrestore]\r\
-    \n/system logging action remove [/system logging action find where name=perfectrestore]\r\
-    \n\r\
-    \n/system script environment remove [find name=\"targetfile\"]\r\
-    \n/system script environment remove [find name=\"importlog\"]\r\
-    \n/system script environment remove [find name=\"debuglog\"]\r\
-    \n\r\
-    \n#new startup scripts maybe restored so...\r\
-    \n/system reboot\r\
-    \n\r\
-    \n}\r\
-    \n"
-/system script add comment="periodically Wipes memory-configered logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
+/system script add comment="Periodically Wipes memory-configured logging buffers" dont-require-permissions=yes name=doFlushLogs owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n:global globalScriptBeforeRun;\
     \n\$globalScriptBeforeRun \"doFlushLogs\";\
     \n\
@@ -1728,108 +1515,188 @@ set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-
     \n\r\
     \n\r\
     \n"
-/system script add comment="Fast cloud backup" dont-require-permissions=yes name=doCloudBackup owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \"doCloudBackup\";\
+/system script add comment="Netwatch handler OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local SafeScriptCall do={\
     \n\
+    \n    :if ([:len \$0]!=0) do={\
+    \n        :if ([:len \$1]!=0) do={\
+    \n            :if ([:len [/system script find name=\$1]]!=0) do={\
+    \n\
+    \n                :do {\
+    \n                    :log warning \"Starting script: \$1\";\
+    \n                    :put \"Starting script: \$1\"\
+    \n                    /system script run \$1;\
+    \n                } on-error= {\
+    \n                    :log error \"FAIL Starting script: \$1\";\
+    \n                    :put \"FAIL Starting script: \$1\"\
+    \n                };\
+    \n\
+    \n            }\
+    \n        }\
+    \n    } \
+    \n\
+    \n}\
+    \n\
+    \n# init globals as far as we are inside *sys user account\
+    \n\$SafeScriptCall \"doEnvironmentSetup\";\
+    \n\
+    \n# NetWatch notifier OnDown\
+    \n\
+    \n:local scriptname \"doNetwatchHost\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n# fill it inside netwatch script\
+    \n:global NetwatchHostName;\
+    \n\
+    \n:global globalTgMessage;\
     \n:global globalNoteMe;\
-    \n:local state\
-    \n:local itsOk true;\
     \n\
-    \n:local BackupPassword \"1234567890\" ;\
+    \n:local state;\
     \n\
-    \n# we are not interested in output, but print without count-only is\
-    \n# required to fetch information from cloud\
+    \n:if (!any \$NetwatchHostName) do={\
     \n\
-    \n:global globalOnPrimaryPartition;\
-    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
-    \n    \
-    \n    :set state \"WARNING: the system booted up from fallback partition - skipping backup!\"\
-    \n    :log error \$state\
-    \n    \$globalNoteMe value=\$state;\
-    \n    :error \$state;\
-    \n\
+    \n  :set state \"No NetwatchHostName provided..\";\
+    \n  \$globalNoteMe value=\$state;\
+    \n  :error \$inf; \
     \n}\
     \n\
-    \n/system backup cloud print as-value\
-    \n\
-    \n:local Backup ([ /system/backup/cloud/find ]->0);\
-    \n:if ([ :typeof \$Backup ] = \"id\") do={\
-    \n    /system/backup/cloud/upload-file action=create-and-upload password=\$BackupPassword replace=\$Backup;\
-    \n} else={\
-    \n    /system/backup/cloud/upload-file action=create-and-upload password=\$BackupPassword;\
-    \n}\
-    \n\
-    \n:local Backup ([ /system/backup/cloud/find ]->0);\
-    \n:local BackupName [/system/backup/cloud/get \$Backup name];\
-    \n:set state \"Creating and uploading backup file... \$BackupName\"\
+    \n:set state \"Netwatch for \$NetwatchHostName started...\";\
     \n\$globalNoteMe value=\$state;\
+    \n\
+    \n:set state \"\$NetwatchHostName is DOWN\";\
+    \n:log error \"\$state\";\
+    \n\
+    \n\$globalTgMessage value=\$state;\
     \n\
     \n\
     \n\
     \n\r\
     \n"
-/user group set read policy=local,telnet,ssh,read,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!write,!policy,!sensitive
-/user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
-/user group add name=mikrodash policy=read,test,api,!local,!telnet,!ssh,!ftp,!reboot,!write,!policy,!winbox,!password,!web,!sniff,!sensitive,!romon,!rest-api
-/ip smb set domain=HNW interfaces=main-infrastructure-br
-/interface bridge port add bridge=main-infrastructure-br ingress-filtering=no interface=lan-poe-in internal-path-cost=10 path-cost=10 trusted=yes
-/interface bridge port add bridge=main-infrastructure-br ingress-filtering=no interface=lan-poe-out internal-path-cost=10 path-cost=10 trusted=yes
-/interface bridge settings set use-ip-firewall=yes
-/ip firewall connection tracking set enabled=yes udp-timeout=10s
-/ip neighbor discovery-settings set discover-interface-list=!dynamic
-/ip settings set accept-source-route=yes max-neighbor-entries=8192
-/ipv6 settings set disable-ipv6=yes max-neighbor-entries=8192
-/interface ovpn-server server add auth=sha1,md5 mac-address=FE:AA:B6:DE:38:D8 name=ovpn-server1
-/interface wireless cap
-# 
-set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br enabled=yes interfaces="wlan 2Ghz,wlan 5Ghz"
+/certificate settings set builtin-trust-store=all
+/disk settings set auto-media-interface=lan-poe-in
+/ip smb set domain=HNW enabled=no interfaces=lan-poe-in
+/ip firewall connection tracking set enabled=yes tcp-established-timeout=1h udp-timeout=10s
+/ip neighbor discovery-settings set discover-interface-list=list-neighbors-lookup
+/ip settings set accept-source-route=yes rp-filter=loose tcp-syncookies=yes
+/ipv6 settings set disable-ipv6=yes
+/interface detect-internet set internet-interface-list=WAN lan-interface-list=LAN wan-interface-list=WAN
+/interface list member add interface=lan-poe-in list=LAN
+/interface list member add interface=lte list=WAN
+/interface list member add comment="neighbors lookup" interface=lan-poe-in list=list-neighbors-lookup
+/interface list member add interface=lan-poe-in list=list-winbox-allowed
+/ip address add address=10.255.255.6 comment="Router ID" interface=ospf-lo network=10.255.255.6
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
-/ip dhcp-client add dhcp-options=hostname,clientid,classid interface=main-infrastructure-br name="main infrastructure"
-/ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.221 name=ftpserver.org type=A
-/ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.221 list=alist-nat-external-ip
-/ip firewall filter add action=accept chain=input dst-port=123 in-interface=main-infrastructure-br protocol=udp
+/ip dhcp-client add add-default-route=no allow-reconfigure=yes dhcp-options=clientid_duid,clientid,hostname,classid interface=lan-poe-in name=lan-poe-in
+/ip dns set cache-size=40000KiB
+/ip dns adlist add url=https://schakal.hopto.org/alive_hosts.txt
+/ip dns static add address=172.30.30.30 match-subdomain=yes name=atl.home type=A
+/ip dns static add cname=atl.home name=alt type=CNAME
+/ip dns static add address=172.30.30.1 match-subdomain=yes name=capax.home type=A
+/ip dns static add cname=capax.home name=capax type=CNAME
+/ip dns static add address=192.168.90.70 name=minialx.home type=A
+/ip dns static add cname=minialx.home name=minialx type=CNAME
+/ip dns static add address=192.168.90.40 name=nas.home type=A
+/ip dns static add cname=nas.home name=nas type=CNAME
+/ip dns static add address=192.168.99.1 name=mikrouter.home type=A
+/ip dns static add cname=mikrouter.home name=mikrouter type=CNAME
+/ip dns static add address=192.168.90.1 name=anna.home type=A
+/ip dns static add cname=anna.home name=anna type=CNAME
+/ip dns static add address=192.168.90.2 name=wb.home type=A
+/ip dns static add cname=wb.home name=wb type=CNAME
+/ip dns static add address=192.168.97.1 name=chr.home type=A
+/ip dns static add cname=chr.home name=chr type=CNAME
+/ip dns static add address=192.168.90.10 name=capxl.home type=A
+/ip dns static add cname=capxl.home name=capxl type=CNAME
+/ip dns static add address=192.168.90.85 name=MbpAlxm.home type=A
+/ip dns static add cname=MbpAlxm.home name=MbpAlxm type=CNAME
+/ip dns static add cname=victoria.home name=victoria type=CNAME
+/ip dns static add address=192.168.90.1 name=victoria.home type=A
+/ip firewall filter add action=accept chain=forward comment="ALLOW - Established, Related connections" connection-state=established,related
+/ip firewall filter add action=accept chain=input connection-state=established,related
+/ip firewall filter add action=drop chain=forward comment="DROP - Invalid connections" connection-state=invalid
+/ip firewall filter add action=drop chain=input connection-state=invalid
+/ip firewall filter add action=add-src-to-address-list address-list=psd-blacklist address-list-timeout=4w2d chain=input comment="Port Scan Detect" in-interface-list=WAN protocol=tcp psd=21,3s,3,1
+/ip firewall filter add action=add-src-to-address-list address-list=psd-blacklist address-list-timeout=4w2d chain=input in-interface-list=WAN protocol=udp psd=21,3s,3,1
+/ip firewall filter add action=jump chain=input comment="DDoS - SYN flood protection" connection-state=new in-interface-list=WAN jump-target=SYN-Protect protocol=tcp tcp-flags=syn
+/ip firewall filter add action=return chain=SYN-Protect limit=200,5:packet tcp-flags=""
+/ip firewall filter add action=add-src-to-address-list address-list=ddos-blacklist address-list-timeout=4w2d chain=SYN-Protect log=yes log-prefix="DDoS: SYN-Protect" tcp-flags=""
+/ip firewall filter add action=jump chain=input comment="DDoS - Main protection" connection-state=new in-interface-list=WAN jump-target=DDoS-Protect
+/ip firewall filter add action=return chain=DDoS-Protect dst-limit=15,15,src-address/10s
+/ip firewall filter add action=add-src-to-address-list address-list=ddos-blacklist address-list-timeout=4w2d chain=DDoS-Protect log=yes log-prefix="DDoS: MAIN-Protect"
+/ip firewall filter add action=drop chain=input comment="DROP - Block all other input/forward connections on the WAN" in-interface-list=WAN
+/ip firewall filter add action=drop chain=forward in-interface-list=WAN
+/ip firewall mangle add action=change-ttl chain=prerouting comment="TTL control LTE" in-interface-list=WAN new-ttl=increment:5 ttl=equal:1
+/ip firewall mangle add action=change-ttl chain=postrouting ipsec-policy=out,none new-ttl=set:64 out-interface-list=WAN
+/ip firewall mangle add action=change-dscp chain=postrouting comment="DSCP (SIP=5) / Strip IPv4 Options" ipsec-policy=out,none new-dscp=5 out-interface-list=WAN
+/ip firewall mangle add action=strip-ipv4-options chain=postrouting ipsec-policy=out,none out-interface-list=WAN
+/ip firewall mangle add action=change-mss chain=forward comment="Fix MSS for Open sites" ipsec-policy=out,none new-mss=clamp-to-pmtu out-interface-list=WAN passthrough=no protocol=tcp tcp-flags=syn tcp-mss=1300-65535
+/ip firewall mangle add action=change-mss chain=forward in-interface-list=WAN ipsec-policy=in,none new-mss=clamp-to-pmtu passthrough=no protocol=tcp tcp-flags=syn tcp-mss=1300-65535
+/ip firewall mangle add action=change-mss chain=forward comment="Clamp MSS for TLS Handshakes" new-mss=clamp-to-pmtu protocol=tcp tcp-flags=syn
+/ip firewall nat add action=masquerade chain=srcnat comment="LAN to WAN" out-interface-list=WAN src-address=172.30.30.0/24
+/ip firewall raw add action=drop chain=prerouting comment="Drop DNS Flood" dst-port=53 in-interface-list=WAN protocol=udp
+/ip firewall raw add action=drop chain=prerouting dst-port=53 in-interface-list=WAN protocol=tcp
+/ip firewall raw add action=drop chain=prerouting comment="Port Scanner Detect (PSD) - Drop blacklist IP" in-interface-list=WAN src-address-list=psd-blacklist
+/ip firewall raw add action=drop chain=prerouting comment="DDoS - Drop blacklist IP" in-interface-list=WAN src-address-list=ddos-blacklist
+/ip firewall service-port set ftp disabled=yes
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
 /ip firewall service-port set sip disabled=yes
 /ip firewall service-port set pptp disabled=yes
-/ip firewall service-port set udplite disabled=yes
-/ip firewall service-port set dccp disabled=yes
-/ip firewall service-port set sctp disabled=yes
-/ip ipsec profile set [ find default=yes ] dpd-interval=2m dpd-maximum-failures=5
+/ip hotspot service-port set ftp disabled=yes
+/ip kid-control device add mac-address=BC:D0:74:0A:B2:6A name=mbpAlxm user=totals
+/ip kid-control device add mac-address=04:F4:1C:7E:F1:1F name=capax user=totals
 /ip service set ftp disabled=yes
 /ip service set telnet disabled=yes
+/ip service set api disabled=yes
 /ip service set api-ssl disabled=yes
-/ip smb shares set [ find default=yes ] directory=/pub
 /ip ssh set ciphers=aes-gcm,aes-ctr,aes-cbc,3des-cbc,null forwarding-enabled=remote
-/ip tftp add real-filename=NAS/ req-filename=.*
-/ip upnp set show-dummy-rule=no
-/ip upnp interfaces add interface=main-infrastructure-br type=internal
-/ipv6 nd set [ find default=yes ] advertise-dns=yes
+/ipv6 firewall address-list add address=::/128 comment="defconf: unspecified address" list=bad_ipv6
+/ipv6 firewall address-list add address=::1/128 comment="defconf: lo" list=bad_ipv6
+/ipv6 firewall address-list add address=fec0::/10 comment="defconf: site-local" list=bad_ipv6
+/ipv6 firewall address-list add address=::ffff:0.0.0.0/96 comment="defconf: ipv4-mapped" list=bad_ipv6
+/ipv6 firewall address-list add address=::/96 comment="defconf: ipv4 compat" list=bad_ipv6
+/ipv6 firewall address-list add address=100::/64 comment="defconf: discard only " list=bad_ipv6
+/ipv6 firewall address-list add address=2001:db8::/32 comment="defconf: documentation" list=bad_ipv6
+/ipv6 firewall address-list add address=2001:10::/28 comment="defconf: ORCHID" list=bad_ipv6
+/ipv6 firewall address-list add address=3ffe::/16 comment="defconf: 6bone" list=bad_ipv6
+/ipv6 firewall filter add action=accept chain=input comment="defconf: accept established,related,untracked" connection-state=established,related,untracked
+/ipv6 firewall filter add action=drop chain=input comment="defconf: drop invalid" connection-state=invalid
+/ipv6 firewall filter add action=accept chain=input comment="defconf: accept ICMPv6" protocol=icmpv6
+/ipv6 firewall filter add action=accept chain=input comment="defconf: accept UDP traceroute" dst-port=33434-33534 protocol=udp
+/ipv6 firewall filter add action=accept chain=input comment="defconf: accept DHCPv6-Client prefix delegation." dst-port=546 protocol=udp src-address=fe80::/10
+/ipv6 firewall filter add action=accept chain=input comment="defconf: accept IKE" dst-port=500,4500 protocol=udp
+/ipv6 firewall filter add action=accept chain=input comment="defconf: accept ipsec AH" protocol=ipsec-ah
+/ipv6 firewall filter add action=accept chain=input comment="defconf: accept ipsec ESP" protocol=ipsec-esp
+/ipv6 firewall filter add action=accept chain=input comment="defconf: accept all that matches ipsec policy" ipsec-policy=in,ipsec
+/ipv6 firewall filter add action=drop chain=input comment="defconf: drop everything else not coming from LAN" in-interface-list=!LAN
+/ipv6 firewall filter add action=fasttrack-connection chain=forward comment="defconf: fasttrack6" connection-state=established,related
+/ipv6 firewall filter add action=accept chain=forward comment="defconf: accept established,related,untracked" connection-state=established,related,untracked
+/ipv6 firewall filter add action=drop chain=forward comment="defconf: drop invalid" connection-state=invalid
+/ipv6 firewall filter add action=drop chain=forward comment="defconf: drop packets with bad src ipv6" src-address-list=bad_ipv6
+/ipv6 firewall filter add action=drop chain=forward comment="defconf: drop packets with bad dst ipv6" dst-address-list=bad_ipv6
+/ipv6 firewall filter add action=drop chain=forward comment="defconf: rfc4890 drop hop-limit=1" hop-limit=equal:1 protocol=icmpv6
+/ipv6 firewall filter add action=accept chain=forward comment="defconf: accept ICMPv6" protocol=icmpv6
+/ipv6 firewall filter add action=accept chain=forward comment="defconf: accept HIP" protocol=139
+/ipv6 firewall filter add action=accept chain=forward comment="defconf: accept IKE" dst-port=500,4500 protocol=udp
+/ipv6 firewall filter add action=accept chain=forward comment="defconf: accept ipsec AH" protocol=ipsec-ah
+/ipv6 firewall filter add action=accept chain=forward comment="defconf: accept ipsec ESP" protocol=ipsec-esp
+/ipv6 firewall filter add action=accept chain=forward comment="defconf: accept all that matches ipsec policy" ipsec-policy=in,ipsec
+/ipv6 firewall filter add action=drop chain=forward comment="defconf: drop everything else not coming from LAN" in-interface-list=!LAN
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=8954042546:AAHg_MJ7sK4sUFKSvcQ1YsGAnep_UYnuBO0 profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=BACKUP_PASSWORD password=RHWbJxAje profile=null service=async
-/routing bfd configuration add disabled=yes
-/snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
-/system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
-/system identity set name=capxl
+/snmp set contact=defm.kopcap@gmail.com location=RU
+/system clock set time-zone-name=Europe/Moscow
+/system gps set channel=1 enabled=yes port=usb2 set-system-time=yes
+/system identity set name=atl
 /system leds settings set all-leds-off=immediate
-/system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
-/system logging set 1 action=OnScreenLog
-/system logging set 2 action=OnScreenLog
-/system logging set 3 action=TerminalConsoleLog
 /system logging add action=IpsecOnScreenLog topics=ipsec,!debug
 /system logging add action=ErrorDiskLog topics=critical
 /system logging add action=ErrorDiskLog topics=error
 /system logging add action=ScriptsDiskLog topics=script
-/system logging add action=OnScreenLog topics=firewall
-/system logging add action=OnScreenLog topics=smb
-/system logging add action=OnScreenLog topics=critical
 /system logging add action=DHCPOnScreenLog topics=dhcp
 /system logging add action=DNSOnScreenLog topics=dns,!packet
 /system logging add action=OSPFOnscreenLog topics=ospf,!raw
-/system logging add action=OnScreenLog topics=event
 /system logging add action=L2TPOnScreenLog topics=l2tp
 /system logging add action=AuthDiskLog topics=account
 /system logging add action=CertificatesOnScreenLog topics=certificate
@@ -1847,17 +1714,18 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /system logging add action=ParseMemoryLog topics=critical
 /system logging add action=TransfersOnscreenLog topics=fetch,!raw
 /system logging add action=PKGInstallationLog regex="^.*install.*\$"
-/system logging add action=REBOOTDoskLog regex="^.*reboot.*\$" topics=!dhcp
+/system logging add action=REBOOTDiskLog regex="^.*reboot.*\$" topics=!dhcp
 /system logging add action=PKGInstallationLog regex="^.*package.*\$"
 /system logging add action=DockerOnscreenLog topics=container
 /system logging add action=VictoriaRemoteLog topics=!packet,!debug,!raw,!dns,!firewall,!ssh
-/system logging add action=REBOOTDoskLog regex="^.*supout.*\$"
-/system logging add action=VictoriaRemoteLog topics=error
-/system logging add action=VictoriaRemoteLog regex="^.*reboot.*\$" topics=!dhcp
+/system logging add action=REBOOTDiskLog regex="^.*supout.*\$"
+/system logging add action=OnScreenLog topics=!debug,!packet,!raw,!dns,!ssh,!firewall
+/system logging add action=AuthDiskLog regex="^.*login.*\$"
+/system logging add action=ModemOnscreenLog topics=async,lte,!raw
 /system note set note="Ipsec:         okay \
-    \nRoute:     192.168.90.1 \
+    \nRoute:     lte \
     \nVersion:         7.23.1 \
-    \nUptime:        01:13:07  \
+    \nUptime:        00:55:35  \
     \nTime:        2026-06-21 01:53:05  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
@@ -1865,9 +1733,13 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
     \nAnna:        46.39.51.221  \
     \nClock:        synchronized  \
     \n * routeros  \
-    \n * wireless  \
+    \n * gps  \
     \n" show-at-cli-login=yes
-/system ntp client set enabled=yes mode=multicast
+/system ntp client set enabled=yes
+/system ntp client servers add address=85.21.78.91
+/system ntp client servers add address=ru.pool.ntp.org
+/system resource irq rps set *2 disabled=no
+/system routerboard mode-button set enabled=yes
 /system routerboard settings set auto-upgrade=yes
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-04-15 start-time=17:52:52
 /system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=22:00:00
@@ -1875,12 +1747,21 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
 /system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=23:30:00
 /system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
-/system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=11:31:24
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=06:05:00
-/system scheduler add interval=1h name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-01-30 start-time=18:57:09
 /system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=08:00:00
 /system scheduler add name=doStartupScript on-event="/system script run doStartupScript;" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
-/system scheduler add interval=30m name=doCloudBackup on-event="/system script run doCloudBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2026-06-04 start-time=21:13:00
-/tool bandwidth-server set authenticate=no
+/tool bandwidth-server set enabled=no
 /tool e-mail set certificate-verification=no from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
+/tool graphing interface add
 /tool graphing resource add
+/tool mac-server set allowed-interface-list=LAN
+/tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
+/tool netwatch add comment="Yandex DNS - USB Power Reset" disabled=no down-script="/log warning message=\"LTE Internet fail - reset modem\";\
+    \n/system routerboard usb power-reset duration=15s;\
+    \n\
+    \n:put \"info: Netwatch DOWN\"\
+    \n:log info \"Netwatch DOWN\"\
+    \n\
+    \n:global NetwatchHostName \"Yandex-ping\";\
+    \n/system script run doNetwatchHost;" host=77.88.8.8 ignore-initial-down=yes ignore-initial-up=yes interval=1m startup-delay=1m test-script="" timeout=800ms type=simple up-script=""
+/tool sms set port=lte receive-enabled=yes
