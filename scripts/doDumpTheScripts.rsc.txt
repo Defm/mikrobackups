@@ -200,9 +200,7 @@ $globalNoteMe value="Scripts source export.."
 
 # we're going to upload lots of tiny files opening new SFTP connection each time - it looks like brutforce, so make some backdoor
 :local wanIp [/ip cloud get public-address];
-:local remoteCommand "/ip/firewall/address-list/add address=$wanIp list=alist-fw-knockknock comment=doDumpTheScripts timeout=3m dynamic=yes";
-
-:local remoteCommand ":if ([:len [/ip firewall address-list find list=alist-fw-knockknock address=$wanIp]] = 0 ) do={ /ip/firewall/address-list/add address=$wanIp list=alist-fw-knockknock comment=doDumpTheScripts timeout=3m dynamic=yes }" 
+:local remoteCommand "{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=$wanIp]; /ip/firewall/address-list/add address=$wanIp list=alist-fw-knockknock comment=doDumpTheScripts timeout=5m dynamic=yes }" 
 
 :set state "Making SFTP backdoor for $wanIp via SSH using:  $remoteCommand"
 $globalNoteMe value=$state
