@@ -1,4 +1,4 @@
-# 2026-06-21 01:56:18 by RouterOS 7.23.1
+# 2026-06-24 21:13:02 by RouterOS 7.23.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -1814,7 +1814,6 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
 /system clock set time-zone-autodetect=no time-zone-name=Europe/Moscow
 /system identity set name=capxl
-/system leds settings set all-leds-off=immediate
 /system logging set 0 action=OnScreenLog topics=info,!ipsec,!script,!dns
 /system logging set 1 action=OnScreenLog
 /system logging set 2 action=OnScreenLog
@@ -1854,19 +1853,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /system logging add action=REBOOTDoskLog regex="^.*supout.*\$"
 /system logging add action=VictoriaRemoteLog topics=error
 /system logging add action=VictoriaRemoteLog regex="^.*reboot.*\$" topics=!dhcp
-/system note set note="Ipsec:         okay \
-    \nRoute:     192.168.90.1 \
-    \nVersion:         7.23.1 \
-    \nUptime:        01:13:07  \
-    \nTime:        2026-06-21 01:53:05  \
-    \nPing:    0 ms  \
-    \nChr:        185.13.148.14  \
-    \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.221  \
-    \nClock:        synchronized  \
-    \n * routeros  \
-    \n * wireless  \
-    \n" show-at-cli-login=yes
+/system note set note=Pending show-at-cli-login=yes
 /system ntp client set enabled=yes mode=multicast
 /system routerboard settings set auto-upgrade=yes
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-04-15 start-time=17:52:52
