@@ -1,4 +1,4 @@
-# 2026-06-24 21:13:02 by RouterOS 7.23.1
+# 2026-06-29 21:13:02 by RouterOS 7.23.1
 # system id = pEDSXaHXN3J
 #
 # custom default configuration script installed
@@ -2853,7 +2853,9 @@
 /ip firewall nat add action=return chain=port-rdr-docker-chain comment=port-rdr-docker-chain
 /ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=alist-fw-vpn-subnets log-prefix=#VPN src-address-list=alist-nat-local-subnets
 /ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=alist-nat-local-subnets log-prefix=#VPN src-address-list=alist-fw-vpn-subnets
-/ip firewall nat add action=masquerade chain=srcnat comment="ANNA - VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel-anna
+/ip firewall nat
+# tunnel-anna not ready
+add action=masquerade chain=srcnat comment="ANNA - VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel-anna
 /ip firewall nat
 # tunnel-mikrotik not ready
 add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC)" out-interface=tunnel-mikrotik
@@ -2943,12 +2945,12 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
 /system note set note="Ipsec:         okay \
     \nRoute:     185.13.148.1 \
     \nVersion:         7.23.1 \
-    \nUptime:        1w3d23:15:20  \
-    \nTime:        2026-06-24 21:10:12  \
+    \nUptime:        2w1d23:15:21  \
+    \nTime:        2026-06-29 21:10:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.221  \
+    \nAnna:        46.39.51.205  \
     \nClock:        synchronized  \
     \n * routeros  \
     \n * container  \
