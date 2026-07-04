@@ -1,4 +1,4 @@
-# 2026-06-29 21:13:02 by RouterOS 7.23.1
+# 2026-07-04 21:13:02 by RouterOS 7.23.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -1786,9 +1786,9 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface=main-infrastructure-br name="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.205 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.213 name=ftpserver.org type=A
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.205 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.213 list=alist-nat-external-ip
 /ip firewall filter add action=accept chain=input dst-port=123 in-interface=main-infrastructure-br protocol=udp
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
