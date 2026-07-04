@@ -1,4 +1,4 @@
-# 2026-06-29 21:13:02 by RouterOS 7.23.1
+# 2026-07-04 21:13:02 by RouterOS 7.23.1
 # system id = pEDSXaHXN3J
 #
 # custom default configuration script installed
@@ -2945,12 +2945,12 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
 /system note set note="Ipsec:         okay \
     \nRoute:     185.13.148.1 \
     \nVersion:         7.23.1 \
-    \nUptime:        2w1d23:15:21  \
-    \nTime:        2026-06-29 21:10:12  \
+    \nUptime:        2w6d23:15:21  \
+    \nTime:        2026-07-04 21:10:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.205  \
+    \nAnna:        46.39.51.213  \
     \nClock:        synchronized  \
     \n * routeros  \
     \n * container  \
