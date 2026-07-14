@@ -1,4 +1,4 @@
-# 2026-07-04 21:13:02 by RouterOS 7.23.1
+# 2026-07-14 21:13:02 by RouterOS 7.23.1
 # system id = pEDSXaHXN3J
 #
 # custom default configuration script installed
@@ -18,7 +18,8 @@
 /interface veth add address=172.17.0.2/29 container-mac-address=26:8A:0C:A0:3E:3B dhcp=no gateway=172.17.0.1 gateway6="" mac-address=26:8A:0C:A0:3E:3A name=veth-telemt
 /interface veth add address=172.17.0.3/29 container-mac-address=30:A6:92:7E:80:32 dhcp=no gateway=172.17.0.1 gateway6="" mac-address=30:A6:92:7E:80:31 name=veth-telemt-webui
 /interface wireguard add listen-port=65114 mtu=1420 name=wg-to-capax private-key="03n33pIsv9MIDWss0bDxyZ0/0xsXo2OvEBjCWOy/Hlw="
-/container add check-certificate=no comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS hostname=telemt interface=veth-telemt layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_VOLUMES name=telemt remote-image=raylabpro/telemt:latest root-dir=/docker/runs/telemt start-on-boot=yes user=0:0 workdir=/tmp
+/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-status="failed with exit code 1, tries 872/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
+    \n" hostname=telemt interface=veth-telemt layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_VOLUMES name=telemt remote-image=ghcr.io/telemt/telemt:latest root-dir=/docker/runs/telemt start-on-boot=yes user=0:0 workdir=/tmp
 /container add check-certificate=no comment="MTProto telegram proxy web panel" dns=192.168.97.1 hostname=telemt-webui interface=veth-telemt-webui layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_WEBUI_VOLUMES name=telemt-webui remote-image=aleksey123/telemt-web-panel:latest root-dir=/docker/runs/telemt-webui start-on-boot=yes
 /container add check-certificate=no comment="Caddy web server and reverse proxy" dns=192.168.97.1 envlists=CADDY_ENVS hostname=caddy interface=veth-caddy layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=CADDY_VOLUMES name=caddy remote-image=caddy:latest root-dir=/docker/runs/caddy start-on-boot=yes user=0:0 workdir=/srv
 /container add check-certificate=no comment=HAproxy dns=192.168.97.1 hostname=haproxy interface=veth-haproxy layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=HAPROXY_VOLUMES name=haproxy remote-image=haproxy:latest root-dir=/docker/runs/haproxy start-on-boot=yes user=0:0 workdir=/var/lib/haproxy
@@ -2945,12 +2946,12 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
 /system note set note="Ipsec:         okay \
     \nRoute:     185.13.148.1 \
     \nVersion:         7.23.1 \
-    \nUptime:        2w6d23:15:21  \
-    \nTime:        2026-07-04 21:10:12  \
+    \nUptime:        4w2d23:15:20  \
+    \nTime:        2026-07-14 21:10:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.213  \
+    \nAnna:        46.39.51.193  \
     \nClock:        synchronized  \
     \n * routeros  \
     \n * container  \
