@@ -220,7 +220,10 @@ $globalNoteMe value=$state
 
 }
 
-:delay 2s
+# we have to wait while backdoor alist-fw-ssh-stage1 flushes our first-call Ip, otherwise we get banned
+:delay 15s
+:set state "Waiting backdoor for $wanIp for some seconds.."
+$globalNoteMe value=$state
 
 $globalNoteMe value="Scripts source pushing.."
 

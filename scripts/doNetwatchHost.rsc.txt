@@ -30,6 +30,8 @@ $globalScriptBeforeRun $scriptname;
 
 # fill it inside netwatch script
 :global NetwatchHostName;
+:global NetwatchHostState;
+
 
 :global globalTgMessage;
 :global globalNoteMe;
@@ -43,10 +45,17 @@ $globalScriptBeforeRun $scriptname;
   :error $inf; 
 }
 
+:if (!any $NetwatchHostState) do={
+
+  :set state "No NetwatchHostState provided..";
+  $globalNoteMe value=$state;
+  :error $inf; 
+}
+
 :set state "Netwatch for $NetwatchHostName started...";
 $globalNoteMe value=$state;
 
-:set state "$NetwatchHostName is DOWN";
+:set state "$NetwatchHostName is $NetwatchHostState";
 :log error "$state";
 
 $globalTgMessage value=$state;
