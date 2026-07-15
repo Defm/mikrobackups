@@ -19,14 +19,15 @@ $globalScriptBeforeRun $scriptname
 
 # paths
 :local FTPRoot "REPO"
-:local FTPSubDir "raw/scripts"
-:local FTPEnable false
+:local FTPSubDir "raw/scripts/"
+:local FTPEnable true
 :local FTPServer "usetheforce.io"
 :local FTPPort 2223
 :local FTPUser "automation"
 :local FTPPass "$[$SECRET get BACKUP_PASSWORD]"
 
-:local SSHFSEnable true
+# sshfs disk dramatically SLOOOOOOWS any '/file find' operations 
+:local SSHFSEnable false
 :local SSHDiskName "sshfs"
 :local SSHSubDir "raw/scripts/"
 
@@ -65,6 +66,49 @@ $globalScriptBeforeRun $scriptname
     :return $input
 }
 
+:local callSSH do={
+
+    # reading params
+    :local cmd $1;
+
+    :local errorDef "";
+    :local state "";
+
+:local FTPServer "usetheforce.io"
+:local FTPPort 2223
+:local FTPUser "automation"
+:local FTPPass "$[$SECRET get BACKUP_PASSWORD]"
+
+    :onerror errorName in={
+
+        :local state "Call: /system ssh-exec address=$FTPServer user=$FTPUser password=$FTPPass port=$FTPPort command=\"$cmd\" as-value";
+        $globalNoteMe value=$state;
+ 
+        #password-less (RSA keys) connection should be set up before to work without passwords
+        :local callResult ([/system ssh-exec address=$FTPServer user=$FTPUser password=$FTPPass port=$FTPPort command=$cmd as-value]);
+        :local exitCode ([$callResult]->"exit-code");
+
+        :if ($exitCode != 0) do={
+
+            :set errorDef "RPC: script parameter setup returns exit code ($exitCode)";
+
+        } else={
+
+            # success
+
+        }
+
+    } do={
+ 
+        :local errorDef "Error when $state: $errorName";
+        $globalNoteMe value=$errorDef;
+
+   };
+
+   :return $errorDef;
+
+};
+
 
 :if ( ![$globalOnPrimaryPartition] ) do={
     :set state "WARNING: the system booted up from fallback partition - skipping dump!"
@@ -98,7 +142,9 @@ $globalScriptBeforeRun $scriptname
 
 :local dumpPath "$RAMDiskName/$RAMSubDir";
 
-:local staleScripts [/file find where name~"dumpPath"]
+$globalNoteMe value="Clearing RAMdisk.."
+
+:local staleScripts [/file find where name~"$dumpPath"]
 /file remove $staleScripts
 
 
@@ -108,6 +154,7 @@ $globalNoteMe value="Scripts source export.."
 :local state ""
 
 :local scriptsList [/system script find]
+
 :foreach scriptId in=$scriptsList do={
   
   :if ($itsOk) do={
@@ -116,7 +163,7 @@ $globalNoteMe value="Scripts source export.."
     :local scriptName [/system script get $scriptId name]
     :local scriptSize [:len $scriptSource]
 
-    :local scriptPath "$dumpPath/$scriptName.rsc.txt"
+    :local scriptPath "$dumpPath$scriptName.rsc.txt"
 
     :set $globalScriptId $scriptId
 
@@ -151,7 +198,32 @@ $globalNoteMe value="Scripts source export.."
 
 }
 
-:delay 2s
+# we're going to upload lots of tiny files opening new SFTP connection each time - it looks like brutforce, so make some backdoor
+:local wanIp [/ip cloud get public-address];
+:local remoteCommand "{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=$wanIp]; /ip/firewall/address-list/add address=$wanIp list=alist-fw-knockknock comment=doDumpTheScripts timeout=5m dynamic=yes }" 
+
+:set state "Making SFTP backdoor for $wanIp via SSH using:  $remoteCommand"
+$globalNoteMe value=$state
+
+:local errorDef [$callSSH $remoteCommand];
+
+:if ([:len $errorDef] > 0) do={
+
+    :set state $errorDef;
+    $globalNoteMe value=$state;
+    :set itsOk false;
+
+} else={
+
+    :set state "Success RPC call: $state";
+    $globalNoteMe value=$state;
+
+}
+
+# we have to wait while backdoor alist-fw-ssh-stage1 flushes our first-call Ip, otherwise we get banned
+:delay 15s
+:set state "Waiting backdoor for $wanIp for some seconds.."
+$globalNoteMe value=$state
 
 $globalNoteMe value="Scripts source pushing.."
 
@@ -225,7 +297,7 @@ $globalNoteMe value="Scripts source pushing.."
 
 $globalNoteMe value="Housekeeping.."
 
-:local staleScripts [/file find where name~"dumpPath"]
+:local staleScripts [/file find where name~"$dumpPath"]
 /file remove $staleScripts
 
 :local summary ""

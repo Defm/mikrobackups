@@ -1,4 +1,4 @@
-# 2026-06-20 00:38:44 by RouterOS 7.23
+# 2026-07-15 19:22:07 by RouterOS 7.23
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -31,7 +31,7 @@
 /container add cmd="-debug -K u -a 5 --auto=none -Kt,h -d1 -s0+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -An -Ku -a1 -An" comment="YouTube freedom" dns=192.168.80.1 envlists=BYEDPI_QUIC_REJECT interface=byedpi-tunnel layer-dir="" logging=yes name=wiktorbgu/byedpi-hev-socks5-tunnel:redirect remote-image=wiktorbgu/byedpi-hev-socks5-tunnel:redirect root-dir=/usb-docker/docker/byedpi-hev-socks5-tunnel start-on-boot=yes workdir=/
 /container add check-certificate=no cmd="-syslog.listenAddr.udp=:514 -syslog.useRemoteIP.udp=true -defaultMsgValue=\"CEF stub\" -syslog.extraFields.udp='{\"env\": \"home\"}' -syslog.ignoreFields.udp='[\"cef.device_event_class_id\"]' -syslog.streamFields.udp='[\"hostname\",\"env\"]'" dns=192.168.80.1 hosts=victoria-logs:192.168.80.160 interface=veth-victoria-logs layer-dir=/usb-docker/layers logging=yes mount=/usb-docker/victoria-logs/data:/victoria-logs-data:rw name=victoria-logs remote-image=docker.io/victoriametrics/victoria-logs:latest root-dir=/usb-docker/victoria-logs/victoria-logs_root start-on-boot=yes stop-time=30s workdir=/
 /disk add comment=Ramdisk slot=RAM tmpfs-max-size=40000000 type=tmpfs
-/disk add slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
+/disk add disabled=yes slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
 /disk set usb slot=usb
 /disk add comment=container-disk parent=usb partition-number=1 partition-offset=65536 partition-size=5000000000 slot=usb-docker type=partition
 /disk add parent=usb partition-number=2 partition-offset=5000069120 partition-size=1000000000 slot=usb-swap swap=yes type=partition
@@ -67,6 +67,7 @@
 /iot lora servers add address=nam1.cloud.thethings.network name="TTN V3 (nam1)" protocol=UDP
 /iot lora servers add address=au1.cloud.thethings.network name="TTN V3 (au1)" protocol=UDP
 /iot mqtt brokers add address=wb.home auto-connect=yes client-id=anna name=Mosquitto parallel-scripts-limit=4 will-message="\"{\\\"anna\\\":\\\"died\\\"}\"" will-topic=my/test/topic
+/iot wiliot servers set *1 address=mqtt.us-east-2.prod.wiliot.cloud name="Wiliot US East"
 /ip dhcp-server add authoritative=after-2sec-delay interface=main-infrastructure-br lease-time=1d name=main-dhcp-server use-reconfigure=yes
 /ip dhcp-server option add code=15 force=yes name=DomainName_Windows value="s'home'"
 /ip dhcp-server option add code=119 force=yes name=DomainName_LinuxMac value="s'home'"
@@ -182,8 +183,8 @@
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB, name="AlxATV(wireless)(blocked)@guest-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.98.200/32 total-queue=default
 /queue simple add comment=dtq,AC:BA:C0:78:80:C6,Yandex-Station-Midi-PE0Y name="AliceMidi(wireless)@main-dhcp-server (AC:BA:C0:78:80:C6)" queue=default/default target=192.168.90.194/32 total-queue=default
 /queue simple add comment=dtq,AC:BA:C0:78:80:C6, name="AliceMidi(wireless)(blocked)@guest-dhcp-server (AC:BA:C0:78:80:C6)" queue=default/default target=192.168.98.194/32 total-queue=default
-/queue simple add comment=dtq,6C:06:D6:88:95:4F,HUAWEI_MediaPad_M6-dd6a4d name="HUAWEI_MediaPad_M6-dd6a4d@guest-dhcp-server (6C:06:D6:88:95:4F)" queue=default/default target=192.168.98.227/32 total-queue=default
-/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.230/32 total-queue=default
+/queue simple add comment=dtq,D6:93:76:E0:E2:F0, name="@guest-dhcp-server (D6:93:76:E0:E2:F0)" queue=default/default target=192.168.98.229/32 total-queue=default
+/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.228/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -1054,6 +1055,8 @@
     \n\
     \n# fill it inside netwatch script\
     \n:global NetwatchHostName;\
+    \n:global NetwatchHostState;\
+    \n\
     \n\
     \n:global globalTgMessage;\
     \n:global globalNoteMe;\
@@ -1067,10 +1070,17 @@
     \n  :error \$inf; \
     \n}\
     \n\
+    \n:if (!any \$NetwatchHostState) do={\
+    \n\
+    \n  :set state \"No NetwatchHostState provided..\";\
+    \n  \$globalNoteMe value=\$state;\
+    \n  :error \$inf; \
+    \n}\
+    \n\
     \n:set state \"Netwatch for \$NetwatchHostName started...\";\
     \n\$globalNoteMe value=\$state;\
     \n\
-    \n:set state \"\$NetwatchHostName is DOWN\";\
+    \n:set state \"\$NetwatchHostName is \$NetwatchHostState\";\
     \n:log error \"\$state\";\
     \n\
     \n\$globalTgMessage value=\$state;\
@@ -2536,11 +2546,11 @@
     \n        {\
     \n            :local jobid [:execute file=\$logName script=\$fetchCmd]\
     \n\
-    \n            :set state \"Waiting the end of process for prototol \$logName to be ready, max 20 seconds...\";\
+    \n            :set state \"Waiting the end of process for prototol \$logName to be ready, max 30 seconds...\";\
     \n            \$globalNoteMe value=\$state;\
     \n\
     \n            :global Gltesec 0\
-    \n            :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 20)) do={\
+    \n            :while (([:len [/sys script job find where .id=\$jobid]] = 1) && (\$Gltesec < 30)) do={\
     \n                :set Gltesec (\$Gltesec + 1)\
     \n                :delay 1s\
     \n\
@@ -2562,7 +2572,7 @@
     \n\
     \n            } else={\
     \n\
-    \n                :set state \"Result of Fetch:\\r\\n****************************\\r\\n 20Sec Timeout exceeded - still no log file \\r\\n****************************\";\
+    \n                :set state \"Result of Fetch:\\r\\n****************************\\r\\n 30Sec Timeout exceeded - still no log file \\r\\n****************************\";\
     \n                \$globalNoteMe value=\$state;\
     \n\
     \n            }\
@@ -2913,7 +2923,7 @@
     \n            :local dst \"\$FTPRawGitName\";\
     \n            :local fetchCmd \"/tool fetch url=sftp://\$FTPServer:\$FTPPort/\$dst src-path=\$buFile user=\$FTPUser password=\$FTPPass upload=yes\"\
     \n \
-    \n        \$globalCallFetch \$fetchCmd;\
+    \n             \$globalCallFetch \$fetchCmd;\
     \n\
     \n            \$globalNoteMe value=\"Done\"\
     \n            } on-error={ \
@@ -3110,14 +3120,15 @@
     \n\
     \n# paths\
     \n:local FTPRoot \"REPO\"\
-    \n:local FTPSubDir \"raw/scripts\"\
-    \n:local FTPEnable false\
+    \n:local FTPSubDir \"raw/scripts/\"\
+    \n:local FTPEnable true\
     \n:local FTPServer \"usetheforce.io\"\
     \n:local FTPPort 2223\
     \n:local FTPUser \"automation\"\
     \n:local FTPPass \"\$[\$SECRET get BACKUP_PASSWORD]\"\
     \n\
-    \n:local SSHFSEnable true\
+    \n# sshfs disk dramatically SLOOOOOOWS any '/file find' operations \
+    \n:local SSHFSEnable false\
     \n:local SSHDiskName \"sshfs\"\
     \n:local SSHSubDir \"raw/scripts/\"\
     \n\
@@ -3156,6 +3167,49 @@
     \n    :return \$input\
     \n}\
     \n\
+    \n:local callSSH do={\
+    \n\
+    \n    # reading params\
+    \n    :local cmd \$1;\
+    \n\
+    \n    :local errorDef \"\";\
+    \n    :local state \"\";\
+    \n\
+    \n:local FTPServer \"usetheforce.io\"\
+    \n:local FTPPort 2223\
+    \n:local FTPUser \"automation\"\
+    \n:local FTPPass \"\$[\$SECRET get BACKUP_PASSWORD]\"\
+    \n\
+    \n    :onerror errorName in={\
+    \n\
+    \n        :local state \"Call: /system ssh-exec address=\$FTPServer user=\$FTPUser password=\$FTPPass port=\$FTPPort command=\\\"\$cmd\\\" as-value\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n \
+    \n        #password-less (RSA keys) connection should be set up before to work without passwords\
+    \n        :local callResult ([/system ssh-exec address=\$FTPServer user=\$FTPUser password=\$FTPPass port=\$FTPPort command=\$cmd as-value]);\
+    \n        :local exitCode ([\$callResult]->\"exit-code\");\
+    \n\
+    \n        :if (\$exitCode != 0) do={\
+    \n\
+    \n            :set errorDef \"RPC: script parameter setup returns exit code (\$exitCode)\";\
+    \n\
+    \n        } else={\
+    \n\
+    \n            # success\
+    \n\
+    \n        }\
+    \n\
+    \n    } do={\
+    \n \
+    \n        :local errorDef \"Error when \$state: \$errorName\";\
+    \n        \$globalNoteMe value=\$errorDef;\
+    \n\
+    \n   };\
+    \n\
+    \n   :return \$errorDef;\
+    \n\
+    \n};\
+    \n\
     \n\
     \n:if ( ![\$globalOnPrimaryPartition] ) do={\
     \n    :set state \"WARNING: the system booted up from fallback partition - skipping dump!\"\
@@ -3189,7 +3243,9 @@
     \n\
     \n:local dumpPath \"\$RAMDiskName/\$RAMSubDir\";\
     \n\
-    \n:local staleScripts [/file find where name~\"dumpPath\"]\
+    \n\$globalNoteMe value=\"Clearing RAMdisk..\"\
+    \n\
+    \n:local staleScripts [/file find where name~\"\$dumpPath\"]\
     \n/file remove \$staleScripts\
     \n\
     \n\
@@ -3199,6 +3255,7 @@
     \n:local state \"\"\
     \n\
     \n:local scriptsList [/system script find]\
+    \n\
     \n:foreach scriptId in=\$scriptsList do={\
     \n  \
     \n  :if (\$itsOk) do={\
@@ -3207,7 +3264,7 @@
     \n    :local scriptName [/system script get \$scriptId name]\
     \n    :local scriptSize [:len \$scriptSource]\
     \n\
-    \n    :local scriptPath \"\$dumpPath/\$scriptName.rsc.txt\"\
+    \n    :local scriptPath \"\$dumpPath\$scriptName.rsc.txt\"\
     \n\
     \n    :set \$globalScriptId \$scriptId\
     \n\
@@ -3242,7 +3299,32 @@
     \n\
     \n}\
     \n\
-    \n:delay 2s\
+    \n# we're going to upload lots of tiny files opening new SFTP connection each time - it looks like brutforce, so make some backdoor\
+    \n:local wanIp [/ip cloud get public-address];\
+    \n:local remoteCommand \"{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=\$wanIp]; /ip/firewall/address-list/add address=\$wanIp list=alist-fw-knockknock comment=doDumpTheScripts timeout=5m dynamic=yes }\" \
+    \n\
+    \n:set state \"Making SFTP backdoor for \$wanIp via SSH using:  \$remoteCommand\"\
+    \n\$globalNoteMe value=\$state\
+    \n\
+    \n:local errorDef [\$callSSH \$remoteCommand];\
+    \n\
+    \n:if ([:len \$errorDef] > 0) do={\
+    \n\
+    \n    :set state \$errorDef;\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :set itsOk false;\
+    \n\
+    \n} else={\
+    \n\
+    \n    :set state \"Success RPC call: \$state\";\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n}\
+    \n\
+    \n# we have to wait while backdoor alist-fw-ssh-stage1 flushes our first-call Ip, otherwise we get banned\
+    \n:delay 15s\
+    \n:set state \"Waiting backdoor for \$wanIp for some seconds..\"\
+    \n\$globalNoteMe value=\$state\
     \n\
     \n\$globalNoteMe value=\"Scripts source pushing..\"\
     \n\
@@ -3316,7 +3398,7 @@
     \n\
     \n\$globalNoteMe value=\"Housekeeping..\"\
     \n\
-    \n:local staleScripts [/file find where name~\"dumpPath\"]\
+    \n:local staleScripts [/file find where name~\"\$dumpPath\"]\
     \n/file remove \$staleScripts\
     \n\
     \n:local summary \"\"\
@@ -4787,7 +4869,7 @@
 /app set cinny firewall-redirects=8094:80:tcp:web
 /app set goaway container-command-lines=goaway:none:docker.io/pommee/goaway:latest
 /app set home-assistant container-command-lines=home-assistant:none:lscr.io/linuxserver/homeassistant
-/app set lorawan-stack secrets=lorawan-stack__admin_password:iWtbaxZZQyALKvXOwbiFYsnIUVUahqnz
+/app set lorawan-stack secrets=lorawan-stack__admin_password:nOaVSxFZqQeoqAzAxKSAKQJjkvRNyjan
 /app set myip use-https=no
 /app set n8n firewall-redirects=5678:5678:tcp:web
 /app set nextcloud container-command-lines="db:none:docker.io/postgres:17,redis:none:docker.io/valkey/valkey:/bin/sh -c 'valkey-server --port 6379 --appendonly yes --requirepass \$VALKEY_PASSWORD',server:none:docker.io/nextcloud:apache"
@@ -4795,7 +4877,7 @@
 /app set redlib firewall-redirects=8087:8080:tcp:web
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
-/app set zulip secrets=zulip__postgres_password:MkQebppYtGMtzyzSNCMkCZRlksJZBMWq,zulip__memcached_password:TdKGHFjpihcdOgosLFiePInBuumcCgYj,zulip__rabbitmq_password:GuPctHytLEIeffnUEaSiromJuWKaiHoc,zulip__redis_password:qcETTeYoRHwdOSQGhaUzufpbOCeKRhoM,zulip__secret_key:xcSXEozPqCPcqBSlEvyMKeQUBpGpDXFT,zulip__email_password:OxGfUygBArptNsmHjBfqjzhqinDtCPwQ
+/app set zulip secrets=zulip__postgres_password:TbPQIKMzlQRVyIUAJppaHqlzgvPAsrXs,zulip__memcached_password:vDrwAnXKddieoeyOXYwPywdXfZrQKSYR,zulip__rabbitmq_password:LsjxdZOrxDfKRQHwHmbDdvkbtiQyTebq,zulip__redis_password:CfoLVmCdeCxFiNkcTlMVERlrAzwabOdB,zulip__secret_key:ANZxahmFcBefQYeeXtznGVlVrYuHeSKD,zulip__email_password:kqJVUqYKVvIbIacoxVmNiKJAOBrSMWyX
 /app settings set disk=usb-docker lan-bridge=main-infrastructure-br registry-mirrors=https://dh-mirror.gitverse.ru:https://hub.docker.com router-ip=192.168.90.1
 /caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AliceMidi(wireless)" disabled=no mac-address=4C:5F:70:97:DD:99 ssid-regexp="WiFi 2Ghz PRIV"
@@ -5021,7 +5103,7 @@
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 match-subdomain=yes name=anna.home type=A
 /ip dns static add cname=wb.home name=wb type=CNAME
-/ip dns static add address=192.168.90.3 comment="Netwatch checkup at 15:10:46" name=wb.home type=A
+/ip dns static add address=192.168.90.3 comment="Netwatch checkup at 14:30:48" name=wb.home type=A
 /ip dns static add cname=influxdb.home name=influxdb type=CNAME
 /ip dns static add address=172.16.0.17 name=influxdb.home type=A
 /ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
@@ -5344,7 +5426,9 @@
 /ip dns static add address=192.168.90.194 comment=<AUTO:DHCP:main-dhcp-server> name=Yandex-Station-Midi-PE0Y.home ttl=5m type=A
 /ip dns static add address=192.168.90.203 comment=<AUTO:DHCP:main-dhcp-server> name=ast25b.home ttl=5m type=A
 /ip dns static add address-list=alist-mangle-vpn comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=keybr.com type=FWD
-/ip dns static add address=46.39.51.221 name=ftpserver.org type=A
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260702-034500 forward-to=DOH-Google match-subdomain=yes name=r2---sn--n5pbvoj5caxu8-nboz.google type=FWD
+/ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260702-034500 forward-to=DOH-Google match-subdomain=yes name=r3---sn--h557snl6.googlevideo type=FWD
+/ip dns static add address=46.39.51.193 name=ftpserver.org type=A
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
 /ip firewall address-list add address=100.64.0.0/10 comment="RFC 6598 (Shared Address Space)" list=alist-fw-rfc-special
@@ -5416,7 +5500,7 @@
 /ip firewall address-list add address=91.108.20.0/22 comment=alist-mangle-TG-20260416-180000 list=alist-mangle-TG
 /ip firewall address-list add address=185.76.151.0/24 comment=alist-mangle-TG-20260416-180000 list=alist-mangle-TG
 /ip firewall address-list add address=5.28.128.0/17 comment=alist-mangle-TG-20260416-180000 list=alist-mangle-TG
-/ip firewall address-list add address=46.39.51.221 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.193 list=alist-nat-external-ip
 /ip firewall filter add action=drop chain=input comment=ECH_block dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(input)" protocol=udp
 /ip firewall filter add action=accept chain=input comment=SYSL dst-port=514 layer7-protocol=ECH log=yes log-prefix="#CATCH SYSL(input)" protocol=udp
 /ip firewall filter add action=drop chain=forward comment=ECH_block dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(forward)" protocol=udp
@@ -5747,7 +5831,7 @@
 /ip upnp interfaces add interface=main-infrastructure-br type=internal
 /ip upnp interfaces add interface=guest-infrastructure-br type=internal
 /ipv6 nd set [ find default=yes ] advertise-dns=yes
-/ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=798290125:AAE3gfeLKdtai3RPtnHRLbE8quNgAh7iC8M profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=8954042546:AAHg_MJ7sK4sUFKSvcQ1YsGAnep_UYnuBO0 profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=BACKUP_PASSWORD password=RHWbJxAje profile=null service=async
 /routing bgp connection add afi=ip as=65001 comment=ds connect=yes disabled=yes hold-time=3m input.filter=bgp_in instance=inject-into-vpn keepalive-time=1m listen=yes local.address=46.39.51.221 .role=ebgp multihop=yes name=antifilter-peer output.filter-chain=bgp-out-filter-reject-all .network=alist-antifilter-bgp .no-client-to-client-reflection=yes remote.address=51.75.66.20/32 .as=65444 .port=179 routing-table=rmark-vpn-redirect templates=antifilter-template
@@ -5802,7 +5886,6 @@
 /snmp set contact=defm.kopcap@gmail.com enabled=yes location=RU trap-generators=interfaces trap-interfaces=main-infrastructure-br trap-version=2
 /system clock set time-zone-name=Europe/Moscow
 /system identity set name=anna
-/system leds settings set all-leds-off=immediate
 /system logging add action=IpsecOnScreenLog topics=ipsec,!debug
 /system logging add action=ErrorDiskLog topics=critical
 /system logging add action=ErrorDiskLog topics=error
@@ -5840,18 +5923,18 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.23 \
-    \nUptime:        4d09:32:34  \
-    \nTime:        2026-06-20 00:30:13  \
+    \nUptime:        4d04:50:56  \
+    \nTime:        2026-07-15 19:20:13  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.221  \
+    \nAnna:        46.39.51.193  \
     \nClock:        synchronized  \
+    \n * container  \
     \n * wireless  \
     \n * routeros  \
     \n * rose-storage  \
     \n * iot  \
-    \n * container  \
     \n" show-at-cli-login=yes
 /system ntp client set enabled=yes
 /system ntp server set broadcast=yes enabled=yes multicast=yes
@@ -5889,56 +5972,56 @@
 /tool graphing resource add
 /tool mac-server set allowed-interface-list=none
 /tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
-/tool netwatch add comment="miniAlx(wire) status check" disabled=no down-script="\
-    \n:put \"info: Netwatch DOWN\"\
-    \n:log info \"Netwatch DOWN\"\
+/tool netwatch add comment="miniAlx(wire) status check" disabled=no down-script=":global NetwatchHostName \"minialx\";\
+    \n:global NetwatchHostState \"DOWN\";\
     \n\
-    \n:global NetwatchHostName \"miniAlx\";\
-    \n/system script run doNetwatchHost;" host=192.168.90.70 ignore-initial-down=yes ignore-initial-up=yes name=miniAlx startup-delay=20s test-script="" type=simple up-script="\
-    \n:put \"info: Netwatch UP\"\
-    \n:log info \"Netwatch UP\"\
+    \n/system script run doNetwatchHost;" host=192.168.90.70 ignore-initial-down=yes ignore-initial-up=yes name=miniAlx startup-delay=20s test-script="" type=simple up-script=":global NetwatchHostName \"minialx\";\
+    \n:global NetwatchHostState \"UP\";\
     \n\
-    \n:global NetwatchHostName \"miniAlx\";\
     \n/system script run doNetwatchHost;"
 /tool netwatch add comment="victoria(docker) status check" disabled=no down-script="\
-    \n:put \"info: Netwatch DOWN\"\
-    \n:log info \"Netwatch DOWN\"\
-    \n\
     \n:global NetwatchHostName \"victoria\";\
-    \n/system script run doNetwatchHost;" host=192.168.80.160 http-codes="" ignore-initial-down=yes ignore-initial-up=yes interval=1m name=victoria port=9428 src-address=192.168.90.1 startup-delay=1m test-script="" type=http-get up-script=""
-/tool netwatch add comment="CHR(remote) status check" disabled=no down-script=":put \"info: Netwatch DOWN\"\
-    \n:log info \"Netwatch DOWN\"\
+    \n:global NetwatchHostState \"DOWN\";\
     \n\
-    \n:global NetwatchHostName \"CHR-tunnel\";\
-    \n/system script run doNetwatchHost;" host=192.168.97.1 ignore-initial-down=yes ignore-initial-up=yes name=CHR startup-delay=20s test-script="" type=icmp up-script="\
-    \n:put \"info: Netwatch UP\"\
-    \n:log info \"Netwatch UP\"\
+    \n/system script run doNetwatchHost;" host=192.168.80.160 http-codes="" ignore-initial-down=yes ignore-initial-up=yes interval=1m name=victoria port=9428 src-address=192.168.90.1 startup-delay=1m test-script="" type=http-get up-script=":global NetwatchHostName \"victoria\";\
+    \n:global NetwatchHostState \"UP\";\
     \n\
-    \n:global NetwatchHostName \"miniAlx\";\
+    \n/system script run doNetwatchHost;"
+/tool netwatch add comment="CHR(remote) status check" disabled=no down-script=":global NetwatchHostName \"chr-tunnel\";\
+    \n:global NetwatchHostState \"DOWN\";\
+    \n\
+    \n/system script run doNetwatchHost;" host=192.168.97.1 ignore-initial-down=yes ignore-initial-up=yes name=CHR startup-delay=20s test-script="" type=icmp up-script=":global NetwatchHostName \"chr-tunnel\";\
+    \n:global NetwatchHostState \"UP\";\
+    \n\
     \n/system script run doNetwatchHost;"
 /tool netwatch add comment="WB(wire) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.2 ignore-initial-down=yes ignore-initial-up=yes interval=1m name="WB(wire)" startup-delay=20s test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
 /tool netwatch add comment="WB(wireless) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.3 ignore-initial-down=yes ignore-initial-up=yes interval=1m name="WB(wireless)" startup-delay=20s test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
-/tool netwatch add comment="AliceMidi(wireless) status check" disabled=no down-script="\
-    \n:put \"info: Netwatch DOWN\"\
-    \n:log info \"Netwatch DOWN\"\
+/tool netwatch add comment="AliceMidi(wireless) status check" disabled=no down-script=":global NetwatchHostName \"aliceMidi\";\
+    \n:global NetwatchHostState \"DOWN\";\
     \n\
-    \n:global NetwatchHostName \"AliceMidi\";\
-    \n/system script run doNetwatchHost;" host=192.168.90.194 ignore-initial-down=yes ignore-initial-up=yes name=AliceMidi startup-delay=20s test-script="" type=simple up-script=""
-/tool netwatch add comment="NSPanel(wireless) status check" disabled=no down-script="\
-    \n:put \"info: Netwatch DOWN\"\
-    \n:log info \"Netwatch DOWN\"\
+    \n/system script run doNetwatchHost;" host=192.168.90.194 ignore-initial-down=yes ignore-initial-up=yes name=AliceMidi startup-delay=20s test-script="" type=simple up-script=":global NetwatchHostName \"aliceMidi\";\
+    \n:global NetwatchHostState \"UP\";\
     \n\
-    \n:global NetwatchHostName \"NSPanel\";\
-    \n/system script run doNetwatchHost;" host=192.168.90.165 ignore-initial-down=yes ignore-initial-up=yes name=NSPanel startup-delay=20s test-script="" type=simple up-script=""
-/tool netwatch add comment="capxl(wire) status check" disabled=no down-script="\
-    \n:put \"info: Netwatch DOWN\"\
-    \n:log info \"Netwatch DOWN\"\
+    \n/system script run doNetwatchHost;"
+/tool netwatch add comment="NSPanel(wireless) status check" disabled=no down-script=":global NetwatchHostName \"nspanel\";\
+    \n:global NetwatchHostState \"DOWN\";\
     \n\
-    \n:global NetwatchHostName \"capxl\";\
-    \n/system script run doNetwatchHost;" host=192.168.90.10 ignore-initial-down=yes ignore-initial-up=yes startup-delay=20s test-script="" type=simple up-script=""
-/tool netwatch add comment="Alice2(wireless) status check" disabled=no down-script=":put \"info: Netwatch DOWN\"\
-    \n:log info \"Netwatch DOWN\"\
+    \n/system script run doNetwatchHost;" host=192.168.90.165 ignore-initial-down=yes ignore-initial-up=yes name=NSPanel startup-delay=20s test-script="" type=simple up-script=":global NetwatchHostName \"nspanel\";\
+    \n:global NetwatchHostState \"UP\";\
     \n\
-    \n:global NetwatchHostName \"Alice2\";\
-    \n/system script run doNetwatchHost;" host=192.168.90.220 ignore-initial-down=yes ignore-initial-up=yes name=Alice2 startup-delay=20s test-script="" type=simple up-script=""
+    \n/system script run doNetwatchHost;"
+/tool netwatch add comment="capxl(wire) status check" disabled=no down-script=":global NetwatchHostName \"capxl\";\
+    \n:global NetwatchHostState \"DOWN\";\
+    \n\
+    \n/system script run doNetwatchHost;" host=192.168.90.10 ignore-initial-down=yes ignore-initial-up=yes startup-delay=20s test-script="" type=simple up-script=":global NetwatchHostName \"capxl\";\
+    \n:global NetwatchHostState \"UP\";\
+    \n\
+    \n/system script run doNetwatchHost;"
+/tool netwatch add comment="Alice2(wireless) status check" disabled=no down-script=":global NetwatchHostName \"alice2\";\
+    \n:global NetwatchHostState \"DOWN\";\
+    \n\
+    \n/system script run doNetwatchHost;" host=192.168.90.220 ignore-initial-down=yes ignore-initial-up=yes name=Alice2 startup-delay=20s test-script="" type=simple up-script=":global NetwatchHostName \"alice2\";\
+    \n:global NetwatchHostState \"UP\";\
+    \n\
+    \n/system script run doNetwatchHost;"
 /tool sniffer set filter-port=bgp memory-limit=1000KiB streaming-server=192.168.90.170
