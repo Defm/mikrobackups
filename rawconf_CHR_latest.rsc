@@ -1,4 +1,4 @@
-# 2026-07-14 21:13:02 by RouterOS 7.23.1
+# 2026-07-15 18:31:32 by RouterOS 7.23.1
 # system id = pEDSXaHXN3J
 #
 # custom default configuration script installed
@@ -18,7 +18,7 @@
 /interface veth add address=172.17.0.2/29 container-mac-address=26:8A:0C:A0:3E:3B dhcp=no gateway=172.17.0.1 gateway6="" mac-address=26:8A:0C:A0:3E:3A name=veth-telemt
 /interface veth add address=172.17.0.3/29 container-mac-address=30:A6:92:7E:80:32 dhcp=no gateway=172.17.0.1 gateway6="" mac-address=30:A6:92:7E:80:31 name=veth-telemt-webui
 /interface wireguard add listen-port=65114 mtu=1420 name=wg-to-capax private-key="03n33pIsv9MIDWss0bDxyZ0/0xsXo2OvEBjCWOy/Hlw="
-/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-status="failed with exit code 1, tries 872/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
+/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-status="failed with exit code 1, tries 1343/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
     \n" hostname=telemt interface=veth-telemt layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_VOLUMES name=telemt remote-image=ghcr.io/telemt/telemt:latest root-dir=/docker/runs/telemt start-on-boot=yes user=0:0 workdir=/tmp
 /container add check-certificate=no comment="MTProto telegram proxy web panel" dns=192.168.97.1 hostname=telemt-webui interface=veth-telemt-webui layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_WEBUI_VOLUMES name=telemt-webui remote-image=aleksey123/telemt-web-panel:latest root-dir=/docker/runs/telemt-webui start-on-boot=yes
 /container add check-certificate=no comment="Caddy web server and reverse proxy" dns=192.168.97.1 envlists=CADDY_ENVS hostname=caddy interface=veth-caddy layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=CADDY_VOLUMES name=caddy remote-image=caddy:latest root-dir=/docker/runs/caddy start-on-boot=yes user=0:0 workdir=/srv
@@ -1283,6 +1283,8 @@
     \n\
     \n# fill it inside netwatch script\
     \n:global NetwatchHostName;\
+    \n:global NetwatchHostState;\
+    \n\
     \n\
     \n:global globalTgMessage;\
     \n:global globalNoteMe;\
@@ -1296,10 +1298,17 @@
     \n  :error \$inf; \
     \n}\
     \n\
+    \n:if (!any \$NetwatchHostState) do={\
+    \n\
+    \n  :set state \"No NetwatchHostState provided..\";\
+    \n  \$globalNoteMe value=\$state;\
+    \n  :error \$inf; \
+    \n}\
+    \n\
     \n:set state \"Netwatch for \$NetwatchHostName started...\";\
     \n\$globalNoteMe value=\$state;\
     \n\
-    \n:set state \"\$NetwatchHostName is DOWN\";\
+    \n:set state \"\$NetwatchHostName is \$NetwatchHostState\";\
     \n:log error \"\$state\";\
     \n\
     \n\$globalTgMessage value=\$state;\
@@ -2419,14 +2428,14 @@
 /app set cinny firewall-redirects=8094:80:tcp:web
 /app set goaway container-command-lines=goaway:none:docker.io/pommee/goaway:latest
 /app set home-assistant container-command-lines=home-assistant:none:lscr.io/linuxserver/homeassistant
-/app set lorawan-stack secrets=lorawan-stack__admin_password:kXIdsIQlJeTIJmcJVPEzKJpXBWjhebMI
+/app set lorawan-stack secrets=lorawan-stack__admin_password:idNImbohPVICHnovDPYVdIIyvdcormfq
 /app set n8n firewall-redirects=5678:5678:tcp:web
 /app set nextcloud container-command-lines="db:none:docker.io/postgres:17,redis:none:docker.io/valkey/valkey:/bin/sh -c 'valkey-server --port 6379 --appendonly yes --requirepass \$VALKEY_PASSWORD',server:none:docker.io/nextcloud:apache"
 /app set pihole environment="pihole:FTLCONF_dns_listeningMode=all,pihole:FTLCONF_webserver_api_password=password"
 /app set redlib firewall-redirects=8087:8080:tcp:web
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
-/app set zulip secrets=zulip__postgres_password:JvMVlVAXmHyDXzfUiCEadxGiQMeEREHM,zulip__memcached_password:ozfWGsehdZXDDGbWPPhFgUcxGxwSvmkE,zulip__rabbitmq_password:MDDJoIfnmqafZnrhRaSgvRqubSTKTdtZ,zulip__redis_password:YbmBetZbgKbZzPKoLcBVYoMfLKjxyKan,zulip__secret_key:AFtYIdnhAQbhASCmdSBUuaeMfVixsLyS,zulip__email_password:YyEoFvfAtmPakqAtAvgBRqdZmCPTYCsN
+/app set zulip secrets=zulip__postgres_password:SlVLMzdgVWutIpPzfmxynoIltDmdjMkS,zulip__memcached_password:pfmnGSOFtyxOsQZeTElgkBKlEbTsFQQM,zulip__rabbitmq_password:eMAnrCcPQbMVOEJsbhlpLpQjmBEgUoxT,zulip__redis_password:LyqFuqMsGxHDDQZBztNpCgYCUHAFOxnd,zulip__secret_key:VLvjtlpvQpykZgUEVlkAKjbSgTjfXTPU,zulip__email_password:bREsGPTsbDGiKISwAZhJJSLKyyfAQBxW
 /app settings set disk=ssd lan-bridge=main-infrastructure-br
 /certificate scep-server add ca-cert=ca@CHR days-valid=365 path=/scep/grant request-lifetime=5m
 /container config set layer-dir=/docker/layers memory-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/docker/pulls
@@ -2946,8 +2955,8 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
 /system note set note="Ipsec:         okay \
     \nRoute:     185.13.148.1 \
     \nVersion:         7.23.1 \
-    \nUptime:        4w2d23:15:20  \
-    \nTime:        2026-07-14 21:10:12  \
+    \nUptime:        11:10:33  \
+    \nTime:        2026-07-15 18:30:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
@@ -2970,7 +2979,11 @@ add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC
 /system scheduler add interval=30m name=doCloudBackup on-event="/system script run doCloudBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2026-02-04 start-time=18:48:55
 /tool bandwidth-server set authenticate=no enabled=no
 /tool e-mail set certificate-verification=no from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=starttls user=defm.kopcap@gmail.com
-/tool netwatch add disabled=no down-script=":global NetwatchHostName \"mikrouter.home\";\r\
-    \n/system script run doNetwatchHost;" host=192.168.99.1 interval=1m timeout=1s type=simple up-script=":global NetwatchHostName \"mikrouter.home\";\r\
+/tool netwatch add disabled=no down-script=":global NetwatchHostName \"mikrouter.home\";\
+    \n:global NetwatchHostState \"DOWN\";\
+    \n\
+    \n/system script run doNetwatchHost;" host=192.168.99.1 interval=1m test-script="" timeout=1s type=simple up-script=":global NetwatchHostName \"mikrouter.home\";\
+    \n:global NetwatchHostState \"UP\";\
+    \n\
     \n/system script run doNetwatchHost;"
 /tool sniffer set filter-ip-address=172.17.0.4/32 filter-ip-protocol=tcp filter-port=4430 streaming-enabled=yes streaming-server=192.168.97.1:30000
