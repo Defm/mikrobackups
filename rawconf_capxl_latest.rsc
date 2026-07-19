@@ -1,4 +1,4 @@
-# 2026-07-17 11:18:39 by RouterOS 7.23.1
+# 2026-07-19 21:13:02 by RouterOS 7.23.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -9,11 +9,11 @@
 /interface wireless
 # managed by CAPsMAN
 # channel: 2412/20/gn(17dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
-set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
+set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
 /interface wireless
 # managed by CAPsMAN
 # channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
-set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
+set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /disk add comment=Ramdisk slot=RAM tmpfs-max-size=10000000 type=tmpfs
 /disk add disabled=yes slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
 /interface lte apn set [ find default=yes ] ip-type=ipv4 use-network-apn=no
@@ -1788,9 +1788,9 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface=main-infrastructure-br name="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.193 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.215 name=ftpserver.org type=A
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.193 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.215 list=alist-nat-external-ip
 /ip firewall filter add action=accept chain=input dst-port=123 in-interface=main-infrastructure-br protocol=udp
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
@@ -1855,19 +1855,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /system logging add topics=netwatch
 /system logging add action=VictoriaRemoteLog topics=l2tp,!packet,!debug,!raw,!info
 /system logging add action=REBOOTDiskLog regex="^.*supout.*\$"
-/system note set note="Ipsec:         okay \
-    \nRoute:     192.168.90.1 \
-    \nVersion:         7.23.1 \
-    \nUptime:        5d20:43:46  \
-    \nTime:        2026-07-17 11:13:04  \
-    \nPing:    0 ms  \
-    \nChr:        185.13.148.14  \
-    \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.193  \
-    \nClock:        synchronized  \
-    \n * wireless  \
-    \n * routeros  \
-    \n" show-at-cli-login=yes
+/system note set note=Pending show-at-cli-login=yes
 /system ntp client set enabled=yes mode=multicast
 /system routerboard settings set auto-upgrade=yes
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-04-15 start-time=17:52:52
