@@ -1,4 +1,4 @@
-# 2026-07-24 21:13:02 by RouterOS 7.23.1
+# 2026-07-29 21:13:02 by RouterOS 7.23.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -9,11 +9,11 @@
 /interface wireless
 # managed by CAPsMAN
 # channel: 2412/20/gn(17dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
-set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
+set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
 /interface wireless
 # managed by CAPsMAN
-# channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
-set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
+# channel: 5180/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
+set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /disk add comment=Ramdisk slot=RAM tmpfs-max-size=10000000 type=tmpfs
 /disk add disabled=yes slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
 /interface lte apn set [ find default=yes ] ip-type=ipv4 use-network-apn=no
