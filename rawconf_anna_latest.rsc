@@ -1,12 +1,14 @@
-# 2026-08-28 21:13:03 by RouterOS 7.24.1
+# 2026-08-31 11:26:40 by RouterOS 7.24.1
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
 # serial number = HCY086PZ6XZ
-/caps-man channel add band=2ghz-b/g/n comment=CH1 control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
-/caps-man channel add band=5ghz-a/n/ac comment="20Mhz + Ce = 40Mhz, reselect interval from 5180, 5220, 5745, 5785 once per 10h" control-channel-width=20mhz extension-channel=Ce frequency=5180,5220,5745,5785 name=common-chnls-5Ghz reselect-interval=10h tx-power=15
-/caps-man configuration add mode=ap name=empty
-/interface bridge add arp=reply-only igmp-snooping=yes name=adm-netinstall-br port-cost-mode=short
+/disk add comment=Ramdisk slot=RAM tmpfs-max-size=40000000 type=tmpfs
+/disk add disabled=yes slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
+/disk set usb slot=usb
+/disk add comment=container-disk parent=usb partition-number=1 partition-offset=65536 partition-size=5000000000 slot=usb-docker type=partition
+/disk add parent=usb partition-number=2 partition-offset=5000069120 partition-size=1000000000 slot=usb-swap swap=yes type=partition
+/interface bridge add igmp-snooping=yes name=adm-netinstall-br port-cost-mode=short protocol-mode=none
 /interface bridge add name=docker-infrastructure-br port-cost-mode=short protocol-mode=none
 /interface bridge add igmp-snooping=yes name=guest-infrastructure-br port-cost-mode=short
 /interface bridge add arp=proxy-arp fast-forward=no name=ip-mapping-br port-cost-mode=short
@@ -15,7 +17,7 @@
 /interface ethernet set [ find default-name=ether2 ] arp=disabled l2mtu=1514 loop-protect=on name="lan A"
 /interface ethernet set [ find default-name=ether3 ] arp=disabled l2mtu=1514 loop-protect=on name="lan B"
 /interface ethernet set [ find default-name=ether4 ] advertise=10M-baseT-half,10M-baseT-full,100M-baseT-half,100M-baseT-full,1G-baseT-half,1G-baseT-full,2.5G-baseT,2.5G-baseX arp=disabled comment="To Table" l2mtu=1514 loop-protect=on name="lan C"
-/interface ethernet set [ find default-name=ether5 ] arp=disabled comment="To Capxl" l2mtu=1514 name="lan D" poe-out=forced-on
+/interface ethernet set [ find default-name=ether5 ] arp=disabled comment="To Capxl" l2mtu=1514 name="lan D"
 /interface ethernet set [ find default-name=ether6 ] arp=disabled l2mtu=1514 loop-protect=on name="lan E"
 /interface ethernet set [ find default-name=ether7 ] arp=disabled l2mtu=1514 loop-protect=on name="lan F"
 /interface ethernet set [ find default-name=ether8 ] l2mtu=1514 loop-protect=on name="lan G"
@@ -23,19 +25,8 @@
 /interface ethernet set [ find default-name=ether1 ] arp=proxy-arp comment="Trivial WAN" l2mtu=1514 mac-address=20:CF:30:DE:7B:2A name="wan A" poe-out=off
 /interface veth add address=192.168.80.2/24 container-mac-address=48:01:92:49:E4:C5 dhcp=no gateway=192.168.80.1 gateway6="" mac-address=48:01:92:49:E4:C4 name=byedpi-tunnel
 /interface veth add address=192.168.80.160/24 container-mac-address=44:D9:9B:83:FB:91 dhcp=no gateway=192.168.80.1 gateway6="" mac-address=44:D9:9B:83:FB:90 name=veth-victoria-logs
-/caps-man datapath add arp=proxy-arp bridge=guest-infrastructure-br client-to-client-forwarding=no name=2CapsMan-guest
-/caps-man datapath add arp=reply-only bridge=main-infrastructure-br client-to-client-forwarding=yes name=2CapsMan-private
-/caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps name="5GHz Rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps vht-basic-mcs=mcs0-9 vht-supported-mcs=mcs0-9
-/caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps ht-basic-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 ht-supported-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 name="2GHz rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps
-/caps-man security add authentication-types=wpa2-psk comment="2GHz/5GHz Security" encryption=aes-ccm group-encryption=aes-ccm group-key-update=1h name=private passphrase=mikrotik
-/caps-man security add authentication-types="" comment="2GHz/5GHz FREE" encryption="" group-key-update=5m name=guest
 /container add cmd="-debug -K u -a 5 --auto=none -Kt,h -d1 -s0+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -An -Ku -a1 -An" comment="YouTube freedom" dns=192.168.80.1 envlists=BYEDPI_QUIC_REJECT interface=byedpi-tunnel layer-dir="" logging=yes name=wiktorbgu/byedpi-hev-socks5-tunnel:redirect remote-image=wiktorbgu/byedpi-hev-socks5-tunnel:redirect root-dir=/usb-docker/docker/byedpi-hev-socks5-tunnel start-on-boot=yes workdir=/
 /container add check-certificate=no cmd="-syslog.listenAddr.udp=:514 -syslog.useRemoteIP.udp=true -defaultMsgValue=\"CEF stub\" -syslog.extraFields.udp='{\"env\": \"home\"}' -syslog.ignoreFields.udp='[\"cef.device_event_class_id\"]' -syslog.streamFields.udp='[\"hostname\",\"env\"]'" dns=192.168.80.1 hosts=victoria-logs:192.168.80.160 interface=veth-victoria-logs layer-dir=/usb-docker/layers logging=yes mount=/usb-docker/victoria-logs/data:/victoria-logs-data:rw name=victoria-logs remote-image=docker.io/victoriametrics/victoria-logs:latest root-dir=/usb-docker/victoria-logs/victoria-logs_root start-on-boot=yes stop-time=30s workdir=/
-/disk add comment=Ramdisk slot=RAM tmpfs-max-size=40000000 type=tmpfs
-/disk add disabled=yes slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
-/disk set usb slot=usb
-/disk add comment=container-disk parent=usb partition-number=1 partition-offset=65536 partition-size=5000000000 slot=usb-docker type=partition
-/disk add parent=usb partition-number=2 partition-offset=5000069120 partition-size=1000000000 slot=usb-swap swap=yes type=partition
 /interface list add comment="Trusted networks" name=list-trusted
 /interface list add comment="Semi-Trusted networks" name=list-semi-trusted
 /interface list add comment="Untrusted networks" name=list-untrusted
@@ -55,12 +46,21 @@
 /interface list add comment="support OSPF interfaces" name=list-ospf-bearing
 /interface list add comment="mangle rule: redirect to byedpi" name=list-mangle-redirect-byedpi
 /interface list add comment="mangle rule: redirect to vpn" name=list-mangle-redirect-vpn
-/caps-man configuration add channel=common-chnls-2Ghz country=russia datapath=2CapsMan-private datapath.interface-list=list-2ghz-caps-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
-/caps-man configuration add channel=common-chnls-5Ghz country=russia datapath=2CapsMan-private datapath.interface-list=list-5ghz-caps-private disconnect-timeout=9s distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-5Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 5Ghz PRIVATE" tx-chains=0,1,2,3
-/caps-man configuration add channel=common-chnls-2Ghz country=russia datapath=2CapsMan-guest datapath.interface-list=list-2ghz-caps-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
-/interface wireless security-profiles set [ find default=yes ] supplicant-identity=anna
-/interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" group-key-update=1h management-protection=allowed mode=dynamic-keys name=private supplicant-identity="" wpa-pre-shared-key=mikrotik wpa2-pre-shared-key=mikrotik
-/interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
+/interface list add comment="CAPsMAN service" name=list-capsman
+/interface wifi channel add band=2ghz-n disabled=no frequency=2412,2437,2462 name=2CH-N-1-6-11 reselect-interval=2h..4h width=20mhz
+/interface wifi channel add band=5ghz-ac comment="UNII-1 (skip DFS)" disabled=no frequency=5180,5220 name=5CH-AC-36-44 reselect-interval=2h..4h reselect-time=10:00:00..10:30:00 skip-dfs-channels=all width=20/40mhz
+/interface wifi channel add band=5ghz-ax comment="UNII-2 Extended (+DFS)" disabled=no frequency=5700 name=5CH-AX-140 reselect-interval=2h..4h reselect-time=10:00:00..10:30:00 skip-dfs-channels=10min-cac width=20/40mhz
+/interface wifi channel add band=5ghz-ax comment="UNII-3 (skip DFS)" disabled=no frequency=5745 name=5CH-AX-149 reselect-interval=2h..4h reselect-time=10:00:00..10:30:00 skip-dfs-channels=all width=20/40/80mhz
+/interface wifi configuration add disabled=no name=empty
+/interface wifi datapath add bridge=main-infrastructure-br comment=private disabled=no interface-list=list-2ghz-caps-guest name=via-CAP-itself-private traffic-processing=on-cap
+/interface wifi datapath add bridge=guest-infrastructure-br client-isolation=yes comment=guest disabled=no interface-list=list-2ghz-caps-private name=via-CAP-itself-guest traffic-processing=on-cap
+/interface wifi security add authentication-types=wpa3-psk comment="2GHz/5GHz Security" dh-groups=19,20 disable-pmkid=yes disabled=no encryption=ccmp,gcmp,ccmp-256,gcmp-256 ft=yes ft-reassociation-deadline=1m management-protection=required name=wpa3-security passphrase=mikrotik wps=disable
+/interface wifi security add authentication-types=wpa2-psk comment="2GHz/5GHz Security" dh-groups=19,20 disable-pmkid=yes disabled=no encryption=ccmp,gcmp,ccmp-256,gcmp-256 ft=yes ft-reassociation-deadline=1m management-protection=allowed name=wpa2-security passphrase=mikrotik wps=disable
+/interface wifi security add comment="2GHz/5GHz FREE" disabled=no name=no-security
+/interface wifi steering add disabled=no name=same-ssid rrm=yes wnm=yes
+/interface wifi configuration add chains=0,1,2 channel=5CH-AC-36-44 comment=zone-5Ghz-private country=Russia datapath=via-CAP-itself-private disabled=no hw-protection-mode=none installation=indoor max-clients=20 mode=ap multicast-enhance=enabled name=RU-AP-5 qos-classifier=priority security=wpa3-security ssid="WiFi 5Ghz PRIVATE" steering=same-ssid steering.neighbor-group=dynamic-LocalWiFi-e5e02ae3 tx-chains=0,1,2 tx-power=20
+/interface wifi configuration add chains=0,1,2 channel=2CH-N-1-6-11 comment=zone-2Ghz-private country=Russia datapath=via-CAP-itself-private disabled=no hw-protection-mode=none installation=indoor max-clients=20 mode=ap multicast-enhance=enabled name=RU-AP-24-SECURE qos-classifier=priority security=wpa2-security ssid="WiFi 2Ghz PRIVATE" steering=same-ssid steering.neighbor-group=dynamic-LocalWiFi-e5e02ae3 tx-chains=0,1,2 tx-power=17
+/interface wifi configuration add chains=0,1,2 channel=2CH-N-1-6-11 channel.frequency=2412,2437,2462 comment=zone-2Ghz-guest country=Russia datapath=via-CAP-itself-guest disabled=no hw-protection-mode=none installation=indoor max-clients=20 mode=ap multicast-enhance=enabled name=RU-AP-24-FREE qos-classifier=priority security=no-security ssid="WiFi 2Ghz FREE" steering=same-ssid steering.neighbor-group=dynamic-LocalWiFi-e5e02ae3 tx-chains=0,1,2 tx-power=17
 /iot lora servers add address=eu1.cloud.thethings.industries name="TTS Cloud (eu1)" protocol=UDP
 /iot lora servers add address=nam1.cloud.thethings.industries name="TTS Cloud (nam1)" protocol=UDP
 /iot lora servers add address=au1.cloud.thethings.industries name="TTS Cloud (au1)" protocol=UDP
@@ -98,6 +98,7 @@
 /ip pool add name=pool-virtual-machines ranges=192.168.90.0/26
 /ip pool add name=pool-vendor ranges=192.168.90.8-192.168.90.10
 /ip pool add name=pool-containers ranges=192.168.80.160/28
+/ip pool add name=pool-netinstall ranges=192.168.168.160/28
 /ip dhcp-server add add-arp=yes address-pool=pool-guest authoritative=after-2sec-delay interface=guest-infrastructure-br lease-script="\
     \n# Globals\
     \n#\
@@ -138,8 +139,6 @@
 /queue simple add comment=dtq,90:DD:5D:CA:8F:B0, name="AlxATV(wire)(blocked)@guest-dhcp-server (90:DD:5D:CA:8F:B0)" queue=default/default target=192.168.98.201/32 total-queue=default
 /queue simple add comment=dtq,04:F1:69:8E:12:B6, name="Hare's Honor9x(wireless)@main-dhcp-server (04:F1:69:8E:12:B6)" queue=default/default target=192.168.90.140/32 total-queue=default
 /queue simple add comment=dtq,04:F1:69:8E:12:B6, name="Hare's Honor9x(wireless)(blocked)@guest-dhcp-server (04:F1:69:8E:12:B6)" queue=default/default target=192.168.98.140/32 total-queue=default
-/queue simple add comment=dtq,B8:87:6E:19:90:33, name="Alice(wireless)@main-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.90.220/32 total-queue=default
-/queue simple add comment=dtq,B8:87:6E:19:90:33, name="Alice(wireless)(blocked)@guest-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.98.220/32 total-queue=default
 /queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)@main-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.90.180/32 total-queue=default
 /queue simple add comment=dtq,D4:A6:51:C9:54:A7, name="Tuya(wireless)(blocked)@guest-dhcp-server (D4:A6:51:C9:54:A7)" queue=default/default target=192.168.98.180/32 total-queue=default
 /queue simple add comment=dtq,D4:3B:04:87:C7:47,DESKTOP-G3RE47G name="HareDell@main-dhcp-server (D4:3B:04:87:C7:47)" queue=default/default target=192.168.90.77/32 total-queue=default
@@ -180,12 +179,14 @@
 /queue simple add comment=dtq,B8:2D:28:0A:39:0E, name="clicbot(wireless)@main-dhcp-server (B8:2D:28:0A:39:0E)" queue=default/default target=192.168.90.222/32 total-queue=default
 /queue simple add comment=dtq,B8:2D:28:0A:39:0E, name="clicbot(wireless)(blocked)@guest-dhcp-server (B8:2D:28:0A:39:0E)" queue=default/default target=192.168.98.222/32 total-queue=default
 /queue simple add comment=dtq,C8:FE:0F:0B:19:3A,wb name="WB (wireless)@main-dhcp-server (C8:FE:0F:0B:19:3A)" queue=default/default target=192.168.90.3/32 total-queue=default
-/queue simple add comment=dtq,60:3D:61:6B:B7:B4, name="Alice3(wireless)@main-dhcp-server (60:3D:61:6B:B7:B4)" queue=default/default target=192.168.90.225/32 total-queue=default
-/queue simple add comment=dtq,60:3D:61:6B:B7:B4, name="Alice3(wireless)(blocked)@guest-dhcp-server (60:3D:61:6B:B7:B4)" queue=default/default target=192.168.98.225/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB, name="AlxATV(wireless)(blocked)@guest-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.98.200/32 total-queue=default
 /queue simple add comment=dtq,AC:BA:C0:78:80:C6,Yandex-Station-Midi-PE0Y name="AliceMidi(wireless)@main-dhcp-server (AC:BA:C0:78:80:C6)" queue=default/default target=192.168.90.194/32 total-queue=default
 /queue simple add comment=dtq,AC:BA:C0:78:80:C6, name="AliceMidi(wireless)(blocked)@guest-dhcp-server (AC:BA:C0:78:80:C6)" queue=default/default target=192.168.98.194/32 total-queue=default
-/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.213/32 total-queue=default
+/queue simple add comment=dtq,B8:87:6E:19:90:33, name="Alice2(wireless)@main-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.90.196/32 total-queue=default
+/queue simple add comment=dtq,B8:87:6E:19:90:33, name="Alice2(wireless)(blocked)@guest-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.98.196/32 total-queue=default
+/queue simple add comment=dtq,6C:1F:F7:60:69:71,MbpAlxm name="MbpAlxm (wire) - STATIC!@netinstall-dhcp-server (6C:1F:F7:60:69:71)" queue=default/default target=192.168.168.174/32 total-queue=default
+/queue simple add comment=dtq,60:3D:61:6B:B7:B4, name="Alice3(wireless)@main-dhcp-server (60:3D:61:6B:B7:B4)" queue=default/default target=192.168.90.195/32 total-queue=default
+/queue simple add comment=dtq,60:3D:61:6B:B7:B4, name="Alice3(wireless)(blocked)@guest-dhcp-server (60:3D:61:6B:B7:B4)" queue=default/default target=192.168.98.195/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -4878,56 +4879,12 @@
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
 /app settings set disk=usb-docker lan-bridge=main-infrastructure-br registry-mirrors=https://dh-mirror.gitverse.ru:https://hub.docker.com router-ip=192.168.90.1
-/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AliceMidi(wireless)" disabled=no mac-address=4C:5F:70:97:DD:99 ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AliceMidi(wireless)" disabled=no mac-address=AC:BA:C0:78:80:C6 ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AlxATV(wireless)" disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Froloff(wireless)" disabled=no mac-address=B8:94:E7:61:3F:08 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Froloff(wireless)" disabled=no mac-address=C8:90:8A:9A:50:A1 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Tomm(wireless)" disabled=no mac-address=22:26:E9:CA:87:BA ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="MSI(wire)" disabled=no mac-address=34:5A:60:89:1C:E1 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Serg(wireless)" disabled=no mac-address=BC:B2:CC:5F:9D:C4 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Elvira(wireless)" disabled=no mac-address=2C:0B:97:C1:A8:C8 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="SamsungS23(wereless)" disabled=no mac-address=F6:12:A6:71:59:08 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="SamsungS23(wereless)" disabled=no mac-address=F4:2B:8C:AF:34:20 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AST(wire)" disabled=no mac-address=00:0E:2D:1A:73:36 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="nSwitch(wereless)" disabled=no mac-address=BC:74:4B:E8:9B:61 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPadAlxPro(wireless) 5Ghz" disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPadAlxPro(wireless) 2Ghz" disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="miniAlx(wireless)" disabled=no mac-address=88:53:95:30:68:9F ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless) 5Ghz" disabled=no mac-address=DC:10:57:2D:39:7B ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless) 2Ghz" disabled=no mac-address=DC:10:57:2D:39:7B ssid-regexp="WiFi 2"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="NSPanel(wireless)" disabled=no mac-address=40:80:E1:5B:41:B8 ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=HareDell disabled=no mac-address=D4:3B:04:87:C7:47 ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Tuya(wireless)" disabled=no mac-address=D4:A6:51:C9:54:A7 ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Alice(wireless) 2Ghz" disabled=no mac-address=B8:87:6E:19:90:33 ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Alice3(wireless) 2Ghz" disabled=no mac-address=60:3D:61:6B:B7:B4 ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Hare's Honor9x(wireless)" disabled=no mac-address=04:F1:69:8E:12:B6 ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="WB (wireless)" disabled=no mac-address=C8:FE:0F:0B:19:3A ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="MbpAlxm(wireless) 5Mhz" disabled=no mac-address=BC:D0:74:0A:B2:6A ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="MbpAlxm(wireless) 2MHz" disabled=no mac-address=BC:D0:74:0A:B2:6A ssid-regexp="WiFi 2"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="android(wireless)" disabled=no mac-address=00:27:15:CE:B8:DD ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="ASUS(wireless)" disabled=no mac-address=54:35:30:05:9B:BD ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Twinkle(wireless)" disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AudioATV(wireless)" disabled=no mac-address=B0:34:95:50:A1:6A ssid-regexp="WiFi 5"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="clicbot(wireless)" disabled=no mac-address=B8:2D:28:0A:39:0E ssid-regexp="WiFi 2"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
-/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
-/caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface="wan A"
-/caps-man manager interface add comment="Do CapsMan on private" disabled=no interface=main-infrastructure-br
-/caps-man manager interface add comment="Do CapsMan on guest" disabled=no interface=guest-infrastructure-br
-/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest" hw-supported-modes=gn identity-regexp=capxl master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
-/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private" hw-supported-modes=ac identity-regexp=capxl master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
-/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn identity-regexp=anna master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
-/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac identity-regexp=anna master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
-/caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
 /certificate settings set builtin-trust-store=all
 /container config set layer-dir=/usb-docker/layers memory-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/usb-docker/docker/pull
 /container envs add key=QUIC list=BYEDPI_QUIC_REJECT value=REJECT
 /disk settings set auto-media-interface=main-infrastructure-br
 /ip smb set domain=HNW enabled=no interfaces=main-infrastructure-br
-/interface bridge port add bridge=adm-netinstall-br comment="To Capxl" interface="lan D" internal-path-cost=10 path-cost=10 trusted=yes
+/interface bridge port add bridge=main-infrastructure-br comment="To Capxl" interface="lan D" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge port add bridge=main-infrastructure-br interface="lan A" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge port add bridge=main-infrastructure-br interface="lan B" internal-path-cost=10 path-cost=10 trusted=yes
 /interface bridge port add bridge=main-infrastructure-br comment="To Table" interface="lan C" internal-path-cost=10 path-cost=10 trusted=yes
@@ -4959,7 +4916,49 @@
 /interface list member add comment="LAN, WLAN" interface=ip-mapping-br list=list-trusted
 /interface list member add comment="redirect to vpn" interface=main-infrastructure-br list=list-mangle-redirect-vpn
 /interface list member add comment="neighbors lookup" interface=adm-netinstall-br list=list-neighbors-lookup
-/interface wireless snooper set receive-errors=yes
+/interface list member add interface=guest-infrastructure-br list=list-capsman
+/interface list member add interface=main-infrastructure-br list=list-capsman
+/interface wifi access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="AliceMidi(wireless)" disabled=no mac-address=4C:5F:70:97:DD:99 ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="AliceMidi(wireless)" disabled=no mac-address=AC:BA:C0:78:80:C6 ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="AlxATV(wireless)" disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="Froloff(wireless)" disabled=no mac-address=B8:94:E7:61:3F:08 ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="Froloff(wireless)" disabled=no mac-address=C8:90:8A:9A:50:A1 ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="Tomm(wireless)" disabled=no mac-address=22:26:E9:CA:87:BA ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="MSI(wire)" disabled=no mac-address=34:5A:60:89:1C:E1 ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="Serg(wireless)" disabled=no mac-address=BC:B2:CC:5F:9D:C4 ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="Elvira(wireless)" disabled=no mac-address=2C:0B:97:C1:A8:C8 ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="SamsungS23(wereless)" disabled=no mac-address=F6:12:A6:71:59:08 ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="SamsungS23(wereless)" disabled=no mac-address=F4:2B:8C:AF:34:20 ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="AST(wire)" disabled=no mac-address=00:0E:2D:1A:73:36 ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="nSwitch(wereless)" disabled=no mac-address=BC:74:4B:E8:9B:61 ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="iPadAlxPro(wireless) 5Ghz" disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="iPadAlxPro(wireless) 2Ghz" disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="miniAlx(wireless)" disabled=no mac-address=88:53:95:30:68:9F ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="iPhoneAlxr(wireless) 5Ghz" disabled=no mac-address=DC:10:57:2D:39:7B ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="iPhoneAlxr(wireless) 2Ghz" disabled=no mac-address=DC:10:57:2D:39:7B ssid-regexp="WiFi 2"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="NSPanel(wireless)" disabled=no mac-address=40:80:E1:5B:41:B8 ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment=HareDell disabled=no mac-address=D4:3B:04:87:C7:47 ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="Tuya(wireless)" disabled=no mac-address=D4:A6:51:C9:54:A7 ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="Alice(wireless) 2Ghz" disabled=no mac-address=B8:87:6E:19:90:33 ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="Alice3(wireless) 2Ghz" disabled=no mac-address=60:3D:61:6B:B7:B4 ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="Hare's Honor9x(wireless)" disabled=no mac-address=04:F1:69:8E:12:B6 ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="WB (wireless)" disabled=no mac-address=C8:FE:0F:0B:19:3A ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="MbpAlxm(wireless) 5Mhz" disabled=no mac-address=BC:D0:74:0A:B2:6A ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="MbpAlxm(wireless) 2MHz" disabled=no mac-address=BC:D0:74:0A:B2:6A ssid-regexp="WiFi 2"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="android(wireless)" disabled=no mac-address=00:27:15:CE:B8:DD ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="ASUS(wireless)" disabled=no mac-address=54:35:30:05:9B:BD ssid-regexp="WiFi 2Ghz PRIV"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="Twinkle(wireless)" disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="AudioATV(wireless)" disabled=no mac-address=B0:34:95:50:A1:6A ssid-regexp="WiFi 5"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="clicbot(wireless)" disabled=no mac-address=B8:2D:28:0A:39:0E ssid-regexp="WiFi 2"
+/interface wifi access-list add action=accept allow-signal-out-of-range=10s client-isolation=yes comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
+/interface wifi access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
+/interface wifi capsman set enabled=yes interfaces=list-capsman upgrade-policy=none
+/interface wifi provisioning add action=create-dynamic-enabled comment="2Ghz private/guest" disabled=no identity-regexp=capxl master-configuration=RU-AP-24-SECURE name-format=sec-2Ghz-%I slave-configurations=RU-AP-24-FREE slave-name-format=open-2Ghz-%I supported-bands=2ghz-n
+/interface wifi provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" disabled=no identity-regexp=anna master-configuration=RU-AP-24-SECURE name-format=sec-2Ghz-%I slave-configurations=RU-AP-24-FREE slave-name-format=open-2Ghz-%I supported-bands=2ghz-n
+/interface wifi provisioning add action=create-dynamic-enabled comment="5Ghz private" disabled=no identity-regexp=capxl master-configuration=RU-AP-5 name-format=sec-5Ghz-%I supported-bands=5ghz-ac
+/interface wifi provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" disabled=no identity-regexp=anna master-configuration=RU-AP-5 name-format=sec-5Ghz-%I supported-bands=5ghz-ac
+/interface wifi provisioning add action=create-dynamic-enabled comment=dummy disabled=no master-configuration=empty name-format=dummy-%I
 /iot mqtt subscriptions add broker=Mosquitto topic=/devices/metrics/controls/load_average_1min
 /iot mqtt subscriptions add broker=Mosquitto on-message="{\
     \n:log info \"Got data {\$msgData} from topic {\$msgTopic} - Green signal\"\
@@ -4978,7 +4977,7 @@
 /ip address add address=172.16.0.17/30 comment="INFLUXDB IP redirect" interface=ip-mapping-br network=172.16.0.16
 /ip address add address=192.168.80.1/24 comment="docker network" interface=docker-infrastructure-br network=192.168.80.0
 /ip address add address=10.255.0.3 comment="ospf router-id binding for vpn routing table" interface=ospf-loopback-br network=10.255.0.3
-/ip address add address=192.168.168.161/28 comment="netinstall static" interface=adm-netinstall-br network=192.168.168.160
+/ip address add address=192.168.168.1/24 comment="netinstall static" interface=adm-netinstall-br network=192.168.168.0
 /ip arp add address=192.168.90.90 comment="MbpAlx (wire)" interface=main-infrastructure-br mac-address=38:C9:86:51:D2:B3
 /ip arp add address=192.168.90.40 comment=NAS interface=main-infrastructure-br mac-address=00:11:32:2C:A7:85
 /ip arp add address=192.168.90.10 comment="capxl(wire)" interface=main-infrastructure-br mac-address=18:FD:74:94:FD:70
@@ -5018,7 +5017,6 @@
 /ip arp add address=192.168.90.225 comment="Alice3(wireless)" interface=main-infrastructure-br mac-address=60:3D:61:6B:B7:B4
 /ip arp add address=192.168.90.194 comment="AliceMidi(wireless)" interface=main-infrastructure-br mac-address=AC:BA:C0:78:80:C6
 /ip arp add address=192.168.90.200 comment="AlxATV(wireless)" interface=main-infrastructure-br mac-address=90:DD:5D:C8:46:AB
-/ip arp add address=192.168.168.174 comment="MbpAlxm (wire) - STATIC" interface=adm-netinstall-br mac-address=6C:1F:F7:60:69:71
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add allow-reconfigure=yes comment="wan via akado edge router" dhcp-options=clientid_duid,clientid,hostname interface="wan A" name=akado use-peer-dns=no use-peer-ntp=no
 /ip dhcp-server lease add address=192.168.90.40 comment=NAS mac-address=00:11:32:2C:A7:85 server=main-dhcp-server
@@ -5046,8 +5044,8 @@
 /ip dhcp-server lease add address=192.168.98.201 block-access=yes comment="AlxATV(wire)(blocked)" mac-address=90:DD:5D:CA:8F:B0 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.140 comment="Hare's Honor9x(wireless)" mac-address=04:F1:69:8E:12:B6 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.140 block-access=yes comment="Hare's Honor9x(wireless)(blocked)" mac-address=04:F1:69:8E:12:B6 server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.220 comment="Alice(wireless)" mac-address=B8:87:6E:19:90:33 server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.220 block-access=yes comment="Alice(wireless)(blocked)" mac-address=B8:87:6E:19:90:33 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.196 comment="Alice2(wireless)" mac-address=B8:87:6E:19:90:33 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.196 block-access=yes comment="Alice2(wireless)(blocked)" mac-address=B8:87:6E:19:90:33 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.180 comment="Tuya(wireless)" mac-address=D4:A6:51:C9:54:A7 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.180 block-access=yes comment="Tuya(wireless)(blocked)" mac-address=D4:A6:51:C9:54:A7 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.77 comment=HareDell mac-address=D4:3B:04:87:C7:47 server=main-dhcp-server
@@ -5082,13 +5080,13 @@
 /ip dhcp-server lease add address=192.168.90.150 comment="iPhoneAlxr(wireless)" mac-address=DC:10:57:2D:39:7B server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.222 comment="clicbot(wireless)" mac-address=B8:2D:28:0A:39:0E server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.222 block-access=yes comment="clicbot(wireless)(blocked)" mac-address=B8:2D:28:0A:39:0E server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.225 comment="Alice3(wireless)" mac-address=60:3D:61:6B:B7:B4 server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.225 block-access=yes comment="Alice3(wireless)(blocked)" mac-address=60:3D:61:6B:B7:B4 server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.90.195 comment="Alice3(wireless)" mac-address=60:3D:61:6B:B7:B4 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.98.195 block-access=yes comment="Alice3(wireless)(blocked)" mac-address=60:3D:61:6B:B7:B4 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.194 comment="AliceMidi(wireless)" mac-address=AC:BA:C0:78:80:C6 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.194 block-access=yes comment="AliceMidi(wireless)(blocked)" mac-address=AC:BA:C0:78:80:C6 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.200 comment="AlxATV(wireless)" mac-address=90:DD:5D:C8:46:AB server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.200 block-access=yes comment="AlxATV(wireless)(blocked)" mac-address=90:DD:5D:C8:46:AB server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.168.174 comment="MbpAlxm (wire) - STATIC" mac-address=6C:1F:F7:60:69:71 server=netinstall-dhcp-server
+/ip dhcp-server lease add address=192.168.168.174 comment="MbpAlxm (wire) - STATIC!" mac-address=6C:1F:F7:60:69:71 server=netinstall-dhcp-server
 /ip dhcp-server matcher add address-pool=pool-vendor code=60 matching-type=exact name=vendor-mikrotik-caps server=main-dhcp-server value=mikrotik-cap
 /ip dhcp-server network add address=192.168.80.160/28 caps-manager=192.168.80.1 comment=Containers dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.80.1 gateway=192.168.80.1 netmask=24 ntp-server=192.168.80.1
 /ip dhcp-server network add address=192.168.90.0/27 caps-manager=192.168.90.1 comment="Network devices, CCTV" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
@@ -5096,10 +5094,10 @@
 /ip dhcp-server network add address=192.168.90.64/26 caps-manager=192.168.90.1 comment="Mac, Pc" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.128/27 caps-manager=192.168.90.1 comment="Phones, tablets" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.160/27 caps-manager=192.168.90.1 comment="IoT, intercom" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
-/ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, boxes" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
+/ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, game boxes, smart stations" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
-/ip dhcp-server network add address=192.168.168.160/28 caps-manager=192.168.168.161 comment=Netinstall dhcp-option=DomainName_Windows,DomainName_LinuxMac,Explicit_Static_Route dns-server=192.168.168.161 gateway=192.168.168.161 netmask=28 ntp-server=192.168.168.161
+/ip dhcp-server network add address=192.168.168.0/24 caps-manager=192.168.168.1 comment=Netinstall dhcp-option=DomainName_Windows,DomainName_LinuxMac,Explicit_Static_Route dns-server=192.168.168.1 gateway=192.168.168.1 netmask=28 ntp-server=192.168.168.1
 /ip dns set address-list-extra-time=30s allow-remote-requests=yes cache-max-ttl=1d cache-size=40000KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 use-doh-server=https://8.8.8.8/dns-query verify-doh-cert=yes
 /ip dns adlist add url=https://schakal.hopto.org/alive_hosts.txt
 /ip dns static add name=special-remote-CHR-ipsec-policy-comment text=ANNA-OUTER-IP-REMOTE-CONTROLLABLE type=TXT
@@ -5431,6 +5429,7 @@
 /ip dns static add address-list=alist-mangle-vpn comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=keybr.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260702-034500 forward-to=DOH-Google match-subdomain=yes name=r2---sn--n5pbvoj5caxu8-nboz.google type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260702-034500 forward-to=DOH-Google match-subdomain=yes name=r3---sn--h557snl6.googlevideo type=FWD
+/ip dns static add address=192.168.90.10 comment=<AUTO:DHCP:main-dhcp-server> name=RBcAPGi.home ttl=5m type=A
 /ip dns static add address=46.39.51.201 name=ftpserver.org type=A
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
@@ -5508,6 +5507,7 @@
 /ip firewall address-list add address=192.168.168.160/28 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=46.39.51.201 list=alist-nat-external-ip
 /ip firewall filter add action=accept chain=forward connection-state=established,related
+/ip firewall filter add action=accept chain=input connection-state=established,related
 /ip firewall filter add action=drop chain=input comment=ECH_block disabled=yes dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(input)" protocol=udp
 /ip firewall filter add action=accept chain=input comment=SYSL disabled=yes dst-port=514 layer7-protocol=ECH log=yes log-prefix="#CATCH SYSL(input)" protocol=udp
 /ip firewall filter add action=drop chain=forward comment=ECH_block disabled=yes dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(forward)" protocol=udp
@@ -5746,44 +5746,44 @@
 /ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new disabled=yes in-interface="wan A" log=yes log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
 /ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" disabled=yes log=yes log-prefix="#DROP UNKNOWN (FWD)"
 /ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" disabled=yes log=yes log-prefix="#DROP UNKNOWN (INPUT)"
-/ip firewall mangle add action=change-mss chain=forward comment="DPI Hack: specific  for TVs to fix mss" disabled=yes dst-address-list=alist-mangle-byedpi-YT-TV new-mss=88 protocol=tcp src-address-list=alist-mangle-byedpi-container tcp-flags=syn
-/ip firewall mangle add action=jump chain=prerouting comment=dpi-hack-chain-set-cmark connection-mark=no-mark disabled=yes in-interface-list=list-mangle-redirect-byedpi jump-target=dpi-hack-chain-set-cmark
-/ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-YT-TV disabled=yes dst-address-list=alist-mangle-byedpi-YT-TV new-connection-mark=cmark-docker-connection-YT-TV
-/ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-YT disabled=yes dst-address-list=alist-mangle-byedpi-YT new-connection-mark=cmark-docker-connection-YT
-/ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-IG disabled=yes dst-address-list=alist-mangle-byedpi-IG new-connection-mark=cmark-docker-connection-IG
-/ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-ANY disabled=yes dst-address-list=alist-mangle-byedpi new-connection-mark=cmark-docker-connection-ANY
-/ip firewall mangle add action=return chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark disabled=yes
-/ip firewall mangle add action=jump chain=prerouting comment=vpn-hack-chain-set-cmark connection-mark=no-mark connection-state=new disabled=yes in-interface-list=list-mangle-redirect-vpn jump-target=vpn-hack-chain-set-cmark
-/ip firewall mangle add action=mark-connection chain=vpn-hack-chain-set-cmark comment=vpn-hack-chain-set-cmark-TG disabled=yes dst-address-list=alist-mangle-TG new-connection-mark=cmark-tunnel-connection-TG
-/ip firewall mangle add action=mark-connection chain=vpn-hack-chain-set-cmark comment=vpn-hack-chain-set-cmark-ANY disabled=yes dst-address-list=alist-mangle-vpn new-connection-mark=cmark-tunnel-connection-ANY
-/ip firewall mangle add action=return chain=vpn-hack-chain-set-cmark comment=vpn-hack-chain-set-cmark disabled=yes
-/ip firewall mangle add action=jump chain=prerouting comment=dpi-hack-chain-set-rmark disabled=yes in-interface-list=list-mangle-redirect-byedpi jump-target=dpi-hack-chain-set-rmark routing-mark=!rmark-docker-redirect
-/ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-YT-TV connection-mark=cmark-docker-connection-YT-TV disabled=yes new-routing-mark=rmark-docker-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-YT connection-mark=cmark-docker-connection-YT disabled=yes new-routing-mark=rmark-docker-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-IG connection-mark=cmark-docker-connection-IG disabled=yes new-routing-mark=rmark-docker-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-ANY connection-mark=cmark-docker-connection-ANY disabled=yes new-routing-mark=rmark-docker-redirect passthrough=no
-/ip firewall mangle add action=return chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark disabled=yes
-/ip firewall mangle add action=jump chain=prerouting comment=vpn-hack-chain-set-rmark disabled=yes in-interface-list=list-mangle-redirect-vpn jump-target=vpn-hack-chain-set-rmark routing-mark=!rmark-docker-redirect
-/ip firewall mangle add action=mark-routing chain=vpn-hack-chain-set-rmark comment=vpn-hack-chain-set-rmark-TG connection-mark=cmark-tunnel-connection-TG disabled=yes new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=mark-routing chain=vpn-hack-chain-set-rmark comment=vpn-hack-chain-set-rmark-ANY connection-mark=cmark-tunnel-connection-ANY disabled=yes new-routing-mark=rmark-vpn-redirect passthrough=no
-/ip firewall mangle add action=return chain=vpn-hack-chain-set-rmark comment=vpn-hack-chain-set-rmark disabled=yes
-/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" disabled=yes ttl=equal:63
-/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" disabled=yes ttl=equal:127
-/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" disabled=yes dst-address-list=!alist-nat-192.168.90.1 dst-port=53 protocol=udp
-/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" disabled=yes dst-address-list=!alist-nat-192.168.90.1 dst-port=53 protocol=tcp
-/ip firewall nat add action=jump chain=srcnat comment=masq-docker-chain disabled=yes jump-target=masq-docker-chain
-/ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-YT-TV disabled=yes dst-address-list=alist-mangle-byedpi-YT-TV
-/ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-YT disabled=yes dst-address-list=alist-mangle-byedpi-YT
-/ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-IG disabled=yes dst-address-list=alist-mangle-byedpi-IG
-/ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-ANY disabled=yes dst-address-list=alist-mangle-byedpi
-/ip firewall nat add action=return chain=masq-docker-chain comment=masq-docker-chain disabled=yes
-/ip firewall nat add action=jump chain=dstnat comment=port-rdr-docker-chain disabled=yes dst-address-list=alist-nat-192.168.90.1 jump-target=port-rdr-docker-chain
-/ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment=port-rdr-docker-chain-victoria-web disabled=yes dst-port=9428 protocol=tcp to-addresses=192.168.80.160 to-ports=9428
-/ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment=port-rdr-docker-chain-victoria-syslog disabled=yes dst-port=514 protocol=udp to-addresses=192.168.80.160 to-ports=514
-/ip firewall nat add action=return chain=port-rdr-docker-chain comment=port-rdr-docker-chain disabled=yes
-/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" disabled=yes dst-address-list=alist-fw-vpn-subnets src-address-list=alist-nat-local-subnets
-/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" disabled=yes dst-address-list=alist-mangle-vpn
-/ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" disabled=yes dst-address-list=alist-nat-local-subnets src-address-list=alist-fw-vpn-subnets
+/ip firewall mangle add action=change-mss chain=forward comment="DPI Hack: specific  for TVs to fix mss" dst-address-list=alist-mangle-byedpi-YT-TV new-mss=88 protocol=tcp src-address-list=alist-mangle-byedpi-container tcp-flags=syn
+/ip firewall mangle add action=jump chain=prerouting comment=dpi-hack-chain-set-cmark connection-mark=no-mark in-interface-list=list-mangle-redirect-byedpi jump-target=dpi-hack-chain-set-cmark
+/ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-YT-TV dst-address-list=alist-mangle-byedpi-YT-TV new-connection-mark=cmark-docker-connection-YT-TV
+/ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-YT dst-address-list=alist-mangle-byedpi-YT new-connection-mark=cmark-docker-connection-YT
+/ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-IG dst-address-list=alist-mangle-byedpi-IG new-connection-mark=cmark-docker-connection-IG
+/ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-ANY dst-address-list=alist-mangle-byedpi new-connection-mark=cmark-docker-connection-ANY
+/ip firewall mangle add action=return chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark
+/ip firewall mangle add action=jump chain=prerouting comment=vpn-hack-chain-set-cmark connection-mark=no-mark connection-state=new in-interface-list=list-mangle-redirect-vpn jump-target=vpn-hack-chain-set-cmark
+/ip firewall mangle add action=mark-connection chain=vpn-hack-chain-set-cmark comment=vpn-hack-chain-set-cmark-TG dst-address-list=alist-mangle-TG new-connection-mark=cmark-tunnel-connection-TG
+/ip firewall mangle add action=mark-connection chain=vpn-hack-chain-set-cmark comment=vpn-hack-chain-set-cmark-ANY dst-address-list=alist-mangle-vpn new-connection-mark=cmark-tunnel-connection-ANY
+/ip firewall mangle add action=return chain=vpn-hack-chain-set-cmark comment=vpn-hack-chain-set-cmark
+/ip firewall mangle add action=jump chain=prerouting comment=dpi-hack-chain-set-rmark in-interface-list=list-mangle-redirect-byedpi jump-target=dpi-hack-chain-set-rmark routing-mark=!rmark-docker-redirect
+/ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-YT-TV connection-mark=cmark-docker-connection-YT-TV new-routing-mark=rmark-docker-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-YT connection-mark=cmark-docker-connection-YT new-routing-mark=rmark-docker-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-IG connection-mark=cmark-docker-connection-IG new-routing-mark=rmark-docker-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark-ANY connection-mark=cmark-docker-connection-ANY new-routing-mark=rmark-docker-redirect passthrough=no
+/ip firewall mangle add action=return chain=dpi-hack-chain-set-rmark comment=dpi-hack-chain-set-rmark
+/ip firewall mangle add action=jump chain=prerouting comment=vpn-hack-chain-set-rmark in-interface-list=list-mangle-redirect-vpn jump-target=vpn-hack-chain-set-rmark routing-mark=!rmark-docker-redirect
+/ip firewall mangle add action=mark-routing chain=vpn-hack-chain-set-rmark comment=vpn-hack-chain-set-rmark-TG connection-mark=cmark-tunnel-connection-TG new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=mark-routing chain=vpn-hack-chain-set-rmark comment=vpn-hack-chain-set-rmark-ANY connection-mark=cmark-tunnel-connection-ANY new-routing-mark=rmark-vpn-redirect passthrough=no
+/ip firewall mangle add action=return chain=vpn-hack-chain-set-rmark comment=vpn-hack-chain-set-rmark
+/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:63
+/ip firewall mangle add action=add-src-to-address-list address-list=alist-mangle-routers-detection address-list-timeout=none-dynamic chain=prerouting comment="LAN Routers detection" ttl=equal:127
+/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-address-list=!alist-nat-192.168.90.1 dst-port=53 protocol=udp
+/ip firewall nat add action=redirect chain=dstnat comment="Redirect DNS requests to router (prevent local DNS assignment)" dst-address-list=!alist-nat-192.168.90.1 dst-port=53 protocol=tcp
+/ip firewall nat add action=jump chain=srcnat comment=masq-docker-chain jump-target=masq-docker-chain
+/ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-YT-TV dst-address-list=alist-mangle-byedpi-YT-TV
+/ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-YT dst-address-list=alist-mangle-byedpi-YT
+/ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-IG dst-address-list=alist-mangle-byedpi-IG
+/ip firewall nat add action=masquerade chain=masq-docker-chain comment=masq-docker-chain-ANY dst-address-list=alist-mangle-byedpi
+/ip firewall nat add action=return chain=masq-docker-chain comment=masq-docker-chain
+/ip firewall nat add action=jump chain=dstnat comment=port-rdr-docker-chain dst-address-list=alist-nat-192.168.90.1 jump-target=port-rdr-docker-chain
+/ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment=port-rdr-docker-chain-victoria-web dst-port=9428 protocol=tcp to-addresses=192.168.80.160 to-ports=9428
+/ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment=port-rdr-docker-chain-victoria-syslog dst-port=514 protocol=udp to-addresses=192.168.80.160 to-ports=514
+/ip firewall nat add action=return chain=port-rdr-docker-chain comment=port-rdr-docker-chain
+/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic" dst-address-list=alist-fw-vpn-subnets src-address-list=alist-nat-local-subnets
+/ip firewall nat add action=accept chain=srcnat comment="accept tunnel traffic (sites)" dst-address-list=alist-mangle-vpn
+/ip firewall nat add action=accept chain=dstnat comment="accept tunnel traffic" dst-address-list=alist-nat-local-subnets src-address-list=alist-fw-vpn-subnets
 /ip firewall nat add action=masquerade chain=srcnat comment="VPN masq (pure L2TP, w/o IPSEC)" out-interface-list=list-l2tp-tunnels
 /ip firewall nat add action=masquerade chain=srcnat comment="all WAN allowed" dst-address-list=!alist-fw-vpn-subnets out-interface="wan A"
 /ip firewall service-port set tftp disabled=yes
@@ -5918,15 +5918,14 @@ set [ find default=yes ] advertise-dns=yes
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.24.1 \
-    \nUptime:        03:04:06  \
-    \nTime:        2026-08-28 21:10:12  \
+    \nUptime:        00:11:04  \
+    \nTime:        2026-08-31 11:20:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
     \nAnna:        46.39.51.201  \
     \nClock:        synchronized  \
     \n * netinstall  \
-    \n * wireless  \
     \n * rose-storage  \
     \n * iot  \
     \n * container  \
@@ -5968,7 +5967,7 @@ set [ find default=yes ] advertise-dns=yes
 /tool graphing resource add
 /tool mac-server set allowed-interface-list=none
 /tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
-/tool netinstall add extra-packages=wifi-qcom-ac interface=adm-netinstall-br ip-range=192.168.168.160-192.168.168.173 keep-old-configuration=no remove-branding=yes wait=yes
+/tool netinstall add disabled=yes extra-packages=wifi-qcom-ac interface=adm-netinstall-br ip-range=192.168.168.100-192.168.168.110 keep-old-configuration=no remove-branding=yes wait=yes
 /tool netwatch add comment="miniAlx(wire) status check" disabled=no down-script=":global NetwatchHostName \"minialx\";\
     \n:global NetwatchHostState \"DOWN\";\
     \n\
@@ -6028,4 +6027,4 @@ set [ find default=yes ] advertise-dns=yes
     \n:global NetwatchHostState \"UP\";\
     \n\
     \n/system script run doNetwatchHost;"
-/tool sniffer set filter-port=bgp memory-limit=1000KiB streaming-server=192.168.90.170
+/tool sniffer set filter-interface=adm-netinstall-br filter-mac-address=18:FD:74:94:FD:70/FF:FF:FF:FF:FF:FF memory-limit=1000KiB streaming-server=192.168.90.170
