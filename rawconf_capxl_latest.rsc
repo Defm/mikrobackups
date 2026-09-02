@@ -1,4 +1,4 @@
-# 2026-08-27 21:14:38 by RouterOS 7.23.1
+# 2026-09-02 21:13:03 by RouterOS 7.23.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -1858,18 +1858,17 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /system note set note="Ipsec:         okay \
     \nRoute:     192.168.90.1 \
     \nVersion:         7.23.1 \
-    \nUptime:        1w4d08:10:26  \
-    \nTime:        2026-08-27 21:13:04  \
+    \nUptime:        1d22:38:19  \
+    \nTime:        2026-09-02 21:13:04  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
     \nAnna:        46.39.51.201  \
     \nClock:        synchronized  \
-    \n * wireless  \
     \n * routeros  \
+    \n * wireless  \
     \n" show-at-cli-login=yes
 /system ntp client set enabled=yes mode=multicast
-/system routerboard settings set auto-upgrade=yes
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-04-15 start-time=17:52:52
 /system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=22:00:00
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=15:55:00
