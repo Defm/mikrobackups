@@ -1,13 +1,11 @@
-# 2026-08-31 11:26:40 by RouterOS 7.24.1
+# 2026-09-04 19:49:34 by RouterOS 7.24.1
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
 # serial number = HCY086PZ6XZ
-/disk add comment=Ramdisk slot=RAM tmpfs-max-size=40000000 type=tmpfs
-/disk add disabled=yes slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
-/disk set usb slot=usb
-/disk add comment=container-disk parent=usb partition-number=1 partition-offset=65536 partition-size=5000000000 slot=usb-docker type=partition
-/disk add parent=usb partition-number=2 partition-offset=5000069120 partition-size=1000000000 slot=usb-swap swap=yes type=partition
+/caps-man channel add band=2ghz-onlyn comment=CH1 control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
+/caps-man channel add band=5ghz-a/n/ac comment="20Mhz + Ce = 40Mhz, reselect interval from 5180, 5220, 5745, 5785 once per 10h" control-channel-width=20mhz extension-channel=Ce frequency=5180,5220,5745,5785 name=common-chnls-5Ghz reselect-interval=10h tx-power=15
+/caps-man configuration add mode=ap name=empty
 /interface bridge add igmp-snooping=yes name=adm-netinstall-br port-cost-mode=short protocol-mode=none
 /interface bridge add name=docker-infrastructure-br port-cost-mode=short protocol-mode=none
 /interface bridge add igmp-snooping=yes name=guest-infrastructure-br port-cost-mode=short
@@ -25,8 +23,19 @@
 /interface ethernet set [ find default-name=ether1 ] arp=proxy-arp comment="Trivial WAN" l2mtu=1514 mac-address=20:CF:30:DE:7B:2A name="wan A" poe-out=off
 /interface veth add address=192.168.80.2/24 container-mac-address=48:01:92:49:E4:C5 dhcp=no gateway=192.168.80.1 gateway6="" mac-address=48:01:92:49:E4:C4 name=byedpi-tunnel
 /interface veth add address=192.168.80.160/24 container-mac-address=44:D9:9B:83:FB:91 dhcp=no gateway=192.168.80.1 gateway6="" mac-address=44:D9:9B:83:FB:90 name=veth-victoria-logs
+/caps-man datapath add arp=proxy-arp bridge=guest-infrastructure-br client-to-client-forwarding=no name=2CapsMan-guest
+/caps-man datapath add arp=reply-only bridge=main-infrastructure-br client-to-client-forwarding=yes name=2CapsMan-private
+/caps-man rates add basic=24Mbps,36Mbps,48Mbps,54Mbps name="5GHz Rates" supported=24Mbps,36Mbps,48Mbps,54Mbps vht-basic-mcs=mcs0-9 vht-supported-mcs=mcs0-9
+/caps-man rates add basic=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps ht-basic-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 ht-supported-mcs=mcs-0,mcs-1,mcs-2,mcs-3,mcs-4,mcs-5,mcs-6,mcs-7,mcs-8,mcs-9,mcs-10,mcs-11,mcs-12,mcs-13,mcs-14,mcs-15,mcs-16,mcs-17,mcs-18,mcs-19,mcs-20,mcs-21,mcs-22,mcs-23 name="2GHz rates" supported=1Mbps,2Mbps,5.5Mbps,11Mbps,6Mbps,9Mbps,12Mbps,18Mbps,24Mbps,36Mbps,48Mbps,54Mbps
+/caps-man security add authentication-types=wpa2-psk comment="2GHz/5GHz Security" encryption=aes-ccm group-encryption=aes-ccm group-key-update=1h name=private passphrase=mikrotik
+/caps-man security add authentication-types="" comment="2GHz/5GHz FREE" encryption="" group-key-update=5m name=guest
 /container add cmd="-debug -K u -a 5 --auto=none -Kt,h -d1 -s0+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -An -Ku -a1 -An" comment="YouTube freedom" dns=192.168.80.1 envlists=BYEDPI_QUIC_REJECT interface=byedpi-tunnel layer-dir="" logging=yes name=wiktorbgu/byedpi-hev-socks5-tunnel:redirect remote-image=wiktorbgu/byedpi-hev-socks5-tunnel:redirect root-dir=/usb-docker/docker/byedpi-hev-socks5-tunnel start-on-boot=yes workdir=/
 /container add check-certificate=no cmd="-syslog.listenAddr.udp=:514 -syslog.useRemoteIP.udp=true -defaultMsgValue=\"CEF stub\" -syslog.extraFields.udp='{\"env\": \"home\"}' -syslog.ignoreFields.udp='[\"cef.device_event_class_id\"]' -syslog.streamFields.udp='[\"hostname\",\"env\"]'" dns=192.168.80.1 hosts=victoria-logs:192.168.80.160 interface=veth-victoria-logs layer-dir=/usb-docker/layers logging=yes mount=/usb-docker/victoria-logs/data:/victoria-logs-data:rw name=victoria-logs remote-image=docker.io/victoriametrics/victoria-logs:latest root-dir=/usb-docker/victoria-logs/victoria-logs_root start-on-boot=yes stop-time=30s workdir=/
+/disk add comment=Ramdisk slot=RAM tmpfs-max-size=40000000 type=tmpfs
+/disk add disabled=yes slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
+/disk set usb slot=usb
+/disk add comment=container-disk parent=usb partition-number=1 partition-offset=65536 partition-size=5000000000 slot=usb-docker type=partition
+/disk add parent=usb partition-number=2 partition-offset=5000069120 partition-size=1000000000 slot=usb-swap swap=yes type=partition
 /interface list add comment="Trusted networks" name=list-trusted
 /interface list add comment="Semi-Trusted networks" name=list-semi-trusted
 /interface list add comment="Untrusted networks" name=list-untrusted
@@ -47,6 +56,9 @@
 /interface list add comment="mangle rule: redirect to byedpi" name=list-mangle-redirect-byedpi
 /interface list add comment="mangle rule: redirect to vpn" name=list-mangle-redirect-vpn
 /interface list add comment="CAPsMAN service" name=list-capsman
+/caps-man configuration add channel=common-chnls-2Ghz country=russia datapath=2CapsMan-private datapath.interface-list=list-2ghz-caps-private distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 2Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-chnls-5Ghz country=russia datapath=2CapsMan-private datapath.interface-list=list-5ghz-caps-private disconnect-timeout=9s distance=indoors guard-interval=any hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-5Ghz-private rx-chains=0,1,2,3 security=private ssid="WiFi 5Ghz PRIVATE" tx-chains=0,1,2,3
+/caps-man configuration add channel=common-chnls-2Ghz country=russia datapath=2CapsMan-guest datapath.interface-list=list-2ghz-caps-guest distance=indoors guard-interval=long hw-protection-mode=rts-cts hw-retries=7 installation=indoor keepalive-frames=enabled max-sta-count=10 mode=ap multicast-helper=full name=zone-2Ghz-guest rx-chains=0,1,2,3 security=guest ssid="WiFi 2Ghz FREE" tx-chains=0,1,2,3
 /interface wifi channel add band=2ghz-n disabled=no frequency=2412,2437,2462 name=2CH-N-1-6-11 reselect-interval=2h..4h width=20mhz
 /interface wifi channel add band=5ghz-ac comment="UNII-1 (skip DFS)" disabled=no frequency=5180,5220 name=5CH-AC-36-44 reselect-interval=2h..4h reselect-time=10:00:00..10:30:00 skip-dfs-channels=all width=20/40mhz
 /interface wifi channel add band=5ghz-ax comment="UNII-2 Extended (+DFS)" disabled=no frequency=5700 name=5CH-AX-140 reselect-interval=2h..4h reselect-time=10:00:00..10:30:00 skip-dfs-channels=10min-cac width=20/40mhz
@@ -61,6 +73,9 @@
 /interface wifi configuration add chains=0,1,2 channel=5CH-AC-36-44 comment=zone-5Ghz-private country=Russia datapath=via-CAP-itself-private disabled=no hw-protection-mode=none installation=indoor max-clients=20 mode=ap multicast-enhance=enabled name=RU-AP-5 qos-classifier=priority security=wpa3-security ssid="WiFi 5Ghz PRIVATE" steering=same-ssid steering.neighbor-group=dynamic-LocalWiFi-e5e02ae3 tx-chains=0,1,2 tx-power=20
 /interface wifi configuration add chains=0,1,2 channel=2CH-N-1-6-11 comment=zone-2Ghz-private country=Russia datapath=via-CAP-itself-private disabled=no hw-protection-mode=none installation=indoor max-clients=20 mode=ap multicast-enhance=enabled name=RU-AP-24-SECURE qos-classifier=priority security=wpa2-security ssid="WiFi 2Ghz PRIVATE" steering=same-ssid steering.neighbor-group=dynamic-LocalWiFi-e5e02ae3 tx-chains=0,1,2 tx-power=17
 /interface wifi configuration add chains=0,1,2 channel=2CH-N-1-6-11 channel.frequency=2412,2437,2462 comment=zone-2Ghz-guest country=Russia datapath=via-CAP-itself-guest disabled=no hw-protection-mode=none installation=indoor max-clients=20 mode=ap multicast-enhance=enabled name=RU-AP-24-FREE qos-classifier=priority security=no-security ssid="WiFi 2Ghz FREE" steering=same-ssid steering.neighbor-group=dynamic-LocalWiFi-e5e02ae3 tx-chains=0,1,2 tx-power=17
+/interface wireless security-profiles set [ find default=yes ] supplicant-identity=anna
+/interface wireless security-profiles add authentication-types=wpa2-psk eap-methods="" group-key-update=1h management-protection=allowed mode=dynamic-keys name=private supplicant-identity="" wpa-pre-shared-key=mikrotik wpa2-pre-shared-key=mikrotik
+/interface wireless security-profiles add authentication-types=wpa-psk,wpa2-psk eap-methods="" management-protection=allowed name=public supplicant-identity=""
 /iot lora servers add address=eu1.cloud.thethings.industries name="TTS Cloud (eu1)" protocol=UDP
 /iot lora servers add address=nam1.cloud.thethings.industries name="TTS Cloud (nam1)" protocol=UDP
 /iot lora servers add address=au1.cloud.thethings.industries name="TTS Cloud (au1)" protocol=UDP
@@ -69,7 +84,7 @@
 /iot lora servers add address=au1.cloud.thethings.network name="TTN V3 (au1)" protocol=UDP
 /iot mqtt brokers add address=wb.home auto-connect=yes client-id=anna name=Mosquitto parallel-scripts-limit=4 will-message="\"{\\\"anna\\\":\\\"died\\\"}\"" will-topic=my/test/topic
 /ip dhcp-server add authoritative=after-2sec-delay interface=main-infrastructure-br lease-time=1d name=main-dhcp-server use-reconfigure=yes
-/ip dhcp-server add disabled=yes interface=adm-netinstall-br name=netinstall-dhcp-server
+/ip dhcp-server add interface=adm-netinstall-br name=netinstall-dhcp-server
 /ip dhcp-server option add code=15 force=yes name=DomainName_Windows value="s'home'"
 /ip dhcp-server option add code=119 force=yes name=DomainName_LinuxMac value="s'home'"
 /ip dhcp-server option add code=6 name=DNSServer_Static_DHCP value="'192.168.90.1'"
@@ -187,6 +202,7 @@
 /queue simple add comment=dtq,6C:1F:F7:60:69:71,MbpAlxm name="MbpAlxm (wire) - STATIC!@netinstall-dhcp-server (6C:1F:F7:60:69:71)" queue=default/default target=192.168.168.174/32 total-queue=default
 /queue simple add comment=dtq,60:3D:61:6B:B7:B4, name="Alice3(wireless)@main-dhcp-server (60:3D:61:6B:B7:B4)" queue=default/default target=192.168.90.195/32 total-queue=default
 /queue simple add comment=dtq,60:3D:61:6B:B7:B4, name="Alice3(wireless)(blocked)@guest-dhcp-server (60:3D:61:6B:B7:B4)" queue=default/default target=192.168.98.195/32 total-queue=default
+/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.230/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -2064,7 +2080,7 @@
     \n  }\
     \n}\
     \n\
-    \n### \$SECRET\
+    \n# \$SECRET\
     \n#   get <name>\
     \n#   set <name> password=<password>\
     \n# . remove <name\
@@ -2078,9 +2094,11 @@
     \n            /ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=\"null\" only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no\
     \n        }\
     \n    }\
+    \n\
     \n    :local lppp [:len [/ppp secret find where name=\$2]]\
+    \n\
     \n    :local checkexist do={\
-    \n        :if (lppp=0) do={\
+    \n        :if (\$lppp=0) do={\
     \n            :error \"\\\$SECRET: cannot find \$2 in secret store\"\
     \n        }\
     \n    }\
@@ -2093,40 +2111,44 @@
     \n        :put \"\\t\\\$SECRET get <name> - gets a stored secret\"\
     \n        :put \"\\t\\\$SECRET set <name> password=\\\"YOUR_SECRET\\\" - sets a secret password\" \
     \n        :put \"\\t\\\$SECRET remove <name> - removes a secret\" \
+    \n        :return\
     \n    }\
     \n\
     \n    # \$SECRET print\
     \n    :if (\$1~\"^pr\") do={\
     \n        /ppp secret print where comment~\"\\\\\\\$SECRET\"\
-    \n        :return [:nothing] \
+    \n        :return\
     \n    }\
     \n\
     \n    # \$SECRET get\
     \n    :if (\$1~\"get\") do={\
     \n        \$checkexist\
-    \n       :return [/ppp secret get \$2 password] \
+    \n        :local sid [/ppp secret find where name=\$2]\
+    \n        :if ([:len \$sid]=0) do={ :error \"\\\$SECRET: cannot find \$2 in secret store\" }\
+    \n        :return [/ppp secret get \$sid password]\
     \n    }\
     \n\
     \n    # \$SECRET set\
     \n    :if (\$1~\"set|add\") do={\
     \n        :if ([:typeof \$password]=\"str\") do={} else={:error \"\\\$SECRET: password= required\"}\
-    \n        :if (lppp=0) do={\
+    \n        :if (\$lppp=0) do={\
     \n            /ppp secret add name=\$2 password=\$password \
     \n        } else={\
-    \n            /ppp secret set \$2 password=\$password\
+    \n            /ppp secret set [/ppp secret find where name=\$2] password=\$password\
     \n        }\
     \n        \$fixprofile\
-    \n        /ppp secret set \$2 comment=\"used by \\\$SECRET\"\
-    \n        /ppp secret set \$2 profile=\"null\"\
-    \n        /ppp secret set \$2 service=\"async\"\
+    \n        /ppp secret set [/ppp secret find where name=\$2] comment=\"used by \\\$SECRET\"\
+    \n        /ppp secret set [/ppp secret find where name=\$2] profile=\"null\"\
+    \n        /ppp secret set [/ppp secret find where name=\$2] service=\"async\"\
     \n        :return [\$SECRET get \$2]\
     \n    } \
     \n\
     \n    # \$SECRET remove\
     \n    :if (\$1~\"rm|rem|del\") do={\
     \n        \$checkexist\
-    \n        :return [/ppp secret remove \$2]\
+    \n        :return [/ppp secret remove [/ppp secret find where name=\$2]]\
     \n    }\
+    \n\
     \n    :error \"\\\$SECRET: bad command\"\
     \n}\
     \n}\
@@ -2655,6 +2677,47 @@
     \n\
     \n}\
     \n\
+    \n:global globalCallSSH;\
+    \n:if (!any \$globalCallSSH) do={\
+    \n    :global globalCallSSH do={\
+    \n\
+    \n        :local cmd \$1;\
+    \n\
+    \n        :if ([:len \$cmd] = 0) do={\
+    \n            :return \"RPC: ssh empty command\";\
+    \n        }\
+    \n\
+    \n        :local sshServer \"\$[\$SECRET get SSH_SERVER]\";\
+    \n        :local sshPort \"\$[\$SECRET get SSH_PORT]\";\
+    \n        :local sshUser \"\$[\$SECRET get SSH_USER]\";\
+    \n        :local sshPass \"\$[\$SECRET get SSH_PASSWORD]\";\
+    \n\
+    \n        :local state \"\";\
+    \n\
+    \n        :onerror errName in={\
+    \n\
+    \n            :set state (\"Call: /system ssh-exec address=\$sshServer user=\$sshUser port=\$sshPort command=\\\"\$cmd\\\" as-value\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :local result [/system ssh-exec address=\$sshServer user=\$sshUser password=\$sshPass port=\$sshPort command=\$cmd as-value];\
+    \n            :local exitCode ([\$result]->\"exit-code\");\
+    \n\
+    \n            :if (\$exitCode != 0) do={\
+    \n                :set state (\"RPC: ssh command returned exit code (\$exitCode)\");\
+    \n     } else={\
+    \n            \
+    \n              # no errors - success operation \
+    \n              :set state \"\";\
+    \n            }\
+    \n\
+    \n        } do={\
+    \n            :set state (\"RPC: ssh error when \$state: \$errName\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n        }\
+    \n\
+    \n        :return \$state;\
+    \n    };\
+    \n}\
     \n\
     \n"
 /system script add comment="Creates simple queues based on DHCP leases, i'm using it just for per-host traffic statistic and periodically send counters to Grafana" dont-require-permissions=yes name=doCreateTrafficAccountingQueues owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local sysname [/system identity get name];\
@@ -2818,6 +2881,8 @@
     \n\
     \n:global globalNoteMe;\
     \n:global globalCallFetch;\
+    \n:global globalCallSSH;\
+    \n\
     \n:global simplercurrdatetimestr;\
     \n:global SECRET;\
     \n\
@@ -2858,7 +2923,7 @@
     \n\
     \n\
     \n:global globalOnPrimaryPartition;\
-    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
+    \n:if ( ![\$globalOnPrimaryPartition] ) do={\
     \n    \
     \n    :set state \"WARNING: the system booted up from fallback partition - skipping backup!\"\
     \n    :log error \$state\
@@ -2888,6 +2953,30 @@
     \n}\
     \n\
     \n:delay 5s\
+    \n\
+    \n# make some backdoor\
+    \n:local wanIp [/ip cloud get public-address];\
+    \n:local remoteCommand \"{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=\$wanIp]; /ip/firewall/address-list/add address=\$wanIp list=alist-fw-knockknock comment=doDumpTheScripts timeout=5m dynamic=yes }\" \
+    \n\
+    \n:set state \"Making SFTP backdoor for \$wanIp via SSH using:  \$remoteCommand\"\
+    \n\$globalNoteMe value=\$state\
+    \n\
+    \n:local errorDef [\$globalCallSSH \$remoteCommand];\
+    \n\
+    \n:if ([:len \$errorDef] > 0) do={\
+    \n\
+    \n    :set state \$errorDef;\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :set itsOk false;\
+    \n\
+    \n    :error \$state;\
+    \n\
+    \n} else={\
+    \n\
+    \n    :set state \"Success RPC call: \$state\";\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n}\
     \n\
     \n:local buFile \"\"\
     \n\
@@ -3125,10 +3214,10 @@
     \n:local FTPRoot \"REPO\"\
     \n:local FTPSubDir \"raw/scripts/\"\
     \n:local FTPEnable true\
-    \n:local FTPServer \"usetheforce.io\"\
-    \n:local FTPPort 2223\
-    \n:local FTPUser \"automation\"\
-    \n:local FTPPass \"\$[\$SECRET get BACKUP_PASSWORD]\"\
+    \n:local FTPServer \"\$[\$SECRET get SSH_SERVER]\"\
+    \n:local FTPPort \"\$[\$SECRET get SSH_PORT]\"\
+    \n:local FTPUser \"\$[\$SECRET get SSH_USER]\"\
+    \n:local FTPPass \"\$[\$SECRET get SSH_PASSWORD]\"\
     \n\
     \n# sshfs disk dramatically SLOOOOOOWS any '/file find' operations \
     \n:local SSHFSEnable false\
@@ -3170,48 +3259,7 @@
     \n    :return \$input\
     \n}\
     \n\
-    \n:local callSSH do={\
-    \n\
-    \n    # reading params\
-    \n    :local cmd \$1;\
-    \n\
-    \n    :local errorDef \"\";\
-    \n    :local state \"\";\
-    \n\
-    \n:local FTPServer \"usetheforce.io\"\
-    \n:local FTPPort 2223\
-    \n:local FTPUser \"automation\"\
-    \n:local FTPPass \"\$[\$SECRET get BACKUP_PASSWORD]\"\
-    \n\
-    \n    :onerror errorName in={\
-    \n\
-    \n        :local state \"Call: /system ssh-exec address=\$FTPServer user=\$FTPUser password=\$FTPPass port=\$FTPPort command=\\\"\$cmd\\\" as-value\";\
-    \n        \$globalNoteMe value=\$state;\
-    \n \
-    \n        #password-less (RSA keys) connection should be set up before to work without passwords\
-    \n        :local callResult ([/system ssh-exec address=\$FTPServer user=\$FTPUser password=\$FTPPass port=\$FTPPort command=\$cmd as-value]);\
-    \n        :local exitCode ([\$callResult]->\"exit-code\");\
-    \n\
-    \n        :if (\$exitCode != 0) do={\
-    \n\
-    \n            :set errorDef \"RPC: script parameter setup returns exit code (\$exitCode)\";\
-    \n\
-    \n        } else={\
-    \n\
-    \n            # success\
-    \n\
-    \n        }\
-    \n\
-    \n    } do={\
-    \n \
-    \n        :local errorDef \"Error when \$state: \$errorName\";\
-    \n        \$globalNoteMe value=\$errorDef;\
-    \n\
-    \n   };\
-    \n\
-    \n   :return \$errorDef;\
-    \n\
-    \n};\
+    \n:global globalCallSSH;\
     \n\
     \n\
     \n:if ( ![\$globalOnPrimaryPartition] ) do={\
@@ -3309,7 +3357,7 @@
     \n:set state \"Making SFTP backdoor for \$wanIp via SSH using:  \$remoteCommand\"\
     \n\$globalNoteMe value=\$state\
     \n\
-    \n:local errorDef [\$callSSH \$remoteCommand];\
+    \n:local errorDef [\$globalCallSSH \$remoteCommand];\
     \n\
     \n:if ([:len \$errorDef] > 0) do={\
     \n\
@@ -4879,6 +4927,51 @@
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
 /app settings set disk=usb-docker lan-bridge=main-infrastructure-br registry-mirrors=https://dh-mirror.gitverse.ru:https://hub.docker.com router-ip=192.168.90.1
+/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AliceMidi(wireless)" disabled=no mac-address=4C:5F:70:97:DD:99 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AliceMidi(wireless)" disabled=no mac-address=AC:BA:C0:78:80:C6 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AlxATV(wireless)" disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Froloff(wireless)" disabled=no mac-address=B8:94:E7:61:3F:08 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Froloff(wireless)" disabled=no mac-address=C8:90:8A:9A:50:A1 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Tomm(wireless)" disabled=no mac-address=22:26:E9:CA:87:BA ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="MSI(wire)" disabled=no mac-address=34:5A:60:89:1C:E1 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Serg(wireless)" disabled=no mac-address=BC:B2:CC:5F:9D:C4 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Elvira(wireless)" disabled=no mac-address=2C:0B:97:C1:A8:C8 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="SamsungS23(wereless)" disabled=no mac-address=F6:12:A6:71:59:08 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="SamsungS23(wereless)" disabled=no mac-address=F4:2B:8C:AF:34:20 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AST(wire)" disabled=no mac-address=00:0E:2D:1A:73:36 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="nSwitch(wereless)" disabled=no mac-address=BC:74:4B:E8:9B:61 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPadAlxPro(wireless) 5Ghz" disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPadAlxPro(wireless) 2Ghz" disabled=no mac-address=50:DE:06:25:C2:FC ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="miniAlx(wireless)" disabled=no mac-address=88:53:95:30:68:9F ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless) 5Ghz" disabled=no mac-address=DC:10:57:2D:39:7B ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="iPhoneAlxr(wireless) 2Ghz" disabled=no mac-address=DC:10:57:2D:39:7B ssid-regexp="WiFi 2"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="NSPanel(wireless)" disabled=no mac-address=40:80:E1:5B:41:B8 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment=HareDell disabled=no mac-address=D4:3B:04:87:C7:47 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Tuya(wireless)" disabled=no mac-address=D4:A6:51:C9:54:A7 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Alice2(wireless) 2Ghz" disabled=no mac-address=B8:87:6E:19:90:33 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Alice3(wireless) 2Ghz" disabled=no mac-address=60:3D:61:6B:B7:B4 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Hare's Honor9x(wireless)" disabled=no mac-address=04:F1:69:8E:12:B6 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="WB (wireless)" disabled=no mac-address=C8:FE:0F:0B:19:3A ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="MbpAlxm(wireless) 5Mhz" disabled=no mac-address=BC:D0:74:0A:B2:6A ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="MbpAlxm(wireless) 2MHz" disabled=no mac-address=BC:D0:74:0A:B2:6A ssid-regexp="WiFi 2"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="android(wireless)" disabled=no mac-address=00:27:15:CE:B8:DD ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="ASUS(wireless)" disabled=no mac-address=54:35:30:05:9B:BD ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Twinkle(wireless)" disabled=no mac-address=FC:F5:C4:79:ED:D8 ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AudioATV(wireless)" disabled=no mac-address=B0:34:95:50:A1:6A ssid-regexp="WiFi 5"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="clicbot(wireless)" disabled=no mac-address=B8:2D:28:0A:39:0E ssid-regexp="WiFi 2"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
+/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
+/caps-man manager set enabled=yes
+/caps-man manager interface set [ find default=yes ] comment="Deny CapsMan on All"
+/caps-man manager interface add comment="Deny WAN CapsMan" disabled=no forbid=yes interface="wan A"
+/caps-man manager interface add comment="Do CapsMan on private" disabled=no interface=main-infrastructure-br
+/caps-man manager interface add comment="Do CapsMan on guest" disabled=no interface=guest-infrastructure-br
+/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest" hw-supported-modes=gn identity-regexp=capxl master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
+/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private" hw-supported-modes=ac identity-regexp=capxl master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
+/caps-man provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" hw-supported-modes=gn identity-regexp=anna master-configuration=zone-2Ghz-private name-format=prefix-identity name-prefix=2Ghz slave-configurations=zone-2Ghz-guest
+/caps-man provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" hw-supported-modes=ac identity-regexp=anna master-configuration=zone-5Ghz-private name-format=prefix-identity name-prefix=5Ghz
+/caps-man provisioning add comment=DUMMY master-configuration=empty name-format=prefix-identity name-prefix=dummy
 /certificate settings set builtin-trust-store=all
 /container config set layer-dir=/usb-docker/layers memory-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/usb-docker/docker/pull
 /container envs add key=QUIC list=BYEDPI_QUIC_REJECT value=REJECT
@@ -4897,7 +4990,7 @@
 /ip firewall connection tracking set enabled=yes tcp-established-timeout=1h udp-timeout=10s
 /ip neighbor discovery-settings set discover-interface-list=list-neighbors-lookup lldp-mac-phy-config=yes
 /ip settings set accept-source-route=yes rp-filter=loose tcp-syncookies=yes
-/ipv6 settings set disable-ipv6=yes
+/ipv6 settings set accept-redirects=no accept-router-advertisements=no accept-router-advertisements-on=none disable-ipv6=yes disable-link-local-address=yes
 /interface detect-internet set internet-interface-list=list-autodetect-INTERNET lan-interface-list=list-autodetect-LAN wan-interface-list=list-autodetect-WAN
 /interface l2tp-server server set keepalive-timeout=disabled
 /interface list member add comment="MGTS, GPON via Huavei" interface="wan A" list=list-untrusted
@@ -4953,12 +5046,13 @@
 /interface wifi access-list add action=accept allow-signal-out-of-range=10s comment="clicbot(wireless)" disabled=no mac-address=B8:2D:28:0A:39:0E ssid-regexp="WiFi 2"
 /interface wifi access-list add action=accept allow-signal-out-of-range=10s client-isolation=yes comment="Allow any other on guest wireless" disabled=no ssid-regexp=FREE
 /interface wifi access-list add action=reject allow-signal-out-of-range=10s comment="Drop any other on private wireless" disabled=no ssid-regexp=PRIVATE
-/interface wifi capsman set enabled=yes interfaces=list-capsman upgrade-policy=none
+/interface wifi capsman set interfaces=list-capsman upgrade-policy=none
 /interface wifi provisioning add action=create-dynamic-enabled comment="2Ghz private/guest" disabled=no identity-regexp=capxl master-configuration=RU-AP-24-SECURE name-format=sec-2Ghz-%I slave-configurations=RU-AP-24-FREE slave-name-format=open-2Ghz-%I supported-bands=2ghz-n
 /interface wifi provisioning add action=create-dynamic-enabled comment="2Ghz private/guest (self-cap)" disabled=no identity-regexp=anna master-configuration=RU-AP-24-SECURE name-format=sec-2Ghz-%I slave-configurations=RU-AP-24-FREE slave-name-format=open-2Ghz-%I supported-bands=2ghz-n
 /interface wifi provisioning add action=create-dynamic-enabled comment="5Ghz private" disabled=no identity-regexp=capxl master-configuration=RU-AP-5 name-format=sec-5Ghz-%I supported-bands=5ghz-ac
 /interface wifi provisioning add action=create-dynamic-enabled comment="5Ghz private (self-cap)" disabled=no identity-regexp=anna master-configuration=RU-AP-5 name-format=sec-5Ghz-%I supported-bands=5ghz-ac
 /interface wifi provisioning add action=create-dynamic-enabled comment=dummy disabled=no master-configuration=empty name-format=dummy-%I
+/interface wireless snooper set receive-errors=yes
 /iot mqtt subscriptions add broker=Mosquitto topic=/devices/metrics/controls/load_average_1min
 /iot mqtt subscriptions add broker=Mosquitto on-message="{\
     \n:log info \"Got data {\$msgData} from topic {\$msgTopic} - Green signal\"\
@@ -5034,7 +5128,7 @@
 /ip dhcp-server lease add address=192.168.98.85 block-access=yes comment="MbpAlxm(wire)(blocked)" mac-address=6C:1F:F7:60:69:71 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.2 comment="WB (wire)" mac-address=00:85:01:01:50:0E server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.2 block-access=yes comment="WB (wire)(blocked)" mac-address=00:85:01:01:50:0E server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.3 comment="WB (wireless)" dhcp-option-set=ReconfigureOpts mac-address=C8:FE:0F:0B:19:3A server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.90.3 comment="WB (wireless)" mac-address=C8:FE:0F:0B:19:3A server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.3 block-access=yes comment="WB (wireless)(blocked)" mac-address=CA:FE:0F:0B:19:3A server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.205 comment="SamsungTV(wire)" mac-address=F8:3F:51:0D:88:0B server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.205 block-access=yes comment="SamsungTV(wire)(blocked)" mac-address=F8:3F:51:0D:88:0B server=guest-dhcp-server
@@ -5429,7 +5523,6 @@
 /ip dns static add address-list=alist-mangle-vpn comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=keybr.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260702-034500 forward-to=DOH-Google match-subdomain=yes name=r2---sn--n5pbvoj5caxu8-nboz.google type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260702-034500 forward-to=DOH-Google match-subdomain=yes name=r3---sn--h557snl6.googlevideo type=FWD
-/ip dns static add address=192.168.90.10 comment=<AUTO:DHCP:main-dhcp-server> name=RBcAPGi.home ttl=5m type=A
 /ip dns static add address=46.39.51.201 name=ftpserver.org type=A
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
@@ -5506,246 +5599,244 @@
 /ip firewall address-list add address=192.168.168.160/28 list=alist-nat-local-subnets
 /ip firewall address-list add address=192.168.168.160/28 comment="Add DNS Server to this List" list=alist-fw-dns-allow
 /ip firewall address-list add address=46.39.51.201 list=alist-nat-external-ip
-/ip firewall filter add action=accept chain=forward connection-state=established,related
-/ip firewall filter add action=accept chain=input connection-state=established,related
-/ip firewall filter add action=drop chain=input comment=ECH_block disabled=yes dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(input)" protocol=udp
-/ip firewall filter add action=accept chain=input comment=SYSL disabled=yes dst-port=514 layer7-protocol=ECH log=yes log-prefix="#CATCH SYSL(input)" protocol=udp
-/ip firewall filter add action=drop chain=forward comment=ECH_block disabled=yes dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(forward)" protocol=udp
-/ip firewall filter add action=drop chain=output comment=ECH_block disabled=yes dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(output)" protocol=udp
-/ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid disabled=yes in-interface-list=list-drop-invalid-connections log=yes log-prefix="#DROP INVLD(input)"
-/ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid disabled=yes dst-address-list=!alist-fw-vpn-subnets log=yes log-prefix="#DROP INVLD(forward)"
-/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related disabled=yes
-/ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" disabled=yes protocol=ospf
-/ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" disabled=yes dst-address-type=broadcast dst-port=5678 protocol=udp
-/ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" disabled=yes dst-address-type=broadcast dst-port=5678 protocol=udp
-/ip firewall filter add action=accept chain=output comment=CAPsMAN disabled=yes dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
-/ip firewall filter add action=accept chain=input comment=CAPsMAN disabled=yes dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
-/ip firewall filter add action=jump chain=input comment="VPN Access" disabled=yes jump-target=chain-vpn-rules
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="L2TP tunnel" disabled=yes dst-port=1701 protocol=udp
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-ah\"" disabled=yes protocol=ipsec-ah src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-esp\"" disabled=yes protocol=ipsec-esp src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IKE\" - IPSEC connection establishing" disabled=yes dst-port=500 protocol=udp src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow UDP\" - IPSEC data trasfer" disabled=yes dst-port=4500 protocol=udp src-address-list=alist-fw-vpn-server-addr
-/ip firewall filter add action=return chain=chain-vpn-rules comment="VPN Access" disabled=yes
-/ip firewall filter add action=accept chain=forward comment=VPN disabled=yes dst-address-list=alist-fw-vpn-subnets src-address-list=alist-fw-local-subnets
-/ip firewall filter add action=accept chain=forward comment=VPN disabled=yes dst-address-list=alist-fw-local-subnets src-address-list=alist-fw-vpn-subnets
-/ip firewall filter add action=jump chain=forward comment="Jump to chain-rdp-staged-control" disabled=yes jump-target=chain-rdp-staged-control
-/ip firewall filter add action=drop chain=chain-rdp-staged-control comment="drop rdp brute forcers" disabled=yes dst-port=3389 log=yes log-prefix="#DROP RDP" protocol=tcp src-address-list=alist-fw-rdp-block
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-block address-list-timeout=10h chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage3 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage2 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage1 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new disabled=yes dst-port=3389 protocol=tcp src-address-list=!alist-fw-rdp-allow
-/ip firewall filter add action=return chain=chain-rdp-staged-control comment="Return From chain-rdp-staged-control" disabled=yes
-/ip firewall filter add action=jump chain=forward comment="jump to chain-smb-staged-control" disabled=yes jump-target=chain-smb-staged-control src-address-list=!alist-fw-smb-allow
-/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 protocol=udp
-/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 protocol=tcp
-/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 log=yes log-prefix="#DROP SMB" protocol=tcp src-address-list=alist-smb-shares-track
-/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" disabled=yes dst-port=137-139,445 log=yes log-prefix="#DROP SMB" protocol=udp src-address-list=alist-smb-shares-track
-/ip firewall filter add action=return chain=chain-smb-staged-control comment="Return from chain-smb-staged-control" disabled=yes
-/ip firewall filter add action=drop chain=input comment="drop ftp brute forcers" disabled=yes dst-port=21 protocol=tcp src-address-list=alist-fw-ftp-block
-/ip firewall filter add action=accept chain=output comment="drop ftp brute forcers" content="530 Login incorrect" disabled=yes dst-limit=1/1m,9,dst-address/1m protocol=tcp
-/ip firewall filter add action=add-dst-to-address-list address-list=alist-fw-ftp-block address-list-timeout=3h chain=output comment="drop ftp brute forcers" content="530 Login incorrect" disabled=yes protocol=tcp
-/ip firewall filter add action=jump chain=input comment="Jump to DNS Amplification" disabled=yes jump-target=chain-dns-amp-attack
-/ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" disabled=yes port=53,5353 protocol=udp src-address-list=alist-fw-dns-allow
-/ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" disabled=yes dst-address-list=alist-fw-dns-allow port=53,5353 protocol=udp
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-dns-amp-ban address-list-timeout=10h chain=chain-dns-amp-attack comment="Add DNS Amplification to Blacklist" disabled=yes port=53,5353 protocol=udp src-address-list=!alist-fw-dns-allow
-/ip firewall filter add action=drop chain=chain-dns-amp-attack comment="Drop DNS Amplification" disabled=yes log=yes log-prefix="#PROP DNS FLOOD(input)" src-address-list=alist-fw-dns-amp-ban
-/ip firewall filter add action=return chain=chain-dns-amp-attack comment="Return from DNS Amplification" disabled=yes
-/ip firewall filter add action=accept chain=input comment="Self fetch requests" disabled=yes port=80 protocol=tcp
-/ip firewall filter add action=jump chain=input comment="Allow router services on the lan" disabled=yes in-interface=main-infrastructure-br jump-target=chain-router-services-lan
-/ip firewall filter add action=accept chain=chain-router-services-lan comment="Winbox (8291/TCP)" disabled=yes dst-port=8291 protocol=tcp
-/ip firewall filter add action=accept chain=chain-router-services-lan comment=SNMP disabled=yes port=161 protocol=udp
-/ip firewall filter add action=accept chain=chain-router-services-lan comment=WEB disabled=yes port=80 protocol=tcp
-/ip firewall filter add action=return chain=chain-router-services-lan comment="Return from chain-router-services-lan Chain" disabled=yes
-/ip firewall filter add action=jump chain=input comment="Allow router services on the wan" disabled=yes in-interface="wan A" jump-target=chain-router-services-wan
-/ip firewall filter add action=drop chain=chain-router-services-wan comment="SSH (22/TCP)" disabled=yes dst-port=22 protocol=tcp
-/ip firewall filter add action=drop chain=chain-router-services-wan comment="Winbox (8291/TCP)" disabled=yes dst-port=8291 protocol=tcp
-/ip firewall filter add action=return chain=chain-router-services-wan comment="Return from chain-router-services-wan Chain" disabled=yes
-/ip firewall filter add action=jump chain=input comment="Check for ping flooding" disabled=yes jump-target=chain-detect-icmp-flood protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="0:0 and limit for 5 pac/s Allow Ping" disabled=yes icmp-options=0:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="3:3 and limit for 5 pac/s Allow Traceroute" disabled=yes icmp-options=3:3 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="3:4 and limit for 5 pac/s Allow Path MTU Discovery" disabled=yes icmp-options=3:4 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="8:0 and limit for 5 pac/s Allow Ping" disabled=yes icmp-options=8:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="11:0 and limit for 5 pac/s Allow Traceroute" disabled=yes icmp-options=11:0-255 limit=5,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="0:0 and limit for 50 pac/s Allow Ping tool speed-test" disabled=yes icmp-options=0:0-255 limit=50,5:packet protocol=icmp
-/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" disabled=yes icmp-options=8:0-255 limit=50,5:packet protocol=icmp
-/ip firewall filter add action=drop chain=chain-detect-icmp-flood comment="drop everything else" disabled=yes log=yes log-prefix="#DROP ICMP(flood)" protocol=icmp
-/ip firewall filter add action=return chain=chain-detect-icmp-flood comment="Return from chain-detect-ping-flood Chain" disabled=yes
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY1 disabled=yes src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Manually Added)" disabled=yes src-address-list=alist-fw-manual-block
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Manually Added)" disabled=yes src-address-list=alist-fw-manual-block
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (SSH)" disabled=yes src-address-list=alist-fw-ssh-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (SSH)" disabled=yes src-address-list=alist-fw-ssh-ban
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Telnet)" disabled=yes src-address-list=alist-fw-telnet-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Telnet)" disabled=yes src-address-list=alist-fw-telnet-ban
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Winbox)" disabled=yes src-address-list=alist-fw-winbox-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Winbox)" disabled=yes src-address-list=alist-fw-winbox-ban
-/ip firewall filter add action=drop chain=input comment="Drop anyone in the WAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=drop chain=forward comment="Drop anyone in the WAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=passthrough chain=input comment="Drop anyone in the LAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=passthrough chain=forward comment="Drop anyone in the LAN Port Scanner List" disabled=yes src-address-list=alist-fw-port-scanner-ban
-/ip firewall filter add action=drop chain=input comment="Drop all Bogons" disabled=yes src-address-list=alist-fw-rfc-special
-/ip firewall filter add action=drop chain=forward comment="Drop all Bogons" disabled=yes src-address-list=alist-fw-rfc-special
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY2 disabled=yes src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to RFC SSH Chain" disabled=yes jump-target=chain-ssh-staged-control
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-ban address-list-timeout=1w3d chain=chain-ssh-staged-control comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage3 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 3" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage2 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 2" connection-state=new disabled=yes dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage1 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add intial attempt to SSH Stage 1 List" connection-state=new disabled=yes dst-port=22 protocol=tcp
-/ip firewall filter add action=return chain=chain-ssh-staged-control comment="Return From RFC SSH Chain" disabled=yes
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY3 disabled=yes src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to RFC Telnet Chain" disabled=yes jump-target=chain-telnet-staged-control
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-ban address-list-timeout=1w3d chain=chain-telnet-staged-control comment="Transfer repeated attempts from Telnet Stage 3 to Black-List" connection-state=new disabled=yes dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage3 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 3" connection-state=new disabled=yes dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage2 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 2" connection-state=new disabled=yes dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage1 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add Intial attempt to Telnet Stage 1" connection-state=new disabled=yes dst-port=23 protocol=tcp
-/ip firewall filter add action=return chain=chain-telnet-staged-control comment="Return From RFC Telnet Chain" disabled=yes
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY4 disabled=yes src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to RFC Winbox Chain" disabled=yes jump-target=chain-winbox-staged-control
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-ban address-list-timeout=1w3d chain=chain-winbox-staged-control comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage3
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage3 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 3" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage2
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage2 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 2" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage1
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage1 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add Intial attempt to Winbox Stage 1" connection-state=new disabled=yes dst-port=8291 protocol=tcp src-address-list=!alist-fw-vpn-subnets
-/ip firewall filter add action=return chain=chain-winbox-staged-control comment="Return From RFC Winbox Chain" disabled=yes
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY5 disabled=yes src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" disabled=yes protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" disabled=yes protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY6 disabled=yes src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=1h chain=input comment=alist-fw-highload connection-limit=100,32 disabled=yes protocol=tcp
-/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=10h chain=forward comment=alist-fw-highload connection-limit=100,32 disabled=yes protocol=tcp
-/ip firewall filter add action=jump chain=input comment="Jump to Virus Chain" disabled=yes jump-target=chain-worms-detector
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Conficker disabled=yes dst-port=593 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=1024-1030 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm requester" disabled=yes dst-port=1363 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm server" disabled=yes dst-port=1364 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="screen cast" disabled=yes dst-port=1368 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=hromgrafx disabled=yes dst-port=1373 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" disabled=yes dst-port=1080 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=cichlid disabled=yes dst-port=1377 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=1433-1434 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" disabled=yes dst-port=2283 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle" disabled=yes dst-port=2535 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.C-K" disabled=yes dst-port=2745 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" disabled=yes dst-port=3127-3128 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Backdoor OptixPro" disabled=yes dst-port=3410 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Sasser" disabled=yes dst-port=5554 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=4444 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm disabled=yes dst-port=4444 protocol=udp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.B" disabled=yes dst-port=8866 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dabber.A-B" disabled=yes dst-port=9898 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" disabled=yes dst-port=10000 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom.B" disabled=yes dst-port=10080 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop NetBus" disabled=yes dst-port=12345 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Kuang2" disabled=yes dst-port=17300 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop SubSeven" disabled=yes dst-port=27374 protocol=tcp
-/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop PhatBot, Agobot, Gaobot" disabled=yes dst-port=65506 protocol=tcp
-/ip firewall filter add action=return chain=chain-worms-detector comment="Return From Virus Chain" disabled=yes
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY7 disabled=yes src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=jump chain=input comment="Jump to \"Manage Common Ports\" Chain" disabled=yes jump-target=chain-self-common-ports
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All hosts on this subnet\" Broadcast" disabled=yes src-address=224.0.0.1
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All routers on this subnet\" Broadcast" disabled=yes src-address=224.0.0.2
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="DVMRP (Distance Vector Multicast Routing Protocol)" disabled=yes src-address=224.0.0.4
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - All OSPF Routers Broadcast" disabled=yes src-address=224.0.0.5
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - OSPF DR Routers Broadcast" disabled=yes src-address=224.0.0.6
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="RIP Broadcast" disabled=yes src-address=224.0.0.9
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="EIGRP Broadcast" disabled=yes src-address=224.0.0.10
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="PIM Broadcast" disabled=yes src-address=224.0.0.13
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="VRRP Broadcast" disabled=yes src-address=224.0.0.18
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.19
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.20
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" disabled=yes src-address=224.0.0.21
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IGMP Broadcast" disabled=yes src-address=224.0.0.22
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="GRE Protocol (Local Management)" disabled=yes protocol=gre
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer" disabled=yes port=20 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPcontrol (command)" disabled=yes port=21 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer  " disabled=yes port=20 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)" disabled=yes port=22 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)   " disabled=yes port=22 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet disabled=yes port=23 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet disabled=yes port=23 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem." disabled=yes port=24 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem.  " disabled=yes port=24 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)" disabled=yes port=25 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)  " disabled=yes port=25 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol" disabled=yes port=37 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol  " disabled=yes port=37 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol & WINS" disabled=yes port=42 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol  & WINS  " disabled=yes port=42 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" disabled=yes port=43 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" disabled=yes port=43 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" disabled=yes port=53 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" disabled=yes port=53 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Mail Transfer Protocol(RFC 780)" disabled=yes port=57 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Server & (DHCP)  " disabled=yes port=67 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Client & (DHCP)  " disabled=yes port=68 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Trivial File Transfer Protocol (TFTP)  " disabled=yes port=69 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Gopher protocol" disabled=yes port=70 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Finger protocol" disabled=yes port=79 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Hypertext Transfer Protocol (HTTP)" disabled=yes port=80 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="RemoteTELNETService protocol" disabled=yes port=107 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv2 (POP2)" disabled=yes port=109 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv3 (POP3)" disabled=yes port=110 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="IdentAuthentication Service/Identification Protocol" disabled=yes port=113 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Authentication Service (auth)  " disabled=yes port=113 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple File Transfer Protocol (SFTP)" disabled=yes port=115 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Network Time Protocol(NTP)" disabled=yes log=yes log-prefix="#NTP REQ" port=123 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service" disabled=yes port=137 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service  " disabled=yes port=137 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service" disabled=yes port=138 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service  " disabled=yes port=138 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service" disabled=yes port=139 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service  " disabled=yes port=139 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP)" disabled=yes port=143 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)" disabled=yes port=152 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)  " disabled=yes port=152 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol" disabled=yes port=153 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol  " disabled=yes port=153 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol" disabled=yes port=158 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol  " disabled=yes port=158 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management Protocol(SNMP)  " disabled=yes port=161 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)" disabled=yes port=162 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " disabled=yes port=162 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGP (Border Gateway Protocol)" disabled=yes port=179 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" disabled=yes port=220 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" disabled=yes port=220 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol" disabled=yes port=264 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol  " disabled=yes port=264 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" disabled=yes port=389 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" disabled=yes port=389 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="SSTP TCP Port 443 (Local Management) & HTTPS" disabled=yes port=443 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Microsoft-DSActive Directory, Windows shares" disabled=yes port=445 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP/ IPSEC UDP Port 500 (Local Management)" disabled=yes port=500 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol" disabled=yes port=502 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol  " disabled=yes port=502 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Shell (Remote Shell, rsh, remsh)" disabled=yes port=514 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Syslog - used for system logging  " disabled=yes port=514 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Routing Information Protocol (RIP)  " disabled=yes port=520 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="e-mail message submission (SMTP)" disabled=yes port=587 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" disabled=yes port=646 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" disabled=yes port=646 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" disabled=yes port=989 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" disabled=yes port=989 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" disabled=yes port=990 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" disabled=yes port=990 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" disabled=yes port=992 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" disabled=yes port=992 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol over TLS/SSL (IMAPS)" disabled=yes port=993 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocol3 over TLS/SSL (POP3S)" disabled=yes port=995 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="OVPN TCP Port 1194 (Local Management)" disabled=yes port=1194 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="PPTP Port 1723 (Local Management)" disabled=yes port=1723 protocol=tcp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 1701 (Local Management)" disabled=yes port=1701 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 4500 (Local Management)" disabled=yes port=4500 protocol=udp
-/ip firewall filter add action=accept chain=chain-self-common-ports comment="WINBOX TCP Port 8291 (Local Management)" disabled=yes port=8291 protocol=tcp
-/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" disabled=yes dst-port=137-138 protocol=udp src-address-list=alist-fw-smb-allow
-/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" disabled=yes dst-port=137,139 protocol=tcp src-address-list=alist-fw-smb-allow
-/ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related disabled=yes
-/ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new disabled=yes
-/ip firewall filter add action=accept chain=input comment="Allow proxy on 8888" disabled=yes dst-port=8888 in-interface=main-infrastructure-br protocol=tcp
-/ip firewall filter add action=passthrough chain=forward comment=DUMMY8 disabled=yes src-address-list=alist-fw-empty-dummy
-/ip firewall filter add action=drop chain=input comment="Open proxy block" disabled=yes dst-port=8888 in-interface="wan A" protocol=tcp
-/ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new disabled=yes in-interface="wan A" log=yes log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
-/ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" disabled=yes log=yes log-prefix="#DROP UNKNOWN (FWD)"
-/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" disabled=yes log=yes log-prefix="#DROP UNKNOWN (INPUT)"
+/ip firewall filter add action=drop chain=input comment=ECH_block dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(input)" protocol=udp
+/ip firewall filter add action=accept chain=input comment=SYSL dst-port=514 layer7-protocol=ECH log=yes log-prefix="#CATCH SYSL(input)" protocol=udp
+/ip firewall filter add action=drop chain=forward comment=ECH_block dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(forward)" protocol=udp
+/ip firewall filter add action=drop chain=output comment=ECH_block dst-port=53 layer7-protocol=ECH log-prefix="#DROP ECH(output)" protocol=udp
+/ip firewall filter add action=drop chain=input comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid in-interface-list=list-drop-invalid-connections log=yes log-prefix="#DROP INVLD(input)"
+/ip firewall filter add action=drop chain=forward comment="Drop Invalid Connections (HIGH PRIORIRY RULE)" connection-state=invalid dst-address-list=!alist-fw-vpn-subnets log=yes log-prefix="#DROP INVLD(forward)"
+/ip firewall filter add action=accept chain=forward comment="Accept Related or Established Connections (HIGH PRIORIRY RULE)" connection-state=established,related
+/ip firewall filter add action=accept chain=input comment="OSFP neighbour-ing allow" protocol=ospf
+/ip firewall filter add action=accept chain=input comment="Allow mikrotik self-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
+/ip firewall filter add action=accept chain=forward comment="Allow mikrotik neighbor-discovery" dst-address-type=broadcast dst-port=5678 protocol=udp
+/ip firewall filter add action=accept chain=output comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
+/ip firewall filter add action=accept chain=input comment=CAPsMAN dst-address-type=local port=5246,5247 protocol=udp src-address-type=local
+/ip firewall filter add action=jump chain=input comment="VPN Access" jump-target=chain-vpn-rules
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="L2TP tunnel" dst-port=1701 protocol=udp
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-ah\"" protocol=ipsec-ah src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IPSec-esp\"" protocol=ipsec-esp src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow IKE\" - IPSEC connection establishing" dst-port=500 protocol=udp src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=accept chain=chain-vpn-rules comment="VPN \"Allow UDP\" - IPSEC data trasfer" dst-port=4500 protocol=udp src-address-list=alist-fw-vpn-server-addr
+/ip firewall filter add action=return chain=chain-vpn-rules comment="VPN Access"
+/ip firewall filter add action=accept chain=forward comment=VPN dst-address-list=alist-fw-vpn-subnets src-address-list=alist-fw-local-subnets
+/ip firewall filter add action=accept chain=forward comment=VPN dst-address-list=alist-fw-local-subnets src-address-list=alist-fw-vpn-subnets
+/ip firewall filter add action=jump chain=forward comment="Jump to chain-rdp-staged-control" jump-target=chain-rdp-staged-control
+/ip firewall filter add action=drop chain=chain-rdp-staged-control comment="drop rdp brute forcers" dst-port=3389 log=yes log-prefix="#DROP RDP" protocol=tcp src-address-list=alist-fw-rdp-block
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-block address-list-timeout=10h chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage3 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage2 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=alist-fw-rdp-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-rdp-stage1 address-list-timeout=1m chain=chain-rdp-staged-control connection-state=new dst-port=3389 protocol=tcp src-address-list=!alist-fw-rdp-allow
+/ip firewall filter add action=return chain=chain-rdp-staged-control comment="Return From chain-rdp-staged-control"
+/ip firewall filter add action=jump chain=forward comment="jump to chain-smb-staged-control" jump-target=chain-smb-staged-control src-address-list=!alist-fw-smb-allow
+/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 protocol=udp
+/ip firewall filter add action=add-src-to-address-list address-list=alist-smb-shares-track address-list-timeout=10h chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 protocol=tcp
+/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log=yes log-prefix="#DROP SMB" protocol=tcp src-address-list=alist-smb-shares-track
+/ip firewall filter add action=drop chain=chain-smb-staged-control comment="TCP/UDP ports necessary for SMB DROP" dst-port=137-139,445 log=yes log-prefix="#DROP SMB" protocol=udp src-address-list=alist-smb-shares-track
+/ip firewall filter add action=return chain=chain-smb-staged-control comment="Return from chain-smb-staged-control"
+/ip firewall filter add action=drop chain=input comment="drop ftp brute forcers" dst-port=21 protocol=tcp src-address-list=alist-fw-ftp-block
+/ip firewall filter add action=accept chain=output comment="drop ftp brute forcers" content="530 Login incorrect" dst-limit=1/1m,9,dst-address/1m protocol=tcp
+/ip firewall filter add action=add-dst-to-address-list address-list=alist-fw-ftp-block address-list-timeout=3h chain=output comment="drop ftp brute forcers" content="530 Login incorrect" protocol=tcp
+/ip firewall filter add action=jump chain=input comment="Jump to DNS Amplification" jump-target=chain-dns-amp-attack
+/ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" port=53,5353 protocol=udp src-address-list=alist-fw-dns-allow
+/ip firewall filter add action=accept chain=chain-dns-amp-attack comment="Make exceptions for DNS" dst-address-list=alist-fw-dns-allow port=53,5353 protocol=udp
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-dns-amp-ban address-list-timeout=10h chain=chain-dns-amp-attack comment="Add DNS Amplification to Blacklist" port=53,5353 protocol=udp src-address-list=!alist-fw-dns-allow
+/ip firewall filter add action=drop chain=chain-dns-amp-attack comment="Drop DNS Amplification" log=yes log-prefix="#PROP DNS FLOOD(input)" src-address-list=alist-fw-dns-amp-ban
+/ip firewall filter add action=return chain=chain-dns-amp-attack comment="Return from DNS Amplification"
+/ip firewall filter add action=accept chain=input comment="Self fetch requests" port=80 protocol=tcp
+/ip firewall filter add action=jump chain=input comment="Allow router services on the lan" in-interface=main-infrastructure-br jump-target=chain-router-services-lan
+/ip firewall filter add action=accept chain=chain-router-services-lan comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
+/ip firewall filter add action=accept chain=chain-router-services-lan comment=SNMP port=161 protocol=udp
+/ip firewall filter add action=accept chain=chain-router-services-lan comment=WEB port=80 protocol=tcp
+/ip firewall filter add action=return chain=chain-router-services-lan comment="Return from chain-router-services-lan Chain"
+/ip firewall filter add action=jump chain=input comment="Allow router services on the wan" in-interface="wan A" jump-target=chain-router-services-wan
+/ip firewall filter add action=drop chain=chain-router-services-wan comment="SSH (22/TCP)" dst-port=22 protocol=tcp
+/ip firewall filter add action=drop chain=chain-router-services-wan comment="Winbox (8291/TCP)" dst-port=8291 protocol=tcp
+/ip firewall filter add action=return chain=chain-router-services-wan comment="Return from chain-router-services-wan Chain"
+/ip firewall filter add action=jump chain=input comment="Check for ping flooding" jump-target=chain-detect-icmp-flood protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="0:0 and limit for 5 pac/s Allow Ping" icmp-options=0:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="3:3 and limit for 5 pac/s Allow Traceroute" icmp-options=3:3 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="3:4 and limit for 5 pac/s Allow Path MTU Discovery" icmp-options=3:4 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="8:0 and limit for 5 pac/s Allow Ping" icmp-options=8:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="11:0 and limit for 5 pac/s Allow Traceroute" icmp-options=11:0-255 limit=5,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="0:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=0:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=accept chain=chain-detect-icmp-flood comment="8:0 and limit for 50 pac/s Allow Ping tool speed-test" icmp-options=8:0-255 limit=50,5:packet protocol=icmp
+/ip firewall filter add action=drop chain=chain-detect-icmp-flood comment="drop everything else" log=yes log-prefix="#DROP ICMP(flood)" protocol=icmp
+/ip firewall filter add action=return chain=chain-detect-icmp-flood comment="Return from chain-detect-ping-flood Chain"
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY1 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Manually Added)" src-address-list=alist-fw-manual-block
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Manually Added)" src-address-list=alist-fw-manual-block
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (SSH)" src-address-list=alist-fw-ssh-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (SSH)" src-address-list=alist-fw-ssh-ban
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Telnet)" src-address-list=alist-fw-telnet-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Telnet)" src-address-list=alist-fw-telnet-ban
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the Black List (Winbox)" src-address-list=alist-fw-winbox-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the Black List (Winbox)" src-address-list=alist-fw-winbox-ban
+/ip firewall filter add action=drop chain=input comment="Drop anyone in the WAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=drop chain=forward comment="Drop anyone in the WAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=passthrough chain=input comment="Drop anyone in the LAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=passthrough chain=forward comment="Drop anyone in the LAN Port Scanner List" src-address-list=alist-fw-port-scanner-ban
+/ip firewall filter add action=drop chain=input comment="Drop all Bogons" src-address-list=alist-fw-rfc-special
+/ip firewall filter add action=drop chain=forward comment="Drop all Bogons" src-address-list=alist-fw-rfc-special
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY2 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to RFC SSH Chain" jump-target=chain-ssh-staged-control
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-ban address-list-timeout=1w3d chain=chain-ssh-staged-control comment="Transfer repeated attempts from SSH Stage 3 to Black-List" connection-state=new dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage3 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 3" connection-state=new dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage2 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add succesive attempts to SSH Stage 2" connection-state=new dst-port=22 protocol=tcp src-address-list=alist-fw-ssh-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-ssh-stage1 address-list-timeout=1m chain=chain-ssh-staged-control comment="Add intial attempt to SSH Stage 1 List" connection-state=new dst-port=22 protocol=tcp
+/ip firewall filter add action=return chain=chain-ssh-staged-control comment="Return From RFC SSH Chain"
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY3 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to RFC Telnet Chain" jump-target=chain-telnet-staged-control
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-ban address-list-timeout=1w3d chain=chain-telnet-staged-control comment="Transfer repeated attempts from Telnet Stage 3 to Black-List" connection-state=new dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage3 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 3" connection-state=new dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage2 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add succesive attempts to Telnet Stage 2" connection-state=new dst-port=23 protocol=tcp src-address-list=alist-fw-telnet-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-telnet-stage1 address-list-timeout=1m chain=chain-telnet-staged-control comment="Add Intial attempt to Telnet Stage 1" connection-state=new dst-port=23 protocol=tcp
+/ip firewall filter add action=return chain=chain-telnet-staged-control comment="Return From RFC Telnet Chain"
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY4 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to RFC Winbox Chain" jump-target=chain-winbox-staged-control
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-ban address-list-timeout=1w3d chain=chain-winbox-staged-control comment="Transfer repeated attempts from Winbox Stage 3 to Black-List" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage3
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage3 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 3" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage2
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage2 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add succesive attempts to Winbox Stage 2" connection-state=new dst-port=8291 protocol=tcp src-address-list=alist-fw-winbox-stage1
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-winbox-stage1 address-list-timeout=1m chain=chain-winbox-staged-control comment="Add Intial attempt to Winbox Stage 1" connection-state=new dst-port=8291 protocol=tcp src-address-list=!alist-fw-vpn-subnets
+/ip firewall filter add action=return chain=chain-winbox-staged-control comment="Return From RFC Winbox Chain"
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY5 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=input comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-port-scanner-ban address-list-timeout=10h chain=forward comment="Add TCP Port Scanners to Address List" protocol=tcp psd=40,3s,2,1 src-address-list=!alist-fw-port-scanner-allow
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY6 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=1h chain=input comment=alist-fw-highload connection-limit=100,32 protocol=tcp
+/ip firewall filter add action=add-src-to-address-list address-list=alist-fw-highload address-list-timeout=10h chain=forward comment=alist-fw-highload connection-limit=100,32 protocol=tcp
+/ip firewall filter add action=jump chain=input comment="Jump to Virus Chain" jump-target=chain-worms-detector
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Conficker dst-port=593 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=1024-1030 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm requester" dst-port=1363 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="ndm server" dst-port=1364 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="screen cast" dst-port=1368 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=hromgrafx dst-port=1373 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" dst-port=1080 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=cichlid dst-port=1377 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=1433-1434 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" dst-port=2283 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle" dst-port=2535 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.C-K" dst-port=2745 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom" dst-port=3127-3128 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Backdoor OptixPro" dst-port=3410 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Sasser" dst-port=5554 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=4444 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment=Worm dst-port=4444 protocol=udp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Beagle.B" dst-port=8866 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dabber.A-B" dst-port=9898 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Dumaru.Y" dst-port=10000 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop MyDoom.B" dst-port=10080 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop NetBus" dst-port=12345 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop Kuang2" dst-port=17300 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop SubSeven" dst-port=27374 protocol=tcp
+/ip firewall filter add action=drop chain=chain-worms-detector comment="Drop PhatBot, Agobot, Gaobot" dst-port=65506 protocol=tcp
+/ip firewall filter add action=return chain=chain-worms-detector comment="Return From Virus Chain"
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY7 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=jump chain=input comment="Jump to \"Manage Common Ports\" Chain" jump-target=chain-self-common-ports
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All hosts on this subnet\" Broadcast" src-address=224.0.0.1
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="\"All routers on this subnet\" Broadcast" src-address=224.0.0.2
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="DVMRP (Distance Vector Multicast Routing Protocol)" src-address=224.0.0.4
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - All OSPF Routers Broadcast" src-address=224.0.0.5
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="OSPF - OSPF DR Routers Broadcast" src-address=224.0.0.6
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="RIP Broadcast" src-address=224.0.0.9
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="EIGRP Broadcast" src-address=224.0.0.10
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="PIM Broadcast" src-address=224.0.0.13
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="VRRP Broadcast" src-address=224.0.0.18
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" src-address=224.0.0.19
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" src-address=224.0.0.20
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IS-IS Broadcast" src-address=224.0.0.21
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IGMP Broadcast" src-address=224.0.0.22
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="GRE Protocol (Local Management)" protocol=gre
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer" port=20 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPcontrol (command)" port=21 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPdata transfer  " port=20 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)" port=22 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Secure Shell(SSH)   " port=22 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet port=23 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment=Telnet port=23 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem." port=24 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Priv-mail: any privatemailsystem.  " port=24 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)" port=25 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Mail Transfer Protocol(SMTP)  " port=25 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol" port=37 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TIME protocol  " port=37 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol & WINS" port=42 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="ARPA Host Name Server Protocol  & WINS  " port=42 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" port=43 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="WHOIS protocol" port=43 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" port=53 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Domain Name System (DNS)" port=53 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Mail Transfer Protocol(RFC 780)" port=57 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Server & (DHCP)  " port=67 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="(BOOTP) Client & (DHCP)  " port=68 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Trivial File Transfer Protocol (TFTP)  " port=69 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Gopher protocol" port=70 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Finger protocol" port=79 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Hypertext Transfer Protocol (HTTP)" port=80 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="RemoteTELNETService protocol" port=107 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv2 (POP2)" port=109 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocolv3 (POP3)" port=110 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="IdentAuthentication Service/Identification Protocol" port=113 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Authentication Service (auth)  " port=113 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple File Transfer Protocol (SFTP)" port=115 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Network Time Protocol(NTP)" log=yes log-prefix="#NTP REQ" port=123 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service" port=137 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Name Service  " port=137 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service" port=138 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Datagram Service  " port=138 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service" port=139 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="NetBIOSNetBIOS Session Service  " port=139 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP)" port=143 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)" port=152 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Background File Transfer Program (BFTP)  " port=152 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol" port=153 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="SGMP,Simple Gateway Monitoring Protocol  " port=153 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol" port=158 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="DMSP, Distributed Mail Service Protocol  " port=158 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management Protocol(SNMP)  " port=161 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)" port=162 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Simple Network Management ProtocolTrap (SNMPTRAP)  " port=162 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGP (Border Gateway Protocol)" port=179 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" port=220 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol (IMAP), version 3" port=220 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol" port=264 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="BGMP, Border Gateway Multicast Protocol  " port=264 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" port=389 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Lightweight Directory Access Protocol (LDAP)" port=389 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="SSTP TCP Port 443 (Local Management) & HTTPS" port=443 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Microsoft-DSActive Directory, Windows shares" port=445 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP/ IPSEC UDP Port 500 (Local Management)" port=500 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol" port=502 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Modbus, Protocol  " port=502 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Shell (Remote Shell, rsh, remsh)" port=514 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Syslog - used for system logging  " port=514 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Routing Information Protocol (RIP)  " port=520 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="e-mail message submission (SMTP)" port=587 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" port=646 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="LDP,Label Distribution Protocol" port=646 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" port=989 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (data):FTP over TLS/SSL" port=989 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" port=990 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="FTPS Protocol (control):FTP over TLS/SSL" port=990 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" port=992 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="TELNET protocol overTLS/SSL" port=992 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Internet Message Access Protocol over TLS/SSL (IMAPS)" port=993 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="Post Office Protocol3 over TLS/SSL (POP3S)" port=995 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="OVPN TCP Port 1194 (Local Management)" port=1194 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="PPTP Port 1723 (Local Management)" port=1723 protocol=tcp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 1701 (Local Management)" port=1701 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="L2TP UDP Port 4500 (Local Management)" port=4500 protocol=udp
+/ip firewall filter add action=accept chain=chain-self-common-ports comment="WINBOX TCP Port 8291 (Local Management)" port=8291 protocol=tcp
+/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" dst-port=137-138 protocol=udp src-address-list=alist-fw-smb-allow
+/ip firewall filter add action=accept chain=input comment="TCP/UDP ports necessary for SMB" dst-port=137,139 protocol=tcp src-address-list=alist-fw-smb-allow
+/ip firewall filter add action=accept chain=input comment="Accept Related or Established Connections" connection-state=established,related
+/ip firewall filter add action=accept chain=forward comment="Accept New Connections" connection-state=new
+/ip firewall filter add action=accept chain=input comment="Allow proxy on 8888" dst-port=8888 in-interface=main-infrastructure-br protocol=tcp
+/ip firewall filter add action=passthrough chain=forward comment=DUMMY8 src-address-list=alist-fw-empty-dummy
+/ip firewall filter add action=drop chain=input comment="Open proxy block" dst-port=8888 in-interface="wan A" protocol=tcp
+/ip firewall filter add action=drop chain=forward comment="WAN static-routes intruders not DSTNATed drop" connection-nat-state=dstnat connection-state=new in-interface="wan A" log=yes log-prefix="#DROP UNKNOWN (FWD/no DSTN)"
+/ip firewall filter add action=drop chain=forward comment="Drop all other LAN Traffic" log=yes log-prefix="#DROP UNKNOWN (FWD)"
+/ip firewall filter add action=drop chain=input comment="Drop all other WAN Traffic" log=yes log-prefix="#DROP UNKNOWN (INPUT)"
 /ip firewall mangle add action=change-mss chain=forward comment="DPI Hack: specific  for TVs to fix mss" dst-address-list=alist-mangle-byedpi-YT-TV new-mss=88 protocol=tcp src-address-list=alist-mangle-byedpi-container tcp-flags=syn
 /ip firewall mangle add action=jump chain=prerouting comment=dpi-hack-chain-set-cmark connection-mark=no-mark in-interface-list=list-mangle-redirect-byedpi jump-target=dpi-hack-chain-set-cmark
 /ip firewall mangle add action=mark-connection chain=dpi-hack-chain-set-cmark comment=dpi-hack-chain-set-cmark-YT-TV dst-address-list=alist-mangle-byedpi-YT-TV new-connection-mark=cmark-docker-connection-YT-TV
@@ -5821,11 +5912,13 @@
 /ip upnp interfaces add interface="wan A" type=external
 /ip upnp interfaces add interface=main-infrastructure-br type=internal
 /ip upnp interfaces add interface=guest-infrastructure-br type=internal
-/ipv6 nd
-# automatic dns option advertising is not started, re-apply dns config
-set [ find default=yes ] advertise-dns=yes
+/ipv6 nd set [ find default=yes ] advertise-dns=yes disabled=yes
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=8954042546:AAHg_MJ7sK4sUFKSvcQ1YsGAnep_UYnuBO0 profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_PASSWORD password=RHWbJxAje profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_PORT password=2223 profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_USER password=automation profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_SERVER password=usetheforce.io profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=BACKUP_PASSWORD password=RHWbJxAje profile=null service=async
 /routing bgp connection add afi=ip as=65001 comment=ds connect=yes disabled=yes hold-time=3m input.filter=bgp_in instance=inject-into-vpn keepalive-time=1m listen=yes local.address=46.39.51.221 .role=ebgp multihop=yes name=antifilter-peer output.filter-chain=bgp-out-filter-reject-all .network=alist-antifilter-bgp .no-client-to-client-reflection=yes remote.address=51.75.66.20/32 .as=65444 .port=179 routing-table=rmark-vpn-redirect templates=antifilter-template
 /routing bgp connection add as=64555 connect=yes disabled=yes hold-time=4m instance=bgp-instance-1 keepalive-time=1m listen=yes local.role=ebgp multihop=yes name=antifilter remote.address=45.154.73.71/32 .as=65432 routing-table=main
@@ -5918,13 +6011,14 @@ set [ find default=yes ] advertise-dns=yes
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.24.1 \
-    \nUptime:        00:11:04  \
-    \nTime:        2026-08-31 11:20:12  \
+    \nUptime:        21:20:45  \
+    \nTime:        2026-09-04 19:40:13  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
     \nAnna:        46.39.51.201  \
     \nClock:        synchronized  \
+    \n * wireless  \
     \n * netinstall  \
     \n * rose-storage  \
     \n * iot  \
@@ -5967,7 +6061,7 @@ set [ find default=yes ] advertise-dns=yes
 /tool graphing resource add
 /tool mac-server set allowed-interface-list=none
 /tool mac-server mac-winbox set allowed-interface-list=list-winbox-allowed
-/tool netinstall add disabled=yes extra-packages=wifi-qcom-ac interface=adm-netinstall-br ip-range=192.168.168.100-192.168.168.110 keep-old-configuration=no remove-branding=yes wait=yes
+/tool netinstall add disabled=yes extra-packages=wireless interface=adm-netinstall-br ip-range=192.168.168.100-192.168.168.110 keep-old-configuration=no remove-branding=yes wait=yes
 /tool netwatch add comment="miniAlx(wire) status check" disabled=no down-script=":global NetwatchHostName \"minialx\";\
     \n:global NetwatchHostState \"DOWN\";\
     \n\
@@ -6016,14 +6110,14 @@ set [ find default=yes ] advertise-dns=yes
 /tool netwatch add comment="Alice2(wireless) status check" disabled=no down-script=":global NetwatchHostName \"alice2\";\
     \n:global NetwatchHostState \"DOWN\";\
     \n\
-    \n/system script run doNetwatchHost;" host=192.168.90.220 ignore-initial-down=yes ignore-initial-up=yes name=Alice2 startup-delay=20s test-script="" type=simple up-script=":global NetwatchHostName \"alice2\";\
+    \n/system script run doNetwatchHost;" host=192.168.90.196 ignore-initial-down=yes ignore-initial-up=yes name=Alice2 startup-delay=20s test-script="" type=simple up-script=":global NetwatchHostName \"alice2\";\
     \n:global NetwatchHostState \"UP\";\
     \n\
     \n/system script run doNetwatchHost;"
 /tool netwatch add comment="Alice3(wireless) status check" disabled=no down-script=":global NetwatchHostName \"alice3\";\
     \n:global NetwatchHostState \"DOWN\";\
     \n\
-    \n/system script run doNetwatchHost;" host=192.168.90.225 ignore-initial-down=yes ignore-initial-up=yes name=Alice3 startup-delay=20s test-script="" type=simple up-script=":global NetwatchHostName \"alice3\";\
+    \n/system script run doNetwatchHost;" host=192.168.90.195 ignore-initial-down=yes ignore-initial-up=yes name=Alice3 startup-delay=20s test-script="" type=simple up-script=":global NetwatchHostName \"alice3\";\
     \n:global NetwatchHostState \"UP\";\
     \n\
     \n/system script run doNetwatchHost;"
