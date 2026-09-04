@@ -1,4 +1,4 @@
-# 2026-09-04 20:07:20 by RouterOS 7.24.1
+# 2026-09-04 20:17:14 by RouterOS 7.24.1
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -2895,10 +2895,10 @@
     \n\
     \n#directories have to exist!\
     \n:local FTPEnable true;\
-    \n:local FTPServer \"usetheforce.io\";\
-    \n:local FTPPort 2223;\
-    \n:local FTPUser \"automation\";\
-    \n:local FTPPass \"\$[\$SECRET get BACKUP_PASSWORD]\";\
+    \n:local FTPServer \"\$[\$SECRET get SSH_SERVER]\"\
+    \n:local FTPPort \"\$[\$SECRET get SSH_PORT]\"\
+    \n:local FTPUser \"\$[\$SECRET get SSH_USER]\"\
+    \n:local FTPPass \"\$[\$SECRET get SSH_PASSWORD]\"\
     \n:local FTPRoot \"REPO/backups/\";\
     \n:local FTPGitEnable true;\
     \n:local FTPRawGitName \"REPO/raw/rawconf_\$sysname_latest.rsc\";\
@@ -2956,9 +2956,9 @@
     \n\
     \n# make some backdoor\
     \n:local wanIp [/ip cloud get public-address];\
-    \n:local remoteCommand \"{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=\$wanIp]; /ip/firewall/address-list/add address=\$wanIp list=alist-fw-knockknock comment=doDumpTheScripts timeout=5m dynamic=yes }\" \
+    \n:local remoteCommand \"{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=\$wanIp]; /ip/firewall/address-list/add address=\$wanIp list=alist-fw-knockknock comment=doBackup timeout=5m dynamic=yes }\" \
     \n\
-    \n:set state \"Making SFTP backdoor for \$wanIp via SSH using:  \$remoteCommand\"\
+    \n:set state \"Making SFTP backdoor for \$wanIp via SSH\"\
     \n\$globalNoteMe value=\$state\
     \n\
     \n:local errorDef [\$globalCallSSH \$remoteCommand];\
@@ -3359,7 +3359,7 @@
     \n:local wanIp [/ip cloud get public-address];\
     \n:local remoteCommand \"{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=\$wanIp]; /ip/firewall/address-list/add address=\$wanIp list=alist-fw-knockknock comment=doDumpTheScripts timeout=5m dynamic=yes }\" \
     \n\
-    \n:set state \"Making SFTP backdoor for \$wanIp via SSH using:  \$remoteCommand\"\
+    \n:set state \"Making SFTP backdoor for \$wanIp via SSH\"\
     \n\$globalNoteMe value=\$state\
     \n\
     \n:local errorDef [\$globalCallSSH \$remoteCommand];\
@@ -6016,8 +6016,8 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.24.1 \
-    \nUptime:        21:40:45  \
-    \nTime:        2026-09-04 20:00:12  \
+    \nUptime:        21:50:45  \
+    \nTime:        2026-09-04 20:10:13  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
