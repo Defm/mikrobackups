@@ -161,7 +161,7 @@ $globalNoteMe value="Scripts source export.."
 :local wanIp [/ip cloud get public-address];
 :local remoteCommand "{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=$wanIp]; /ip/firewall/address-list/add address=$wanIp list=alist-fw-knockknock comment=doDumpTheScripts timeout=5m dynamic=yes }" 
 
-:set state "Making SFTP backdoor for $wanIp via SSH using:  $remoteCommand"
+:set state "Making SFTP backdoor for $wanIp via SSH"
 $globalNoteMe value=$state
 
 :local errorDef [$globalCallSSH $remoteCommand];

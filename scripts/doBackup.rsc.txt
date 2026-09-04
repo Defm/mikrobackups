@@ -28,10 +28,10 @@ $globalScriptBeforeRun "doBackup";
 
 #directories have to exist!
 :local FTPEnable true;
-:local FTPServer "usetheforce.io";
-:local FTPPort 2223;
-:local FTPUser "automation";
-:local FTPPass "$[$SECRET get BACKUP_PASSWORD]";
+:local FTPServer "$[$SECRET get SSH_SERVER]"
+:local FTPPort "$[$SECRET get SSH_PORT]"
+:local FTPUser "$[$SECRET get SSH_USER]"
+:local FTPPass "$[$SECRET get SSH_PASSWORD]"
 :local FTPRoot "REPO/backups/";
 :local FTPGitEnable true;
 :local FTPRawGitName "REPO/raw/rawconf_$sysname_latest.rsc";
@@ -91,7 +91,7 @@ $globalScriptBeforeRun "doBackup";
 :local wanIp [/ip cloud get public-address];
 :local remoteCommand "{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=$wanIp]; /ip/firewall/address-list/add address=$wanIp list=alist-fw-knockknock comment=doBackup timeout=5m dynamic=yes }" 
 
-:set state "Making SFTP backdoor for $wanIp via SSH using:  $remoteCommand"
+:set state "Making SFTP backdoor for $wanIp via SSH"
 $globalNoteMe value=$state
 
 :local errorDef [$globalCallSSH $remoteCommand];
