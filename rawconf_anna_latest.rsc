@@ -1,4 +1,4 @@
-# 2026-09-04 19:49:34 by RouterOS 7.24.1
+# 2026-09-04 20:07:20 by RouterOS 7.24.1
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
@@ -2976,6 +2976,11 @@
     \n    :set state \"Success RPC call: \$state\";\
     \n    \$globalNoteMe value=\$state;\
     \n\
+    \n\
+    \n     # we have to wait while backdoor alist-fw-ssh-stage1 flushes our first-call Ip, otherwise we get banned\
+    \n     :set state \"Waiting backdoor for \$wanIp for some seconds..\"\
+    \n     \$globalNoteMe value=\$state\
+    \n     :delay 15s\
     \n}\
     \n\
     \n:local buFile \"\"\
@@ -6011,8 +6016,8 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.24.1 \
-    \nUptime:        21:20:45  \
-    \nTime:        2026-09-04 19:40:13  \
+    \nUptime:        21:40:45  \
+    \nTime:        2026-09-04 20:00:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
