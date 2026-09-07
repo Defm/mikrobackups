@@ -1,4 +1,4 @@
-# 2026-09-02 21:13:02 by RouterOS 7.23.1
+# 2026-09-07 21:13:02 by RouterOS 7.23.1
 # system id = pEDSXaHXN3J
 #
 # custom default configuration script installed
@@ -18,7 +18,7 @@
 /interface veth add address=172.17.0.2/29 container-mac-address=26:8A:0C:A0:3E:3B dhcp=no gateway=172.17.0.1 gateway6="" mac-address=26:8A:0C:A0:3E:3A name=veth-telemt
 /interface veth add address=172.17.0.3/29 container-mac-address=30:A6:92:7E:80:32 dhcp=no gateway=172.17.0.1 gateway6="" mac-address=30:A6:92:7E:80:31 name=veth-telemt-webui
 /interface wireguard add listen-port=65114 mtu=1420 name=wg-to-capax private-key="03n33pIsv9MIDWss0bDxyZ0/0xsXo2OvEBjCWOy/Hlw="
-/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 118518/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
+/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 132914/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
     \n" hostname=telemt interface=veth-telemt layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_VOLUMES name=telemt remote-image=ghcr.io/telemt/telemt:latest root-dir=/docker/runs/telemt start-on-boot=yes user=0:0 workdir=/tmp
 /container add check-certificate=no comment="MTProto telegram proxy web panel" dns=192.168.97.1 hostname=telemt-webui interface=veth-telemt-webui layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_WEBUI_VOLUMES name=telemt-webui remote-image=ghcr.io/amirotin/telemt_panel:latest root-dir=/docker/runs/telemt-webui start-on-boot=yes
 /container add check-certificate=no comment="Caddy web server and reverse proxy" dns=192.168.97.1 envlists=CADDY_ENVS hostname=caddy interface=veth-caddy layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=CADDY_VOLUMES name=caddy remote-image=caddy:latest root-dir=/docker/runs/caddy start-on-boot=yes user=0:0 workdir=/srv
@@ -2428,14 +2428,14 @@
 /app set cinny firewall-redirects=8094:80:tcp:web
 /app set goaway container-command-lines=goaway:none:docker.io/pommee/goaway:latest
 /app set home-assistant container-command-lines=home-assistant:none:lscr.io/linuxserver/homeassistant
-/app set lorawan-stack secrets=lorawan-stack__admin_password:RChHVppjYSWgsRnVemazWnPAAZhdtkLD
+/app set lorawan-stack secrets=lorawan-stack__admin_password:VALrWqVLOrvFjMyVajqJQIBqoiFpiyRM
 /app set n8n firewall-redirects=5678:5678:tcp:web
 /app set nextcloud container-command-lines="db:none:docker.io/postgres:17,redis:none:docker.io/valkey/valkey:/bin/sh -c 'valkey-server --port 6379 --appendonly yes --requirepass \$VALKEY_PASSWORD',server:none:docker.io/nextcloud:apache"
 /app set pihole environment="pihole:FTLCONF_dns_listeningMode=all,pihole:FTLCONF_webserver_api_password=password"
 /app set redlib firewall-redirects=8087:8080:tcp:web
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
-/app set zulip secrets=zulip__postgres_password:hDTcuithMRFUpzCZIoXKQmpIvTDaVilG,zulip__memcached_password:RWTgNxiMeudXnGnnBxZtkeYTOpFDaoRY,zulip__rabbitmq_password:TbdgUIpGcGJPRtECMWWQNnUylpuQrlmh,zulip__redis_password:nDqMHMDDtcnmijizUMfbxwHGgYGfoGBA,zulip__secret_key:hnAvDvAPpxJCNbpuCwmKgtSJCPKkBeOH,zulip__email_password:CmdVQmCgKsWWcNCnCfcBYsWgGNJFqOAc
+/app set zulip secrets=zulip__postgres_password:IcONypzIzAYuRjjbABAmjZVSYufwpcAA,zulip__memcached_password:ksakpAvOIGrENfyJqXWjtsARpiXdSKmh,zulip__rabbitmq_password:rcxCQRsUDxCgrjPyJOANCrUQGbGPdyaK,zulip__redis_password:TKnCzvvnAmSfqEComrnlEnonlGjiXYPm,zulip__secret_key:tiaYfGUKgMqHbjBxCRAlKWvNKJnfWoeW,zulip__email_password:WgOAtZOwUtAgZKCNBgiYhvCugmUvqezz
 /app settings set disk=ssd lan-bridge=main-infrastructure-br
 /certificate scep-server add ca-cert=ca@CHR days-valid=365 path=/scep/grant request-lifetime=5m
 /container config set layer-dir=/docker/layers memory-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/docker/pulls
@@ -2896,6 +2896,10 @@
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=8954042546:AAHg_MJ7sK4sUFKSvcQ1YsGAnep_UYnuBO0 profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=BACKUP_PASSWORD password=RHWbJxAje profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_PASSWORD password=RHWbJxAje profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_PORT password=2223 profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_USER password=automation profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_SERVER password=usetheforce.io profile=null service=async
 /routing filter rule add chain=ospf-in comment="drop DEFAULT ROUTE" disabled=no rule="if ( protocol ospf && dst-len==0 ) { set comment DISCARDED-GLOBAL ; set pref-src 10.0.0.1 ; reject; }"
 /routing filter rule add chain=ospf-in comment="accept inter area routes" disabled=no rule="if ( protocol ospf && ospf-type inter ) { set comment OSPF-LOCAL-AREA ;  accept; }"
 /routing filter rule add chain=ospf-in comment="discard intra area routes" disabled=no rule="if ( protocol ospf && ospf-type intra) { set comment DISCARDED-INTRA-AREA ; reject; }"
@@ -2949,8 +2953,8 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     185.13.148.1 \
     \nVersion:         7.23.1 \
-    \nUptime:        6w5d07:00:52  \
-    \nTime:        2026-09-02 21:10:12  \
+    \nUptime:        7w3d07:00:52  \
+    \nTime:        2026-09-07 21:10:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
