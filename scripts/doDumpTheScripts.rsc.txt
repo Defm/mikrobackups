@@ -21,10 +21,10 @@ $globalScriptBeforeRun $scriptname
 :local FTPRoot "REPO"
 :local FTPSubDir "raw/scripts/"
 :local FTPEnable true
-:local FTPServer "usetheforce.io"
-:local FTPPort 2223
-:local FTPUser "automation"
-:local FTPPass "$[$SECRET get BACKUP_PASSWORD]"
+:local FTPServer "$[$SECRET get SSH_SERVER]"
+:local FTPPort "$[$SECRET get SSH_PORT]"
+:local FTPUser "$[$SECRET get SSH_USER]"
+:local FTPPass "$[$SECRET get SSH_PASSWORD]"
 
 # sshfs disk dramatically SLOOOOOOWS any '/file find' operations 
 :local SSHFSEnable false
@@ -66,48 +66,7 @@ $globalScriptBeforeRun $scriptname
     :return $input
 }
 
-:local callSSH do={
-
-    # reading params
-    :local cmd $1;
-
-    :local errorDef "";
-    :local state "";
-
-:local FTPServer "usetheforce.io"
-:local FTPPort 2223
-:local FTPUser "automation"
-:local FTPPass "$[$SECRET get BACKUP_PASSWORD]"
-
-    :onerror errorName in={
-
-        :local state "Call: /system ssh-exec address=$FTPServer user=$FTPUser password=$FTPPass port=$FTPPort command=\"$cmd\" as-value";
-        $globalNoteMe value=$state;
- 
-        #password-less (RSA keys) connection should be set up before to work without passwords
-        :local callResult ([/system ssh-exec address=$FTPServer user=$FTPUser password=$FTPPass port=$FTPPort command=$cmd as-value]);
-        :local exitCode ([$callResult]->"exit-code");
-
-        :if ($exitCode != 0) do={
-
-            :set errorDef "RPC: script parameter setup returns exit code ($exitCode)";
-
-        } else={
-
-            # success
-
-        }
-
-    } do={
- 
-        :local errorDef "Error when $state: $errorName";
-        $globalNoteMe value=$errorDef;
-
-   };
-
-   :return $errorDef;
-
-};
+:global globalCallSSH;
 
 
 :if ( ![$globalOnPrimaryPartition] ) do={
@@ -202,10 +161,10 @@ $globalNoteMe value="Scripts source export.."
 :local wanIp [/ip cloud get public-address];
 :local remoteCommand "{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=$wanIp]; /ip/firewall/address-list/add address=$wanIp list=alist-fw-knockknock comment=doDumpTheScripts timeout=5m dynamic=yes }" 
 
-:set state "Making SFTP backdoor for $wanIp via SSH using:  $remoteCommand"
+:set state "Making SFTP backdoor for $wanIp via SSH"
 $globalNoteMe value=$state
 
-:local errorDef [$callSSH $remoteCommand];
+:local errorDef [$globalCallSSH $remoteCommand];
 
 :if ([:len $errorDef] > 0) do={
 

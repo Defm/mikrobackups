@@ -1,4 +1,4 @@
-# 2026-07-14 21:13:03 by RouterOS 7.23.1
+# 2026-09-02 21:13:03 by RouterOS 7.23.1
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -9,11 +9,11 @@
 /interface wireless
 # managed by CAPsMAN
 # channel: 2412/20/gn(17dBm), SSID: WiFi 2Ghz PRIVATE, CAPsMAN forwarding
-set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
+set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 2Ghz" ssid=MikroTik station-roaming=enabled
 /interface wireless
 # managed by CAPsMAN
 # channel: 5220/20-Ce/ac/P(15dBm), SSID: WiFi 5Ghz PRIVATE, CAPsMAN forwarding
-set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
+set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-mode=manual-txpower name="wlan 5Ghz" ssid=MikroTik station-roaming=enabled
 /disk add comment=Ramdisk slot=RAM tmpfs-max-size=10000000 type=tmpfs
 /disk add disabled=yes slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
 /interface lte apn set [ find default=yes ] ip-type=ipv4 use-network-apn=no
@@ -23,7 +23,9 @@ set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-
 /ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
 /snmp community set [ find default=yes ] authentication-protocol=SHA1 encryption-protocol=AES name=globus
 /snmp community add addresses=::/0 disabled=yes name=public
+/system logging action set 0 memory-lines=3000
 /system logging action set 1 disk-file-name=journal
+/system logging action set 3 add-topics-string=yes remote=victoria.home remote-log-format=syslog
 /system logging action add name=IpsecOnScreenLog target=memory
 /system logging action add disk-file-count=5 disk-file-name=ScriptsDiskLog disk-lines-per-file=300 name=ScriptsDiskLog target=disk
 /system logging action add disk-file-count=20 disk-file-name=ErrorDiskLog disk-lines-per-file=300 name=ErrorDiskLog target=disk
@@ -45,7 +47,7 @@ set [ find default-name=wlan1 ] antenna-gain=0 country=no_country_set frequency-
 /system logging action add cef-event-delimiter="" name=VictoriaRemoteLog remote=victoria.home remote-log-format=cef target=remote
 /system logging action add name=TransfersOnscreenLog target=memory
 /system logging action add disk-file-count=1 disk-file-name=PKGInstallationLog disk-lines-per-file=100 name=PKGInstallationLog target=disk
-/system logging action add disk-file-count=1 disk-file-name=REBOOTLog disk-lines-per-file=100 name=REBOOTDoskLog target=disk
+/system logging action add disk-file-count=1 disk-file-name=REBOOTLog disk-lines-per-file=100 name=REBOOTDiskLog target=disk
 /system logging action add name=DockerOnscreenLog target=memory
 /system script add comment="StarWars march to  alarm on startup" dont-require-permissions=yes name=doImperialMarch owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
     \n:global globalScriptBeforeRun;\r\
@@ -1786,9 +1788,9 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface=main-infrastructure-br name="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.193 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.201 name=ftpserver.org type=A
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.193 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.201 list=alist-nat-external-ip
 /ip firewall filter add action=accept chain=input dst-port=123 in-interface=main-infrastructure-br protocol=udp
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
@@ -1822,13 +1824,9 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /system logging add action=ErrorDiskLog topics=critical
 /system logging add action=ErrorDiskLog topics=error
 /system logging add action=ScriptsDiskLog topics=script
-/system logging add action=OnScreenLog topics=firewall
-/system logging add action=OnScreenLog topics=smb
-/system logging add action=OnScreenLog topics=critical
 /system logging add action=DHCPOnScreenLog topics=dhcp
 /system logging add action=DNSOnScreenLog topics=dns,!packet
 /system logging add action=OSPFOnscreenLog topics=ospf,!raw
-/system logging add action=OnScreenLog topics=event
 /system logging add action=L2TPOnScreenLog topics=l2tp
 /system logging add action=AuthDiskLog topics=account
 /system logging add action=CertificatesOnScreenLog topics=certificate
@@ -1838,7 +1836,7 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /system logging add action=FirewallOnScreenLog topics=firewall
 /system logging add action=CAPSOnScreenLog topics=wireless
 /system logging add action=ParseMemoryLog topics=system
-/system logging add action=SSHOnScreenLog topics=ssh,!packet
+/system logging add action=SSHOnScreenLog topics=ssh,!packet,!debug
 /system logging add action=PoEOnscreenLog topics=poe-out
 /system logging add action=EmailOnScreenLog topics=e-mail
 /system logging add action=ParseMemoryLog topics=error
@@ -1846,35 +1844,37 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /system logging add action=ParseMemoryLog topics=critical
 /system logging add action=TransfersOnscreenLog topics=fetch,!raw
 /system logging add action=PKGInstallationLog regex="^.*install.*\$"
-/system logging add action=REBOOTDoskLog regex="^.*reboot.*\$" topics=!dhcp
+/system logging add action=VictoriaRemoteLog prefix=WARN regex="^.*reboot.*\$" topics=!dhcp
 /system logging add action=PKGInstallationLog regex="^.*package.*\$"
 /system logging add action=DockerOnscreenLog topics=container
-/system logging add action=VictoriaRemoteLog topics=!packet,!debug,!raw,!dns,!firewall,!ssh
-/system logging add action=REBOOTDoskLog regex="^.*supout.*\$"
+/system logging add action=VictoriaRemoteLog topics=!packet,!debug,!raw,!dns,!firewall,!ssh,!l2tp
+/system logging add action=OnScreenLog topics=!debug,!packet,!raw,!dns,!ssh,!firewall
+/system logging add action=AuthDiskLog regex="^.*login.*\$"
 /system logging add action=VictoriaRemoteLog topics=error
-/system logging add action=VictoriaRemoteLog regex="^.*reboot.*\$" topics=!dhcp
+/system logging add action=VictoriaRemoteLog prefix=AUTH regex="^.*login.*\$"
+/system logging add topics=netwatch
+/system logging add action=VictoriaRemoteLog topics=l2tp,!packet,!debug,!raw,!info
+/system logging add action=REBOOTDiskLog regex="^.*supout.*\$"
 /system note set note="Ipsec:         okay \
     \nRoute:     192.168.90.1 \
     \nVersion:         7.23.1 \
-    \nUptime:        3d06:43:45  \
-    \nTime:        2026-07-14 21:13:04  \
+    \nUptime:        1d22:38:19  \
+    \nTime:        2026-09-02 21:13:04  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.193  \
+    \nAnna:        46.39.51.201  \
     \nClock:        synchronized  \
-    \n * wireless  \
     \n * routeros  \
+    \n * wireless  \
     \n" show-at-cli-login=yes
 /system ntp client set enabled=yes mode=multicast
-/system routerboard settings set auto-upgrade=yes
 /system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-04-15 start-time=17:52:52
 /system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=22:00:00
 /system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=15:55:00
 /system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
 /system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=23:30:00
 /system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
-/system scheduler add interval=1m name=doPeriodicLogDump on-event="/system script run doPeriodicLogDump" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=11:31:24
 /system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=06:05:00
 /system scheduler add interval=1h name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2017-01-30 start-time=18:57:09
 /system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=08:00:00

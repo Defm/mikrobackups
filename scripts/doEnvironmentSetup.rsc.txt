@@ -38,7 +38,7 @@
   }
 }
 
-### $SECRET
+# $SECRET
 #   get <name>
 #   set <name> password=<password>
 # . remove <name
@@ -52,9 +52,11 @@
             /ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name="null" only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
         }
     }
+
     :local lppp [:len [/ppp secret find where name=$2]]
+
     :local checkexist do={
-        :if (lppp=0) do={
+        :if ($lppp=0) do={
             :error "\$SECRET: cannot find $2 in secret store"
         }
     }
@@ -67,40 +69,44 @@
         :put "\t\$SECRET get <name> - gets a stored secret"
         :put "\t\$SECRET set <name> password=\"YOUR_SECRET\" - sets a secret password" 
         :put "\t\$SECRET remove <name> - removes a secret" 
+        :return
     }
 
     # $SECRET print
     :if ($1~"^pr") do={
         /ppp secret print where comment~"\\\$SECRET"
-        :return [:nothing] 
+        :return
     }
 
     # $SECRET get
     :if ($1~"get") do={
         $checkexist
-       :return [/ppp secret get $2 password] 
+        :local sid [/ppp secret find where name=$2]
+        :if ([:len $sid]=0) do={ :error "\$SECRET: cannot find $2 in secret store" }
+        :return [/ppp secret get $sid password]
     }
 
     # $SECRET set
     :if ($1~"set|add") do={
         :if ([:typeof $password]="str") do={} else={:error "\$SECRET: password= required"}
-        :if (lppp=0) do={
+        :if ($lppp=0) do={
             /ppp secret add name=$2 password=$password 
         } else={
-            /ppp secret set $2 password=$password
+            /ppp secret set [/ppp secret find where name=$2] password=$password
         }
         $fixprofile
-        /ppp secret set $2 comment="used by \$SECRET"
-        /ppp secret set $2 profile="null"
-        /ppp secret set $2 service="async"
+        /ppp secret set [/ppp secret find where name=$2] comment="used by \$SECRET"
+        /ppp secret set [/ppp secret find where name=$2] profile="null"
+        /ppp secret set [/ppp secret find where name=$2] service="async"
         :return [$SECRET get $2]
     } 
 
     # $SECRET remove
     :if ($1~"rm|rem|del") do={
         $checkexist
-        :return [/ppp secret remove $2]
+        :return [/ppp secret remove [/ppp secret find where name=$2]]
     }
+
     :error "\$SECRET: bad command"
 }
 }
@@ -629,5 +635,46 @@
 
 }
 
+:global globalCallSSH;
+:if (!any $globalCallSSH) do={
+    :global globalCallSSH do={
+
+        :local cmd $1;
+
+        :if ([:len $cmd] = 0) do={
+            :return "RPC: ssh empty command";
+        }
+
+        :local sshServer "$[$SECRET get SSH_SERVER]";
+        :local sshPort "$[$SECRET get SSH_PORT]";
+        :local sshUser "$[$SECRET get SSH_USER]";
+        :local sshPass "$[$SECRET get SSH_PASSWORD]";
+
+        :local state "";
+
+        :onerror errName in={
+
+            :set state ("Call: /system ssh-exec address=$sshServer user=$sshUser port=$sshPort command=\"$cmd\" as-value");
+            $globalNoteMe value=$state;
+
+            :local result [/system ssh-exec address=$sshServer user=$sshUser password=$sshPass port=$sshPort command=$cmd as-value];
+            :local exitCode ([$result]->"exit-code");
+
+            :if ($exitCode != 0) do={
+                :set state ("RPC: ssh command returned exit code ($exitCode)");
+     } else={
+            
+              # no errors - success operation 
+              :set state "";
+            }
+
+        } do={
+            :set state ("RPC: ssh error when $state: $errName");
+            $globalNoteMe value=$state;
+        }
+
+        :return $state;
+    };
+}
 
 

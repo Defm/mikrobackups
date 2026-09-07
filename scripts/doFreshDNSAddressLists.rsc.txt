@@ -122,7 +122,7 @@ $globalScriptBeforeRun "doFreshDNSAddressLists";
       :set state "Import started of $outputFile"
       $globalNoteMe value=$state;
 
-      :local importCmd ":import file-name=$outputFile verbose=yes";
+      :local importCmd ":import file-name=$outputFile";
       $globalCallFetch $importCmd;
 
       /file remove [find where name="$outputFile"]

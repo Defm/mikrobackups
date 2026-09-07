@@ -14,6 +14,8 @@ $globalScriptBeforeRun "doBackup";
 
 :global globalNoteMe;
 :global globalCallFetch;
+:global globalCallSSH;
+
 :global simplercurrdatetimestr;
 :global SECRET;
 
@@ -26,10 +28,10 @@ $globalScriptBeforeRun "doBackup";
 
 #directories have to exist!
 :local FTPEnable true;
-:local FTPServer "usetheforce.io";
-:local FTPPort 2223;
-:local FTPUser "automation";
-:local FTPPass "$[$SECRET get BACKUP_PASSWORD]";
+:local FTPServer "$[$SECRET get SSH_SERVER]"
+:local FTPPort "$[$SECRET get SSH_PORT]"
+:local FTPUser "$[$SECRET get SSH_USER]"
+:local FTPPass "$[$SECRET get SSH_PASSWORD]"
 :local FTPRoot "REPO/backups/";
 :local FTPGitEnable true;
 :local FTPRawGitName "REPO/raw/rawconf_$sysname_latest.rsc";
@@ -54,7 +56,7 @@ $globalScriptBeforeRun "doBackup";
 
 
 :global globalOnPrimaryPartition;
-:if ( ![$globalOnPrimaryPartition] ) do {
+:if ( ![$globalOnPrimaryPartition] ) do={
     
     :set state "WARNING: the system booted up from fallback partition - skipping backup!"
     :log error $state
@@ -84,6 +86,35 @@ $globalScriptBeforeRun "doBackup";
 }
 
 :delay 5s
+
+# make some backdoor
+:local wanIp [/ip cloud get public-address];
+:local remoteCommand "{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=$wanIp]; /ip/firewall/address-list/add address=$wanIp list=alist-fw-knockknock comment=doBackup timeout=5m dynamic=yes }" 
+
+:set state "Making SFTP backdoor for $wanIp via SSH"
+$globalNoteMe value=$state
+
+:local errorDef [$globalCallSSH $remoteCommand];
+
+:if ([:len $errorDef] > 0) do={
+
+    :set state $errorDef;
+    $globalNoteMe value=$state;
+    :set itsOk false;
+
+    :error $state;
+
+} else={
+
+    :set state "Success RPC call: $state";
+    $globalNoteMe value=$state;
+
+
+     # we have to wait while backdoor alist-fw-ssh-stage1 flushes our first-call Ip, otherwise we get banned
+     :set state "Waiting backdoor for $wanIp for some seconds.."
+     $globalNoteMe value=$state
+     :delay 15s
+}
 
 :local buFile ""
 
