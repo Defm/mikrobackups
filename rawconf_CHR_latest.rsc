@@ -1,4 +1,4 @@
-# 2026-09-07 21:13:02 by RouterOS 7.23.1
+# 2026-09-08 14:58:22 by RouterOS 7.23.1
 # system id = pEDSXaHXN3J
 #
 # custom default configuration script installed
@@ -18,7 +18,7 @@
 /interface veth add address=172.17.0.2/29 container-mac-address=26:8A:0C:A0:3E:3B dhcp=no gateway=172.17.0.1 gateway6="" mac-address=26:8A:0C:A0:3E:3A name=veth-telemt
 /interface veth add address=172.17.0.3/29 container-mac-address=30:A6:92:7E:80:32 dhcp=no gateway=172.17.0.1 gateway6="" mac-address=30:A6:92:7E:80:31 name=veth-telemt-webui
 /interface wireguard add listen-port=65114 mtu=1420 name=wg-to-capax private-key="03n33pIsv9MIDWss0bDxyZ0/0xsXo2OvEBjCWOy/Hlw="
-/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 132914/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
+/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 135044/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
     \n" hostname=telemt interface=veth-telemt layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_VOLUMES name=telemt remote-image=ghcr.io/telemt/telemt:latest root-dir=/docker/runs/telemt start-on-boot=yes user=0:0 workdir=/tmp
 /container add check-certificate=no comment="MTProto telegram proxy web panel" dns=192.168.97.1 hostname=telemt-webui interface=veth-telemt-webui layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_WEBUI_VOLUMES name=telemt-webui remote-image=ghcr.io/amirotin/telemt_panel:latest root-dir=/docker/runs/telemt-webui start-on-boot=yes
 /container add check-certificate=no comment="Caddy web server and reverse proxy" dns=192.168.97.1 envlists=CADDY_ENVS hostname=caddy interface=veth-caddy layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=CADDY_VOLUMES name=caddy remote-image=caddy:latest root-dir=/docker/runs/caddy start-on-boot=yes user=0:0 workdir=/srv
@@ -101,6 +101,8 @@
     \n\
     \n:global globalNoteMe;\
     \n:global globalCallFetch;\
+    \n:global globalCallSSH;\
+    \n\
     \n:global simplercurrdatetimestr;\
     \n:global SECRET;\
     \n\
@@ -113,10 +115,10 @@
     \n\
     \n#directories have to exist!\
     \n:local FTPEnable true;\
-    \n:local FTPServer \"usetheforce.io\";\
-    \n:local FTPPort 2223;\
-    \n:local FTPUser \"automation\";\
-    \n:local FTPPass \"\$[\$SECRET get BACKUP_PASSWORD]\";\
+    \n:local FTPServer \"\$[\$SECRET get SSH_SERVER]\"\
+    \n:local FTPPort \"\$[\$SECRET get SSH_PORT]\"\
+    \n:local FTPUser \"\$[\$SECRET get SSH_USER]\"\
+    \n:local FTPPass \"\$[\$SECRET get SSH_PASSWORD]\"\
     \n:local FTPRoot \"REPO/backups/\";\
     \n:local FTPGitEnable true;\
     \n:local FTPRawGitName \"REPO/raw/rawconf_\$sysname_latest.rsc\";\
@@ -141,7 +143,7 @@
     \n\
     \n\
     \n:global globalOnPrimaryPartition;\
-    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
+    \n:if ( ![\$globalOnPrimaryPartition] ) do={\
     \n    \
     \n    :set state \"WARNING: the system booted up from fallback partition - skipping backup!\"\
     \n    :log error \$state\
@@ -171,6 +173,35 @@
     \n}\
     \n\
     \n:delay 5s\
+    \n\
+    \n# make some backdoor\
+    \n:local wanIp [/ip cloud get public-address];\
+    \n:local remoteCommand \"{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=\$wanIp]; /ip/firewall/address-list/add address=\$wanIp list=alist-fw-knockknock comment=doBackup timeout=5m dynamic=yes }\" \
+    \n\
+    \n:set state \"Making SFTP backdoor for \$wanIp via SSH\"\
+    \n\$globalNoteMe value=\$state\
+    \n\
+    \n:local errorDef [\$globalCallSSH \$remoteCommand];\
+    \n\
+    \n:if ([:len \$errorDef] > 0) do={\
+    \n\
+    \n    :set state \$errorDef;\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :set itsOk false;\
+    \n\
+    \n    :error \$state;\
+    \n\
+    \n} else={\
+    \n\
+    \n    :set state \"Success RPC call: \$state\";\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n\
+    \n     # we have to wait while backdoor alist-fw-ssh-stage1 flushes our first-call Ip, otherwise we get banned\
+    \n     :set state \"Waiting backdoor for \$wanIp for some seconds..\"\
+    \n     \$globalNoteMe value=\$state\
+    \n     :delay 15s\
+    \n}\
     \n\
     \n:local buFile \"\"\
     \n\
@@ -657,7 +688,7 @@
     \n  }\
     \n}\
     \n\
-    \n### \$SECRET\
+    \n# \$SECRET\
     \n#   get <name>\
     \n#   set <name> password=<password>\
     \n# . remove <name\
@@ -671,9 +702,11 @@
     \n            /ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=\"null\" only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no\
     \n        }\
     \n    }\
+    \n\
     \n    :local lppp [:len [/ppp secret find where name=\$2]]\
+    \n\
     \n    :local checkexist do={\
-    \n        :if (lppp=0) do={\
+    \n        :if (\$lppp=0) do={\
     \n            :error \"\\\$SECRET: cannot find \$2 in secret store\"\
     \n        }\
     \n    }\
@@ -686,40 +719,44 @@
     \n        :put \"\\t\\\$SECRET get <name> - gets a stored secret\"\
     \n        :put \"\\t\\\$SECRET set <name> password=\\\"YOUR_SECRET\\\" - sets a secret password\" \
     \n        :put \"\\t\\\$SECRET remove <name> - removes a secret\" \
+    \n        :return\
     \n    }\
     \n\
     \n    # \$SECRET print\
     \n    :if (\$1~\"^pr\") do={\
     \n        /ppp secret print where comment~\"\\\\\\\$SECRET\"\
-    \n        :return [:nothing] \
+    \n        :return\
     \n    }\
     \n\
     \n    # \$SECRET get\
     \n    :if (\$1~\"get\") do={\
     \n        \$checkexist\
-    \n       :return [/ppp secret get \$2 password] \
+    \n        :local sid [/ppp secret find where name=\$2]\
+    \n        :if ([:len \$sid]=0) do={ :error \"\\\$SECRET: cannot find \$2 in secret store\" }\
+    \n        :return [/ppp secret get \$sid password]\
     \n    }\
     \n\
     \n    # \$SECRET set\
     \n    :if (\$1~\"set|add\") do={\
     \n        :if ([:typeof \$password]=\"str\") do={} else={:error \"\\\$SECRET: password= required\"}\
-    \n        :if (lppp=0) do={\
+    \n        :if (\$lppp=0) do={\
     \n            /ppp secret add name=\$2 password=\$password \
     \n        } else={\
-    \n            /ppp secret set \$2 password=\$password\
+    \n            /ppp secret set [/ppp secret find where name=\$2] password=\$password\
     \n        }\
     \n        \$fixprofile\
-    \n        /ppp secret set \$2 comment=\"used by \\\$SECRET\"\
-    \n        /ppp secret set \$2 profile=\"null\"\
-    \n        /ppp secret set \$2 service=\"async\"\
+    \n        /ppp secret set [/ppp secret find where name=\$2] comment=\"used by \\\$SECRET\"\
+    \n        /ppp secret set [/ppp secret find where name=\$2] profile=\"null\"\
+    \n        /ppp secret set [/ppp secret find where name=\$2] service=\"async\"\
     \n        :return [\$SECRET get \$2]\
     \n    } \
     \n\
     \n    # \$SECRET remove\
     \n    :if (\$1~\"rm|rem|del\") do={\
     \n        \$checkexist\
-    \n        :return [/ppp secret remove \$2]\
+    \n        :return [/ppp secret remove [/ppp secret find where name=\$2]]\
     \n    }\
+    \n\
     \n    :error \"\\\$SECRET: bad command\"\
     \n}\
     \n}\
@@ -1248,6 +1285,47 @@
     \n\
     \n}\
     \n\
+    \n:global globalCallSSH;\
+    \n:if (!any \$globalCallSSH) do={\
+    \n    :global globalCallSSH do={\
+    \n\
+    \n        :local cmd \$1;\
+    \n\
+    \n        :if ([:len \$cmd] = 0) do={\
+    \n            :return \"RPC: ssh empty command\";\
+    \n        }\
+    \n\
+    \n        :local sshServer \"\$[\$SECRET get SSH_SERVER]\";\
+    \n        :local sshPort \"\$[\$SECRET get SSH_PORT]\";\
+    \n        :local sshUser \"\$[\$SECRET get SSH_USER]\";\
+    \n        :local sshPass \"\$[\$SECRET get SSH_PASSWORD]\";\
+    \n\
+    \n        :local state \"\";\
+    \n\
+    \n        :onerror errName in={\
+    \n\
+    \n            :set state (\"Call: /system ssh-exec address=\$sshServer user=\$sshUser port=\$sshPort command=\\\"\$cmd\\\" as-value\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :local result [/system ssh-exec address=\$sshServer user=\$sshUser password=\$sshPass port=\$sshPort command=\$cmd as-value];\
+    \n            :local exitCode ([\$result]->\"exit-code\");\
+    \n\
+    \n            :if (\$exitCode != 0) do={\
+    \n                :set state (\"RPC: ssh command returned exit code (\$exitCode)\");\
+    \n     } else={\
+    \n            \
+    \n              # no errors - success operation \
+    \n              :set state \"\";\
+    \n            }\
+    \n\
+    \n        } do={\
+    \n            :set state (\"RPC: ssh error when \$state: \$errName\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n        }\
+    \n\
+    \n        :return \$state;\
+    \n    };\
+    \n}\
     \n\
     \n\r\
     \n"
@@ -2428,14 +2506,14 @@
 /app set cinny firewall-redirects=8094:80:tcp:web
 /app set goaway container-command-lines=goaway:none:docker.io/pommee/goaway:latest
 /app set home-assistant container-command-lines=home-assistant:none:lscr.io/linuxserver/homeassistant
-/app set lorawan-stack secrets=lorawan-stack__admin_password:VALrWqVLOrvFjMyVajqJQIBqoiFpiyRM
+/app set lorawan-stack secrets=lorawan-stack__admin_password:nJVGyPfZCIPIMURVuGeNOmlLBjYCufXu
 /app set n8n firewall-redirects=5678:5678:tcp:web
 /app set nextcloud container-command-lines="db:none:docker.io/postgres:17,redis:none:docker.io/valkey/valkey:/bin/sh -c 'valkey-server --port 6379 --appendonly yes --requirepass \$VALKEY_PASSWORD',server:none:docker.io/nextcloud:apache"
 /app set pihole environment="pihole:FTLCONF_dns_listeningMode=all,pihole:FTLCONF_webserver_api_password=password"
 /app set redlib firewall-redirects=8087:8080:tcp:web
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
-/app set zulip secrets=zulip__postgres_password:IcONypzIzAYuRjjbABAmjZVSYufwpcAA,zulip__memcached_password:ksakpAvOIGrENfyJqXWjtsARpiXdSKmh,zulip__rabbitmq_password:rcxCQRsUDxCgrjPyJOANCrUQGbGPdyaK,zulip__redis_password:TKnCzvvnAmSfqEComrnlEnonlGjiXYPm,zulip__secret_key:tiaYfGUKgMqHbjBxCRAlKWvNKJnfWoeW,zulip__email_password:WgOAtZOwUtAgZKCNBgiYhvCugmUvqezz
+/app set zulip secrets=zulip__postgres_password:HByqdoeHabjtjccUMtPAAZqiqclippFF,zulip__memcached_password:TsvrsZIdjKUUDCpWxbmzIXIeQayKVbZK,zulip__rabbitmq_password:eBBSYcPhsTmmqVKAzrVhOdeMUazZcLUB,zulip__redis_password:qVjQaKjASkMHlNfWvXANqEFbnJtFdrnj,zulip__secret_key:ydhylvphxrDHrXaUOVULwCYiZaSuMMTb,zulip__email_password:GTbxLyhNxqyawQEEVEDzmkSxtTEagKQq
 /app settings set disk=ssd lan-bridge=main-infrastructure-br
 /certificate scep-server add ca-cert=ca@CHR days-valid=365 path=/scep/grant request-lifetime=5m
 /container config set layer-dir=/docker/layers memory-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/docker/pulls
@@ -2953,8 +3031,8 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     185.13.148.1 \
     \nVersion:         7.23.1 \
-    \nUptime:        7w3d07:00:52  \
-    \nTime:        2026-09-07 21:10:12  \
+    \nUptime:        7w4d00:40:52  \
+    \nTime:        2026-09-08 14:50:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
