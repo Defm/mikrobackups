@@ -1,9 +1,9 @@
-# 2026-09-04 20:17:14 by RouterOS 7.24.1
+# 2026-09-08 12:56:06 by RouterOS 7.24.1
 # software id = IA5H-12KT
 #
 # model = RB5009UPr+S+
 # serial number = HCY086PZ6XZ
-/caps-man channel add band=2ghz-onlyn comment=CH1 control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
+/caps-man channel add band=2ghz-b/g/n comment=CH1 control-channel-width=20mhz extension-channel=disabled frequency=2412 name=common-chnls-2Ghz reselect-interval=10h skip-dfs-channels=yes tx-power=17
 /caps-man channel add band=5ghz-a/n/ac comment="20Mhz + Ce = 40Mhz, reselect interval from 5180, 5220, 5745, 5785 once per 10h" control-channel-width=20mhz extension-channel=Ce frequency=5180,5220,5745,5785 name=common-chnls-5Ghz reselect-interval=10h tx-power=15
 /caps-man configuration add mode=ap name=empty
 /interface bridge add igmp-snooping=yes name=adm-netinstall-br port-cost-mode=short protocol-mode=none
@@ -109,7 +109,7 @@
 /ip ipsec proposal add auth-algorithms=sha256 disabled=yes enc-algorithms=aes-256-cbc name="IPSEC IKEv2 VPN PHASE2 MIKROTIK"
 /ip kid-control add fri=0s-1d mon=0s-1d name=totals sat=0s-1d sun=0s-1d thu=0s-1d tue=0s-1d wed=0s-1d
 /ip pool add name=pool-main ranges=192.168.90.100-192.168.90.200
-/ip pool add name=pool-guest ranges=192.168.98.200-192.168.98.230
+/ip pool add name=pool-guest ranges=192.168.98.224-192.168.98.240
 /ip pool add name=pool-virtual-machines ranges=192.168.90.0/26
 /ip pool add name=pool-vendor ranges=192.168.90.8-192.168.90.10
 /ip pool add name=pool-containers ranges=192.168.80.160/28
@@ -127,7 +127,12 @@
     \n:set GleaseActMAC \$leaseActMAC;\
     \n:set GleaseActIP \$leaseActIP;\
     \n\
-    \n/system script run doDHCPLeaseTrack;" lease-time=3h name=guest-dhcp-server use-reconfigure=yes
+    \n/system script run doDHCPLeaseTrack;\
+    \n\
+    \n:set GleaseBound (:nothing);\
+    \n:set GleaseServerName (:nothing);\
+    \n:set GleaseActMAC (:nothing);\
+    \n:set GleaseActIP (:nothing);" name=guest-dhcp-server use-reconfigure=yes
 /ip dhcp-server add add-arp=yes address-pool=pool-containers authoritative=after-2sec-delay interface=docker-infrastructure-br lease-time=1d name=docker-dhcp-server use-reconfigure=yes
 /ip smb users set [ find default=yes ] disabled=yes
 /ip socksify add disabled=no name=byedpi socks5-server=192.168.80.2
@@ -135,7 +140,6 @@
 /ppp profile add bridge-learning=no change-tcp-mss=no comment="used by \$SECRET" local-address=0.0.0.0 name=null only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no
 /interface l2tp-client add allow=mschap2 connect-to=185.13.148.14 disabled=no max-mru=1360 max-mtu=1360 name=chr-tunnel password=123 profile=l2tp-no-encrypt-site2site user=vpn-remote-anna
 /queue simple add comment=dtq,50:DE:06:25:C2:FC,iPad name="iPadAlxPro@main-dhcp-server (50:DE:06:25:C2:FC)" queue=default/default target=192.168.90.130/32 total-queue=default
-/queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.231/32 total-queue=default
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB,AlxATV name="AlxATV(wireless)@main-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.90.200/32 total-queue=default
 /queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV (wireless)@main-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.90.210/32 total-queue=default
 /queue simple add comment=dtq,10:DD:B1:9E:19:5E,miniAlx name="miniAlx(wire)@main-dhcp-server (10:DD:B1:9E:19:5E)" queue=default/default target=192.168.90.70/32 total-queue=default
@@ -197,12 +201,12 @@
 /queue simple add comment=dtq,90:DD:5D:C8:46:AB, name="AlxATV(wireless)(blocked)@guest-dhcp-server (90:DD:5D:C8:46:AB)" queue=default/default target=192.168.98.200/32 total-queue=default
 /queue simple add comment=dtq,AC:BA:C0:78:80:C6,Yandex-Station-Midi-PE0Y name="AliceMidi(wireless)@main-dhcp-server (AC:BA:C0:78:80:C6)" queue=default/default target=192.168.90.194/32 total-queue=default
 /queue simple add comment=dtq,AC:BA:C0:78:80:C6, name="AliceMidi(wireless)(blocked)@guest-dhcp-server (AC:BA:C0:78:80:C6)" queue=default/default target=192.168.98.194/32 total-queue=default
-/queue simple add comment=dtq,B8:87:6E:19:90:33, name="Alice2(wireless)@main-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.90.196/32 total-queue=default
+/queue simple add comment=dtq,B8:87:6E:19:90:33,yandex-mini2 name="Alice2(wireless)@main-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.90.196/32 total-queue=default
 /queue simple add comment=dtq,B8:87:6E:19:90:33, name="Alice2(wireless)(blocked)@guest-dhcp-server (B8:87:6E:19:90:33)" queue=default/default target=192.168.98.196/32 total-queue=default
 /queue simple add comment=dtq,6C:1F:F7:60:69:71,MbpAlxm name="MbpAlxm (wire) - STATIC!@netinstall-dhcp-server (6C:1F:F7:60:69:71)" queue=default/default target=192.168.168.174/32 total-queue=default
 /queue simple add comment=dtq,60:3D:61:6B:B7:B4, name="Alice3(wireless)@main-dhcp-server (60:3D:61:6B:B7:B4)" queue=default/default target=192.168.90.195/32 total-queue=default
 /queue simple add comment=dtq,60:3D:61:6B:B7:B4, name="Alice3(wireless)(blocked)@guest-dhcp-server (60:3D:61:6B:B7:B4)" queue=default/default target=192.168.98.195/32 total-queue=default
-/queue simple add comment=dtq,4C:5F:70:97:DD:99,NWS-046 name="NWS-046@guest-dhcp-server (4C:5F:70:97:DD:99)" queue=default/default target=192.168.98.230/32 total-queue=default
+/queue simple add comment=dtq,B0:34:95:50:A1:6A, name="AudioATV(wireless)(blocked)@guest-dhcp-server (B0:34:95:50:A1:6A)" queue=default/default target=192.168.98.210/32 total-queue=default
 /queue tree add comment="FILE download control" name="Total Bandwidth" parent=global queue=default
 /queue tree add name=RAR packet-mark=rar-mark parent="Total Bandwidth" queue=default
 /queue tree add name=EXE packet-mark=exe-mark parent="Total Bandwidth" queue=default
@@ -1049,11 +1053,11 @@
     \n            :if ([:len [/system script find name=\$1]]!=0) do={\
     \n\
     \n                :do {\
-    \n                    :log warning \"Starting script: \$1\";\
+    \n                    :log warning \"Starting script: \$1 (NETWATCH context)\";\
     \n                    :put \"Starting script: \$1\"\
     \n                    /system script run \$1;\
     \n                } on-error= {\
-    \n                    :log error \"FAIL Starting script: \$1\";\
+    \n                    :log error \"FAIL Starting script: \$1 (NETWATCH context)\";\
     \n                    :put \"FAIL Starting script: \$1\"\
     \n                };\
     \n\
@@ -1107,44 +1111,104 @@
     \n\
     \n\
     \n"
-/system script add comment="DHCP service OnLease handler, should be called from DHCP server script page (see mikrotik manual available variables \$leaseBound, \$leaseServerName etc..)" dont-require-permissions=yes name=doDHCPLeaseTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\r\
-    \n:global globalScriptBeforeRun;\r\
-    \n\$globalScriptBeforeRun \"doDHCPLeaseTrack\";\r\
-    \n\r\
-    \n# Globals\r\
-    \n#\r\
-    \n:global GleaseBound;\r\
-    \n:global GleaseServerName;\r\
-    \n:global GleaseActMAC;\r\
-    \n:global GleaseActIP;\r\
-    \n\r\
-    \n:local date [/system clock get date];\r\
-    \n:local time [/system clock get time];\r\
-    \n:local systemIdentity [/system identity get name];\r\
-    \n:local json \"{\\\"date\\\":\\\"\$date\\\",\\\"time\\\":\\\"\$time\\\",\\\"systemIdentity\\\":\\\"\$systemIdentity\\\",\\\"bound\\\":\$GleaseBound,\\\"serverName\\\":\\\"\$GleaseServerName\\\",\\\"mac\\\":\\\"\$GleaseActMAC\\\",\\\"ip\\\":\\\"\$GleaseActIP\\\"}\";\r\
-    \n\r\
-    \n\r\
-    \n:if (\$GleaseBound = 1) do={\r\
-    \n    /ip dhcp-server lease;\r\
-    \n    :foreach i in=[find dynamic=yes] do={\r\
-    \n        :local dhcpip \r\
-    \n        :set dhcpip [ get \$i address ];\r\
-    \n        :local clientid\r\
-    \n        :set clientid [get \$i host-name];\r\
-    \n\r\
-    \n        :if (\$GleaseActIP = \$dhcpip) do={\r\
-    \n            :local comment \"New IP\"\r\
-    \n            :set comment ( \$comment . \": \" .  \$dhcpip . \": \" . \$clientid);\r\
-    \n            /log error \$comment;\r\
-    \n\r\
-    \n                                        :local newGuest \"%D0%9A%D0%BB%D0%B8%D0%B5%D0%BD%D1%82%20%D0%B3%D0%BE%D1%81%D1%82%D0%B5%D0%B2%D0%BE%D0%B3%D0%BE%20wi-fi%3A%20\";\r\
-    \n                                        :global TelegramMessage \"\$newGuest \$comment\";\r\
-    \n                                         /system script run doTelegramNotify;\r\
-    \n\r\
-    \n                                         /system script run doWestminister;\r\
-    \n        }\r\
-    \n    }\r\
-    \n}"
+/system script add comment="DHCP service OnLease handler, should be called from DHCP server script page (see mikrotik manual available variables \$leaseBound, \$leaseServerName etc..)" dont-require-permissions=yes name=doDHCPLeaseTrack owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local SafeScriptCall do={\
+    \n\
+    \n    :if ([:len \$0]!=0) do={\
+    \n        :if ([:len \$1]!=0) do={\
+    \n            :if ([:len [/system script find name=\$1]]!=0) do={\
+    \n\
+    \n                :do {\
+    \n                    :log warning \"Starting script: \$1 (DHCP context)\";\
+    \n                    :put \"Starting script: \$1\"\
+    \n                    /system script run \$1;\
+    \n                } on-error= {\
+    \n                    :log error \"FAIL Starting script: \$1 (DHCP context)\";\
+    \n                    :put \"FAIL Starting script: \$1\"\
+    \n                };\
+    \n\
+    \n            }\
+    \n        }\
+    \n    } \
+    \n\
+    \n}\
+    \n\
+    \n# init globals as far as we are inside *sys user account\
+    \n\$SafeScriptCall \"doEnvironmentSetup\";\
+    \n\
+    \n:local scriptname \"doDHCPLeaseTrack\";\
+    \n:global globalScriptBeforeRun;\
+    \n\$globalScriptBeforeRun \$scriptname;\
+    \n\
+    \n:global globalTgMessage;\
+    \n:global globalNoteMe;\
+    \n\
+    \n:local state;\
+    \n\
+    \n\
+    \n# Globals\
+    \n#\
+    \n:global GleaseBound;\
+    \n:global GleaseServerName;\
+    \n:global GleaseActMAC;\
+    \n:global GleaseActIP;\
+    \n\
+    \n\
+    \n:if (!any \$GleaseActIP) do={\
+    \n\
+    \n  :set state \"No GleaseActIP provided..\";\
+    \n  \$globalNoteMe value=\$state;\
+    \n  :error \$inf; \
+    \n}\
+    \n\
+    \n:if (!any \$GleaseServerName) do={\
+    \n\
+    \n  :set state \"No GleaseServerName provided..\";\
+    \n  \$globalNoteMe value=\$state;\
+    \n  :error \$inf; \
+    \n}\
+    \n\
+    \n:local date [/system clock get date];\
+    \n:local time [/system clock get time];\
+    \n:local systemIdentity [/system identity get name];\
+    \n\
+    \n:local Data [{}]\
+    \n:set (\$Data->\"date\") \$date\
+    \n:set (\$Data->\"time\") \$time\
+    \n:set (\$Data->\"systemIdentity\") \$systemIdentity\
+    \n:set (\$Data->\"bound\") \$GleaseBound\
+    \n:set (\$Data->\"serverName\") \$GleaseServerName\
+    \n:set (\$Data->\"mac\") \$GleaseActMAC\
+    \n:set (\$Data->\"ip\") \$GleaseActIP\
+    \n\
+    \n:local json [:serialize to=json value=\$Data]\
+    \n\
+    \n\
+    \n:if (\$GleaseBound = 1) do={\
+    \n    :local leaseId [/ip dhcp-server lease find where server=\$GleaseServerName and address=\$GleaseActIP]\
+    \n\
+    \n    :if ([:len \$leaseId] = 0) do={\
+    \n        :set state \"DHCP lease not found for server=\$GleaseServerName ip=\$GleaseActIP\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n        \
+    \n    } else={\
+    \n\
+    \n        :local clientid [/ip dhcp-server lease get \$leaseId host-name]\
+    \n\
+    \n        :set state \"DHCP Client assigned - \$clientid (\$GleaseActIP)\";\
+    \n        \$globalNoteMe value=\$state;\
+    \n\
+    \n        \$globalTgMessage value=\$state;\
+    \n\
+    \n        /system script run doWestminister;\
+    \n    }\
+    \n\
+    \n } else={\
+    \n\
+    \n   :set state \"DHCP Client expired - \$GleaseActIP\";\
+    \n   \$globalNoteMe value=\$state;\
+    \n\
+    \n}\
+    \n"
 /system script add comment="Flushes all global variables on Startup" dont-require-permissions=yes name=doEnvironmentClearance owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="\
     \n#clear all global variables\
     \n/system script environment remove [find];\
@@ -4786,7 +4850,7 @@
     \n\$globalScriptBeforeRun \"flush_dns\";\
     \n\
     \n/ip/dns/cache/flush"
-/system script add comment="Keeps DNS IP actual ad unique when device has multiple connected interfaces" dont-require-permissions=yes name=doNetwatchDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local scriptname \"doNetwatchHost\";\
+/system script add comment="Keeps DNS IP actual ad unique when device has multiple connected interfaces" dont-require-permissions=yes name=doNetwatchDNS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local scriptname \"doNetwatchDNS\";\
     \n\
     \n#NetWatch notifier OnUp/OnDown\
     \n:local state \"\";\
@@ -4816,7 +4880,7 @@
     \n        :error \$state\
     \n      }\
     \n\
-    \n      :local state \"Starting script: \$scriptname\";\
+    \n      :local state \"Starting script: \$scriptname (NETWATCH context)\";\
     \n      \$localNoteMe value=\$state;\
     \n\
     \n    }\
@@ -4932,9 +4996,9 @@
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
 /app settings set disk=usb-docker lan-bridge=main-infrastructure-br registry-mirrors=https://dh-mirror.gitverse.ru:https://hub.docker.com router-ip=192.168.90.1
-/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=no signal-range=-120..-80 ssid-regexp=WiFi
+/caps-man access-list add action=reject allow-signal-out-of-range=10s comment="Drop any when poor signal rate, https://support.apple.com/en-us/HT203068" disabled=yes signal-range=-120..-80 ssid-regexp=WiFi
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AliceMidi(wireless)" disabled=no mac-address=4C:5F:70:97:DD:99 ssid-regexp="WiFi 2Ghz PRIV"
-/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AliceMidi(wireless)" disabled=no mac-address=AC:BA:C0:78:80:C6 ssid-regexp="WiFi 2Ghz PRIV"
+/caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AliceMidi(wireless) 2Ghz" disabled=no mac-address=AC:BA:C0:78:80:C6 ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="AlxATV(wireless)" disabled=no mac-address=90:DD:5D:C8:46:AB ssid-regexp="WiFi 2Ghz PRIV"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Froloff(wireless)" disabled=no mac-address=B8:94:E7:61:3F:08 ssid-regexp="WiFi 5"
 /caps-man access-list add action=accept allow-signal-out-of-range=10s client-to-client-forwarding=yes comment="Froloff(wireless)" disabled=no mac-address=C8:90:8A:9A:50:A1 ssid-regexp="WiFi 5"
@@ -5092,7 +5156,7 @@
 /ip arp add address=192.168.90.100 comment="AsusPC(wire)" interface=main-infrastructure-br mac-address=88:88:88:88:87:88
 /ip arp add address=192.168.90.201 comment="AlxATV(wire)" interface=main-infrastructure-br mac-address=90:DD:5D:CA:8F:B0
 /ip arp add address=192.168.90.140 comment="Hare's Honor9x(wireless)" interface=main-infrastructure-br mac-address=04:F1:69:8E:12:B6
-/ip arp add address=192.168.90.220 comment="Alice(wireless)" interface=main-infrastructure-br mac-address=B8:87:6E:19:90:33
+/ip arp add address=192.168.90.196 comment="Alice2(wireless)" interface=main-infrastructure-br mac-address=B8:87:6E:19:90:33
 /ip arp add address=192.168.90.180 comment="Tuya(wireless)" interface=main-infrastructure-br mac-address=D4:A6:51:C9:54:A7
 /ip arp add address=192.168.90.77 comment=HareDell interface=main-infrastructure-br mac-address=D4:3B:04:87:C7:47
 /ip arp add address=192.168.90.165 comment="NSPanel(wireless)" interface=main-infrastructure-br mac-address=40:80:E1:5B:41:B8
@@ -5113,14 +5177,14 @@
 /ip arp add address=192.168.80.161 comment="netq(docker)" interface=docker-infrastructure-br mac-address=22:46:AB:91:A7:32
 /ip arp add address=192.168.90.222 comment="clicbot(wireless)" interface=main-infrastructure-br mac-address=B8:2D:28:0A:39:0E
 /ip arp add address=10.20.225.166 comment="static WAN" interface="wan A" mac-address=20:CF:30:DE:7B:2A
-/ip arp add address=192.168.90.225 comment="Alice3(wireless)" interface=main-infrastructure-br mac-address=60:3D:61:6B:B7:B4
+/ip arp add address=192.168.90.195 comment="Alice3(wireless)" interface=main-infrastructure-br mac-address=60:3D:61:6B:B7:B4
 /ip arp add address=192.168.90.194 comment="AliceMidi(wireless)" interface=main-infrastructure-br mac-address=AC:BA:C0:78:80:C6
 /ip arp add address=192.168.90.200 comment="AlxATV(wireless)" interface=main-infrastructure-br mac-address=90:DD:5D:C8:46:AB
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add allow-reconfigure=yes comment="wan via akado edge router" dhcp-options=clientid_duid,clientid,hostname interface="wan A" name=akado use-peer-dns=no use-peer-ntp=no
 /ip dhcp-server lease add address=192.168.90.40 comment=NAS mac-address=00:11:32:2C:A7:85 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.210 comment="AudioATV (wireless)" mac-address=B0:34:95:50:A1:6A server=main-dhcp-server
-/ip dhcp-server lease add address=192.168.98.231 block-access=yes comment="AudioATV(blocked)" mac-address=B0:34:95:50:A1:6A server=guest-dhcp-server
+/ip dhcp-server lease add address=192.168.98.210 block-access=yes comment="AudioATV(wireless)(blocked)" mac-address=B0:34:95:50:A1:6A server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.10 comment="capxl(wire)" mac-address=18:FD:74:94:FD:70 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.70 address-lists=alist-osx-hosts client-id=1:10:dd:b1:9e:19:5e comment="miniAlx(wire)" mac-address=10:DD:B1:9E:19:5E server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.90.170 comment=Twinkle mac-address=FC:F5:C4:79:ED:D8 server=main-dhcp-server
@@ -5143,7 +5207,7 @@
 /ip dhcp-server lease add address=192.168.98.201 block-access=yes comment="AlxATV(wire)(blocked)" mac-address=90:DD:5D:CA:8F:B0 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.140 comment="Hare's Honor9x(wireless)" mac-address=04:F1:69:8E:12:B6 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.140 block-access=yes comment="Hare's Honor9x(wireless)(blocked)" mac-address=04:F1:69:8E:12:B6 server=guest-dhcp-server
-/ip dhcp-server lease add address=192.168.90.196 comment="Alice2(wireless)" mac-address=B8:87:6E:19:90:33 server=main-dhcp-server
+/ip dhcp-server lease add address=192.168.90.196 comment="Alice2(wireless)" dhcp-option=DNSServer_Static_DHCP mac-address=B8:87:6E:19:90:33 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.196 block-access=yes comment="Alice2(wireless)(blocked)" mac-address=B8:87:6E:19:90:33 server=guest-dhcp-server
 /ip dhcp-server lease add address=192.168.90.180 comment="Tuya(wireless)" mac-address=D4:A6:51:C9:54:A7 server=main-dhcp-server
 /ip dhcp-server lease add address=192.168.98.180 block-access=yes comment="Tuya(wireless)(blocked)" mac-address=D4:A6:51:C9:54:A7 server=guest-dhcp-server
@@ -5195,7 +5259,7 @@
 /ip dhcp-server network add address=192.168.90.160/27 caps-manager=192.168.90.1 comment="IoT, intercom" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.192/27 caps-manager=192.168.90.1 comment="TV, projector, game boxes, smart stations" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
 /ip dhcp-server network add address=192.168.90.224/27 caps-manager=192.168.90.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=192.168.90.1 gateway=192.168.90.1 netmask=24 ntp-server=192.168.90.1
-/ip dhcp-server network add address=192.168.98.0/24 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 ntp-server=192.168.98.1
+/ip dhcp-server network add address=192.168.98.224/27 comment="Guest DHCP leasing (Yandex protected DNS)" dns-server=77.88.8.7 gateway=192.168.98.1 netmask=24 ntp-server=192.168.98.1
 /ip dhcp-server network add address=192.168.168.0/24 caps-manager=192.168.168.1 comment=Netinstall dhcp-option=DomainName_Windows,DomainName_LinuxMac,Explicit_Static_Route dns-server=192.168.168.1 gateway=192.168.168.1 netmask=28 ntp-server=192.168.168.1
 /ip dns set address-list-extra-time=30s allow-remote-requests=yes cache-max-ttl=1d cache-size=40000KiB doh-max-concurrent-queries=100 doh-max-server-connections=20 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=217.10.36.5 use-doh-server=https://8.8.8.8/dns-query verify-doh-cert=yes
 /ip dns adlist add url=https://schakal.hopto.org/alive_hosts.txt
@@ -5203,7 +5267,7 @@
 /ip dns static add cname=anna.home name=anna type=CNAME
 /ip dns static add address=192.168.90.1 match-subdomain=yes name=anna.home type=A
 /ip dns static add cname=wb.home name=wb type=CNAME
-/ip dns static add address=172.16.0.10 comment="Netwatch checkup is running..." disabled=yes name=wb.home type=A
+/ip dns static add address=192.168.90.3 comment="Netwatch checkup at 16:40:04" name=wb.home type=A
 /ip dns static add cname=influxdb.home name=influxdb type=CNAME
 /ip dns static add address=172.16.0.17 name=influxdb.home type=A
 /ip dns static add cname=minialx.home name=influxdbsvc.home type=CNAME
@@ -5528,6 +5592,7 @@
 /ip dns static add address-list=alist-mangle-vpn comment="Chrome web ext" forward-to=DOH_Google match-subdomain=yes name=keybr.com type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260702-034500 forward-to=DOH-Google match-subdomain=yes name=r2---sn--n5pbvoj5caxu8-nboz.google type=FWD
 /ip dns static add address-list=alist-mangle-byedpi-YTB comment=alist-mangle-byedpi-YTB-20260702-034500 forward-to=DOH-Google match-subdomain=yes name=r3---sn--h557snl6.googlevideo type=FWD
+/ip dns static add address=192.168.90.196 comment=<AUTO:DHCP:main-dhcp-server> name=yandex-mini2.home ttl=5m type=A
 /ip dns static add address=46.39.51.201 name=ftpserver.org type=A
 /ip firewall address-list add address=192.168.90.0/24 list=alist-fw-local-subnets
 /ip firewall address-list add address=192.168.90.0/24 list=alist-nat-local-subnets
@@ -5917,7 +5982,7 @@
 /ip upnp interfaces add interface="wan A" type=external
 /ip upnp interfaces add interface=main-infrastructure-br type=internal
 /ip upnp interfaces add interface=guest-infrastructure-br type=internal
-/ipv6 nd set [ find default=yes ] advertise-dns=yes disabled=yes
+/ipv6 nd set [ find default=yes ] advertise-mac-address=no disabled=yes
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=8954042546:AAHg_MJ7sK4sUFKSvcQ1YsGAnep_UYnuBO0 profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=SSH_PASSWORD password=RHWbJxAje profile=null service=async
@@ -6013,11 +6078,12 @@
 /system logging add topics=netwatch
 /system logging add action=VictoriaRemoteLog topics=l2tp,!packet,!debug,!raw,!info
 /system logging add action=NetinstallOnscreenLog topics=netinstall
+/system logging add action=VictoriaRemoteLog topics=caps
 /system note set note="Ipsec:         okay \
     \nRoute:     10.20.225.1 \
     \nVersion:         7.24.1 \
-    \nUptime:        21:50:45  \
-    \nTime:        2026-09-04 20:10:13  \
+    \nUptime:        4d14:30:44  \
+    \nTime:        2026-09-08 12:50:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
@@ -6089,8 +6155,14 @@
     \n:global NetwatchHostState \"UP\";\
     \n\
     \n/system script run doNetwatchHost;"
-/tool netwatch add comment="WB(wire) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.2 ignore-initial-down=yes ignore-initial-up=yes interval=1m name="WB(wire)" startup-delay=20s test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
-/tool netwatch add comment="WB(wireless) status check" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.3 ignore-initial-down=yes ignore-initial-up=yes interval=1m name="WB(wireless)" startup-delay=20s test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
+/tool netwatch add comment="WB(wireless) status check" disabled=no down-script=":global NetwatchHostName \"WB\";\
+    \n:global NetwatchHostState \"DOWN\";\
+    \n\
+    \n/system script run doNetwatchHost;" host=192.168.90.3 ignore-initial-down=yes ignore-initial-up=yes interval=1m name="WB(wireless)" startup-delay=20s test-script="" type=simple up-script=":global NetwatchHostName \"WB\";\
+    \n:global NetwatchHostState \"UP\";\
+    \n\
+    \n/system script run doNetwatchHost;"
+/tool netwatch add comment="WB(wireless) DNS fix" disabled=no down-script="/system/script/run doNetwatchDNS" host=192.168.90.3 ignore-initial-down=yes ignore-initial-up=yes interval=1m name="WB(wireless)" startup-delay=20s test-script="" type=simple up-script="/system/script/run doNetwatchDNS"
 /tool netwatch add comment="AliceMidi(wireless) status check" disabled=no down-script=":global NetwatchHostName \"aliceMidi\";\
     \n:global NetwatchHostState \"DOWN\";\
     \n\
@@ -6126,4 +6198,5 @@
     \n:global NetwatchHostState \"UP\";\
     \n\
     \n/system script run doNetwatchHost;"
+/tool netwatch add disabled=no down-script="" host=hcy086pz6xz.sn.mynetname.net test-script="" type=dns up-script=""
 /tool sniffer set filter-interface=adm-netinstall-br filter-mac-address=18:FD:74:94:FD:70/FF:FF:FF:FF:FF:FF memory-limit=1000KiB streaming-server=192.168.90.170
