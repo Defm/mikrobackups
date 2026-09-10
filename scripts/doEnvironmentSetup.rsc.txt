@@ -27,8 +27,8 @@
 
            :if ([/system script job print count-only as-value where script=$scriptname] > 1) do={
               :log error $state
-               $globalNoteMe value=$state;
-               :error $state
+              $globalNoteMe value=$state;
+              :error $state
             }
 
       :local state "Starting script: $scriptname";

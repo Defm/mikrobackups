@@ -1,4 +1,4 @@
-:local scriptname "doNetwatchHost";
+:local scriptname "doNetwatchDNS";
 
 #NetWatch notifier OnUp/OnDown
 :local state "";
@@ -28,7 +28,7 @@
         :error $state
       }
 
-      :local state "Starting script: $scriptname";
+      :local state "Starting script: $scriptname (NETWATCH context)";
       $localNoteMe value=$state;
 
     }

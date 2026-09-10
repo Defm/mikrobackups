@@ -1,6 +1,36 @@
+:local SafeScriptCall do={
 
+    :if ([:len $0]!=0) do={
+        :if ([:len $1]!=0) do={
+            :if ([:len [/system script find name=$1]]!=0) do={
+
+                :do {
+                    :log warning "Starting script: $1 (DHCP context)";
+                    :put "Starting script: $1"
+                    /system script run $1;
+                } on-error= {
+                    :log error "FAIL Starting script: $1 (DHCP context)";
+                    :put "FAIL Starting script: $1"
+                };
+
+            }
+        }
+    } 
+
+}
+
+# init globals as far as we are inside *sys user account
+$SafeScriptCall "doEnvironmentSetup";
+
+:local scriptname "doDHCPLeaseTrack";
 :global globalScriptBeforeRun;
-$globalScriptBeforeRun "doDHCPLeaseTrack";
+$globalScriptBeforeRun $scriptname;
+
+:global globalTgMessage;
+:global globalNoteMe;
+
+:local state;
+
 
 # Globals
 #
@@ -9,30 +39,60 @@ $globalScriptBeforeRun "doDHCPLeaseTrack";
 :global GleaseActMAC;
 :global GleaseActIP;
 
+
+:if (!any $GleaseActIP) do={
+
+  :set state "No GleaseActIP provided..";
+  $globalNoteMe value=$state;
+  :error $inf; 
+}
+
+:if (!any $GleaseServerName) do={
+
+  :set state "No GleaseServerName provided..";
+  $globalNoteMe value=$state;
+  :error $inf; 
+}
+
 :local date [/system clock get date];
 :local time [/system clock get time];
 :local systemIdentity [/system identity get name];
-:local json "{\"date\":\"$date\",\"time\":\"$time\",\"systemIdentity\":\"$systemIdentity\",\"bound\":$GleaseBound,\"serverName\":\"$GleaseServerName\",\"mac\":\"$GleaseActMAC\",\"ip\":\"$GleaseActIP\"}";
+
+:local Data [{}]
+:set ($Data->"date") $date
+:set ($Data->"time") $time
+:set ($Data->"systemIdentity") $systemIdentity
+:set ($Data->"bound") $GleaseBound
+:set ($Data->"serverName") $GleaseServerName
+:set ($Data->"mac") $GleaseActMAC
+:set ($Data->"ip") $GleaseActIP
+
+:local json [:serialize to=json value=$Data]
 
 
 :if ($GleaseBound = 1) do={
-    /ip dhcp-server lease;
-    :foreach i in=[find dynamic=yes] do={
-        :local dhcpip 
-        :set dhcpip [ get $i address ];
-        :local clientid
-        :set clientid [get $i host-name];
+    :local leaseId [/ip dhcp-server lease find where server=$GleaseServerName and address=$GleaseActIP]
 
-        :if ($GleaseActIP = $dhcpip) do={
-            :local comment "New IP"
-            :set comment ( $comment . ": " .  $dhcpip . ": " . $clientid);
-            /log error $comment;
+    :if ([:len $leaseId] = 0) do={
+        :set state "DHCP lease not found for server=$GleaseServerName ip=$GleaseActIP";
+        $globalNoteMe value=$state;
+        
+    } else={
 
-                                        :local newGuest "%D0%9A%D0%BB%D0%B8%D0%B5%D0%BD%D1%82%20%D0%B3%D0%BE%D1%81%D1%82%D0%B5%D0%B2%D0%BE%D0%B3%D0%BE%20wi-fi%3A%20";
-                                        :global TelegramMessage "$newGuest $comment";
-                                         /system script run doTelegramNotify;
+        :local clientid [/ip dhcp-server lease get $leaseId host-name]
 
-                                         /system script run doWestminister;
-        }
+        :set state "DHCP Client assigned - $clientid ($GleaseActIP)";
+        $globalNoteMe value=$state;
+
+        $globalTgMessage value=$state;
+
+        /system script run doWestminister;
     }
+
+ } else={
+
+   :set state "DHCP Client expired - $GleaseActIP";
+   $globalNoteMe value=$state;
+
 }
+
