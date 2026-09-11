@@ -1,3 +1,11 @@
+# fill it inside netwatch script
+:global NetwatchHostName;
+:global NetwatchHostState;
+
+# This script may be triggered twice (or more) per moment, so push down Globals as fast as we can, before they're overwritten
+:local localNetwatchHostName $NetwatchHostName;
+:local localNetwatchHostState $NetwatchHostState;
+
 :local SafeScriptCall do={
 
     :if ([:len $0]!=0) do={
@@ -5,11 +13,11 @@
             :if ([:len [/system script find name=$1]]!=0) do={
 
                 :do {
-                    :log warning "Starting script: $1";
+                    :log warning "Starting script: $1 (NETWATCH context)";
                     :put "Starting script: $1"
                     /system script run $1;
                 } on-error= {
-                    :log error "FAIL Starting script: $1";
+                    :log error "FAIL Starting script: $1 (NETWATCH context)";
                     :put "FAIL Starting script: $1"
                 };
 
@@ -25,38 +33,32 @@ $SafeScriptCall "doEnvironmentSetup";
 # NetWatch notifier OnDown
 
 :local scriptname "doNetwatchHost";
-:global globalScriptBeforeRun;
-$globalScriptBeforeRun $scriptname;
-
-# fill it inside netwatch script
-:global NetwatchHostName;
-:global NetwatchHostState;
-
+:local state "Starting script: $scriptname";
+$globalNoteMe value=$state;
 
 :global globalTgMessage;
 :global globalNoteMe;
 
-:local state;
 
-:if (!any $NetwatchHostName) do={
+:if (!any $localNetwatchHostName) do={
 
   :set state "No NetwatchHostName provided..";
   $globalNoteMe value=$state;
   :error $inf; 
 }
 
-:if (!any $NetwatchHostState) do={
+:if (!any $localNetwatchHostState) do={
 
   :set state "No NetwatchHostState provided..";
   $globalNoteMe value=$state;
   :error $inf; 
 }
 
-:set state "Netwatch for $NetwatchHostName started...";
+:set state "Netwatch for $localNetwatchHostName started...";
 $globalNoteMe value=$state;
 
-:set state "$NetwatchHostName is $NetwatchHostState";
-:log error "$state";
+:set state "$localNetwatchHostName is $localNetwatchHostState";
+:log warning "$state";
 
 $globalTgMessage value=$state;
 

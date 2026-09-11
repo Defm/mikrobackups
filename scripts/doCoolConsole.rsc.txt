@@ -11,10 +11,6 @@ $globalScriptBeforeRun "doCoolConsole";
 
 # reset current
 :set state "Flush global note"
-$globalNoteMe value=$state;
-/system note set note="Pending";
-
-
 
 :local sysver "NA";
 :if ( [ :len [ /system package find where name="system" and disabled=no ] ] > 0 and $rosVer = 6 ) do={
@@ -25,7 +21,6 @@ $globalNoteMe value=$state;
 }
 
 :set state "Picking default route"
-$globalNoteMe value=$state;
 
 :local defaultRoute "unreachable";
 /ip route {
@@ -35,7 +30,6 @@ $globalNoteMe value=$state;
 }
 
 :set state "Picking ipsec"
-$globalNoteMe value=$state;
 
 :local ipsecState "okay";
 /ip ipsec policy {
@@ -93,13 +87,11 @@ $globalNoteMe value=$state;
 :local latency "NA";
 
 :set state "Yandex connection test"
-$globalNoteMe value=$state;
 
 :local latencySite "Ya.ru";
 :local yaResolve [$SafeResolve $latencySite];
 
 :set state "Picking latency"
-$globalNoteMe value=$state;
 
 :if ($yaResolve != "ERROR" ) do {
     
@@ -114,7 +106,6 @@ $globalNoteMe value=$state;
 }
 
 :set state "Resolving CHR, MIK, ANNA"
-$globalNoteMe value=$state;
 
 :local hostname "accb195e0dffc6bb.sn.mynetname.net";
 :local chrResolve [$SafeResolve $hostname];
@@ -150,7 +141,6 @@ $globalNoteMe value=$state;
 :set logcontent ("$logcontent" ."$logcontenttemp" ."  \n")
 
 :set state "Listing packages"
-$globalNoteMe value=$state;
 
 /system/package {
   :foreach pkg in=[find (!disabled)] do={
