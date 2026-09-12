@@ -1,4 +1,4 @@
-# 2026-09-08 14:58:22 by RouterOS 7.23.1
+# 2026-09-12 21:13:02 by RouterOS 7.23.1
 # system id = pEDSXaHXN3J
 #
 # custom default configuration script installed
@@ -18,7 +18,7 @@
 /interface veth add address=172.17.0.2/29 container-mac-address=26:8A:0C:A0:3E:3B dhcp=no gateway=172.17.0.1 gateway6="" mac-address=26:8A:0C:A0:3E:3A name=veth-telemt
 /interface veth add address=172.17.0.3/29 container-mac-address=30:A6:92:7E:80:32 dhcp=no gateway=172.17.0.1 gateway6="" mac-address=30:A6:92:7E:80:31 name=veth-telemt-webui
 /interface wireguard add listen-port=65114 mtu=1420 name=wg-to-capax private-key="03n33pIsv9MIDWss0bDxyZ0/0xsXo2OvEBjCWOy/Hlw="
-/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 135044/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
+/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 147309/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
     \n" hostname=telemt interface=veth-telemt layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_VOLUMES name=telemt remote-image=ghcr.io/telemt/telemt:latest root-dir=/docker/runs/telemt start-on-boot=yes user=0:0 workdir=/tmp
 /container add check-certificate=no comment="MTProto telegram proxy web panel" dns=192.168.97.1 hostname=telemt-webui interface=veth-telemt-webui layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_WEBUI_VOLUMES name=telemt-webui remote-image=ghcr.io/amirotin/telemt_panel:latest root-dir=/docker/runs/telemt-webui start-on-boot=yes
 /container add check-certificate=no comment="Caddy web server and reverse proxy" dns=192.168.97.1 envlists=CADDY_ENVS hostname=caddy interface=veth-caddy layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=CADDY_VOLUMES name=caddy remote-image=caddy:latest root-dir=/docker/runs/caddy start-on-boot=yes user=0:0 workdir=/srv
@@ -677,8 +677,8 @@
     \n\
     \n           :if ([/system script job print count-only as-value where script=\$scriptname] > 1) do={\
     \n              :log error \$state\
-    \n               \$globalNoteMe value=\$state;\
-    \n               :error \$state\
+    \n              \$globalNoteMe value=\$state;\
+    \n              :error \$state\
     \n            }\
     \n\
     \n      :local state \"Starting script: \$scriptname\";\
@@ -1329,18 +1329,26 @@
     \n\
     \n\r\
     \n"
-/system script add dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local SafeScriptCall do={\
+/system script add dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# fill it inside netwatch script\
+    \n:global NetwatchHostName;\
+    \n:global NetwatchHostState;\
+    \n\
+    \n# This script may be triggered twice (or more) per moment, so push down Globals as fast as we can, before they're overwritten\
+    \n:local localNetwatchHostName \$NetwatchHostName;\
+    \n:local localNetwatchHostState \$NetwatchHostState;\
+    \n\
+    \n:local SafeScriptCall do={\
     \n\
     \n    :if ([:len \$0]!=0) do={\
     \n        :if ([:len \$1]!=0) do={\
     \n            :if ([:len [/system script find name=\$1]]!=0) do={\
     \n\
     \n                :do {\
-    \n                    :log warning \"Starting script: \$1\";\
+    \n                    :log warning \"Starting script: \$1 (NETWATCH context)\";\
     \n                    :put \"Starting script: \$1\"\
     \n                    /system script run \$1;\
     \n                } on-error= {\
-    \n                    :log error \"FAIL Starting script: \$1\";\
+    \n                    :log error \"FAIL Starting script: \$1 (NETWATCH context)\";\
     \n                    :put \"FAIL Starting script: \$1\"\
     \n                };\
     \n\
@@ -1356,38 +1364,32 @@
     \n# NetWatch notifier OnDown\
     \n\
     \n:local scriptname \"doNetwatchHost\";\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
-    \n\
-    \n# fill it inside netwatch script\
-    \n:global NetwatchHostName;\
-    \n:global NetwatchHostState;\
-    \n\
+    \n:local state \"Starting script: \$scriptname\";\
+    \n\$globalNoteMe value=\$state;\
     \n\
     \n:global globalTgMessage;\
     \n:global globalNoteMe;\
     \n\
-    \n:local state;\
     \n\
-    \n:if (!any \$NetwatchHostName) do={\
+    \n:if (!any \$localNetwatchHostName) do={\
     \n\
     \n  :set state \"No NetwatchHostName provided..\";\
     \n  \$globalNoteMe value=\$state;\
     \n  :error \$inf; \
     \n}\
     \n\
-    \n:if (!any \$NetwatchHostState) do={\
+    \n:if (!any \$localNetwatchHostState) do={\
     \n\
     \n  :set state \"No NetwatchHostState provided..\";\
     \n  \$globalNoteMe value=\$state;\
     \n  :error \$inf; \
     \n}\
     \n\
-    \n:set state \"Netwatch for \$NetwatchHostName started...\";\
+    \n:set state \"Netwatch for \$localNetwatchHostName started...\";\
     \n\$globalNoteMe value=\$state;\
     \n\
-    \n:set state \"\$NetwatchHostName is \$NetwatchHostState\";\
-    \n:log error \"\$state\";\
+    \n:set state \"\$localNetwatchHostName is \$localNetwatchHostState\";\
+    \n:log warning \"\$state\";\
     \n\
     \n\$globalTgMessage value=\$state;\
     \n\
@@ -2302,10 +2304,6 @@
     \n\
     \n# reset current\
     \n:set state \"Flush global note\"\
-    \n\$globalNoteMe value=\$state;\
-    \n/system note set note=\"Pending\";\
-    \n\
-    \n\
     \n\
     \n:local sysver \"NA\";\
     \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\
@@ -2316,7 +2314,6 @@
     \n}\
     \n\
     \n:set state \"Picking default route\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local defaultRoute \"unreachable\";\
     \n/ip route {\
@@ -2326,7 +2323,6 @@
     \n}\
     \n\
     \n:set state \"Picking ipsec\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local ipsecState \"okay\";\
     \n/ip ipsec policy {\
@@ -2384,13 +2380,11 @@
     \n:local latency \"NA\";\
     \n\
     \n:set state \"Yandex connection test\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local latencySite \"Ya.ru\";\
     \n:local yaResolve [\$SafeResolve \$latencySite];\
     \n\
     \n:set state \"Picking latency\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:if (\$yaResolve != \"ERROR\" ) do {\
     \n    \
@@ -2405,7 +2399,6 @@
     \n}\
     \n\
     \n:set state \"Resolving CHR, MIK, ANNA\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local hostname \"accb195e0dffc6bb.sn.mynetname.net\";\
     \n:local chrResolve [\$SafeResolve \$hostname];\
@@ -2441,7 +2434,6 @@
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\
     \n\
     \n:set state \"Listing packages\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n/system/package {\
     \n  :foreach pkg in=[find (!disabled)] do={\
@@ -2506,14 +2498,14 @@
 /app set cinny firewall-redirects=8094:80:tcp:web
 /app set goaway container-command-lines=goaway:none:docker.io/pommee/goaway:latest
 /app set home-assistant container-command-lines=home-assistant:none:lscr.io/linuxserver/homeassistant
-/app set lorawan-stack secrets=lorawan-stack__admin_password:nJVGyPfZCIPIMURVuGeNOmlLBjYCufXu
+/app set lorawan-stack secrets=lorawan-stack__admin_password:VgMlfWCaUPeQcZeogonxRgLPngvZDbXC
 /app set n8n firewall-redirects=5678:5678:tcp:web
 /app set nextcloud container-command-lines="db:none:docker.io/postgres:17,redis:none:docker.io/valkey/valkey:/bin/sh -c 'valkey-server --port 6379 --appendonly yes --requirepass \$VALKEY_PASSWORD',server:none:docker.io/nextcloud:apache"
 /app set pihole environment="pihole:FTLCONF_dns_listeningMode=all,pihole:FTLCONF_webserver_api_password=password"
 /app set redlib firewall-redirects=8087:8080:tcp:web
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
-/app set zulip secrets=zulip__postgres_password:HByqdoeHabjtjccUMtPAAZqiqclippFF,zulip__memcached_password:TsvrsZIdjKUUDCpWxbmzIXIeQayKVbZK,zulip__rabbitmq_password:eBBSYcPhsTmmqVKAzrVhOdeMUazZcLUB,zulip__redis_password:qVjQaKjASkMHlNfWvXANqEFbnJtFdrnj,zulip__secret_key:ydhylvphxrDHrXaUOVULwCYiZaSuMMTb,zulip__email_password:GTbxLyhNxqyawQEEVEDzmkSxtTEagKQq
+/app set zulip secrets=zulip__postgres_password:GMZObeLInsrnLOJmBvRAWyCoENyKFpmL,zulip__memcached_password:xtnNiLbZODQLQXrVGzESZGWBOvGAWMMT,zulip__rabbitmq_password:IvVBlNvteJXhijruHvZTnKcFFbmjJjCx,zulip__redis_password:IWnfREHpOHPqvOvuClAKLhRiRcEMeUXR,zulip__secret_key:RFwajYYlRuavXhbuNYadCCbYHPpUdPHZ,zulip__email_password:ZXjIFaSAswLaGUJEQNvyeJJHQyYHJwZh
 /app settings set disk=ssd lan-bridge=main-infrastructure-br
 /certificate scep-server add ca-cert=ca@CHR days-valid=365 path=/scep/grant request-lifetime=5m
 /container config set layer-dir=/docker/layers memory-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/docker/pulls
@@ -3031,8 +3023,8 @@
 /system note set note="Ipsec:         okay \
     \nRoute:     185.13.148.1 \
     \nVersion:         7.23.1 \
-    \nUptime:        7w4d00:40:52  \
-    \nTime:        2026-09-08 14:50:12  \
+    \nUptime:        8w1d07:00:52  \
+    \nTime:        2026-09-12 21:10:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
