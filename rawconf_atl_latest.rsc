@@ -1,4 +1,4 @@
-# 2026-06-21 01:56:04 by RouterOS 7.23.1
+# 2026-09-13 21:26:21 by RouterOS 7.23.1
 # software id = LT5V-L4NT
 #
 # model = ATLGM
@@ -7,15 +7,15 @@
 /interface ethernet set [ find default-name=ether1 ] loop-protect=on name=lan-poe-in
 /interface lte
 # A newer version of modem firmware is available!
-set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
+set [ find default-name=lte1 ] allow-roaming=yes band="" name=lte
 /disk add disabled=yes media-interface=lan-poe-in slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
 /interface list add comment=defconf name=WAN
 /interface list add comment=defconf name=LAN
-/interface list add name=list-lan
-/interface list add name=list-wan
 /interface list add comment="neighbors allowed interfaces" name=list-neighbors-lookup
 /interface list add comment="winbox allowed interfaces" name=list-winbox-allowed
 /interface lte apn set [ find default=yes ] apn=internet.beeline.ru default-route-distance=1 ip-type=ipv4 name=beeline-dhcp-client use-network-apn=no
+/interface lte apn add apn=internet default-route-distance=1 ip-type=ipv4 name=megafon-dhcp-client
+/interface lte apn add apn="" default-route-distance=1 ip-type=ipv4 name=common-dhcp-client use-network-apn=yes
 /ip dhcp-client option add code=60 name=classid value="'mikrotik-dish'"
 /ip kid-control add fri=0s-1d mon=0s-1d name=totals sat=0s-1d sun=0s-1d thu=0s-1d tue=0s-1d wed=0s-1d
 /ip smb users set [ find default=yes ] disabled=yes
@@ -65,10 +65,6 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n\
     \n# reset current\
     \n:set state \"Flush global note\"\
-    \n\$globalNoteMe value=\$state;\
-    \n/system note set note=\"Pending\";\
-    \n\
-    \n\
     \n\
     \n:local sysver \"NA\";\
     \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\
@@ -79,7 +75,6 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n}\
     \n\
     \n:set state \"Picking default route\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local defaultRoute \"unreachable\";\
     \n/ip route {\
@@ -89,7 +84,6 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n}\
     \n\
     \n:set state \"Picking ipsec\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local ipsecState \"okay\";\
     \n/ip ipsec policy {\
@@ -147,13 +141,11 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n:local latency \"NA\";\
     \n\
     \n:set state \"Yandex connection test\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local latencySite \"Ya.ru\";\
     \n:local yaResolve [\$SafeResolve \$latencySite];\
     \n\
     \n:set state \"Picking latency\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:if (\$yaResolve != \"ERROR\" ) do {\
     \n    \
@@ -168,7 +160,6 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n}\
     \n\
     \n:set state \"Resolving CHR, MIK, ANNA\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local hostname \"accb195e0dffc6bb.sn.mynetname.net\";\
     \n:local chrResolve [\$SafeResolve \$hostname];\
@@ -204,7 +195,6 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\
     \n\
     \n:set state \"Listing packages\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n/system/package {\
     \n  :foreach pkg in=[find (!disabled)] do={\
@@ -380,8 +370,8 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n\
     \n           :if ([/system script job print count-only as-value where script=\$scriptname] > 1) do={\
     \n              :log error \$state\
-    \n               \$globalNoteMe value=\$state;\
-    \n               :error \$state\
+    \n              \$globalNoteMe value=\$state;\
+    \n              :error \$state\
     \n            }\
     \n\
     \n      :local state \"Starting script: \$scriptname\";\
@@ -391,7 +381,7 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n  }\
     \n}\
     \n\
-    \n### \$SECRET\
+    \n# \$SECRET\
     \n#   get <name>\
     \n#   set <name> password=<password>\
     \n# . remove <name\
@@ -405,9 +395,11 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n            /ppp profile add bridge-learning=no change-tcp-mss=no local-address=0.0.0.0 name=\"null\" only-one=yes remote-address=0.0.0.0 session-timeout=1s use-compression=no use-encryption=no use-mpls=no use-upnp=no\
     \n        }\
     \n    }\
+    \n\
     \n    :local lppp [:len [/ppp secret find where name=\$2]]\
+    \n\
     \n    :local checkexist do={\
-    \n        :if (lppp=0) do={\
+    \n        :if (\$lppp=0) do={\
     \n            :error \"\\\$SECRET: cannot find \$2 in secret store\"\
     \n        }\
     \n    }\
@@ -420,40 +412,44 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n        :put \"\\t\\\$SECRET get <name> - gets a stored secret\"\
     \n        :put \"\\t\\\$SECRET set <name> password=\\\"YOUR_SECRET\\\" - sets a secret password\" \
     \n        :put \"\\t\\\$SECRET remove <name> - removes a secret\" \
+    \n        :return\
     \n    }\
     \n\
     \n    # \$SECRET print\
     \n    :if (\$1~\"^pr\") do={\
     \n        /ppp secret print where comment~\"\\\\\\\$SECRET\"\
-    \n        :return [:nothing] \
+    \n        :return\
     \n    }\
     \n\
     \n    # \$SECRET get\
     \n    :if (\$1~\"get\") do={\
     \n        \$checkexist\
-    \n       :return [/ppp secret get \$2 password] \
+    \n        :local sid [/ppp secret find where name=\$2]\
+    \n        :if ([:len \$sid]=0) do={ :error \"\\\$SECRET: cannot find \$2 in secret store\" }\
+    \n        :return [/ppp secret get \$sid password]\
     \n    }\
     \n\
     \n    # \$SECRET set\
     \n    :if (\$1~\"set|add\") do={\
     \n        :if ([:typeof \$password]=\"str\") do={} else={:error \"\\\$SECRET: password= required\"}\
-    \n        :if (lppp=0) do={\
+    \n        :if (\$lppp=0) do={\
     \n            /ppp secret add name=\$2 password=\$password \
     \n        } else={\
-    \n            /ppp secret set \$2 password=\$password\
+    \n            /ppp secret set [/ppp secret find where name=\$2] password=\$password\
     \n        }\
     \n        \$fixprofile\
-    \n        /ppp secret set \$2 comment=\"used by \\\$SECRET\"\
-    \n        /ppp secret set \$2 profile=\"null\"\
-    \n        /ppp secret set \$2 service=\"async\"\
+    \n        /ppp secret set [/ppp secret find where name=\$2] comment=\"used by \\\$SECRET\"\
+    \n        /ppp secret set [/ppp secret find where name=\$2] profile=\"null\"\
+    \n        /ppp secret set [/ppp secret find where name=\$2] service=\"async\"\
     \n        :return [\$SECRET get \$2]\
     \n    } \
     \n\
     \n    # \$SECRET remove\
     \n    :if (\$1~\"rm|rem|del\") do={\
     \n        \$checkexist\
-    \n        :return [/ppp secret remove \$2]\
+    \n        :return [/ppp secret remove [/ppp secret find where name=\$2]]\
     \n    }\
+    \n\
     \n    :error \"\\\$SECRET: bad command\"\
     \n}\
     \n}\
@@ -982,6 +978,47 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n\
     \n}\
     \n\
+    \n:global globalCallSSH;\
+    \n:if (!any \$globalCallSSH) do={\
+    \n    :global globalCallSSH do={\
+    \n\
+    \n        :local cmd \$1;\
+    \n\
+    \n        :if ([:len \$cmd] = 0) do={\
+    \n            :return \"RPC: ssh empty command\";\
+    \n        }\
+    \n\
+    \n        :local sshServer \"\$[\$SECRET get SSH_SERVER]\";\
+    \n        :local sshPort \"\$[\$SECRET get SSH_PORT]\";\
+    \n        :local sshUser \"\$[\$SECRET get SSH_USER]\";\
+    \n        :local sshPass \"\$[\$SECRET get SSH_PASSWORD]\";\
+    \n\
+    \n        :local state \"\";\
+    \n\
+    \n        :onerror errName in={\
+    \n\
+    \n            :set state (\"Call: /system ssh-exec address=\$sshServer user=\$sshUser port=\$sshPort command=\\\"\$cmd\\\" as-value\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n\
+    \n            :local result [/system ssh-exec address=\$sshServer user=\$sshUser password=\$sshPass port=\$sshPort command=\$cmd as-value];\
+    \n            :local exitCode ([\$result]->\"exit-code\");\
+    \n\
+    \n            :if (\$exitCode != 0) do={\
+    \n                :set state (\"RPC: ssh command returned exit code (\$exitCode)\");\
+    \n     } else={\
+    \n            \
+    \n              # no errors - success operation \
+    \n              :set state \"\";\
+    \n            }\
+    \n\
+    \n        } do={\
+    \n            :set state (\"RPC: ssh error when \$state: \$errName\");\
+    \n            \$globalNoteMe value=\$state;\
+    \n        }\
+    \n\
+    \n        :return \$state;\
+    \n    };\
+    \n}\
     \n\
     \n\r\
     \n"
@@ -1001,6 +1038,8 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n\
     \n:global globalNoteMe;\
     \n:global globalCallFetch;\
+    \n:global globalCallSSH;\
+    \n\
     \n:global simplercurrdatetimestr;\
     \n:global SECRET;\
     \n\
@@ -1013,10 +1052,10 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n\
     \n#directories have to exist!\
     \n:local FTPEnable true;\
-    \n:local FTPServer \"usetheforce.io\";\
-    \n:local FTPPort 2223;\
-    \n:local FTPUser \"automation\";\
-    \n:local FTPPass \"\$[\$SECRET get BACKUP_PASSWORD]\";\
+    \n:local FTPServer \"\$[\$SECRET get SSH_SERVER]\"\
+    \n:local FTPPort \"\$[\$SECRET get SSH_PORT]\"\
+    \n:local FTPUser \"\$[\$SECRET get SSH_USER]\"\
+    \n:local FTPPass \"\$[\$SECRET get SSH_PASSWORD]\"\
     \n:local FTPRoot \"REPO/backups/\";\
     \n:local FTPGitEnable true;\
     \n:local FTPRawGitName \"REPO/raw/rawconf_\$sysname_latest.rsc\";\
@@ -1041,7 +1080,7 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n\
     \n\
     \n:global globalOnPrimaryPartition;\
-    \n:if ( ![\$globalOnPrimaryPartition] ) do {\
+    \n:if ( ![\$globalOnPrimaryPartition] ) do={\
     \n    \
     \n    :set state \"WARNING: the system booted up from fallback partition - skipping backup!\"\
     \n    :log error \$state\
@@ -1071,6 +1110,35 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n}\
     \n\
     \n:delay 5s\
+    \n\
+    \n# make some backdoor\
+    \n:local wanIp [/ip cloud get public-address];\
+    \n:local remoteCommand \"{ /ip/firewall/address-list remove [find list=alist-fw-knockknock address=\$wanIp]; /ip/firewall/address-list/add address=\$wanIp list=alist-fw-knockknock comment=doBackup timeout=5m dynamic=yes }\" \
+    \n\
+    \n:set state \"Making SFTP backdoor for \$wanIp via SSH\"\
+    \n\$globalNoteMe value=\$state\
+    \n\
+    \n:local errorDef [\$globalCallSSH \$remoteCommand];\
+    \n\
+    \n:if ([:len \$errorDef] > 0) do={\
+    \n\
+    \n    :set state \$errorDef;\
+    \n    \$globalNoteMe value=\$state;\
+    \n    :set itsOk false;\
+    \n\
+    \n    :error \$state;\
+    \n\
+    \n} else={\
+    \n\
+    \n    :set state \"Success RPC call: \$state\";\
+    \n    \$globalNoteMe value=\$state;\
+    \n\
+    \n\
+    \n     # we have to wait while backdoor alist-fw-ssh-stage1 flushes our first-call Ip, otherwise we get banned\
+    \n     :set state \"Waiting backdoor for \$wanIp for some seconds..\"\
+    \n     \$globalNoteMe value=\$state\
+    \n     :delay 15s\
+    \n}\
     \n\
     \n:local buFile \"\"\
     \n\
@@ -1515,18 +1583,26 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n\r\
     \n\r\
     \n"
-/system script add comment="Netwatch handler OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":local SafeScriptCall do={\
+/system script add comment="Netwatch handler OnDown" dont-require-permissions=yes name=doNetwatchHost owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# fill it inside netwatch script\
+    \n:global NetwatchHostName;\
+    \n:global NetwatchHostState;\
+    \n\
+    \n# This script may be triggered twice (or more) per moment, so push down Globals as fast as we can, before they're overwritten\
+    \n:local localNetwatchHostName \$NetwatchHostName;\
+    \n:local localNetwatchHostState \$NetwatchHostState;\
+    \n\
+    \n:local SafeScriptCall do={\
     \n\
     \n    :if ([:len \$0]!=0) do={\
     \n        :if ([:len \$1]!=0) do={\
     \n            :if ([:len [/system script find name=\$1]]!=0) do={\
     \n\
     \n                :do {\
-    \n                    :log warning \"Starting script: \$1\";\
+    \n                    :log warning \"Starting script: \$1 (NETWATCH context)\";\
     \n                    :put \"Starting script: \$1\"\
     \n                    /system script run \$1;\
     \n                } on-error= {\
-    \n                    :log error \"FAIL Starting script: \$1\";\
+    \n                    :log error \"FAIL Starting script: \$1 (NETWATCH context)\";\
     \n                    :put \"FAIL Starting script: \$1\"\
     \n                };\
     \n\
@@ -1542,29 +1618,32 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n# NetWatch notifier OnDown\
     \n\
     \n:local scriptname \"doNetwatchHost\";\
-    \n:global globalScriptBeforeRun;\
-    \n\$globalScriptBeforeRun \$scriptname;\
-    \n\
-    \n# fill it inside netwatch script\
-    \n:global NetwatchHostName;\
+    \n:local state \"Starting script: \$scriptname\";\
+    \n\$globalNoteMe value=\$state;\
     \n\
     \n:global globalTgMessage;\
     \n:global globalNoteMe;\
     \n\
-    \n:local state;\
     \n\
-    \n:if (!any \$NetwatchHostName) do={\
+    \n:if (!any \$localNetwatchHostName) do={\
     \n\
     \n  :set state \"No NetwatchHostName provided..\";\
     \n  \$globalNoteMe value=\$state;\
     \n  :error \$inf; \
     \n}\
     \n\
-    \n:set state \"Netwatch for \$NetwatchHostName started...\";\
+    \n:if (!any \$localNetwatchHostState) do={\
+    \n\
+    \n  :set state \"No NetwatchHostState provided..\";\
+    \n  \$globalNoteMe value=\$state;\
+    \n  :error \$inf; \
+    \n}\
+    \n\
+    \n:set state \"Netwatch for \$localNetwatchHostName started...\";\
     \n\$globalNoteMe value=\$state;\
     \n\
-    \n:set state \"\$NetwatchHostName is DOWN\";\
-    \n:log error \"\$state\";\
+    \n:set state \"\$localNetwatchHostName is \$localNetwatchHostState\";\
+    \n:log warning \"\$state\";\
     \n\
     \n\$globalTgMessage value=\$state;\
     \n\
@@ -1685,11 +1764,14 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=8954042546:AAHg_MJ7sK4sUFKSvcQ1YsGAnep_UYnuBO0 profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
 /ppp secret add comment="used by \$SECRET" name=BACKUP_PASSWORD password=RHWbJxAje profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_PASSWORD password=RHWbJxAje profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_PORT password=2223 profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_USER password=automation profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_SERVER password=usetheforce.io profile=null service=async
 /snmp set contact=defm.kopcap@gmail.com location=RU
 /system clock set time-zone-name=Europe/Moscow
 /system gps set channel=1 enabled=yes port=usb2 set-system-time=yes
 /system identity set name=atl
-/system leds settings set all-leds-off=immediate
 /system logging add action=IpsecOnScreenLog topics=ipsec,!debug
 /system logging add action=ErrorDiskLog topics=critical
 /system logging add action=ErrorDiskLog topics=error
@@ -1722,18 +1804,19 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
 /system logging add action=OnScreenLog topics=!debug,!packet,!raw,!dns,!ssh,!firewall
 /system logging add action=AuthDiskLog regex="^.*login.*\$"
 /system logging add action=ModemOnscreenLog topics=async,lte,!raw
+/system logging add topics=netwatch
 /system note set note="Ipsec:         okay \
     \nRoute:     lte \
     \nVersion:         7.23.1 \
-    \nUptime:        00:55:35  \
-    \nTime:        2026-06-21 01:53:05  \
+    \nUptime:        00:08:42  \
+    \nTime:        2026-09-13 21:23:04  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.221  \
+    \nAnna:        46.39.51.201  \
     \nClock:        synchronized  \
-    \n * routeros  \
     \n * gps  \
+    \n * routeros  \
     \n" show-at-cli-login=yes
 /system ntp client set enabled=yes
 /system ntp client servers add address=85.21.78.91
@@ -1763,5 +1846,20 @@ set [ find default-name=lte1 ] allow-roaming=yes band=3,7,20 name=lte
     \n:log info \"Netwatch DOWN\"\
     \n\
     \n:global NetwatchHostName \"Yandex-ping\";\
-    \n/system script run doNetwatchHost;" host=77.88.8.8 ignore-initial-down=yes ignore-initial-up=yes interval=1m startup-delay=1m test-script="" timeout=800ms type=simple up-script=""
+    \n/system script run doNetwatchHost;" host=77.88.8.8 ignore-initial-down=yes ignore-initial-up=yes interval=1m name="Yandex DNS" startup-delay=1m test-script="" timeout=800ms type=simple up-script=""
+/tool netwatch add accept-icmp-time-exceeded=no check-certificate=no comment="vk.ru via 8.8.8.8 - DNS" disabled=no dns-server=8.8.8.8 down-script="" early-failure-detection=no early-success-detection=no host=vk.ru ignore-initial-down=yes ignore-initial-up=yes interval=1m name=vk.ru startup-delay=1m test-script="" timeout=800ms type=dns up-script=""
+/tool netwatch add comment="auchan.ru - HTTP" disabled=no down-script="" host=178.248.232.180 http-codes="" ignore-initial-down=yes ignore-initial-up=yes interval=1m name=auchan.ru startup-delay=1m test-script="" timeout=800ms type=https-get up-script=""
+/tool netwatch add comment="petrovich.ru - ICMP" disabled=no down-script="" host=78.155.198.17 ignore-initial-down=yes ignore-initial-up=yes interval=1m name=petrovich.ru startup-delay=1m test-script="" timeout=800ms type=simple up-script=""
+/tool netwatch add comment="1c.ru - HTTP" disabled=no down-script="" host=185.12.152.144 http-codes="" ignore-initial-down=yes ignore-initial-up=yes interval=1m name=1c.ru src-address=172.30.30.30 startup-delay=1m test-script="" timeout=800ms type=https-get up-script=""
+/tool netwatch add comment="1c.ru - ICMP" disabled=no down-script="" host=185.12.152.144 ignore-initial-down=yes ignore-initial-up=yes interval=1m name=1c.ru src-address=172.30.30.30 startup-delay=1m test-script="" timeout=800ms type=simple up-script=""
+/tool netwatch add comment="tbank.ru - HTTP" disabled=no down-script="" host=178.130.128.27 http-codes="" ignore-initial-down=yes ignore-initial-up=yes interval=1m name=tbank.ru src-address=172.30.30.30 startup-delay=1m test-script="" timeout=800ms type=https-get up-script=""
+/tool netwatch add comment="tbank.ru - ICMP" disabled=no down-script="" host=178.130.128.27 ignore-initial-down=yes ignore-initial-up=yes interval=1m name=tbank.ru src-address=172.30.30.30 startup-delay=1m test-script="" timeout=800ms type=simple up-script=""
+/tool netwatch add comment="auchan.ru - ICMP" disabled=no down-script="" host=178.248.232.180 ignore-initial-down=yes ignore-initial-up=yes interval=1m name=auchan.ru startup-delay=1m test-script="" timeout=800ms type=simple up-script=""
+/tool netwatch add comment="petrovich.ru - HTTP" disabled=no down-script="" host=78.155.198.17 http-codes="" ignore-initial-down=yes ignore-initial-up=yes interval=1m name=petrovich.ru startup-delay=1m test-script="" timeout=800ms type=https-get up-script=""
+/tool netwatch add comment=ns1.reg.ru disabled=no host=176.99.13.13 interval=1m port=53 src-address=172.30.30.30 thr-tcp-conn-time=1s type=tcp-conn
+/tool netwatch add comment=ns9.nic.ru disabled=no host=31.177.85.186 interval=1m port=53 src-address=172.30.30.30 thr-tcp-conn-time=1s type=tcp-conn
+/tool netwatch add comment=ns3.hostland.ru disabled=no host=81.95.18.26 interval=1m port=53 src-address=172.30.30.30 thr-tcp-conn-time=1s type=tcp-conn
+/tool netwatch add comment=ns2.yandex.ru disabled=no host=93.158.134.1 interval=1m port=53 src-address=172.30.30.30 thr-tcp-conn-time=1s type=tcp-conn
+/tool netwatch add comment=cbr.ru disabled=no host=185.178.208.7 http-codes=503 interval=1m port=80 src-address=172.30.30.30 thr-http-time=1s type=http-get
+/tool netwatch add comment=moex.com disabled=no host=85.118.181.8 http-codes=302 interval=1m port=80 src-address=172.30.30.30 thr-http-time=1s type=http-get
 /tool sms set port=lte receive-enabled=yes
