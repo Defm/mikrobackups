@@ -1,4 +1,4 @@
-# 2026-09-13 21:26:21 by RouterOS 7.23.1
+# 2026-09-13 21:33:42 by RouterOS 7.23.1
 # software id = LT5V-L4NT
 #
 # model = ATLGM
@@ -1808,8 +1808,8 @@ set [ find default-name=lte1 ] allow-roaming=yes band="" name=lte
 /system note set note="Ipsec:         okay \
     \nRoute:     lte \
     \nVersion:         7.23.1 \
-    \nUptime:        00:08:42  \
-    \nTime:        2026-09-13 21:23:04  \
+    \nUptime:        00:18:42  \
+    \nTime:        2026-09-13 21:33:04  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
