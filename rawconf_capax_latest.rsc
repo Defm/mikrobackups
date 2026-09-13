@@ -1,4 +1,4 @@
-# 2026-09-13 21:16:17 by RouterOS 7.23.1
+# 2026-09-13 21:28:51 by RouterOS 7.23.1
 # software id = DLYF-EX6C
 #
 # model = cAPGi-5HaxD2HaxD
@@ -1994,4 +1994,456 @@
     \n    /container/start [find where comment=\$containerName and stopped]\
     \n    :delay 3\
     \n}"
-/system script add dont-require-permissions=no name=IP_MihomoProxyRoS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon so
+/system script add dont-require-permissions=no name=IP_MihomoProxyRoS owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# Define global variables\r\
+    \n:global AddressList \"MihomoProxyRoS\"\r\
+    \n\r\
+    \n:global LoadRscResources do={\r\
+    \n:foreach resource in=\$resources do={\r\
+    \n:local url (\$baseUrl . \"/\" . \$resource . \".rsc\")\r\
+    \n:do {\r\
+    \n:local r [/tool fetch url=\$url mode=https output=user as-value]\r\
+    \n:if ((\$r->\"status\") = \"finished\") do={\r\
+    \n:local content (\$r->\"data\")\r\
+    \n:local s [:parse \$content]\r\
+    \n\$s\r\
+    \n:log warning (\$resource . \".rsc loading completed\")\r\
+    \n:put (\$resource . \".rsc loading completed\")\r\
+    \n}\r\
+    \n} on-error={}\r\
+    \n:local part 1\r\
+    \n:local continue true\r\
+    \n:while (\$continue) do={\r\
+    \n:local partUrl (\$baseUrl . \"/\" . \$resource . \"_part\" . \$part . \".rsc\")\r\
+    \n:do {\r\
+    \n:local r [/tool fetch url=\$partUrl mode=https output=user as-value]\r\
+    \n:if ((\$r->\"status\") = \"finished\") do={\r\
+    \n:local content (\$r->\"data\")\r\
+    \n:local s [:parse \$content]\r\
+    \n\$s\r\
+    \n:log warning (\$resource . \".rsc part\" . \$part . \" loading completed\")\r\
+    \n:put (\$resource . \".rsc part\" . \$part . \" loading completed\")\r\
+    \n:set part (\$part + 1)\r\
+    \n} else={\r\
+    \n:set continue false\r\
+    \n}\r\
+    \n} on-error={\r\
+    \n:set continue false\r\
+    \n}\r\
+    \n}\r\
+    \n}\r\
+    \n}\r\
+    \n\r\
+    \n# First resources\r\
+    \n:local baseUrl \"https://raw.githubusercontent.com/Medium1992/MikroTik_IPlist/refs/heads/main/for_scripts\"\r\
+    \n:local resources {\r\
+    \n# Telegram\r\
+    \n\"geoipv4/telegram\";\r\
+    \n\"asnv4/AS62041\";\r\
+    \n\"asnv4/AS59930\";\r\
+    \n\"asnv4/AS62014\";\r\
+    \n\"asnv4/AS211157\";\r\
+    \n\"asnv4/AS44907\";\r\
+    \n# Twitter\r\
+    \n\"geoipv4/twitter\";\r\
+    \n\"asnv4/AS13414\";\r\
+    \n\"asnv4/AS63179\";\r\
+    \n\"asnv4/AS35995\";\r\
+    \n# Meta\r\
+    \n\"geoipv4/facebook\";\r\
+    \n\"asnv4/AS32934\";\r\
+    \n\"asnv4/AS54115\";\r\
+    \n\"asnv4/AS63293\";\r\
+    \n\"asnv4/AS45796\";\r\
+    \n# NetFlix\r\
+    \n\"geoipv4/netflix\";\r\
+    \n\"asnv4/AS2906\";\r\
+    \n# Anthropic\r\
+    \n\"asnv4/AS399358\";\r\
+    \n\"asnv4/AS60808\";\r\
+    \n}\r\
+    \n\r\
+    \n\$LoadRscResources resources=\$resources baseUrl=\$baseUrl\r\
+    \n\r\
+    \n\r\
+    \n# Second resources\r\
+    \n:local baseUrl \"https://raw.githubusercontent.com/Medium1992/mihomo-proxy-ros/refs/heads/main/custom_list\"\r\
+    \n:local resources {\r\
+    \n\"ipcidr_address_list_custom\";\r\
+    \n}\r\
+    \n\r\
+    \n\$LoadRscResources resources=\$resources baseUrl=\$baseUrl\r\
+    \n"
+/system script add dont-require-permissions=no name=FWD_update owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# Define global variables\r\
+    \n:global AddressList \"\"\r\
+    \n:global ForwardTo \"MihomoProxyRoS\"\r\
+    \n\r\
+    \n:global LoadRscResources do={\r\
+    \n:foreach resource in=\$resources do={\r\
+    \n:local url (\$baseUrl . \"/\" . \$resource . \".rsc\")\r\
+    \n:do {\r\
+    \n:local r [/tool fetch url=\$url mode=https output=user as-value]\r\
+    \n:if ((\$r->\"status\") = \"finished\") do={\r\
+    \n:local content (\$r->\"data\")\r\
+    \n:local s [:parse \$content]\r\
+    \n\$s\r\
+    \n:log warning (\$resource . \".rsc loading completed\")\r\
+    \n:put (\$resource . \".rsc loading completed\")\r\
+    \n}\r\
+    \n} on-error={}\r\
+    \n:local part 1\r\
+    \n:local continue true\r\
+    \n:while (\$continue) do={\r\
+    \n:local partUrl (\$baseUrl . \"/\" . \$resource . \"_part\" . \$part . \".rsc\")\r\
+    \n:do {\r\
+    \n:local r [/tool fetch url=\$partUrl mode=https output=user as-value]\r\
+    \n:if ((\$r->\"status\") = \"finished\") do={\r\
+    \n:local content (\$r->\"data\")\r\
+    \n:local s [:parse \$content]\r\
+    \n\$s\r\
+    \n:log warning (\$resource . \".rsc part\" . \$part . \" loading completed\")\r\
+    \n:put (\$resource . \".rsc part\" . \$part . \" loading completed\")\r\
+    \n:set part (\$part + 1)\r\
+    \n} else={\r\
+    \n:set continue false\r\
+    \n}\r\
+    \n} on-error={\r\
+    \n:set continue false\r\
+    \n}\r\
+    \n}\r\
+    \n}\r\
+    \n}\r\
+    \n\r\
+    \n# First resources set\r\
+    \n:local baseUrl \"https://raw.githubusercontent.com/Medium1992/MikroTik_DNS_FWD/refs/heads/main/for_scripts\"\r\
+    \n\r\
+    \n:local resources {\r\
+    \n\"youtube\";\r\
+    \n\"meta\";\r\
+    \n\"netflix\";\r\
+    \n\"discord\";\r\
+    \n\"rutracker\";\r\
+    \n\"torrent\";\r\
+    \n\"adguard\";\r\
+    \n\"anime\";\r\
+    \n\"deepl\";\r\
+    \n\"category-ai-!cn\";\r\
+    \n\"openai\";\r\
+    \n\"google-gemini\";\r\
+    \n\"canva\";\r\
+    \n\"art\";\r\
+    \n\"tidal\";\r\
+    \n\"tiktok\";\r\
+    \n\"music\";\r\
+    \n\"tmdb\";\r\
+    \n\"x\";\r\
+    \n\"kinopub\";\r\
+    \n\"xhamster\";\r\
+    \n\"porn\";\r\
+    \n\"video\";\r\
+    \n\"anthropic\";\r\
+    \n\"xai\";\r\
+    \n\"notion\";\r\
+    \n\"twitch\";\r\
+    \n\"supercell\";\r\
+    \n\"xbox\";\r\
+    \n\"pornhub\";\r\
+    \n}\r\
+    \n\r\
+    \n\$LoadRscResources resources=\$resources baseUrl=\$baseUrl\r\
+    \n\r\
+    \n# Second resources\r\
+    \n:local baseUrl \"https://raw.githubusercontent.com/Medium1992/mihomo-proxy-ros/refs/heads/main/custom_list\"\r\
+    \n\r\
+    \n:local resources {\r\
+    \n\"domain_custom\";\r\
+    \n}\r\
+    \n\r\
+    \n\$LoadRscResources resources=\$resources baseUrl=\$baseUrl\r\
+    \n"
+/system script add dont-require-permissions=no name=FWD_update_RU owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source="# Define global variables\r\
+    \n:global AddressList \"\"\r\
+    \n:global ForwardTo \"Yandex\"\r\
+    \n\r\
+    \n# List of resources corresponding to RSC files\r\
+    \n:global resources {\r\
+    \n\"category-gov-ru\";\r\
+    \n\"category-bank-ru\";\r\
+    \n\"category-retail-ru\";\r\
+    \n\"category-travel-ru\";\r\
+    \n\"category-ecommerce-ru\";\r\
+    \n\"category-entertainment-ru\";\r\
+    \n\"mailru-group\";\r\
+    \n\"vk\";\r\
+    \n\"ok\";\r\
+    \n\"yandex\";\r\
+    \n\"ozon\";\r\
+    \n\"wildberries\";\r\
+    \n\"x5\";\r\
+    \n\"okko\";\r\
+    \n\"kinopoisk\";\r\
+    \n}\r\
+    \n\r\
+    \n# Base URL for RSC files\r\
+    \n:local baseUrl \"https://raw.githubusercontent.com/Medium1992/MikroTik_DNS_FWD/refs/heads/main/for_scripts\"\r\
+    \n\r\
+    \n:foreach resource in=\$resources do={\r\
+    \n:local url \"\$baseUrl/\$resource.rsc\"\r\
+    \n:do {\r\
+    \n:local r [/tool fetch url=\$url mode=https output=user as-value]\r\
+    \n:if ((\$r->\"status\")=\"finished\") do={\r\
+    \n:local content (\$r->\"data\")\r\
+    \n:local s [:parse \$content]\r\
+    \n\$s\r\
+    \n:log warning \"\$resource.rsc loading completed\"\r\
+    \n:put \"\$resource.rsc loading completed\"\r\
+    \n}\r\
+    \n} on-error {}\r\
+    \n:local part 1\r\
+    \n:local continue true\r\
+    \n:while (\$continue) do={\r\
+    \n:local url \"\$baseUrl/\$resource_part\$part.rsc\"\r\
+    \n:do {\r\
+    \n:local r [/tool fetch url=\$url mode=https output=user as-value]\r\
+    \n:if ((\$r->\"status\")=\"finished\") do={\r\
+    \n:local content (\$r->\"data\")\r\
+    \n:local s [:parse \$content]\r\
+    \n\$s\r\
+    \n:log warning \"\$resource.rsc part\$part loading completed\"\r\
+    \n:put \"\$resource.rsc part\$part loading completed\"\r\
+    \n}\r\
+    \n:set part (\$part + 1)\r\
+    \n} on-error {\r\
+    \n:set continue false\r\
+    \n}\r\
+    \n}\r\
+    \n}"
+/system script add dont-require-permissions=no name=route_UP owner=owner policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon source=":global comments {\
+    \n\"MihomoProxyRoS0\";\
+    \n\"MihomoProxyRoS1\";\
+    \n}\
+    \n:foreach i in=\$comments do={\
+    \n/ip/route/set [find where comment=\$i disabled=yes] disabled=no\
+    \n}"
+/app set cinny firewall-redirects=8094:80:tcp:web
+/app set goaway container-command-lines=goaway:none:docker.io/pommee/goaway:latest
+/app set home-assistant container-command-lines=home-assistant:none:lscr.io/linuxserver/homeassistant
+/app set lorawan-stack secrets=lorawan-stack__admin_password:IpwxfIUrBOCjZeglvCzCIttZzWVArOhq
+/app set n8n firewall-redirects=5678:5678:tcp:web
+/app set nextcloud container-command-lines="db:none:docker.io/postgres:17,redis:none:docker.io/valkey/valkey:/bin/sh -c 'valkey-server --port 6379 --appendonly yes --requirepass \$VALKEY_PASSWORD',server:none:docker.io/nextcloud:apache"
+/app set pihole environment="pihole:FTLCONF_dns_listeningMode=all,pihole:FTLCONF_webserver_api_password=password"
+/app set redlib firewall-redirects=8087:8080:tcp:web
+/app set solr container-command-lines=solr:none:docker.io/solr:latest
+/app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
+/app set zulip secrets=zulip__postgres_password:cUhgxfvQLTboiACOJlKcFYoTqDKNEjuD,zulip__memcached_password:HEWYBvvEZdmFKADQxUkULbCaqrMXsDMR,zulip__rabbitmq_password:BqzsksjaSUMFrhDyAqjppwZVBCuCZzBZ,zulip__redis_password:PLwnoKoxBavGiAqvuYliAnZkyQBdZoYh,zulip__secret_key:yTcEBcHOuKtApzLcQytZGsShDcLsSblR,zulip__email_password:eIdQXBXmdgBPABKyRPhNLBVWgvFAjbtF
+/app settings set lan-bridge=main-infrastructure-br
+/certificate settings set builtin-trust-store=all
+/container config set registry-url=https://dh-mirror.gitverse.ru tmpdir=/RAM
+/container envs add key=AI_AS list=MihomoProxyRoS value=AS399358,AS60808
+/container envs add key=AI_GEOSITE list=MihomoProxyRoS value=category-ai-!cn,openai,google-gemini,anthropic
+/container envs add key=AI_IPCIDR list=MihomoProxyRoS value=216.73.216.0/22
+/container envs add key=BASIC_AUTH_HASH list=MihomoProxyRoS value="\$1\$aa4w45bg\$IaUws.TSv8uVXViLZ9dsx1"
+/container envs add key=BASIC_AUTH_USER list=MihomoProxyRoS value=owner
+/container envs add key=BYEDPI_CMD list=MihomoProxyRoS value="-Ku -a1 -An -d1 -s1+s -d3+s -s6+s -d9+s -s12+s -d15+s -s20+s -d25+s -s30+s -d35+s -At,r,s -s1 -q1 -At,r,s -s5 -o2 -At,r,s -o1 -d1 -r1+s -s1+s -d3+s -At,r,s -f-1 -r1+s -At,r,s -s1 -o1+s -s-1"
+/container envs add key=DISCORD_GEOIP list=MihomoProxyRoS value=discord
+/container envs add key=DISCORD_GEOSITE list=MihomoProxyRoS value=discord
+/container envs add key=FAKE_IP_FILTER1 list=MihomoProxyRoS value=DOMAIN,www.youtube.com,real-ip
+/container envs add key=FAKE_IP_RANGE list=MihomoProxyRoS value=198.18.0.0/15
+/container envs add key=FAKE_IP_TTL list=MihomoProxyRoS value=10
+/container envs add key=GROUP list=MihomoProxyRoS value=YouTube,Telegram,Discord,META,SuperCell,AI,Twitch
+/container envs add key=LINK1 list=MihomoProxyRoS value=""
+/container envs add key=LOG_LEVEL list=MihomoProxyRoS value=error
+/container envs add key=META_AS list=MihomoProxyRoS value=AS32934,AS54115,AS63293
+/container envs add key=META_GEOIP list=MihomoProxyRoS value=facebook
+/container envs add key=META_GEOSITE list=MihomoProxyRoS value=meta
+/container envs add key=META_IPCIDR list=MihomoProxyRoS value=41.189.185.0/24,202.59.209.0/24,223.27.200.0/24,223.27.237.0/24
+/container envs add key=NAMESERVER_POLICY list=MihomoProxyRoS value=tmdb-image-prod.b-cdn.net#https://dns.quad9.net/dns-query,+.themoviedb.org#https://dns.quad9.net/dns-query,+.tmdb.org#https://dns.quad9.net/dns-query,rule-set:META_geosite_meta#https://dns.quad9.net/dns-query
+/container envs add key=RULES1 list=MihomoProxyRoS value="AND,((NETWORK,udp),(DST-PORT,443)),REJECT"
+/container envs add key=SUB_LINK1 list=MihomoProxyRoS value=""
+/container envs add key=SUPERCELL_GEOSITE list=MihomoProxyRoS value=supercell
+/container envs add key=TELEGRAM_AS list=MihomoProxyRoS value=AS62041,AS59930,AS62014,AS211157,AS44907
+/container envs add key=TELEGRAM_GEOIP list=MihomoProxyRoS value=telegram
+/container envs add key=TELEGRAM_GEOSITE list=MihomoProxyRoS value=telegram
+/container envs add key=TELEGRAM_IPCIDR list=MihomoProxyRoS value=109.239.140.0/24,5.28.192.0/18,194.221.61.2/32,172.121.110.0/24,142.252.197.0/24
+/container envs add key=TWITCH_GEOSITE list=MihomoProxyRoS value=twitch
+/container envs add key=YOUTUBE_GEOSITE list=MihomoProxyRoS value=youtube
+/container envs add key=ZAPRET2_CMD list=MihomoProxyRoS value=""
+/container envs add key=ZAPRET_CMD list=MihomoProxyRoS value=""
+/disk settings set auto-media-interface=main-infrastructure-br
+/ip smb set domain=HNW enabled=yes interfaces=main-infrastructure-br
+/interface bridge port add bridge=main-infrastructure-br interface=lan-poe-in trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface=lan-poe-out trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface=wlan-5Ghz trusted=yes
+/interface bridge port add bridge=main-infrastructure-br interface=wlan-2Ghz trusted=yes
+/interface bridge settings set use-ip-firewall=yes
+/ip firewall connection tracking set enabled=yes tcp-established-timeout=15m udp-timeout=10s
+/ip neighbor discovery-settings set discover-interface-list=list-neighbors-lookup
+/ip settings set accept-source-route=yes rp-filter=loose tcp-syncookies=yes
+/ipv6 settings set disable-ipv6=yes
+/interface detect-internet set lan-interface-list=list-lan wan-interface-list=list-wan
+/interface list member add interface=main-infrastructure-br list=list-neighbors-lookup
+/interface list member add interface=main-infrastructure-br list=list-winbox-allowed
+/interface list member add interface=main-infrastructure-br list=list-lan
+/interface list member add interface=MihomoProxyRoS list=list-mihomo-accept
+/interface list member add interface=MihomoProxyRoS list=list-containers
+/interface wifi access-list add action=accept comment=MbpAlxm disabled=no mac-address=BC:D0:74:0A:B2:6A
+/interface wifi access-list add action=accept comment=iPhoneAlxr disabled=no mac-address=DC:10:57:2D:39:7B
+/interface wifi access-list add action=accept comment=HuaweiNbk disabled=no mac-address=4C:5F:70:97:DD:99
+/interface wifi capsman set interfaces=wlan-2Ghz
+/ip address add address=172.30.30.1/24 comment="local ip" interface=main-infrastructure-br network=172.30.30.0
+/ip address add address=10.255.255.5 comment="router id" interface=ospf-lo network=10.255.255.5
+/ip address add address=192.168.255.1/30 comment=MihomoProxyRoS interface=MihomoProxyRoS network=192.168.255.0
+/ip arp add address=172.30.30.30 interface=main-infrastructure-br mac-address=48:A9:8A:98:92:5C
+/ip cloud set ddns-enabled=yes ddns-update-interval=10m
+/ip dhcp-server lease add address=172.30.30.70 client-id=1:6c:1f:f7:60:69:71 comment="MbpAlxm(wired)" mac-address=6C:1F:F7:60:69:71 server=main-dhcp-server
+/ip dhcp-server lease add address=172.30.30.65 client-id=MbpAlxm comment="MbpAlxm(wireless)" mac-address=BC:D0:74:0A:B2:6A server=main-dhcp-server
+/ip dhcp-server lease add address=172.30.30.30 client-id=1:48:a9:8a:98:92:5c comment=ATL mac-address=48:A9:8A:98:92:5C server=main-dhcp-server
+/ip dhcp-server matcher add address-pool=dhcp-pool-androids code=60 matching-type=substring name=detect-android server=main-dhcp-server value=android-dhcp
+/ip dhcp-server matcher add address-pool=dhcp-pool-iphones code=12 matching-type=substring name=detect-iphone-host-name server=main-dhcp-server value=iPhone
+/ip dhcp-server matcher add address-pool=dhcp-pool-iphones code=60 matching-type=substring name=detect-iphone-vendor-class server=main-dhcp-server value=AAPL
+/ip dhcp-server network add address=172.30.30.0/27 caps-manager=172.30.30.1 comment="Network devices, CCTV" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=172.30.30.1 gateway=172.30.30.1 netmask=24 ntp-server=172.30.30.1
+/ip dhcp-server network add address=172.30.30.32/27 caps-manager=172.30.30.1 comment="Virtual machines" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=172.30.30.1 gateway=172.30.30.1 netmask=24 ntp-server=172.30.30.1
+/ip dhcp-server network add address=172.30.30.64/26 caps-manager=172.30.30.1 comment="Mac, Pc" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=172.30.30.1 gateway=172.30.30.1 netmask=24 ntp-server=172.30.30.1
+/ip dhcp-server network add address=172.30.30.128/27 caps-manager=172.30.30.1 comment="Phones, tablets" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=172.30.30.1 gateway=172.30.30.1 netmask=24 ntp-server=172.30.30.1
+/ip dhcp-server network add address=172.30.30.160/27 caps-manager=172.30.30.1 comment="IoT, intercom" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=172.30.30.1 gateway=172.30.30.1 netmask=24 ntp-server=172.30.30.1
+/ip dhcp-server network add address=172.30.30.192/27 caps-manager=172.30.30.1 comment="TV, projector, boxes" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=172.30.30.1 gateway=172.30.30.1 netmask=24 ntp-server=172.30.30.1
+/ip dhcp-server network add address=172.30.30.224/27 caps-manager=172.30.30.1 comment="Reserved, special" dhcp-option=DomainName_Windows,DomainName_LinuxMac dns-server=172.30.30.1 gateway=172.30.30.1 netmask=24 ntp-server=172.30.30.1
+/ip dns set address-list-extra-time=30s allow-remote-requests=yes cache-max-ttl=1d cache-size=15000KiB doh-max-concurrent-queries=500 doh-max-server-connections=10 max-concurrent-queries=200 max-concurrent-tcp-sessions=30 mdns-repeat-ifaces=main-infrastructure-br query-server-timeout=3s servers=10.153.3.212,77.88.8.1 verify-doh-cert=yes
+/ip dns adlist add url=https://schakal.hopto.org/alive_hosts.txt
+/ip dns static add address=1.0.0.1 comment="Forwarder bind - DNS CloudFlare" name=cloudflare-dns.com type=A
+/ip dns static add address=9.9.9.9 comment="Forwarder bind - DNS Quad9" name=dns.quad9.net type=A
+/ip dns static add address=149.112.112.112 comment="Forwarder bind - DNS Quad9" name=dns.quad9.net type=A
+/ip dns static add address=195.133.25.16 comment="Forwarder bind - DNS Comss" name=router.comss.one type=A
+/ip dns static add address=1.1.1.1 comment="Forwarder bind - DNS CloudFlare" name=cloudflare-dns.com type=A
+/ip dns static add address=8.8.8.8 comment="Forwarder bind - DNS Google" name=dns.google type=A
+/ip dns static add address=8.8.4.4 comment="Forwarder bind - DNS Google" name=dns.google type=A
+/ip dns static add address=172.30.30.1 match-subdomain=yes name=capax.home type=A
+/ip dns static add cname=capax.home name=capax type=CNAME
+/ip dns static add cname=capax.home name=mihomo.capax.home type=CNAME
+/ip dns static add address=192.168.90.70 name=minialx.home type=A
+/ip dns static add cname=minialx.home name=minialx type=CNAME
+/ip dns static add address=192.168.90.40 name=nas.home type=A
+/ip dns static add cname=nas.home name=nas type=CNAME
+/ip dns static add address=192.168.99.1 name=mikrouter.home type=A
+/ip dns static add cname=mikrouter.home name=mikrouter type=CNAME
+/ip dns static add address=192.168.90.1 name=anna.home type=A
+/ip dns static add cname=anna.home name=anna type=CNAME
+/ip dns static add address=192.168.90.2 name=wb.home type=A
+/ip dns static add cname=wb.home name=wb type=CNAME
+/ip dns static add address=192.168.97.1 name=chr.home type=A
+/ip dns static add cname=chr.home name=chr type=CNAME
+/ip dns static add address=192.168.90.10 name=capxl.home type=A
+/ip dns static add cname=capxl.home name=capxl type=CNAME
+/ip dns static add address=192.168.90.85 name=MbpAlxm.home type=A
+/ip dns static add cname=MbpAlxm.home name=MbpAlxm type=CNAME
+/ip dns static add cname=victoria.home name=victoria type=CNAME
+/ip dns static add address=192.168.90.1 name=victoria.home type=A
+/ip dns static add forward-to=DNS-Mihomo match-subdomain=yes name=pool.ntp.org type=FWD
+/ip dns static add comment="Non-Existent Domain" disabled=yes name=mask.icloud.com type=NXDOMAIN
+/ip dns static add comment="Non-Existent Domain" disabled=yes name=mask-h2.icloud.com type=NXDOMAIN
+/ip dns static add comment="Non-Existent Domain" disabled=yes name=doh.dns.apple.com type=NXDOMAIN
+/ip dns static add comment="Non-Existent Domain" disabled=yes name=dns.apple.com type=NXDOMAIN
+/ip dns static add cname=box.ntc.party comment=NTCParty name=ntc.party type=CNAME
+/ip dns static add comment=https://common.dot.dns.yandex.net/dns-query name="ya DOH" text="" type=TXT
+/ip dns static add address=172.30.30.30 name=atl.home type=A
+/ip dns static add cname=atl.home name=atl type=CNAME
+/ip firewall address-list add address=www.youtube.com comment=YT_MSS list=alist-mangle-YT
+/ip firewall address-list add address=www.youtube.com comment=YT list=alist-mangle-mihomo
+/ip firewall address-list add address=17.248.214.0/24 list=alist-apple
+/ip firewall filter add action=accept chain=input
+/ip firewall mangle add action=change-mss chain=forward comment="Fix YT mss for TVs" connection-state=new disabled=yes dst-address-list=alist-mangle-YT in-interface=MihomoProxyRoS new-mss=88 protocol=tcp tcp-flags=syn
+/ip firewall mangle add action=accept chain=prerouting comment="Accept w\\o connection mark" connection-mark=no-mark connection-state=established disabled=yes
+/ip firewall mangle add action=accept chain=prerouting comment="Allow WAN and Containers" disabled=yes in-interface-list=list-mihomo-accept
+/ip firewall mangle add action=mark-routing chain=prerouting comment=RoutingToMihomo2 connection-mark=cmark-mihomo disabled=yes in-interface-list=list-mihomo-LAN new-routing-mark=via-mihomo passthrough=no
+/ip firewall mangle add action=mark-connection chain=prerouting comment=MarkConnAddressList connection-mark=no-mark connection-state=new disabled=yes dst-address-list=alist-mangle-mihomo in-interface-list=list-mihomo-LAN new-connection-mark=cmark-mihomo
+/ip firewall mangle add action=jump chain=prerouting comment=chain-conn-marking connection-mark=no-mark connection-state=new in-interface-list=list-lan jump-target=chain-conn-marking
+/ip firewall mangle add action=mark-connection chain=chain-conn-marking comment=chain-conn-marking-apple dst-address-list=alist-apple new-connection-mark=cmark-apple
+/ip firewall mangle add action=return chain=chain-conn-marking comment=chain-conn-marking
+/ip firewall mangle add action=mark-routing chain=prerouting comment=RoutingToMihomo1 connection-mark=cmark-mihomo disabled=yes in-interface-list=list-mihomo-LAN new-routing-mark=via-mihomo passthrough=no
+/ip firewall nat add action=redirect chain=dstnat comment="NTP mikrotik time server" dst-address-type=!local dst-port=123 in-interface-list=list-lan log-prefix="NTP redirect" protocol=udp
+/ip firewall service-port set ftp disabled=yes
+/ip firewall service-port set tftp disabled=yes
+/ip firewall service-port set h323 disabled=yes
+/ip firewall service-port set sip disabled=yes
+/ip firewall service-port set pptp disabled=yes
+/ip hotspot service-port set ftp disabled=yes
+/ip kid-control device add mac-address=BC:D0:74:0A:B2:6A name="MbpAlxm(wireless)" user=Alx
+/ip kid-control device add mac-address=6C:1F:F7:60:69:71 name="MbpAlx(wired)" user=Alx
+/ip kid-control device add mac-address=48:A9:8A:98:92:5C name=ATL user=Alx
+/ip reverse-proxy add certificate=WiFi-CAPsMAN-04F41C7EF11F comment=https://mihomo.capax.home ip-address=192.168.255.2 port=80 sni=mihomo.capax.home
+/ip route add check-gateway=ping comment="via ATL" disabled=no distance=1 dst-address=0.0.0.0/0 gateway=172.30.30.30 pref-src=172.30.30.1 routing-table=main scope=30 target-scope=10
+/ip route add blackhole comment="BlackHole - MAIN" disabled=no distance=254 dst-address=10.0.0.0/8 gateway="" routing-table=main
+/ip route add blackhole comment="BlackHole - MAIN" disabled=no distance=254 dst-address=172.16.0.0/12 gateway="" routing-table=main
+/ip route add blackhole comment="BlackHole - MAIN" disabled=no distance=254 dst-address=192.168.0.0/16 gateway="" routing-table=main
+/ip route add comment="via MIHO (0)" disabled=no distance=1 dst-address=0.0.0.0/0 gateway=192.168.255.2 routing-table=via-mihomo scope=30 target-scope=10
+/ip route add blackhole comment="BlackHole - MIHO" disabled=no distance=254 dst-address=10.0.0.0/8 gateway="" routing-table=via-mihomo
+/ip route add blackhole comment="BlackHole - MIHO" disabled=no distance=254 dst-address=172.16.0.0/12 gateway="" routing-table=via-mihomo
+/ip route add blackhole comment="BlackHole - MIHO" disabled=no distance=254 dst-address=192.168.0.0/16 gateway="" routing-table=via-mihomo
+/ip route add comment="via MIHO (1)" disabled=no distance=1 dst-address=198.18.0.0/15 gateway=192.168.255.2 routing-table=main scope=30 target-scope=10
+/ip service set ftp disabled=yes
+/ip service set telnet disabled=yes
+/ip service set api disabled=yes
+/ip service set api-ssl disabled=yes
+/ip smb shares set [ find default=yes ] disabled=no
+/ip ssh set ciphers=aes-gcm,aes-ctr,aes-cbc,3des-cbc,null forwarding-enabled=remote
+/ppp secret add comment="used by \$SECRET" name=TELEGRAM_TOKEN password=8954042546:AAHg_MJ7sK4sUFKSvcQ1YsGAnep_UYnuBO0 profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=TELEGRAM_CHAT_ID password=-1001798127067 profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=BACKUP_PASSWORD password=RHWbJxAje profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_PASSWORD password=RHWbJxAje profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_PORT password=2223 profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_USER password=automation profile=null service=async
+/ppp secret add comment="used by \$SECRET" name=SSH_SERVER password=usetheforce.io profile=null service=async
+/snmp set contact=defm.kopcap@gmail.com location=RU
+/system clock set time-zone-name=Europe/Moscow
+/system identity set name=capax
+/system leds settings set all-leds-off=immediate
+/system logging add action=IpsecOnScreenLog topics=ipsec,!debug
+/system logging add action=ErrorDiskLog topics=critical
+/system logging add action=ErrorDiskLog topics=error
+/system logging add action=ScriptsDiskLog topics=script
+/system logging add action=DHCPOnScreenLog topics=dhcp
+/system logging add action=DNSOnScreenLog topics=dns,!packet
+/system logging add action=OSPFOnscreenLog topics=ospf,!raw
+/system logging add action=L2TPOnScreenLog topics=l2tp
+/system logging add action=AuthDiskLog topics=account
+/system logging add action=CertificatesOnScreenLog topics=certificate
+/system logging add action=AuthDiskLog topics=manager
+/system logging add action=ParseMemoryLog topics=warning
+/system logging add action=CAPSOnScreenLog topics=caps
+/system logging add action=FirewallOnScreenLog topics=firewall
+/system logging add action=CAPSOnScreenLog topics=wireless
+/system logging add action=ParseMemoryLog topics=system
+/system logging add action=SSHOnScreenLog topics=ssh,!packet
+/system logging add action=PoEOnscreenLog topics=poe-out
+/system logging add action=EmailOnScreenLog topics=e-mail
+/system logging add action=ParseMemoryLog topics=error
+/system logging add action=ParseMemoryLog topics=account
+/system logging add action=ParseMemoryLog topics=critical
+/system logging add action=TransfersOnscreenLog topics=fetch,!raw
+/system logging add action=PKGInstallationLog regex="^.*install.*\$"
+/system logging add action=REBOOTDiskLog regex="^.*reboot.*\$" topics=!dhcp
+/system logging add action=PKGInstallationLog regex="^.*package.*\$"
+/system logging add action=DockerOnscreenLog topics=container
+/system logging add action=VictoriaRemoteLog topics=!packet,!debug,!raw,!dns,!firewall,!ssh
+/system logging add action=REBOOTDiskLog regex="^.*supout.*\$"
+/system logging add action=OnScreenLog topics=!debug,!packet,!raw,!dns,!ssh,!firewall
+/system logging add action=AuthDiskLog regex="^.*login.*\$"
+/system logging add topics=netwatch
+/system note set note="Ipsec:         okay \
+    \nRoute:     172.30.30.30 \
+    \nVersion:         7.23.1 \
+    \nUptime:        00:09:14  \
+    \nTime:        2026-09-13 21:23:04  \
+    \nPing:    0 ms  \
+    \nChr:        185.13.148.14  \
+    \nMik:        178.65.91.156  \
+    \nAnna:        46.39.51.201  \
+    \nClock:        synchronized  \
+    \n * zerotier  \
+    \n * wifi-qcom  \
+    \n * container  \
+    \n * routeros  \
+    \n" show-at-cli-login=yes
+/system ntp client set enabled=yes
+/system ntp server set enabled=yes manycast=yes
+/system ntp client servers add address=85.21.78.91
+/system ntp client serv
