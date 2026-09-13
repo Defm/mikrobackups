@@ -1,4 +1,4 @@
-# 2026-09-13 21:28:51 by RouterOS 7.23.1
+# 2026-09-13 21:31:20 by RouterOS 7.23.1
 # software id = DLYF-EX6C
 #
 # model = cAPGi-5HaxD2HaxD
@@ -2227,14 +2227,14 @@
 /app set cinny firewall-redirects=8094:80:tcp:web
 /app set goaway container-command-lines=goaway:none:docker.io/pommee/goaway:latest
 /app set home-assistant container-command-lines=home-assistant:none:lscr.io/linuxserver/homeassistant
-/app set lorawan-stack secrets=lorawan-stack__admin_password:IpwxfIUrBOCjZeglvCzCIttZzWVArOhq
+/app set lorawan-stack secrets=lorawan-stack__admin_password:GeFnKFvSDJhIwDrUqgupSXsDOdIHfGoT
 /app set n8n firewall-redirects=5678:5678:tcp:web
 /app set nextcloud container-command-lines="db:none:docker.io/postgres:17,redis:none:docker.io/valkey/valkey:/bin/sh -c 'valkey-server --port 6379 --appendonly yes --requirepass \$VALKEY_PASSWORD',server:none:docker.io/nextcloud:apache"
 /app set pihole environment="pihole:FTLCONF_dns_listeningMode=all,pihole:FTLCONF_webserver_api_password=password"
 /app set redlib firewall-redirects=8087:8080:tcp:web
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
-/app set zulip secrets=zulip__postgres_password:cUhgxfvQLTboiACOJlKcFYoTqDKNEjuD,zulip__memcached_password:HEWYBvvEZdmFKADQxUkULbCaqrMXsDMR,zulip__rabbitmq_password:BqzsksjaSUMFrhDyAqjppwZVBCuCZzBZ,zulip__redis_password:PLwnoKoxBavGiAqvuYliAnZkyQBdZoYh,zulip__secret_key:yTcEBcHOuKtApzLcQytZGsShDcLsSblR,zulip__email_password:eIdQXBXmdgBPABKyRPhNLBVWgvFAjbtF
+/app set zulip secrets=zulip__postgres_password:jcNHgiuYzCZGxfOforNRaDSECXISPXPN,zulip__memcached_password:hOMIaRhwIzxNwPOCRZQqPPjtMyqASWeC,zulip__rabbitmq_password:iirRktUGjTNKypxKXPNbWBRSRIQNslKW,zulip__redis_password:JMkJrJexCuBLaanLmOypaTNtashTRjnj,zulip__secret_key:mDjTMtjwFIsqSBUoPOKGEGJkiRdseBwW,zulip__email_password:CzYXZJQHGJPKjExpPlwecbwpYyzeFkVk
 /app settings set lan-bridge=main-infrastructure-br
 /certificate settings set builtin-trust-store=all
 /container config set registry-url=https://dh-mirror.gitverse.ru tmpdir=/RAM
@@ -2446,4 +2446,28 @@
 /system ntp client set enabled=yes
 /system ntp server set enabled=yes manycast=yes
 /system ntp client servers add address=85.21.78.91
-/system ntp client serv
+/system ntp client servers add address=ru.pool.ntp.org
+/system ntp client servers add address=ntp.msk-ix.ru
+/system ntp client servers add address=ntp1.vniiftri.ru
+/system ntp client servers add address=ntp2.vniiftri.ru
+/system ntp client servers add address=ntp3.vniiftri.ru
+/system ntp client servers add address=ntp4.vniiftri.ru
+/system package update set mode=http
+/system routerboard mode-button set enabled=yes
+/system routerboard settings set auto-upgrade=yes
+/system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-04-15 start-time=17:52:52
+/system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-05-02 start-time=22:00:00
+/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=15:55:00
+/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-06-26 start-time=21:13:00
+/system scheduler add interval=1d name=doLEDoff on-event="/system script run doLEDoff" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=23:30:00
+/system scheduler add interval=1d name=doLEDon on-event="/system script run doLEDon" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-09-09 start-time=07:00:00
+/system scheduler add interval=15m name=doCPUHighLoadReboot on-event="/system script run doCPUHighLoadReboot" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-02-07 start-time=06:05:00
+/system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=08:00:00
+/system scheduler add name=doStartupScript on-event="/system script run doStartupScript;" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add interval=30m name=doCloudBackup on-event="/system script run doCloudBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2026-05-11 start-time=21:13:00
+/system scheduler add name=MihomoProxyRoS_repull on-event="/system/script/run MihomoProxyRoS_repull" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/tool bandwidth-server set enabled=no
+/tool e-mail set certificate-verification=no from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=yes user=defm.kopcap@gmail.com
+/tool graphing interface add
+/tool graphing resource add
+/tool mac-server set allowed-interface-list=none
