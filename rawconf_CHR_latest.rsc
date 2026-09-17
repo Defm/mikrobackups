@@ -1,4 +1,4 @@
-# 2026-09-12 21:13:02 by RouterOS 7.23.1
+# 2026-09-17 21:13:02 by RouterOS 7.24.2
 # system id = pEDSXaHXN3J
 #
 # custom default configuration script installed
@@ -12,18 +12,20 @@
 /interface l2tp-server add disabled=yes name=rw-alx user=vpn-user-alx
 /interface l2tp-server add name=tunnel-anna user=vpn-remote-anna
 /interface l2tp-server add disabled=yes name=tunnel-mikrotik user=vpn-remote-mic
-/interface veth add address=172.17.0.4/29 container-mac-address=22:35:59:47:36:AD dhcp=no gateway=172.17.0.1 gateway6="" mac-address=22:35:59:47:36:AC name=veth-caddy
-/interface veth add address=172.17.0.5/29 container-mac-address=12:A7:68:6A:F3:73 dhcp=no gateway=172.17.0.1 gateway6="" mac-address=12:A7:68:6A:F3:72 name=veth-gitwatch
+/interface veth add address=172.17.0.4/28 container-mac-address=22:35:59:47:36:AD dhcp=no gateway=172.17.0.1 gateway6="" mac-address=22:35:59:47:36:AC name=veth-caddy
+/interface veth add address=172.17.0.5/28 container-mac-address=12:A7:68:6A:F3:73 dhcp=no gateway=172.17.0.1 gateway6="" mac-address=12:A7:68:6A:F3:72 name=veth-gitwatch
 /interface veth add address=192.168.97.4/29 container-mac-address=2E:DD:B8:89:61:B9 dhcp=no gateway=192.168.97.1 gateway6="" mac-address=2E:DD:B8:89:61:B8 name=veth-haproxy
-/interface veth add address=172.17.0.2/29 container-mac-address=26:8A:0C:A0:3E:3B dhcp=no gateway=172.17.0.1 gateway6="" mac-address=26:8A:0C:A0:3E:3A name=veth-telemt
-/interface veth add address=172.17.0.3/29 container-mac-address=30:A6:92:7E:80:32 dhcp=no gateway=172.17.0.1 gateway6="" mac-address=30:A6:92:7E:80:31 name=veth-telemt-webui
-/interface wireguard add listen-port=65114 mtu=1420 name=wg-to-capax private-key="03n33pIsv9MIDWss0bDxyZ0/0xsXo2OvEBjCWOy/Hlw="
-/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 147309/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
+/interface veth add address=172.17.0.7/28 container-mac-address=36:5D:EA:5F:7B:3A dhcp=no gateway=172.17.0.1 gateway6="" mac-address=36:5D:EA:5F:7B:39 name=veth-hermes
+/interface veth add address=172.17.0.2/28 container-mac-address=26:8A:0C:A0:3E:3B dhcp=no gateway=172.17.0.1 gateway6="" mac-address=26:8A:0C:A0:3E:3A name=veth-telemt
+/interface veth add address=172.17.0.3/28 container-mac-address=30:A6:92:7E:80:32 dhcp=no gateway=172.17.0.1 gateway6="" mac-address=30:A6:92:7E:80:31 name=veth-telemt-webui
+/interface wireguard add listen-port=65114 mtu=1420 name=wg-to-capax private-key="0Hn33pIsv9MIDWss0bDxyZ0/0xsXo2OvEBjCWOy/Hlw="
+/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 5627/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
     \n" hostname=telemt interface=veth-telemt layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_VOLUMES name=telemt remote-image=ghcr.io/telemt/telemt:latest root-dir=/docker/runs/telemt start-on-boot=yes user=0:0 workdir=/tmp
 /container add check-certificate=no comment="MTProto telegram proxy web panel" dns=192.168.97.1 hostname=telemt-webui interface=veth-telemt-webui layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_WEBUI_VOLUMES name=telemt-webui remote-image=ghcr.io/amirotin/telemt_panel:latest root-dir=/docker/runs/telemt-webui start-on-boot=yes
 /container add check-certificate=no comment="Caddy web server and reverse proxy" dns=192.168.97.1 envlists=CADDY_ENVS hostname=caddy interface=veth-caddy layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=CADDY_VOLUMES name=caddy remote-image=caddy:latest root-dir=/docker/runs/caddy start-on-boot=yes user=0:0 workdir=/srv
 /container add check-certificate=no comment=HAproxy dns=192.168.97.1 hostname=haproxy interface=veth-haproxy layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=HAPROXY_VOLUMES name=haproxy remote-image=haproxy:latest root-dir=/docker/runs/haproxy start-on-boot=yes user=0:0 workdir=/var/lib/haproxy
 /container add check-certificate=no comment="gitwatch autocommit utility" dns=192.168.97.1 envlists=GITWATCH_ENVS hostname=gitwatch interface=veth-gitwatch layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=GITWATCH_VOLUMES name=gitwatch remote-image=ghcr.io/gitwatch/gitwatch:latest root-dir=/gitwatch start-on-boot=yes user=0:0
+/container add check-certificate=no cmd="hermes gateway run" comment="Hermes AI agent" dns=192.168.97.1 entrypoint="" envlists=HERMES_ENVS hostname=hermes interface=veth-hermes layer-dir=/docker/layers logging=yes mountlists=HERMES_VOLUMES name=hermes remote-image=docker.io/nousresearch/hermes-agent:latest root-dir=/docker/depl/hermes start-on-boot=yes workdir=/tmp
 /disk add file-path=/ssd/swap file-size=1023.6MiB media-interface=main-infrastructure-br slot=file-ssd-swap swap=yes type=file
 /disk add disabled=yes media-interface=main-infrastructure-br slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
 /interface list add comment="trusted interfaces" name=list-trusted
@@ -2497,15 +2499,13 @@
 /user group set write policy=local,telnet,ssh,read,write,test,winbox,password,web,sniff,api,romon,rest-api,!ftp,!reboot,!policy,!sensitive
 /app set cinny firewall-redirects=8094:80:tcp:web
 /app set goaway container-command-lines=goaway:none:docker.io/pommee/goaway:latest
+/app set hermes-agent network-outgoing-access=no
 /app set home-assistant container-command-lines=home-assistant:none:lscr.io/linuxserver/homeassistant
-/app set lorawan-stack secrets=lorawan-stack__admin_password:VgMlfWCaUPeQcZeogonxRgLPngvZDbXC
 /app set n8n firewall-redirects=5678:5678:tcp:web
 /app set nextcloud container-command-lines="db:none:docker.io/postgres:17,redis:none:docker.io/valkey/valkey:/bin/sh -c 'valkey-server --port 6379 --appendonly yes --requirepass \$VALKEY_PASSWORD',server:none:docker.io/nextcloud:apache"
-/app set pihole environment="pihole:FTLCONF_dns_listeningMode=all,pihole:FTLCONF_webserver_api_password=password"
 /app set redlib firewall-redirects=8087:8080:tcp:web
 /app set solr container-command-lines=solr:none:docker.io/solr:latest
 /app set uptime-kuma container-command-lines=uptime-kuma:none:docker.io/louislam/uptime-kuma:1
-/app set zulip secrets=zulip__postgres_password:GMZObeLInsrnLOJmBvRAWyCoENyKFpmL,zulip__memcached_password:xtnNiLbZODQLQXrVGzESZGWBOvGAWMMT,zulip__rabbitmq_password:IvVBlNvteJXhijruHvZTnKcFFbmjJjCx,zulip__redis_password:IWnfREHpOHPqvOvuClAKLhRiRcEMeUXR,zulip__secret_key:RFwajYYlRuavXhbuNYadCCbYHPpUdPHZ,zulip__email_password:ZXjIFaSAswLaGUJEQNvyeJJHQyYHJwZh
 /app settings set disk=ssd lan-bridge=main-infrastructure-br
 /certificate scep-server add ca-cert=ca@CHR days-valid=365 path=/scep/grant request-lifetime=5m
 /container config set layer-dir=/docker/layers memory-high=768.0MiB registry-url=https://registry-1.docker.io tmpdir=/docker/pulls
@@ -2520,6 +2520,20 @@
 /container envs add key=PULL_BEFORE_PUSH list=GITWATCH_ENVS value=true
 /container envs add key=SLEEP_TIME list=GITWATCH_ENVS value=40
 /container envs add key=VERBOSE list=GITWATCH_ENVS value=true
+/container envs add key=API_SERVER_CORS_ORIGINS list=HERMES_ENVS value=*
+/container envs add key=API_SERVER_ENABLED list=HERMES_ENVS value=true
+/container envs add key=API_SERVER_HOST list=HERMES_ENVS value=0.0.0.0
+/container envs add key=API_SERVER_KEY list=HERMES_ENVS value=1b1f78b8ed4a27222ffeac8f3640276966109486fe551f47dce31aa2b6f3a652
+/container envs add key=GATEWAY_ALLOW_ALL_USERS list=HERMES_ENVS value=true
+/container envs add key=HERMES_DASHBOARD list=HERMES_ENVS value=1
+/container envs add key=HERMES_DASHBOARD_BASIC_AUTH_PASSWORD list=HERMES_ENVS value=WSXWj+//8uR0WcsyTk52+2idMftvwC1U
+/container envs add key=HERMES_DASHBOARD_BASIC_AUTH_SECRET list=HERMES_ENVS value="BxYrrVZaY5liOg8YEsoLuhNX7FcsbkGxhDlJ1mcmXfM="
+/container envs add key=HERMES_DASHBOARD_BASIC_AUTH_USERNAME list=HERMES_ENVS value=hermes
+/container envs add key=HERMES_DASHBOARD_HOST list=HERMES_ENVS value=0.0.0.0
+/container envs add key=HERMES_DASHBOARD_PORT list=HERMES_ENVS value=9119
+/container envs add disabled=yes key=HERMES_HOME_MODE list=HERMES_ENVS value=0755
+/container envs add disabled=yes key=PGID list=HERMES_ENVS value=0
+/container envs add disabled=yes key=PUID list=HERMES_ENVS value=0
 /container envs add comment="debug, info" key=RUST_LOG list=TELEMT_ENVS value=debug
 /container mounts add dst=/srv list=CADDY_VOLUMES mode=ro src=/docker/runs/caddy/caddy_site
 /container mounts add dst=/data list=CADDY_VOLUMES src=/docker/runs/caddy/caddy_data
@@ -2527,13 +2541,13 @@
 /container mounts add dst=/etc/caddy list=CADDY_VOLUMES mode=ro src=/docker/runs/caddy/caddy_setup
 /container mounts add dst=/app/watched-repo list=GITWATCH_VOLUMES src=/REPO/raw
 /container mounts add dst=/usr/local/etc/haproxy list=HAPROXY_VOLUMES mode=ro src=/docker/runs/haproxy
+/container mounts add dst=/opt/data list=HERMES_VOLUMES src=/docker/runs/hermes1
 /container mounts add dst=/etc/telemt list=TELEMT_VOLUMES src=/docker/runs/telemt
 /container mounts add dst=/etc/telemt-panel/config.toml list=TELEMT_WEBUI_VOLUMES src=/docker/runs/telemt-webui/webui.toml
-/container mounts add disabled=yes dst=/etc/telemt list=TELEMT_WEBUI_VOLUMES src=/docker/runs/telemt
-/container mounts add disabled=yes dst=/etc/caddy list=TELEMT_WEBUI_VOLUMES src=/docker/runs/caddy/caddy_setup
 /disk settings set auto-media-interface=main-infrastructure-br
 /ip smb set domain=HNW interfaces=main-infrastructure-br
 /interface bridge port add bridge=docker-infrastructure-br interface=veth-telemt trusted=yes
+/interface bridge port add bridge=docker-infrastructure-br interface=veth-hermes trusted=yes
 /interface bridge port add bridge=docker-infrastructure-br interface=veth-gitwatch trusted=yes
 /interface bridge port add bridge=docker-infrastructure-br interface=veth-telemt-webui trusted=yes
 /interface bridge port add bridge=docker-infrastructure-br interface=veth-caddy trusted=yes
@@ -2570,7 +2584,7 @@
 /interface wireguard peers add allowed-address=172.30.30.0/24,10.0.0.5/32 client-allowed-address=::/0 endpoint-port=12000 interface=wg-to-capax name=capax persistent-keepalive=10s preshared-key="6PSob1UuVEIfEnWMGNK5BXd8buISTldvbKy9iIYvEmU=" public-key="rUDu2JBEFFtsgr3uZTGFBvWXTXolY2hYMUQo0/lTiBI="
 /ip address add address=192.168.97.1/29 comment="local IP" interface=main-infrastructure-br network=192.168.97.0
 /ip address add address=10.255.255.1 comment="router id" interface=ospf-lo network=10.255.255.1
-/ip address add address=172.17.0.1/29 comment="docker network" interface=docker-infrastructure-br network=172.17.0.0
+/ip address add address=172.17.0.1/28 comment="docker network" interface=docker-infrastructure-br network=172.17.0.0
 /ip address add address=10.0.0.1/28 comment=vpn interface=wg-to-capax network=10.0.0.0
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add add-default-route=no dhcp-options=clientid,hostname interface=wan name=wan
@@ -2594,6 +2608,7 @@
 /ip dns static add address=172.17.0.3 match-subdomain=yes name=webui.chr.home type=A
 /ip dns static add address=172.17.0.2 match-subdomain=yes name=telemt.chr.home type=A
 /ip dns static add address=172.17.0.4 match-subdomain=yes name=caddy.chr.home type=A
+/ip dns static add address=172.17.0.7 match-subdomain=yes name=hermes.chr.home type=A
 /ip dns static add cname=chr.home name=chr type=CNAME
 /ip dns static add address=192.168.90.10 name=capxl.home type=A
 /ip dns static add cname=capxl.home name=capxl type=CNAME
@@ -2919,9 +2934,7 @@
 /ip firewall mangle add action=mark-connection chain=forward comment="Mark IPsec" ipsec-policy=in,ipsec new-connection-mark=ipsec
 /ip firewall nat add action=masquerade chain=srcnat comment="fix the ntp client by changing its source port 123 with something higher (mikrotik forum 794718)" disabled=yes protocol=udp src-port=123 to-ports=12400-12440
 /ip firewall nat add action=masquerade chain=srcnat comment="NAT Loopback replace address" disabled=yes packet-mark=pmark-nat-loopback
-/ip firewall nat add action=masquerade chain=srcnat comment="CAPAX - VPN masq (WG)" disabled=yes in-interface=wg-to-capax
-/ip firewall nat add action=masquerade chain=srcnat comment="masq docker" src-address=172.17.0.0/29
-/ip firewall nat add action=dst-nat chain=dstnat comment="caddy 80,1443,8000,4430" disabled=yes dst-address-list=alist-nat-external-ip dst-port=80,1443,8000,4430 log=yes protocol=tcp to-addresses=172.17.0.4
+/ip firewall nat add action=masquerade chain=srcnat comment="masq docker" src-address=172.17.0.0/28
 /ip firewall nat add action=jump chain=dstnat comment=port-rdr-docker-chain jump-target=port-rdr-docker-chain protocol=tcp
 /ip firewall nat add action=jump chain=output comment="port-rdr-docker-chain (self)" jump-target=port-rdr-docker-chain protocol=tcp
 /ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment=port-rdr-docker-chain-haproxy-443 dst-address-list=alist-nat-external-ip dst-port=443 log=yes log-prefix=HAPRO protocol=tcp to-addresses=192.168.97.4 to-ports=443
@@ -2929,7 +2942,9 @@
 /ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment="port-rdr-docker-chain-caddy 80,1443 (tcp)" dst-address-list=alist-nat-external-ip dst-port=80,1443 log=yes protocol=tcp to-addresses=172.17.0.4
 /ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment="port-rdr-docker-chain-caddy 80,1443,8000,4430 (udp)" disabled=yes dst-port=80,1443,8000,4430 log=yes protocol=udp to-addresses=172.17.0.4
 /ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment="port-rdr-docker-chain-telemt (metrics)" dst-port=9090 protocol=tcp to-addresses=172.17.0.2 to-ports=9090
-/ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment="port-rdr-docker-chain-telemt (web ui) 8088" dst-port=8088 protocol=tcp to-addresses=172.17.0.3 to-ports=8088
+/ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment="port-rdr-docker-chain-telemt (web-ui) 8088" dst-port=8088 protocol=tcp to-addresses=172.17.0.3 to-ports=8088
+/ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment="port-rdr-docker-chain-hermes (open-AI API server) 8642" dst-port=8642 protocol=tcp to-addresses=172.17.0.7 to-ports=8642
+/ip firewall nat add action=dst-nat chain=port-rdr-docker-chain comment="port-rdr-docker-chain-hermes (dashi) 9119" dst-port=9119 protocol=tcp to-addresses=172.17.0.7 to-ports=9119
 /ip firewall nat add action=return chain=port-rdr-docker-chain comment=port-rdr-docker-chain
 /ip firewall nat add action=masquerade chain=srcnat comment="ANNA - VPN masq (pure L2TP, w/o IPSEC)" disabled=yes out-interface=tunnel-anna
 /ip firewall nat add action=masquerade chain=srcnat comment="MIK - VPN masq (pure L2TP, w/o IPSEC)" disabled=yes out-interface=tunnel-mikrotik
@@ -2949,16 +2964,18 @@
 /ip service set ssh port=2223
 /ip service set reverse-proxy certificate=chr.webserver@CHR port=4443 tls-version=only-1.2
 /ip service set www-ssl certificate=chr.webserver@CHR disabled=no port=5443
-/ip service set api disabled=yes
 /ip service set api-ssl disabled=yes tls-version=only-1.2
 /ip service set www port=8888
+/ip service set api port=56988
 /ip ssh set ciphers=aes-gcm,aes-ctr,aes-cbc,3des-cbc,null forwarding-enabled=remote password-authentication=yes
 /ip tftp add disabled=yes real-filename=NAS/ req-filename=.*
 /ip traffic-flow set cache-entries=64k interfaces=wan
 /ip upnp set show-dummy-rule=no
 /ip upnp interfaces add disabled=yes interface=wan type=external
 /ip upnp interfaces add disabled=yes interface=main-infrastructure-br type=internal
-/ipv6 nd set [ find default=yes ] advertise-dns=yes
+/ipv6 nd
+# automatic dns option advertising is not started, re-apply dns config
+set [ find default=yes ] advertise-dns=yes
 /ppp secret add local-address=10.0.0.1 name=vpn-remote-mic password=123 profile=l2tp-no-encrypt-site2site remote-address=10.0.0.2 service=l2tp
 /ppp secret add local-address=10.0.0.1 name=vpn-remote-anna password=123 profile=l2tp-no-encrypt-site2site remote-address=10.0.0.3 service=l2tp
 /ppp secret add disabled=yes local-address=10.0.0.1 name=vpn-user-alx profile=l2tp-no-encrypt-site2site remote-address=10.0.0.4 service=l2tp
@@ -3022,13 +3039,13 @@
 /system logging add action=AuthDiskLog regex="^.*login.*\$"
 /system note set note="Ipsec:         okay \
     \nRoute:     185.13.148.1 \
-    \nVersion:         7.23.1 \
-    \nUptime:        8w1d07:00:52  \
-    \nTime:        2026-09-12 21:10:12  \
+    \nVersion:         7.24.2 \
+    \nUptime:        3d00:15:54  \
+    \nTime:        2026-09-17 21:10:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.201  \
+    \nAnna:        46.39.51.194  \
     \nClock:        synchronized  \
     \n * routeros  \
     \n * container  \
@@ -3036,15 +3053,15 @@
 /system ntp client set enabled=yes
 /system ntp client servers add address=de.pool.ntp.org
 /system ntp client servers add address=ptbtime2.ptb.de
-/system scheduler add interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=2020-08-04 start-time=21:13:00
-/system scheduler add interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=15:55:00
-/system scheduler add interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=08:00:00
-/system scheduler add interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-05-07 start-time=09:00:00
-/system scheduler add name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
-/system scheduler add interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2022-01-26 start-time=14:34:19
-/system scheduler add interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-04-08 start-time=07:00:00
-/system scheduler add interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=2020-08-04 start-time=21:00:00
-/system scheduler add interval=30m name=doCloudBackup on-event="/system script run doCloudBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2026-02-04 start-time=18:48:55
+/system scheduler add !days interval=5d name=doBackup on-event="/system script run doBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=2020-08-04 start-time=21:13:00
+/system scheduler add !days interval=1w3d name=doRandomGen on-event="/system script run doRandomGen" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=15:55:00
+/system scheduler add !days interval=1d name=doFreshTheScripts on-event="/system script run doFreshTheScripts" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2018-03-01 start-time=08:00:00
+/system scheduler add !days interval=10m name=doIPSECPunch on-event="/system script run doIPSECPunch" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2019-05-07 start-time=09:00:00
+/system scheduler add !days name=doStartupScript on-event="/system script run doStartupScript" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-time=startup
+/system scheduler add !days interval=7m name=doUpdateExternalDNS on-event="/system script run doUpdateExternalDNS" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2022-01-26 start-time=14:34:19
+/system scheduler add !days interval=10m name=doCoolConsole on-event="/system script run doCoolConsole" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2023-04-08 start-time=07:00:00
+/system scheduler add !days interval=6h name=doFlushLogs on-event="/system script run doFlushLogs" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive start-date=2020-08-04 start-time=21:00:00
+/system scheduler add !days interval=30m name=doCloudBackup on-event="/system script run doCloudBackup" policy=ftp,reboot,read,write,policy,test,password,sniff,sensitive,romon start-date=2026-02-04 start-time=18:48:55
 /tool bandwidth-server set authenticate=no enabled=no
 /tool e-mail set certificate-verification=no from=defm.kopcap@gmail.com password=lpnaabjwbvbondrg port=587 server=smtp.gmail.com tls=starttls user=defm.kopcap@gmail.com
 /tool netwatch add disabled=no down-script=":global NetwatchHostName \"mikrouter.home\";\
