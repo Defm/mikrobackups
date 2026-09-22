@@ -1,4 +1,4 @@
-# 2026-09-17 21:13:02 by RouterOS 7.24.2
+# 2026-09-22 21:13:02 by RouterOS 7.24.2
 # system id = pEDSXaHXN3J
 #
 # custom default configuration script installed
@@ -19,7 +19,7 @@
 /interface veth add address=172.17.0.2/28 container-mac-address=26:8A:0C:A0:3E:3B dhcp=no gateway=172.17.0.1 gateway6="" mac-address=26:8A:0C:A0:3E:3A name=veth-telemt
 /interface veth add address=172.17.0.3/28 container-mac-address=30:A6:92:7E:80:32 dhcp=no gateway=172.17.0.1 gateway6="" mac-address=30:A6:92:7E:80:31 name=veth-telemt-webui
 /interface wireguard add listen-port=65114 mtu=1420 name=wg-to-capax private-key="0Hn33pIsv9MIDWss0bDxyZ0/0xsXo2OvEBjCWOy/Hlw="
-/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 5627/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
+/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 20023/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
     \n" hostname=telemt interface=veth-telemt layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_VOLUMES name=telemt remote-image=ghcr.io/telemt/telemt:latest root-dir=/docker/runs/telemt start-on-boot=yes user=0:0 workdir=/tmp
 /container add check-certificate=no comment="MTProto telegram proxy web panel" dns=192.168.97.1 hostname=telemt-webui interface=veth-telemt-webui layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_WEBUI_VOLUMES name=telemt-webui remote-image=ghcr.io/amirotin/telemt_panel:latest root-dir=/docker/runs/telemt-webui start-on-boot=yes
 /container add check-certificate=no comment="Caddy web server and reverse proxy" dns=192.168.97.1 envlists=CADDY_ENVS hostname=caddy interface=veth-caddy layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=CADDY_VOLUMES name=caddy remote-image=caddy:latest root-dir=/docker/runs/caddy start-on-boot=yes user=0:0 workdir=/srv
@@ -2966,7 +2966,7 @@
 /ip service set www-ssl certificate=chr.webserver@CHR disabled=no port=5443
 /ip service set api-ssl disabled=yes tls-version=only-1.2
 /ip service set www port=8888
-/ip service set api port=56988
+/ip service set api port=56911
 /ip ssh set ciphers=aes-gcm,aes-ctr,aes-cbc,3des-cbc,null forwarding-enabled=remote password-authentication=yes
 /ip tftp add disabled=yes real-filename=NAS/ req-filename=.*
 /ip traffic-flow set cache-entries=64k interfaces=wan
@@ -3040,12 +3040,12 @@ set [ find default=yes ] advertise-dns=yes
 /system note set note="Ipsec:         okay \
     \nRoute:     185.13.148.1 \
     \nVersion:         7.24.2 \
-    \nUptime:        3d00:15:54  \
-    \nTime:        2026-09-17 21:10:12  \
+    \nUptime:        1w1d00:15:55  \
+    \nTime:        2026-09-22 21:10:13  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.194  \
+    \nAnna:        46.39.51.197  \
     \nClock:        synchronized  \
     \n * routeros  \
     \n * container  \
