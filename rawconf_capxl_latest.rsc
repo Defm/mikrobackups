@@ -1,4 +1,4 @@
-# 2026-09-08 15:58:28 by RouterOS 7.24.2
+# 2026-10-13 15:01:57 by RouterOS 7.24.2
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -205,10 +205,6 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
     \n\
     \n# reset current\
     \n:set state \"Flush global note\"\
-    \n\$globalNoteMe value=\$state;\
-    \n/system note set note=\"Pending\";\
-    \n\
-    \n\
     \n\
     \n:local sysver \"NA\";\
     \n:if ( [ :len [ /system package find where name=\"system\" and disabled=no ] ] > 0 and \$rosVer = 6 ) do={\
@@ -219,7 +215,6 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
     \n}\
     \n\
     \n:set state \"Picking default route\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local defaultRoute \"unreachable\";\
     \n/ip route {\
@@ -229,7 +224,6 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
     \n}\
     \n\
     \n:set state \"Picking ipsec\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local ipsecState \"okay\";\
     \n/ip ipsec policy {\
@@ -287,13 +281,11 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
     \n:local latency \"NA\";\
     \n\
     \n:set state \"Yandex connection test\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local latencySite \"Ya.ru\";\
     \n:local yaResolve [\$SafeResolve \$latencySite];\
     \n\
     \n:set state \"Picking latency\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:if (\$yaResolve != \"ERROR\" ) do {\
     \n    \
@@ -308,7 +300,6 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
     \n}\
     \n\
     \n:set state \"Resolving CHR, MIK, ANNA\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n:local hostname \"accb195e0dffc6bb.sn.mynetname.net\";\
     \n:local chrResolve [\$SafeResolve \$hostname];\
@@ -344,7 +335,6 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
     \n:set logcontent (\"\$logcontent\" .\"\$logcontenttemp\" .\"  \\n\")\
     \n\
     \n:set state \"Listing packages\"\
-    \n\$globalNoteMe value=\$state;\
     \n\
     \n/system/package {\
     \n  :foreach pkg in=[find (!disabled)] do={\
@@ -520,8 +510,8 @@ set [ find default-name=wlan2 ] antenna-gain=0 country=no_country_set frequency-
     \n\
     \n           :if ([/system script job print count-only as-value where script=\$scriptname] > 1) do={\
     \n              :log error \$state\
-    \n               \$globalNoteMe value=\$state;\
-    \n               :error \$state\
+    \n              \$globalNoteMe value=\$state;\
+    \n              :error \$state\
     \n            }\
     \n\
     \n      :local state \"Starting script: \$scriptname\";\
@@ -1866,9 +1856,9 @@ set caps-man-addresses=192.168.90.1 discovery-interfaces=main-infrastructure-br 
 /ip cloud set ddns-enabled=yes ddns-update-interval=10m
 /ip dhcp-client add dhcp-options=hostname,clientid,classid interface=main-infrastructure-br name="main infrastructure"
 /ip dns set cache-max-ttl=1d cache-size=1024KiB query-server-timeout=3s
-/ip dns static add address=46.39.51.201 name=ftpserver.org type=A
+/ip dns static add address=46.39.51.197 name=ftpserver.org type=A
 /ip firewall address-list add address=109.252.162.10 list=external-ip
-/ip firewall address-list add address=46.39.51.201 list=alist-nat-external-ip
+/ip firewall address-list add address=46.39.51.197 list=alist-nat-external-ip
 /ip firewall filter add action=accept chain=input dst-port=123 in-interface=main-infrastructure-br protocol=udp
 /ip firewall service-port set tftp disabled=yes
 /ip firewall service-port set h323 disabled=yes
@@ -1942,12 +1932,12 @@ set [ find default=yes ] advertise-dns=yes
 /system note set note="Ipsec:         okay \
     \nRoute:     192.168.90.1 \
     \nVersion:         7.24.2 \
-    \nUptime:        23:14:25  \
-    \nTime:        2026-09-08 15:53:04  \
+    \nUptime:        3w3d00:45:29  \
+    \nTime:        2026-10-13 14:53:04  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
-    \nAnna:        46.39.51.201  \
+    \nAnna:        46.39.51.197  \
     \nClock:        synchronized  \
     \n * wireless  \
     \n * routeros  \
