@@ -1,4 +1,4 @@
-# 2026-10-13 15:14:51 by RouterOS 7.24.2
+# 2026-10-13 15:28:45 by RouterOS 7.24.2
 # software id = 59DY-JI10
 #
 # model = RBcAPGi-5acD2nD
@@ -1971,8 +1971,8 @@ set [ find default=yes ] advertise-dns=yes
 /system note set note="Ipsec:         okay \
     \nRoute:     192.168.90.1 \
     \nVersion:         7.24.2 \
-    \nUptime:        3w3d01:05:29  \
-    \nTime:        2026-10-13 15:13:04  \
+    \nUptime:        3w3d01:20:23  \
+    \nTime:        2026-10-13 15:27:59  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
