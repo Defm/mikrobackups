@@ -1,4 +1,4 @@
-# 2026-10-12 21:13:02 by RouterOS 7.24.2
+# 2026-10-17 21:13:02 by RouterOS 7.24.2
 # system id = pEDSXaHXN3J
 #
 # custom default configuration script installed
@@ -20,14 +20,14 @@
 /interface veth add address=172.17.0.2/28 container-mac-address=26:8A:0C:A0:3E:3B dhcp=no gateway=172.17.0.1 gateway6="" mac-address=26:8A:0C:A0:3E:3A name=veth-telemt
 /interface veth add address=172.17.0.3/28 container-mac-address=30:A6:92:7E:80:32 dhcp=no gateway=172.17.0.1 gateway6="" mac-address=30:A6:92:7E:80:31 name=veth-telemt-webui
 /interface wireguard add listen-port=65114 mtu=1420 name=wg-to-capax private-key="0Hn33pIsv9MIDWss0bDxyZ0/0xsXo2OvEBjCWOy/Hlw="
-/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 77606/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
+/container add check-certificate=no cmd=/etc/telemt/config.toml comment="MTProto telegram proxy" dns=192.168.97.1 envlists=TELEMT_ENVS healthcheck-cmd=CMD,/app/telemt,healthcheck,/etc/telemt/config.toml,--mode,liveness healthcheck-status="failed with exit code 1, tries 92002/3, output: [telemt] healthcheck failed: invalid HTTP response headers\
     \n" hostname=telemt interface=veth-telemt layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_VOLUMES name=telemt remote-image=ghcr.io/telemt/telemt:latest root-dir=/docker/runs/telemt start-on-boot=yes user=0:0 workdir=/tmp
 /container add check-certificate=no comment="MTProto telegram proxy web panel" dns=192.168.97.1 hostname=telemt-webui interface=veth-telemt-webui layer-dir=/docker/layers logging=yes memory-high=256.0MiB mountlists=TELEMT_WEBUI_VOLUMES name=telemt-webui remote-image=ghcr.io/amirotin/telemt_panel:latest root-dir=/docker/runs/telemt-webui start-on-boot=yes
 /container add check-certificate=no comment="Caddy web server and reverse proxy" dns=192.168.97.1 envlists=CADDY_ENVS hostname=caddy interface=veth-caddy layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=CADDY_VOLUMES name=caddy remote-image=caddy:latest root-dir=/docker/runs/caddy start-on-boot=yes user=0:0 workdir=/srv
 /container add check-certificate=no comment=HAproxy dns=192.168.97.1 hostname=haproxy interface=veth-haproxy layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=HAPROXY_VOLUMES name=haproxy remote-image=haproxy:latest root-dir=/docker/runs/haproxy start-on-boot=yes user=0:0 workdir=/var/lib/haproxy
-/container add check-certificate=no comment="gitwatch autocommit utility" dns=192.168.97.1 envlists=GITWATCH_ENVS hostname=gitwatch interface=veth-gitwatch layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=GITWATCH_VOLUMES name=gitwatch remote-image=ghcr.io/gitwatch/gitwatch:latest root-dir=/gitwatch start-on-boot=yes user=0:0
 /container add check-certificate=no cmd="hermes gateway run" comment="Hermes AI agent" dns=192.168.97.1 entrypoint="" envlists=HERMES_ENVS hostname=hermes interface=veth-hermes layer-dir=/docker/layers logging=yes mountlists=HERMES_VOLUMES name=hermes remote-image=docker.io/nousresearch/hermes-agent:latest root-dir=/docker/depl/hermes start-on-boot=yes workdir=/tmp
 /container add cmd="-config=/etc/glider/glider.conf" comment="Global forward-proxy" dns=1.1.1.1 interface=veth-glider layer-dir=/docker/layers logging=yes memory-high=64.0MiB memory-max=128.0MiB mountlists=GLIDER_VOLUMES name=glider remote-image=nadoo/glider:latest root-dir=/docker/depl/glider user=0:0
+/container add check-certificate=no comment="gitwatch autocommit utility" dns=192.168.97.1 envlists=GITWATCH_ENVS hostname=gitwatch interface=veth-gitwatch layer-dir=/docker/layers logging=yes memory-high=200.0MiB mountlists=GITWATCH_VOLUMES name=gitwatch remote-image=ghcr.io/gitwatch/gitwatch:latest root-dir=/docker/depl/gitwatch start-on-boot=yes user=0:0
 /disk add file-path=/ssd/swap file-size=1023.6MiB media-interface=main-infrastructure-br slot=file-ssd-swap swap=yes type=file
 /disk add disabled=yes media-interface=main-infrastructure-br slot=sshfs sshfs-address=185.13.148.14 sshfs-password=RHWbJxAje sshfs-path=/REPO sshfs-port=2223 sshfs-user=automation type=sshfs
 /interface list add comment="trusted interfaces" name=list-trusted
@@ -3077,8 +3077,8 @@ set [ find default=yes ] advertise-dns=yes
 /system note set note="Ipsec:         okay \
     \nRoute:     185.13.148.1 \
     \nVersion:         7.24.2 \
-    \nUptime:        4w00:15:54  \
-    \nTime:        2026-10-12 21:10:12  \
+    \nUptime:        4w5d00:15:54  \
+    \nTime:        2026-10-17 21:10:12  \
     \nPing:    0 ms  \
     \nChr:        185.13.148.14  \
     \nMik:        178.65.91.156  \
